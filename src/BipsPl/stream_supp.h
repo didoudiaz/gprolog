@@ -6,23 +6,35 @@
  * Descr.: stream support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 
@@ -93,7 +105,7 @@ typedef struct			/* Stream properties              */
   unsigned eof_action:2;	/* see STREAM_EOF_ACTION_xxx defs */
   unsigned buffering:2;		/* see STREAM_BUFFERING_xxx defs  */
   unsigned special_close:1;	/* does it need a special close ? */
-  unsigned other:8;		/* other prop (1,2,3=term_streams */
+  unsigned other:5;		/* other prop (1,2,3=term_streams */
 }				/*             4=socket_stream)   */
 StmProp;
 
@@ -125,7 +137,7 @@ typedef struct stm_lst		/* Chained stream list            */
 typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
   int atom_file_name;		/* atom associated to filename    */
-  long file;			/* accessor (FILE *,TTYInf *) != 0*/
+  PlLong file;		/* accessor (FILE *,TTYInf *) != 0*/
   StmProp prop;			/* assoctiated properties         */
   StmLst *mirror;		/* mirror streams                 */
   StmLst *mirror_of;            /* streams this stream as mirror  */
@@ -141,9 +153,9 @@ typedef struct stm_inf		/* Stream information             */
   Bool eof_reached;		/* has eof char been read ?       */
   PbStk pb_char;		/* character push back stack      */
 				/* ---- Position information  --- */
-  int char_count;		/* character read count           */
-  int line_count;		/* line read count                */
-  int line_pos;			/* line position                  */
+  PlLong char_count;		/* character read count           */
+  PlLong line_count;		/* line read count                */
+  PlLong line_pos;		/* line position                  */
   PbStk pb_line_pos;		/* line position push back stack  */
 }
 StmInf;
@@ -153,7 +165,7 @@ StmInf;
 
 typedef struct			/* Alias information              */
 {				/* ------------------------------ */
-  long atom;			/* atom of the alias (the key)    */
+  PlLong atom;			/* atom of the alias (the key)    */
   int stm;			/* associated stream              */
 }
 AliasInf;
@@ -178,130 +190,137 @@ StrSInf;
 
 #ifdef STREAM_SUPP_FILE
 
-StmInf **stm_tbl;
-int stm_tbl_size;
-int stm_last_used;
+StmInf **pl_stm_tbl;
+int pl_stm_tbl_size;
+int pl_stm_last_used;
 
-char *alias_tbl;
+char *pl_alias_tbl;
 
-WamWord last_input_sora;
-WamWord last_output_sora;
+WamWord pl_last_input_sora;
+WamWord pl_last_output_sora;
 
-int stm_stdin;
-int stm_stdout;
+int pl_stm_stdin;
+int pl_stm_stdout;
+int pl_stm_stderr;
 
-int stm_input;
-int stm_output;
+int pl_stm_input;
+int pl_stm_output;
+int pl_stm_error;
 
-int stm_top_level_input;
-int stm_top_level_output;
-int stm_debugger_input;
-int stm_debugger_output;
+int pl_stm_top_level_input;
+int pl_stm_top_level_output;
+int pl_stm_debugger_input;
+int pl_stm_debugger_output;
 
-char *le_prompt;
-int use_le_prompt;
+Bool pl_stream_use_linedit;
+char *pl_le_prompt;
+int pl_use_le_prompt;
 
-int atom_stream;
+int pl_atom_stream;
 
-int atom_user_input;
-int atom_user_output;
+int pl_atom_user_input;
+int pl_atom_user_output;
+int pl_atom_user_error;
 
-int atom_top_level_input;
-int atom_top_level_output;
+int pl_atom_top_level_input;
+int pl_atom_top_level_output;
 
-int atom_debugger_input;
-int atom_debugger_output;
+int pl_atom_debugger_input;
+int pl_atom_debugger_output;
 
-int atom_read;
-int atom_write;
-int atom_append;
+int pl_atom_read;
+int pl_atom_write;
+int pl_atom_append;
 
-int atom_reposition;
+int pl_atom_reposition;
 
-int atom_stream_position;
+int pl_atom_stream_position;
 
-int atom_text;
-int atom_binary;
+int pl_atom_text;
+int pl_atom_binary;
 
-int atom_error;
-int atom_eof_code;
-int atom_reset;
+int pl_atom_error;
+int pl_atom_eof_code;
+int pl_atom_reset;
 
-int atom_none;
-int atom_line;
-int atom_block;
+int pl_atom_none;
+int pl_atom_line;
+int pl_atom_block;
 
-int atom_not;
-int atom_at;
-int atom_past;
+int pl_atom_not;
+int pl_atom_at;
+int pl_atom_past;
 
-int atom_bof;
-int atom_current;
-int atom_eof;
+int pl_atom_bof;
+int pl_atom_current;
+int pl_atom_eof;
 
 #else
 
-extern StmInf **stm_tbl;
-extern int stm_tbl_size;
-extern int stm_last_used;
+extern StmInf **pl_stm_tbl;
+extern int pl_stm_tbl_size;
+extern int pl_stm_last_used;
 
-extern char *alias_tbl;
+extern char *pl_alias_tbl;
 
 
-extern WamWord last_input_sora;
-extern WamWord last_output_sora;
+extern WamWord pl_last_input_sora;
+extern WamWord pl_last_output_sora;
 
-extern int stm_stdin;
-extern int stm_stdout;
+extern int pl_stm_stdin;
+extern int pl_stm_stdout;
+extern int pl_stm_stderr;
 
-extern int stm_input;
-extern int stm_output;
+extern int pl_stm_input;
+extern int pl_stm_output;
+extern int pl_stm_error;
 
-extern int stm_top_level_input;
-extern int stm_top_level_output;
-extern int stm_debugger_input;
-extern int stm_debugger_output;
+extern int pl_stm_top_level_input;
+extern int pl_stm_top_level_output;
+extern int pl_stm_debugger_input;
+extern int pl_stm_debugger_output;
 
-extern char *le_prompt;
-extern int use_le_prompt;
+extern Bool pl_stream_use_linedit;
+extern char *pl_le_prompt;
+extern int pl_use_le_prompt;
 
-extern int atom_stream;
+extern int pl_atom_stream;
 
-extern int atom_user_input;
-extern int atom_user_output;
+extern int pl_atom_user_input;
+extern int pl_atom_user_output;
 
-extern int atom_top_level_input;
-extern int atom_top_level_output;
+extern int pl_atom_top_level_input;
+extern int pl_atom_top_level_output;
 
-extern int atom_debugger_input;
-extern int atom_debugger_output;
+extern int pl_atom_debugger_input;
+extern int pl_atom_debugger_output;
 
-extern int atom_read;
-extern int atom_write;
-extern int atom_append;
+extern int pl_atom_read;
+extern int pl_atom_write;
+extern int pl_atom_append;
 
-extern int atom_reposition;
+extern int pl_atom_reposition;
 
-extern int atom_stream_position;
+extern int pl_atom_stream_position;
 
-extern int atom_text;
-extern int atom_binary;
+extern int pl_atom_text;
+extern int pl_atom_binary;
 
-extern int atom_error;
-extern int atom_eof_code;
-extern int atom_reset;
+extern int pl_atom_error;
+extern int pl_atom_eof_code;
+extern int pl_atom_reset;
 
-extern int atom_none;
-extern int atom_line;
-extern int atom_block;
+extern int pl_atom_none;
+extern int pl_atom_line;
+extern int pl_atom_block;
 
-extern int atom_not;
-extern int atom_at;
-extern int atom_past;
+extern int pl_atom_not;
+extern int pl_atom_at;
+extern int pl_atom_past;
 
-extern int atom_bof;
-extern int atom_current;
-extern int atom_eof;
+extern int pl_atom_bof;
+extern int pl_atom_current;
+extern int pl_atom_eof;
 
 #endif
 
@@ -312,95 +331,97 @@ extern int atom_eof;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Add_Stream(int atom_file_name, long file, StmProp prop,
+int Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 	       StmFct fct_getc, StmFct fct_putc,
 	       StmFct fct_flush, StmFct fct_close,
 	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
 
-int Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, int text);
+int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
+				 Bool force_eof_reset);
 
-int Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
+int Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 
-void Delete_Stream(int stm);
+void Pl_Delete_Stream(int stm);
 
-int Find_Stream_By_Alias(int atom_alias);
+int Pl_Find_Stream_By_Alias(int atom_alias);
 
-Bool Add_Alias_To_Stream(int atom_alias, int stm);
+Bool Pl_Add_Alias_To_Stream(int atom_alias, int stm);
 
-void Reassign_Alias(int atom_alias, int stm);
+void Pl_Reassign_Alias(int atom_alias, int stm);
 
-void Add_Mirror_To_Stream(int stm, int m_stm);
+void Pl_Add_Mirror_To_Stream(int stm, int m_stm);
 
-Bool Del_Mirror_From_Stream(int stm, int m_stm);
+Bool Pl_Del_Mirror_From_Stream(int stm, int m_stm);
 
-int Find_Stream_From_PStm(StmInf *pstm);
+int Pl_Find_Stream_From_PStm(StmInf *pstm);
 
-void Flush_All_Streams(void);
+void Pl_Flush_All_Streams(void);
 
-void Set_Stream_Buffering(int stm);
+void Pl_Set_Stream_Buffering(int stm);
 
-int Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
+int Pl_Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
 
-void Check_Stream_Type(int stm, Bool check_text, Bool for_input);
+void Pl_Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 
-WamWord Make_Stream_Tagged_Word(int stm);
+WamWord Pl_Make_Stream_Tagged_Word(int stm);
 
-Bool Stdio_Is_Repositionable(FILE *f);
+Bool Pl_Stdio_Is_Repositionable(FILE *f);
 
-void Stdio_Set_Buffering(FILE *f, int buffering);
+void Pl_Stdio_Set_Buffering(FILE *f, int buffering);
 
-FILE *Stdio_Desc_Of_Stream(int stm);
+FILE *Pl_Stdio_Desc_Of_Stream(int stm);
 
-int Io_Fileno_Of_Stream(int stm);
-
-
+int Pl_Io_Fileno_Of_Stream(int stm);
 
 
-int Stream_Getc(StmInf *pstm);
 
-int Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
+void Pl_PB_Empty_Buffer(StmInf *pstm);
 
-void Stream_Ungetc(int c, StmInf *pstm);
+int Pl_Stream_Get_Key(StmInf *pstm, Bool echo, Bool catch_ctrl_c);
 
-int Stream_Peekc(StmInf *pstm);
+int Pl_Stream_Getc(StmInf *pstm);
 
-char *Stream_Gets(char *str, int size, StmInf *pstm);
+void Pl_Stream_Ungetc(int c, StmInf *pstm);
 
-char *Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
+int Pl_Stream_Peekc(StmInf *pstm);
+
+char *Pl_Stream_Gets(char *str, int size, StmInf *pstm);
+
+char *Pl_Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
 			 char *str, int size, StmInf *pstm_i);
 
-void Stream_Putc(int c, StmInf *pstm);
+void Pl_Stream_Putc(int c, StmInf *pstm);
 
-int Stream_Puts(char *str, StmInf *pstm);
+int Pl_Stream_Puts(char *str, StmInf *pstm);
 
-int Stream_Printf(StmInf *pstm, char *format, ...);
+int Pl_Stream_Printf(StmInf *pstm, char *format, ...);
 
-void Stream_Flush(StmInf *pstm);
+void Pl_Stream_Flush(StmInf *pstm);
 
-int Stream_Close(StmInf *pstm);
+int Pl_Stream_Close(StmInf *pstm);
 
-int Stream_End_Of_Stream(StmInf *pstm);
-
-
-
-void Stream_Get_Position(StmInf *pstm, int *offset,
-			 int *char_count, int *line_count, int *line_pos);
-
-int Stream_Set_Position(StmInf *pstm, int whence, int offset,
-			int char_count, int line_count, int line_pos);
-
-int Stream_Set_Position_LC(StmInf *pstm, int line_count, int line_pos);
+int Pl_Stream_End_Of_Stream(StmInf *pstm);
 
 
 
-int Add_Str_Stream(char *buff, int prop_other);
+void Pl_Stream_Get_Position(StmInf *pstm, PlLong *offset,
+			    PlLong *char_count, PlLong *line_count, PlLong *line_pos);
 
-void Delete_Str_Stream(int stm);
+int Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset,
+			   PlLong char_count, PlLong line_count, PlLong line_pos);
 
-char *Term_Write_Str_Stream(int stm);
+int Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos);
 
 
-void Close_Stm(int stm, Bool force); /* from close_c.c */
+
+int Pl_Add_Str_Stream(char *buff, int prop_other);
+
+void Pl_Delete_Str_Stream(int stm);
+
+char *Pl_Term_Write_Str_Stream(int stm);
+
+
+void Pl_Close_Stm(int stm, Bool force); /* from close_c.c */
 
 
 #define PB_Init(pb)          pb.ptr = pb.buff, pb.nb_elems = 0;

@@ -1,42 +1,33 @@
-# *********************************
-# * autoconf configuration script *
-# *********************************
+dnl *********************************
+dnl * autoconf configuration script *
+dnl *********************************
 
-# if you change here the version also change it in PROLOG_VERSION below
-
-AC_INIT(gprolog, 1.2.18, bug-prolog@gnu.org)
+AC_INIT(gprolog, 1.5.1, bug-prolog@gnu.org,,www.gprolog.org)
 AC_PREREQ(2.52)
-# AC_CONFIG_AUX_DIR(ConfUtils) to do...
+dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
-AC_CONFIG_HEADER(EnginePl/gp_config.h)
-AC_CONFIG_FILES(Makefile
-		TopComp/Makefile
-		Pl2Wam/Makefile
-		Wam2Ma/Makefile
-		Ma2Asm/Makefile
-		Fd2C/Makefile
-		Linedit/Makefile
-		W32GUICons/Makefile
-		EnginePl/Makefile
-		BipsPl/Makefile
-		EngineFD/Makefile
-		BipsFD/Makefile
-		$OTHER_MAKEFILES)
 
+dnl ***************************
+dnl * initial variable values *
+dnl ***************************
 
+pl_date()
+{
+    LC_ALL=C date '+%b %e %Y'
+}
 
-# ***************************
-# * initial variable values *
-# ***************************
+pl_year()
+{
+    LC_ALL=C date '+%Y'
+}
 
-PROLOG_NAME='GNU Prolog/CX'
-PROLOG_NAME1='gprolog'
-PROLOG_VARIANT='-cx'
-PROLOG_VERSION='1.2.18'
-PROLOG_DATE='Jan 02 2006'
-PROLOG_COPYRIGHT='Copyright (C) 1999-2006 Daniel Diaz'
+PROLOG_NAME='GNU Prolog'
+PROLOG_DIALECT='gprolog-cx'
+PROLOG_VERSION=$PACKAGE_VERSION
+PROLOG_DATE=`pl_date`
+PROLOG_COPYRIGHT="Copyright (C) 1999-`pl_year` Daniel Diaz"
 
-TOP_LEVEL=$PROLOG_NAME1
+TOP_LEVEL=$PROLOG_DIALECT
 GPLC=gplc
 HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
@@ -44,6 +35,7 @@ ENV_VARIABLE=PL_PATH
 USE_EBP=no
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
+WITH_HTMLHELP=static
 USE_SOCKETS=yes
 USE_FD_SOLVER=yes
 
@@ -54,11 +46,11 @@ LIB_BIPS_PL=libbips_pl
 LIB_ENGINE_FD=libengine_fd
 LIB_BIPS_FD=libbips_fd
 
-# ******************
-# * variable names *
-# ******************
+dnl ******************
+dnl * variable names *
+dnl ******************
 
-AC_SUBST(PROLOG_NAME1)
+AC_SUBST(PROLOG_DIALECT)
 AC_SUBST(PROLOG_NAME)
 AC_SUBST(PROLOG_VERSION)
 AC_SUBST(PROLOG_DATE)
@@ -79,6 +71,7 @@ AC_SUBST(CFLAGS_PREFIX_REG)
 AC_SUBST(CFLAGS_MACHINE)
 AC_SUBST(CFLAGS_UNSIGNED_CHAR)
 AC_SUBST(LDLIBS)
+AC_SUBST(LDGUILIBS)
 
 AC_SUBST(ASM_SUFFIX)
 AC_SUBST(OBJ_SUFFIX)
@@ -88,11 +81,15 @@ AC_SUBST(CC_EXE_NAME_OPT)
 AC_SUBST(AR_RC)
 AC_SUBST(AR_SEP)
 AC_SUBST(AS)
+AC_SUBST(ASFLAGS)
 AC_SUBST(STRIP)
 
 AC_SUBST(RC)
+AC_SUBST(RCFLAGS)
+AC_SUBST(RC_OUT_NAME_OPT)
 AC_SUBST(LD)
 AC_SUBST(LD_OUT_NAME_OPT)
+AC_SUBST(LD_DLL_OPT)
 
 AC_SUBST(ROOT_DIR)
 AC_SUBST(ROOT_DIR1)
@@ -102,6 +99,11 @@ AC_SUBST(LINKS_DIR)
 AC_SUBST(DOC_DIR)
 AC_SUBST(HTML_DIR)
 AC_SUBST(EXAMPLES_DIR)
+
+AC_SUBST(WITH_MSVC)
+AC_SUBST(WIN_TMP_DIR)
+AC_SUBST(WIN_CONF_OPT)
+AC_SUBST(WIN_CC_VER)
 
 AC_SUBST(TXT_FILES)
 AC_SUBST(BIN_FILES)
@@ -114,10 +116,13 @@ AC_SUBST(EXPL_FILES)
 AC_SUBST(EXC_FILES)
 AC_SUBST(EXFD_FILES)
 
+AC_SUBST(TOP_LEVEL_LIBS)
+
 AC_SUBST(MAKE_LE_DIRS)
 AC_SUBST(MAKE_W32GC_DIRS)
 AC_SUBST(MAKE_FD_DIRS)
 
+AC_SUBST(MAKE_ENGINE1_SRC)
 AC_SUBST(MAKE_LE_INTERF_OBJS)
 AC_SUBST(MAKE_SOCKETS_OBJS)
 
@@ -129,86 +134,94 @@ AC_SUBST(LIB_ENGINE_FD)
 AC_SUBST(LIB_BIPS_FD)
 
 
-# *******************
-# * package options *
-# *******************
+dnl *******************
+dnl * package options *
+dnl *******************
 
 
 AC_ARG_WITH(install-dir, [  --with-install-dir=DIR  specify INSTALL_DIR],
-		[WITH_INSTALL_DIR="$withval"])
+                [WITH_INSTALL_DIR="$withval"])
 
 AC_ARG_WITH(links-dir,   [  --with-links-dir=DIR    specify LINKS_DIR],
-		[WITH_LINKS_DIR="$withval"])
+                [WITH_LINKS_DIR="$withval"])
 
 AC_ARG_WITH(exec-prefix, [  --with-exec-prefix=DIR  specify GP_EXE_DIR],
 		[WITH_GP_EXE_DIR="$withval"])
 
 AC_ARG_WITH(doc-dir,     [  --with-doc-dir=DIR      specify DOC_DIR],
-		[WITH_DOC_DIR="$withval"])
+                [WITH_DOC_DIR="$withval"])
 
 AC_ARG_WITH(html-dir,    [  --with-html-dir=DIR     specify HTML_DIR],
-		[WITH_HTML_DIR="$withval"])
+                [WITH_HTML_DIR="$withval"])
 
 AC_ARG_WITH(examples-dir,[  --with-examples-dir=DIR specify EXAMPLES_DIR],
-		[WITH_EXAMPLES_DIR="$withval"])
+                [WITH_EXAMPLES_DIR="$withval"])
 
 AC_ARG_WITH(msvc,        [  --with-msvc             use MS VC++],
-		[WITH_MSVC="$withval"],
-		[WITH_MSVC=no])
+                [WITH_MSVC="$withval"],
+                [WITH_MSVC=no])
 
 AC_ARG_WITH(c-flags,     [[  --with-c-flags[=FLAGS]  specify C flags]],
-		[WITH_C_FLAGS="$withval"],
-		[WITH_C_FLAGS=yes])
+                [WITH_C_FLAGS="$withval"],
+                [WITH_C_FLAGS=yes])
 
 AC_ARG_ENABLE(regs,      [  --disable-regs          do not use machine registers],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_REGS);;
-		   *)  ;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_REGS);;
+                   *)  ;;
+               esac])
 
-AC_ARG_ENABLE(ebp,      [  --disable-ebp           do not use the ebp register on ix86 machines],
+AC_ARG_ENABLE(ebp,      [  --enable-ebp            use the ebp register on ix86 machines],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_EBP) USE_EBP=no;;
-		   *)  USE_EBP=yes;;
-	       esac])
+                   yes) USE_EBP=yes;;
+                   *)   ;;
+               esac])
 
 AC_ARG_ENABLE(fast-call, [  --disable-fast-call     do not use fast call on ix86],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_FAST_CALL);;
-		   *)  ;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_FAST_CALL);;
+                   *)  ;;
+               esac])
 
 AC_ARG_ENABLE(linedit,   [  --disable-linedit       do not include line editor facility],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_LINEDIT) USE_LINEDIT=no;;
-		   *)  USE_LINEDIT=yes;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_LINEDIT) USE_LINEDIT=no;;
+                   *)  ;;
+               esac])
 
 
 AC_ARG_ENABLE(piped-consult, [  --disable-piped-consult do not pipe stdin of pl2wam when consult/1],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_PIPED_STDIN_FOR_CONSULT);;
-		   *)  ;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_PIPED_STDIN_FOR_CONSULT);;
+                   *)  ;;
+               esac])
 
 
-AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Win32 GUI console],
+AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Windows GUI console],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
-		   *)  USE_GUI_CONSOLE=yes;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
+                   *)  USE_GUI_CONSOLE=yes;;
+               esac])
+
+AC_ARG_ENABLE(htmlhelp,[  --disable-htmlhelp      do not use Windows HtmlHelp inside the GUI console],
+              [WITH_HTMLHELP="$enableval"])
 
 AC_ARG_ENABLE(sockets,   [  --disable-sockets       do not include sockets facility],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_SOCKETS)  USE_SOCKETS=no;;
-		   *)  USE_SOCKETS=yes;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_SOCKETS)  USE_SOCKETS=no;;
+                   *)  ;;
+               esac])
 
 AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constraint solver],
               [case "$enableval" in
-		   no) AC_DEFINE(NO_USE_FD_SOLVER) USE_FD_SOLVER=no;;
-		   *)  USE_FD_SOLVER=yes;;
-	       esac])
+                   no) AC_DEFINE(NO_USE_FD_SOLVER) USE_FD_SOLVER=no;;
+                   *)  ;;
+               esac])
+
+if test "$USE_EBP" = no; then
+        AC_DEFINE(NO_USE_EBP)
+fi
+
 
 AC_ARG_ENABLE(watermark, [  --enable-watermark      call foreign destructors upon choice-point removal],
              [case "$enableval" in
@@ -227,62 +240,162 @@ if test "$USE_EBP" = no; then
 fi
 
 
+dnl ***********************
+dnl * checks for programs *
+dnl ***********************
 
-# ***********************
-# * checks for programs *
-# ***********************
-
-if test "$WITH_MSVC" != no; then
-	echo "using MSVC++ as C compiler"
-	CC=cl
+if test "$host_alias" != ''; then
+    WIN_CONF_OPT="$WIN_CONF_OPT --host=$host_alias"
 fi
 
-# should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
-# cannot be put in the then and the else part !!! so repeat the test !
+if test "$build_alias" != ''; then
+    WIN_CONF_OPT="$WIN_CONF_OPT --build=$build_alias"
+fi
+
+comp=`basename "$CC" .exe`
+if test "$comp" = "cl"; then
+   WITH_MSVC=yes
+else
+   test "$WITH_MSVC" != no && CC=cl
+fi
+
+if test "$WITH_MSVC" != no; then
+    echo "using MSVC++ as C compiler ($CC)"
+    WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
+fi
+
+
+dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
+dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
+AC_PROG_CC_STDC
 
+AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
+
+dnl determine if MinGW and Windows path associated to posix path /tmp
+dnl (needs AC_CANONICAL_BUILD)
+
+case "$build_os" in
+    cygwin*|*msys*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
+    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
+esac
+
+dnl determine if use MinGW
+dnl (needs AC_CANONICAL_HOST)
+
+case "$host_os" in
+    mingw*) MINGW=yes; WIN_CC_VER=mingw;;
+esac
+
+
+dnl customize MSVC
+
+MAKE_ENGINE1_SRC='engine1.c'
 
 if test "$WITH_MSVC" != no; then
-	ASM_SUFFIX='.asm'
-	OBJ_SUFFIX='.obj'
-        LIB_SUFFIX='.lib'
-	CC_OBJ_NAME_OPT='/Fo'
-	CC_EXE_NAME_OPT='/Fe'
-	AC_CHECK_PROGS(NASM,nasmw nasm,no)
-	if test "$NASM" = no; then
-		AC_MSG_ERROR([nasm is required under win32])
-	fi
-	AS="$NASM -f win32"
-        AR_RC='lib /nologo /out:'
-        AR_SEP=''
-	STRIP=:
-        RANLIB=:
-	RC=rc
-	LD=link
-	LD_OUT_NAME_OPT='/out:'
-else
-	if test "$GCC" != yes; then
-		AC_MSG_ERROR([gcc is required (or MSVC++ under win32)])
-	fi
-	AS=as
-        AC_PROG_RANLIB
 
-	ASM_SUFFIX='.s'
-	OBJ_SUFFIX='.o'
-        LIB_SUFFIX='.a'
-	CC_OBJ_NAME_OPT='-o '
-	CC_EXE_NAME_OPT='-o '
-        AR_RC='ar rc '
-        AR_SEP=' '
-	STRIP=strip
+dnl   NB: double [[ ]] for m4
+dnl   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
+   WIN_CC_VER=msvc
+
+   dnl test if cl.exe runs in 32 or 64 bits (return 0 if in 64 bits)
+
+   AC_MSG_CHECKING(for cl.exe producing 32-bit or 64-bit executables)
+   AC_RUN_IFELSE([AC_LANG_SOURCE([[int main() { return sizeof(void *) != 8; }]])], [
+        AC_MSG_RESULT(64-bit mode (x86_64)) 
+        cl_mode=64], [
+        AC_MSG_RESULT(32-bit mode (x86))
+        cl_mode=32], [
+        AC_MSG_RESULT([can't test in cross-compiling])])
+
+    if test $cl_mode = 32; then
+        WITH_MSVC=32
+        host_cpu=i686
+        host_os=win32
+        AS=mingw-as
+        ASFLAGS='--32'
+    else
+        WITH_MSVC=64
+        host_cpu=x86_64
+        host_os=win64
+        AS=yasm-win64
+        ASFLAGS='-f win64 -p gas'
+        MAKE_ENGINE1_SRC='eng1-x86_64_win.s'
+    fi
+    host_vendor=microsoft
+
+    host=$host_cpu-$host_vendor-$host_os
+
+    AC_MSG_CHECKING(for actual host system type...)
+    AC_MSG_RESULT($host)
+
+    ASM_SUFFIX='.s'
+    OBJ_SUFFIX='.obj'
+    LIB_SUFFIX='.lib'
+    CC_OBJ_NAME_OPT='-Fo'
+    CC_EXE_NAME_OPT='-Fe'
+    AC_CHECK_PROGS(WIN_AS_FOUND, $AS,no)
+    if test "$WIN_AS_FOUND" = no; then
+        AC_MSG_ERROR([$AS.exe is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/$AS.exe])
+    fi
+    AR_RC='lib -nologo -out:'
+    AR_SEP=''
+    STRIP=:
+    RANLIB=:
+    RC=rc
+    RCFLAGS=''
+    RC_OUT_NAME_OPT='-fo'
+dnl   uset this directly invokes MS link.exe (instead of using cl.exe)
+dnl    LD=link
+dnl    LD_OUT_NAME_OPT='-out:'
+dnl    LD_DLL_OPT='-dll'
+
+dnl   invokes cl.exe
+    LD=$CC
+    LD_OUT_NAME_OPT='-Fe'
+    LD_DLL_OPT='-link -dll'
+
+
+else
+
+    if test "$GCC" != yes; then
+        AC_MSG_ERROR([gcc is required (or MSVC++ under Windows)])
+    fi
+dnl we use AS0 instead of AS else AC_CHECK_TOOL does not work 
+dnl (instead of testing a prefix like x86_64-w64-mingw32- it will
+dnl think the user wants to override the test)
+    AS0=as
+    case "$host" in
+        sparc64*bsd*)    ASFLAGS='-Av9a -64 -K PIC';;
+        i*86*darwin1*)   ASFLAGS='-arch i686';;
+        i*86*linux*)     ASFLAGS='--32';;
+        x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
+        x86_64*darwin*)  ASFLAGS='-arch x86_64';;
+        x86_64*linux*)   ASFLAGS='--64';;
+        *)               if test "$with_gas" = yes; then AS0=gas; fi;;
+    esac
+    AC_CHECK_TOOL([AS],[$AS0])
+    AC_PROG_RANLIB
+    ASM_SUFFIX='.s'
+    OBJ_SUFFIX='.o'
+    LIB_SUFFIX='.a'
+    CC_OBJ_NAME_OPT='-o '
+    CC_EXE_NAME_OPT='-o '
+    AC_CHECK_TOOL([RC],[windres])
+    RCFLAGS='-O coff'
+    RC_OUT_NAME_OPT='-o '
+    LD=$CC
+    LD_OUT_NAME_OPT='-o '
+    LD_DLL_OPT='-shared'
+    AC_CHECK_TOOL([AR],[ar])
+    AR_RC="$AR rc "
+    AR_SEP=' '
+    AC_CHECK_TOOL([STRIP],[strip])
 fi
 
-
-# for old versions of autoconf which had not AC_EXEEXT
-# EXEEXT=
-# the following is useless in 2.52
-# AC_EXEEXT
+dnl RCFLAGS="$RCFLAGS -l 0x409"
 
 EXE_SUFFIX=$EXEEXT
 AC_PROG_MAKE_SET
@@ -298,69 +411,67 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 
 
 
-# *******************************
-# * host detection and features *
-# *******************************
+dnl *******************************
+dnl * host detection and features *
+dnl *******************************
 
-AC_CANONICAL_HOST
-if test "$WITH_MSVC" != no; then
-	AC_DEFINE(M_ix86)
-	AC_DEFINE(M_win32)
-	AC_DEFINE(M_ix86_win32)
-        host_vendor=Microsoft
-        host_os=win32
-        WIN32=yes
-else
-        WIN32=no
-	case "$host_cpu" in
-		mips)           AC_DEFINE(M_mips);;
-		alpha)          AC_DEFINE(M_alpha);;
-		sparc)          AC_DEFINE(M_sparc);;
-		i*86)           AC_DEFINE(M_ix86);;
-        	powerpc|ppc)    AC_DEFINE(M_powerpc);;
-		x86_64)         AC_DEFINE(M_x86_64);;
-	esac
+WINDOWS=no
 
-	case "$host_os" in
-		*osf*)		AC_DEFINE(M_osf);;
-		irix*)          AC_DEFINE(M_irix);;
-		sunos*)         AC_DEFINE(M_sunos);;
-		solaris*)       AC_DEFINE(M_solaris);;
-		linux*)         AC_DEFINE(M_linux);;
-		cygwin*)        AC_DEFINE(M_cygwin);;
-		*sco*)          AC_DEFINE(M_sco);;
-		*bsd*)		AC_DEFINE(M_bsd);;
-		*darwin*)	AC_DEFINE(M_bsd);;
-	esac
+case "$host" in
+    mips*irix*)        AC_DEFINE(M_mips32)  AC_DEFINE(M_irix)    AC_DEFINE(M_mips32_irix);;
+    sparc64*solaris*)  AC_DEFINE(M_sparc64) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc64_solaris);;
+    sparc64*bsd*)      AC_DEFINE(M_sparc64) AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc64_bsd);;
+    sparc*sunos*)      AC_DEFINE(M_sparc32) AC_DEFINE(M_sunos)   AC_DEFINE(M_sparc32_sunos);;
+    sparc*solaris*)    AC_DEFINE(M_sparc32) AC_DEFINE(M_solaris) AC_DEFINE(M_sparc32_solaris);;
+    sparc*bsd*)        AC_DEFINE(M_sparc32) AC_DEFINE(M_bsd)     AC_DEFINE(M_sparc32_bsd);;
+    alpha*osf*)        AC_DEFINE(M_alpha)   AC_DEFINE(M_osf)     AC_DEFINE(M_alpha_osf);;
+    alpha*linux*)      AC_DEFINE(M_alpha)   AC_DEFINE(M_linux)   AC_DEFINE(M_alpha_linux);;
+    i*86*linux*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_linux)   AC_DEFINE(M_ix86_linux);;
+    i*86*darwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_darwin)  AC_DEFINE(M_ix86_darwin);;
+    i*86*solaris*)     AC_DEFINE(M_ix86)    AC_DEFINE(M_solaris) AC_DEFINE(M_ix86_solaris);;
+    i*86*sco*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_sco)     AC_DEFINE(M_ix86_sco);;
+    i*86*dragonfly*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
+    i*86*bsd*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
+    i*86*cygwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
+    i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
+    i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
+    x86_64*linux*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_linux)   AC_DEFINE(M_x86_64_linux);;
+    x86_64*darwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_darwin)  AC_DEFINE(M_x86_64_darwin);;
+    x86_64*dragonfly*) AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
+    x86_64*bsd*)       AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
+    x86_64*solaris*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_solaris) AC_DEFINE(M_x86_64_solaris);;
+    x86_64*mingw*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*win64*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    x86_64*msys*)      AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
+    powerpc*linux*)    AC_DEFINE(M_ppc32)   AC_DEFINE(M_linux)   AC_DEFINE(M_ppc32_linux);;
+    powerpc*darwin*)   AC_DEFINE(M_ppc32)   AC_DEFINE(M_darwin)  AC_DEFINE(M_ppc32_darwin);;
+    powerpc*bsd*)      AC_DEFINE(M_ppc32)   AC_DEFINE(M_bsd)     AC_DEFINE(M_ppc32_bsd);;
+    arm*linux*)        AC_DEFINE(M_arm32)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm32_linux);;
+    aarch64*linux*)    AC_DEFINE(M_arm64)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm64_linux);;
+    aarch64*darwin*)   AC_DEFINE(M_arm64)   AC_DEFINE(M_darwin)  AC_DEFINE(M_arm64_darwin);;
+    riscv64*linux*)    AC_DEFINE(M_riscv64) AC_DEFINE(M_linux)   AC_DEFINE(M_riscv64_linux);;
+    *)                 AC_MSG_ERROR(unsupported architecture $host)
+esac
 
-	case "$host" in
-		mips*irix*)      AC_DEFINE(M_mips_irix);;
-		sparc*sunos*)    AC_DEFINE(M_sparc_sunos);;
-		sparc*solaris*)  AC_DEFINE(M_sparc_solaris);;
-	        alpha*osf*)      AC_DEFINE(M_alpha_osf);;
-	        alpha*linux*)    AC_DEFINE(M_alpha_linux);;
-		i*86*linux*)     AC_DEFINE(M_ix86_linux);;
-		i*86*solaris*)   AC_DEFINE(M_ix86_solaris);;
-		i*86*sco*)       AC_DEFINE(M_ix86_sco);;
-		i*86*bsd*)       AC_DEFINE(M_ix86_bsd);;
-        	powerpc*linux*)  AC_DEFINE(M_powerpc_linux);;
-		powerpc*darwin*) AC_DEFINE(M_powerpc_darwin);;
-		*86*cygwin*)     AC_DEFINE(M_ix86_cygwin);;
-		x86_64*linux*)   AC_DEFINE(M_x86_64_linux);;
-		*)               AC_MSG_ERROR(unsupported architecture)
-	esac
+dnl M_win64 ==> M_win32
 
+if test "$WINDOWS" = 64; then
+   AC_DEFINE(M_win32)
 fi
 
-AC_CHECK_SIZEOF(long)
-AC_CHECK_HEADERS(sys/ioctl_compat.h termios.h malloc.h)
-AC_FUNC_MMAP 
-AC_CHECK_FUNCS(mallopt fgetc)
+
+case "$WINDOWS" in
+    32) WIN_CC_VER="$WIN_CC_VER-x86";;
+    64) WIN_CC_VER="$WIN_CC_VER-x64";;
+esac
 
 
-# ********************
-# * C compiler flags *
-# ********************
+dnl ********************
+dnl * C compiler flags *
+dnl ********************
+
+AC_C_BIGENDIAN
 
 CFLAGS_MACHINE=
 CFLAGS_PREFIX_REG=
@@ -368,102 +479,333 @@ CFLAGS_PREFIX_REG=
 AC_C_INLINE
 
 if test "$WITH_MSVC" != no; then
-	case "$WITH_C_FLAGS" in
-		debug) CFLAGS='/W3 /ZI /GX';;
-		no)    CFLAGS='';;
-		yes)   CFLAGS='/O2 /GX';;
-		*)     CFLAGS="$WITH_C_FLAGS";;
-	esac
 
-	CFLAGS_UNSIGNED_CHAR='/J'
-	CFLAGS_MACHINE='/nologo'
+    case "$WITH_C_FLAGS" in
+        debug) CFLAGS='-W3 -Zi -EHsc';;
+        no)    CFLAGS='';;
+        yes)   CFLAGS='-O2 -EHsc';;
+        *)     CFLAGS="$WITH_C_FLAGS";;
+    esac
+
+    CFLAGS_UNSIGNED_CHAR='-J'
+    CFLAGS_MACHINE='-nologo -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE'
 
 else
-	case "$WITH_C_FLAGS" in
-		debug) CFLAGS='-g -Wall';;
-		no)    CFLAGS='';;
-		yes)   CFLAGS='-O3 -fomit-frame-pointer';;
-		*)     CFLAGS="$WITH_C_FLAGS";;
-	esac
 
-	CFLAGS_PREFIX_REG='-ffixed-%s'
-	CFLAGS_UNSIGNED_CHAR='-funsigned-char'
+    case "$WITH_C_FLAGS" in
+        debug) CFLAGS='-g -Wall';;
+        no)    CFLAGS='';;
+        yes)   CFLAGS='-O3 -fomit-frame-pointer';;
+        *)     CFLAGS="$WITH_C_FLAGS";;
+    esac
 
-        CFLAGS_MACHINE=
-	case "$host" in
-		mips*irix*)        CFLAGS_MACHINE='-mcpu=4000';;
-		*sparc*sunos4.1.3) CFLAGS_MACHINE='-msupersparc';;
-		*sparc*solaris)    CFLAGS_MACHINE='-msupersparc';;
-		i686*)             CFLAGS_MACHINE='-mcpu=pentiumpro';;
-		i586*)             CFLAGS_MACHINE='-mcpu=pentium';;
-		i*86*)             CFLAGS_MACHINE='-mcpu=i486';;
-		powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
-	esac
+dnl -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
+    if test "$MINGW-$WITH_C_FLAGS" = yes-yes; then
+        CFLAGS='-O3'
+    fi
 
-	case "$host" in
-		i*86*) if test "$USE_EBP" != no; then
-			CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
-			if test "$CF1" != "$CFLAGS"; then
-				echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
-				CFLAGS=$CF1
-				CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
-			else
-				echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
-				USE_EBP=no
-				AC_DEFINE(NO_USE_EBP)
-			fi
-		       fi;;
-	esac
+    CFLAGS_PREFIX_REG='-ffixed-%s'
+    CFLAGS_UNSIGNED_CHAR='-funsigned-char'
+
+    CFLAGS_MACHINE=
+    case "$host" in
+        i*86*darwin1*)     CFLAGS_MACHINE='-march=i686 -m32';;
+        mips*irix*)        CFLAGS_MACHINE='-march=4000';;
+        sparc64*)          CFLAGS_MACHINE='';;
+        sparc*sunos4.1.3)  CFLAGS_MACHINE='-msupersparc';;
+        sparc*solaris)     CFLAGS_MACHINE='-msupersparc';;
+        i686*)             CFLAGS_MACHINE='-march=pentiumpro -m32';;
+        i586*)             CFLAGS_MACHINE='-march=pentium -m32';;
+        i*86*)             CFLAGS_MACHINE='-march=i486 -m32';;
+        powerpc*darwin*)   CFLAGS_MACHINE='-mpowerpc -no-cpp-precomp';;
+        x86_64*solaris*)   CFLAGS_MACHINE='-m64';;
+        x86_64*darwin*)    CFLAGS_MACHINE='-march=x86-64 -m64';;
+    esac
+
+    case "$host" in
+        i*86*) if test "$USE_EBP" != no; then
+                    CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
+                    if test "$CF1" != "$CFLAGS"; then
+                        echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
+                        CFLAGS=$CF1
+                        CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
+                    else
+                        echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
+                        USE_EBP=no
+                        AC_DEFINE(NO_USE_EBP)
+                    fi
+               fi;;
+    esac
 
 
-#	case "$host" in
-#		i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
-#	esac
+dnl    case "$host" in
+dnl       i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -malign-loops=2 -malign-jumps=2 -malign-functions=2";;
+dnl    esac
+
+if test "$GCC" = yes; then
+   CFLAGS_MACHINE="$CFLAGS_MACHINE -fno-strict-aliasing"
+fi
 
 
-# For MacOsX - try to avoid this (activate only for fast library fix)
-#	case "$host" in
-#		powerpc*darwin*)	RANLIB="$RANLIB -c";;
-#	esac
+dnl For MacOsX - try to avoid this (activate only for fast library fix)
+dnl    case "$host" in
+dnl       powerpc*darwin*)        RANLIB="$RANLIB -c";;
+dnl    esac
+
+
+dnl From version 10, gcc has changed the default from -fcommon to -fno-common
+dnl We need -fcommon, force it.
+
+if test "$GCC" = yes; then
+   CFLAGS_MACHINE="$CFLAGS_MACHINE -fcommon"
+fi
+
+if test "$GCC" = yes; then
+   CFLAGS="$CFLAGS -Wno-char-subscripts"
+fi
+
 
 fi
 
 
+SAVE_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS_MACHINE $CFLAGS"
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(void*)
+AC_CHECK_HEADERS(sys/ioctl_compat.h sys/siginfo.h termios.h malloc.h endian.h sys/endian.h byteswap.h float.h)
+AC_FUNC_MMAP
+dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
+dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc])
 
-# ********************
-# * libraries to add *
-# ********************
+AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
+dnl NB: OpenBSD/spac64 needs stdin.h before sys/endian.h
+AC_CHECK_DECLS([htole32, bswap_32], [], [], 
+[#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#include <sys/types.h>
+#ifdef HAVE_ENDIAN_H
+#include <endian.h>
+#endif
+#ifdef HAVE_SYS_ENDIAN_H
+#include <sys/endian.h>
+#endif
+#ifdef HAVE_BYTESWAP_H
+#include <byteswap.h>
+#endif
+])
 
+SAVE_LIBS="$LIBS"
+LIBS="$LIBS -lm"
+AC_CHECK_FUNCS(fpclass _fpclass isnan isinf)
+AC_CHECK_FUNCS(atanh acosh asinh)
+SAVE_LIBS="$LIBS"
+
+dnl alternative solution
+dnl AC_SEARCH_LIBS(asinh, m, AC_DEFINE_UNQUOTED(HAVE_ASINH, 1, [If we have asinh()]))
+dnl AC_SEARCH_LIBS(acosh, m, AC_DEFINE_UNQUOTED(HAVE_ACOSH, 1, [If we have acosh()]))
+dnl AC_SEARCH_LIBS(atanh, m, AC_DEFINE_UNQUOTED(HAVE_ATANH, 1, [If we have atanh()]))
+
+dnl -------------------
+dnl Check for socklen_t
+dnl -------------------
+
+AC_MSG_CHECKING(for socklen_t)
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/socket.h>
+], [socklen_t x;
+], [AC_MSG_RESULT(yes)], [
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/socket.h>
+], [int accept(int, struct sockaddr *, size_t *);
+], [
+AC_MSG_RESULT(size_t)
+AC_DEFINE(socklen_t, size_t)], [
+AC_MSG_RESULT(int)
+AC_DEFINE(socklen_t, int)])])
+
+
+dnl -----------------------------------
+dnl Check if linux needs asm/sigcontext
+dnl -----------------------------------
+
+case "$host_os" in
+     linux*)
+
+AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
+AC_TRY_COMPILE([#include <signal.h>
+], [struct sigcontext p;
+], [AC_MSG_RESULT(no)],
+[
+AC_MSG_RESULT(yes)
+AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
+esac
+
+
+dnl -------------------------
+dnl Check if sigssetjmp works
+dnl -------------------------
+dnl This test was ripped from gnuplot's configure.in:
+
+AC_MSG_CHECKING([for sigsetjmp])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[jmp_buf env; sigsetjmp(env, 1);]])],
+   [AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_SIGSETJMP)],[AC_MSG_RESULT(no)])
+
+
+dnl ------------------------
+dnl Check if sigaction works
+dnl ------------------------
+
+if test "$WINDOWS" = no; then
+   AC_MSG_CHECKING([for a working sigaction])
+   echo '#include "confdefs.h"' > conftest.c
+   cat $srcdir/EnginePl/try_sigaction.c >> conftest.c
+   (eval $ac_link) 2>&5
+   if test -s conftest && ./conftest; then
+     AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_WORKING_SIGACTION)
+   else
+     AC_MSG_RESULT(no)
+   fi
+fi
+
+dnl --------------------------------------
+dnl Check if obj_chain needs reverse order
+dnl --------------------------------------
+
+if test "$GCC" = yes; then
+   AC_MSG_CHECKING([constructors execution order])
+   for i in 0 1; do 
+      echo '#include "confdefs.h"' > conftest-$i.c
+      echo 'extern int first_to_last;' >>conftest-$i.c
+      echo "static void __attribute__ ((constructor)) mycons(void) { first_to_last = $i; }" >>conftest-$i.c 
+   done
+   echo '#include "confdefs.h"' > conftest.c
+   echo 'int first_to_last;' >>conftest.c
+   echo 'int main () {  return first_to_last ? 0 : 1; }' >>conftest.c 
+   (eval $CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS $LIBS conftest-0.c conftest-1.c conftest.c >&5) 2>&5
+   if test -x conftest && ./conftest; then
+      AC_MSG_RESULT(first to last)
+      AC_DEFINE(OBJ_CHAIN_REVERSE_ORDER)
+   else
+      AC_MSG_RESULT(last to first)
+   fi
+fi
+
+
+
+
+dnl *********************
+dnl * LD compiler flags *
+dnl *********************
+
+# Check whether -static-libgcc is supported (could add -static-libstdc++ later)
+# This is to avoid on windows a dependency to mingw dll (e.g. libgcc_s_sjlj.dll)
+have_static_libs=no
+if test "$GCC" = yes -a "$WINDOWS" != no; then
+   SAVE_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS -static-libgcc"
+   AC_MSG_CHECKING([whether gcc accepts -static-libgcc])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+    [AC_MSG_RESULT([yes]); have_static_libs=yes],
+    [AC_MSG_RESULT([no])])
+if test "$have_static_libs" = no; then
+   LDFLAGS="$SAVE_LDFLAGS"
+fi
+fi
+
+# On windows, check whether ld accepts an option 
+# to disable the large address awareness, else use 
+# peflags -l0 EXECUTABLE.EXE for each created executable (e.g. pl2wam.exe)
+accept_disable_large_address_aware=no
+if test "$GCC" = yes -a "$CYGWIN" = yes; then
+   SAVE_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS -Wl,--disable-large-address-aware"
+   AC_MSG_CHECKING([whether gcc accepts -Wl,--disable-large-address-aware])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+    [AC_MSG_RESULT([yes]); accept_disable_large_address_aware=yes],
+    [AC_MSG_RESULT([no])])
+if test "$accept_disable_large_address_aware" = no; then
+   LDFLAGS="$SAVE_LDFLAGS"
+fi
+fi
+
+
+
+
+
+dnl ********************
+dnl * libraries to add *
+dnl ********************
 
 if test "$WITH_MSVC" != no; then
-	LDFLAGS='/nologo'
-	LDLIBS='advapi32.lib user32.lib'
+    LDFLAGS='-nologo -F8000000'
+fi
+
+make_lib_list()
+{
+    list=''
+    if test $CC = cl -o $CC = lcc; then
+        for i; do list="$list $i.lib"; done
+    else
+        for i; do list="$list -l$i"; done
+    fi
+    echo $list
+}
+
+if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WINDOWS" = no \)
+then
+    AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no
+fi
+
+if test "$USE_GUI_CONSOLE" != yes
+then
+    WITH_HTMLHELP=no
+fi
+
+if test "$WINDOWS" != no; then
+    LIB='advapi32 user32'
+    GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 winmm'
+dnl winmm is for the sound PlaySound in the GUI
+dnl other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+    case "$WITH_HTMLHELP" in
+       static)  AC_DEFINE(WITH_HTMLHELP, 1) GUILIB="$GUILIB htmlhelp";;
+       dynamic) AC_DEFINE(WITH_HTMLHELP, 2);;
+       *) WITH_HTMLHELP=no
+    esac
+
+    if test "$USE_SOCKETS" = yes; then
+        LIB="$LIB ws2_32"
+    fi
 else
-	LDLIBS='-lm'
+    LIB='m'
+    GUILIB=''
+    if test "$USE_SOCKETS" = yes; then
+        AC_CHECK_FUNC(socket,[],
+                AC_CHECK_LIB(socket,socket,LIB="$LIB socket",
+                           AC_MSG_ERROR(cannot find socket library)))
+
+        AC_CHECK_FUNC(gethostbyname,[],
+                AC_CHECK_LIB(nsl,gethostbyname,LIB="$LIB nsl"))
+    dnl (No error here; just assume gethostbyname is in -lsocket.)
+    fi
 fi
 
-if test "$USE_SOCKETS" = yes; then
-	if test "$WITH_MSVC" != no; then
-		LDLIBS="$LDLIBS ws2_32.lib"
-	else
-		AC_CHECK_FUNC(socket,[],
-                      AC_CHECK_LIB(socket,socket,LDLIBS="$LDLIBS -lsocket",
-                                   AC_MSG_ERROR(cannot find socket library)))
-
-		AC_CHECK_FUNC(gethostbyname,[],
-                      AC_CHECK_LIB(nsl,gethostbyname,LDLIBS="$LDLIBS -lnsl"))
-	# (No error here; just assume gethostbyname is in -lsocket.)
-	fi
-fi
+LDLIBS=`make_lib_list $LIB`
+LDGUILIBS=`make_lib_list $GUILIB`
 
 
+CFLAGS=$SAVE_CFLAGS
 
-# ***********************
-# * gp_config.h defines *
-# ***********************
+
+dnl ***********************
+dnl * gp_config.h defines *
+dnl ***********************
 
 AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
-AC_DEFINE_UNQUOTED(PROLOG_NAME1,     "$PROLOG_NAME1")
+AC_DEFINE_UNQUOTED(PROLOG_DIALECT,   "$PROLOG_DIALECT")
 AC_DEFINE_UNQUOTED(PROLOG_VERSION,   "$PROLOG_VERSION")
 AC_DEFINE_UNQUOTED(PROLOG_VARIANT,   "$PROLOG_VARIANT")
 AC_DEFINE_UNQUOTED(PROLOG_DATE,      "$PROLOG_DATE")
@@ -484,11 +826,12 @@ AC_DEFINE_UNQUOTED(M_OS,             "$host_os")
 
 AC_DEFINE_UNQUOTED(CC,               "$CC")
 AC_DEFINE_UNQUOTED(CFLAGS_PREFIX_REG,"$CFLAGS_PREFIX_REG")
-AC_DEFINE_UNQUOTED(CFLAGS,           "$CFLAGS")  
+AC_DEFINE_UNQUOTED(CFLAGS,           "$CFLAGS")
 AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,   "$CFLAGS_MACHINE")
 AC_DEFINE_UNQUOTED(LDFLAGS,          "$LDFLAGS")
 AC_DEFINE_UNQUOTED(LDLIBS,           "$LDLIBS")
 AC_DEFINE_UNQUOTED(AS,               "$AS")
+AC_DEFINE_UNQUOTED(ASFLAGS,          "$ASFLAGS")
 AC_DEFINE_UNQUOTED(STRIP,            "$STRIP")
 
 AC_DEFINE_UNQUOTED(ASM_SUFFIX,       "$ASM_SUFFIX")
@@ -506,113 +849,113 @@ AC_DEFINE_UNQUOTED(LIB_BIPS_FD,      "$LIB_BIPS_FD")
 
 
 
-# ***************
-# * directories *
-# ***************
+dnl ***************
+dnl * directories *
+dnl ***************
 
-# a function to compare 2 directories (avoid diff with trailing /)
-# does not take into account symlinks...
+dnl a function to compare 2 directories (avoid diff with trailing /)
+dnl does not take into account symlinks...
 
 same_directory()
 {
- f1=`dirname $1`/`basename $1`
- f2=`dirname $2`/`basename $2`
- test $f1 = $f2
+    f1=`dirname $1`/`basename $1`
+    f2=`dirname $2`/`basename $2`
+    test $f1 = $f2
 }
 
 ROOT_DIR=`(cd .. ; pwd)`
 if test -x /bin/cygpath.exe; then
-	ROOT_DIR1=`cygpath -a -w ..`
+    ROOT_DIR1=`cygpath -a -m ..`
 else
-	ROOT_DIR1=$ROOT_DIR
+    ROOT_DIR1=$ROOT_DIR
 fi
 
 test "$prefix"      = NONE && prefix=/usr/local
 test "$exec_prefix" = NONE && exec_prefix=$prefix
 
-PKG_NAME=$PROLOG_NAME1$PROLOG_VARIANT-$PROLOG_VERSION
+PKG_NAME=$PROLOG_DIALECT-$PROLOG_VERSION
 
-# *-------------*
-# * INSTALL_DIR *
-# *-------------*
+dnl *-------------*
+dnl * INSTALL_DIR *
+dnl *-------------*
 
-if test "$prefix" = in-place -o "$WITH_INSTALL_DIR" = in-place; then
-	IN_PLACE=yes
-	INSTALL_DIR=$ROOT_DIR
-	test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
+if test "$prefix" = /in-place -o "$WITH_INSTALL_DIR" = in-place; then
+    IN_PLACE=yes
+    INSTALL_DIR=$ROOT_DIR
+    test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
 else
-	IN_PLACE=no
-	if test -z "$WITH_INSTALL_DIR"; then
-             INSTALL_DIR=$prefix/$PKG_NAME
-        else
-             INSTALL_DIR=$WITH_INSTALL_DIR
-        fi
+    IN_PLACE=no
+    if test -z "$WITH_INSTALL_DIR"; then
+         INSTALL_DIR=$prefix/$PKG_NAME
+    else
+         INSTALL_DIR=$WITH_INSTALL_DIR
+    fi
 fi
 
 
-# *-----------*
-# * LINKS_DIR *
-# *-----------*
+dnl *-----------*
+dnl * LINKS_DIR *
+dnl *-----------*
 
 case "$WITH_LINKS_DIR" in
-	no) LINKS_DIR=none;;
-	'') LINKS_DIR=$exec_prefix/bin;;
-	*)  LINKS_DIR=$WITH_LINKS_DIR;;
+    no) LINKS_DIR=none;;
+    '') LINKS_DIR=$exec_prefix/bin;;
+    *)  LINKS_DIR=$WITH_LINKS_DIR;;
 esac
 
 
-# *---------*
-# * DOC_DIR *
-# *---------*
+dnl *---------*
+dnl * DOC_DIR *
+dnl *---------*
 
 case "$WITH_DOC_DIR" in
-	no) DOC_DIR=none;
-            test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/Html;;
-	'') DOC_DIR=$INSTALL_DIR/doc;;
-	*)  DOC_DIR=$WITH_DOC_DIR;;
+    no) DOC_DIR=none;
+        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/html_node;;
+    '') DOC_DIR=$INSTALL_DIR/doc;;
+    *)  DOC_DIR=$WITH_DOC_DIR;;
 esac
 if same_directory "$DOC_DIR" $ROOT_DIR/doc; then
-	DOC_DIR=none
+    DOC_DIR=none
 fi
 
 
-# *----------*
-# * HTML_DIR *
-# *----------*
+dnl *----------*
+dnl * HTML_DIR *
+dnl *----------*
 
 
 case "$WITH_HTML_DIR" in
-	no) HTML_DIR=none;;
-	'') if test "$DOC_DIR" = none; then
-		WITH_HTML_DIR=no;
-		HTML_DIR=none
-	    else
-		HTML_DIR=$DOC_DIR/Html
-	    fi;;
-	*)  HTML_DIR=$WITH_HTML_DIR;;
+    no) HTML_DIR=none;;
+    '') if test "$DOC_DIR" = none; then
+            WITH_HTML_DIR=no;
+            HTML_DIR=none
+        else
+            HTML_DIR=$DOC_DIR/html_node
+        fi;;
+    *)  HTML_DIR=$WITH_HTML_DIR;;
 esac
-if same_directory "$HTML_DIR" $ROOT_DIR/doc/Html; then
-	HTML_DIR=none
+if same_directory "$HTML_DIR" $ROOT_DIR/doc/html_node; then
+    HTML_DIR=none
 fi
 
 
-# *--------------*
-# * EXAMPLES_DIR *
-# *--------------*
+dnl *--------------*
+dnl * EXAMPLES_DIR *
+dnl *--------------*
 
 case "$WITH_EXAMPLES_DIR" in
-	no) EXAMPLES_DIR=none;;
-	'') EXAMPLES_DIR=$INSTALL_DIR;;
-	*)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
+    no) EXAMPLES_DIR=none;;
+    '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
+    *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR; then
-	EXAMPLES_DIR=none
+if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
+    EXAMPLES_DIR=none
 fi
 
 
-# *---------*
-# * Summary *
-# *---------*
+dnl *---------*
+dnl * Summary *
+dnl *---------*
 
 echo 'DIRECTORIES'
 echo "--> Installation:       $INSTALL_DIR"
@@ -622,111 +965,137 @@ echo "--> HTML documentation: $HTML_DIR"
 echo "--> Examples:           $EXAMPLES_DIR"
 
 
-# ******************
-# * sub-components *
-# ******************
+dnl ******************
+dnl * sub-components *
+dnl ******************
 
 
 if test "$IN_PLACE" = no; then
-	TXT_FILES='COPYING VERSION NEWS ChangeLog'
+    TXT_FILES='README COPYING VERSION NEWS ChangeLog gprolog.ico'
 else
-	TXT_FILES=
+    TXT_FILES=
 fi
 
 BIN_FILES=
 OBJ_FILES=
 LIB_FILES=
 
-INC_FILES="$PROLOG_NAME1.h fd_to_c.h"
-DOC_FILES='???*.dvi ???*.ps ???*.pdf ???*.chm'
-HTML_FILES='???*.html ???*.gif'
+INC_FILES="$PROLOG_DIALECT.h fd_to_c.h"
+DOC_FILES='???*.dvi ???*.ps ???*.pdf ???*.chm ???*.eps ???*.html ???*.png'
+HTML_FILES='???*.html ???*.css ???*.svg'
 EXPL_FILES='Makefile README PROGS ??*.pl'
 EXC_FILES='Makefile README ??*.pl ??*_c.c'
 EXFD_FILES='Makefile ??*.pl ??*.fd'
 
 
 B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
-O="obj_begin obj_end top_level all_pl_bips debugger"
+O="top_level_main top_level all_pl_bips debugger"
 L="$LIB_ENGINE_PL $LIB_BIPS_PL"
-
-if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WIN32" = no \)
-then
-        AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no
-fi
+T="../EnginePl/$LIB_ENGINE_PL ../BipsPl/$LIB_BIPS_PL"
 
 if test "$USE_LINEDIT" = yes; then
-	MAKE_LE_DIRS='$(LE_DIRS)'
-	MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
-        L="$L $LIB_LINEDIT"
+    MAKE_LE_DIRS='$(LE_DIRS)'
+    MAKE_LE_INTERF_OBJS='$(LE_INTERF_OBJS)'
+    L="$L $LIB_LINEDIT"
+    T="$T ../Linedit/$LIB_LINEDIT"
 else
-	MAKE_LE_DIRS=
-	MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
+    MAKE_LE_DIRS=
+    MAKE_LE_INTERF_OBJS='$(NO_LE_INTERF_OBJS)'
 fi
 
 
 if test "$USE_GUI_CONSOLE" = yes; then
-        TOP_LEVEL_FLAGS=--gui-console
-	MAKE_W32GC_DIRS='$(W32GC_DIRS)'
-        L="$L $DLL_W32GUICONS"
-        O="$O w32gc_interf"
+    TOP_LEVEL_FLAGS=--gui-console
+    MAKE_W32GC_DIRS='$(W32GC_DIRS)'
+    O="$O w32gc_interf"
+    BIN_FILES="$DLL_W32GUICONS"
 else
-        TOP_LEVEL_FLAGS=
-	MAKE_W32GC_DIRS=
+    TOP_LEVEL_FLAGS=
+    MAKE_W32GC_DIRS=
 fi
 
 if test "$USE_SOCKETS" = yes; then
-	MAKE_SOCKETS_OBJS='$(SOCKETS_OBJS)'
+    MAKE_SOCKETS_OBJS='$(SOCKETS_OBJS)'
 else
-	MAKE_SOCKETS_OBJS='$(NO_SOCKETS_OBJS)'
+    MAKE_SOCKETS_OBJS='$(NO_SOCKETS_OBJS)'
 fi
 
 if test "$USE_FD_SOLVER" = yes; then
-	MAKE_FD_DIRS='$(FD_DIRS)'
-	B="$B fd2c"
-        L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
-        O="$O all_fd_bips"
+    MAKE_FD_DIRS='$(FD_DIRS)'
+    B="$B fd2c"
+    L="$L $LIB_ENGINE_FD $LIB_BIPS_FD"
+    T="$T ../EngineFD/$LIB_ENGINE_FD ../BipsFD/$LIB_BIPS_FD"
+    O="$O all_fd_bips"
 else
-	MAKE_FD_DIRS=
+    MAKE_FD_DIRS=
 fi
 
 for i in $B; do
-	BIN_FILES="$BIN_FILES $i$EXE_SUFFIX"
+    BIN_FILES="$BIN_FILES $i$EXE_SUFFIX"
 done
 
 for i in $O; do
-	OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
+    OBJ_FILES="$OBJ_FILES $i$OBJ_SUFFIX"
 done
+
+if test "$USE_GUI_CONSOLE" = yes; then
+    OBJ_FILES="$OBJ_FILES win_exe_icon.res"
+fi
 
 LIB_FILES=$L
 
+TOP_LEVEL_LIBS=$T
 
 
-# ***********************
-# * Version & Copyright *
-# ***********************
+
+dnl ***********************
+dnl * Version & Copyright *
+dnl ***********************
 
 echo "$PKG_NAME" >VERSION
 echo "$PKG_NAME" >../VERSION
-echo "$PROLOG_VERSION" >version_no.tex
-if diff version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
-	rm version_no.tex
+
+echo "$PROLOG_VERSION" >/tmp/version_no.tex
+if diff /tmp/version_no.tex ../doc/version_no.tex >/dev/null 2>&1; then
+    rm /tmp/version_no.tex
 else
-	mv version_no.tex ../doc/version_no.tex
-
+    mv /tmp/version_no.tex ../doc/version_no.tex
 fi
-echo "$PROLOG_COPYRIGHT" >../doc/copyright.tex
+
+echo "$PROLOG_COPYRIGHT" >/tmp/copyright.tex
+if diff /tmp/copyright.tex ../doc/copyright.tex >/dev/null 2>&1; then
+    rm /tmp/copyright.tex
+else
+    mv /tmp/copyright.tex ../doc/copyright.tex
+fi
 
 
-# ********************
-# * Files generation *
-# ********************
 
-OTHER_MAKEFILES=
-for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile
+dnl ********************
+dnl * Files generation *
+dnl ********************
+
+OTHER_DOT_IN_FILES=
+
+for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-vars-iss.txt
 do
-	if test -f $i.in; then
-		OTHER_MAKEFILES="$OTHER_MAKEFILES $i"
-	fi
+    if test -f $i.in; then
+        OTHER_DOT_IN_FILES="$OTHER_DOT_IN_FILES $i"
+    fi
 done
 
+AC_CONFIG_HEADER(EnginePl/gp_config.h)
+AC_CONFIG_FILES(Makefile
+                TopComp/Makefile
+                Pl2Wam/Makefile
+                Wam2Ma/Makefile
+                Ma2Asm/Makefile
+                Fd2C/Makefile
+                Linedit/Makefile
+                W32GUICons/Makefile
+                EnginePl/Makefile
+                BipsPl/Makefile
+                EngineFD/Makefile
+                BipsFD/Makefile
+                $OTHER_DOT_IN_FILES)
 AC_OUTPUT

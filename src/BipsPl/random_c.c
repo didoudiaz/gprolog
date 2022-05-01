@@ -6,23 +6,35 @@
  * Descr.: random number generator management - C part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -50,77 +62,77 @@
 
 
 /*-------------------------------------------------------------------------*
- * SET_SEED_1                                                              *
+ * PL_SET_SEED_1                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Seed_1(WamWord seed_word)
+Pl_Set_Seed_1(WamWord seed_word)
 {
-  M_Set_Seed(Rd_Positive_Check(seed_word));
+  Pl_M_Set_Seed(Pl_Rd_C_Int_Positive_Check(seed_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GET_SEED_1                                                              *
+ * PL_GET_SEED_1                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Get_Seed_1(WamWord seed_word)
+Pl_Get_Seed_1(WamWord seed_word)
 {
-  return Un_Positive_Check(M_Get_Seed(), seed_word);
+  return Pl_Un_Positive_Check(Pl_M_Get_Seed(), seed_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANDOM_1                                                                *
+ * PL_RANDOM_1                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Random_1(WamWord n_word)
+Pl_Random_1(WamWord n_word)
 {
-  Check_For_Un_Variable(n_word);
-  Get_Float(M_Random_Float(1.0), n_word);
+  Pl_Check_For_Un_Variable(n_word);
+  Pl_Get_Float(Pl_M_Random_Float(1.0), n_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANDOM_3                                                                *
+ * PL_RANDOM_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
+Pl_Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
 {
   double l, u;
-  long l1, u1;
-  long i;
+  PlLong l1, u1;
+  PlLong i;
   double d;
 
 
-  l = Rd_Number_Check(l_word);
-  u = Rd_Number_Check(u_word);
-  Check_For_Un_Variable(n_word);
+  l = Pl_Rd_Number_Check(l_word);
+  u = Pl_Rd_Number_Check(u_word);
+  Pl_Check_For_Un_Variable(n_word);
 
   if (l >= u)
     return FALSE;
 
-  l1 = (long) l;
-  u1 = (long) u;
+  l1 = (PlLong) l;
+  u1 = (PlLong) u;
 
   if (l1 == l && u1 == u)
     {
-      i = l1 + M_Random_Integer(u1 - l1);
-      Get_Integer(i, n_word);
+      i = l1 + Pl_M_Random_Integer(u1 - l1);
+      Pl_Get_Integer(i, n_word);
     }
   else
     {
-      d = l + M_Random_Float(u - l);
-      Get_Float(d, n_word);
+      d = l + Pl_M_Random_Float(u - l);
+      Pl_Get_Float(d, n_word);
     }
 
   return TRUE;

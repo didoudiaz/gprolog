@@ -6,23 +6,35 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +48,7 @@
 
 #include "gp_config.h"
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <process.h>
 #include <direct.h>
 #include <io.h>
@@ -96,6 +108,7 @@ static int atom_dt;
 
 /*static*/ int atom_read;	// FIXME: SPA: not static in stream_supp.h
 /*static*/ int atom_write;	// FIXME: SPA: not static in stream_supp.h
+/* pl_atom_write is already defined in the set of often used atoms */
 static int atom_execute;
 static int atom_search;
 
@@ -119,7 +132,9 @@ static int nb_sig;
 
 static int Flag_Of_Permission(WamWord perm_word, Bool is_a_directory);
 
-static char *Get_Path_Name(WamWord path_name_word);
+static char *Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash);
+
+#define Get_Path_Name(p)  Get_Path_Name0(p, TRUE)
 
 static Bool Date_Time_To_Prolog(time_t *t, WamWord date_time_word);
 
@@ -138,87 +153,85 @@ static Bool Select_Init_Ready_List(WamWord list_word, fd_set *set,
 static void
 Os_Interf_Initializer(void)
 {
-  atom_dt = Create_Atom("dt");
+  atom_dt = Pl_Create_Atom("dt");
 
-  atom_read = Create_Atom("read");
-  atom_write = Create_Atom("write");
-  atom_execute = Create_Atom("execute");
-  atom_search = Create_Atom("search");
+  atom_execute = Pl_Create_Atom("execute");
+  atom_search = Pl_Create_Atom("search");
 
-  atom_regular = Create_Atom("regular");
-  atom_directory = Create_Atom("directory");
-  atom_fifo = Create_Atom("fifo");
-  atom_socket = Create_Atom("socket");
-  atom_character_device = Create_Atom("character_device");
-  atom_block_device = Create_Atom("block_device");
-  atom_unknown = Create_Atom("unknown");
+  atom_regular = Pl_Create_Atom("regular");
+  atom_directory = Pl_Create_Atom("directory");
+  atom_fifo = Pl_Create_Atom("fifo");
+  atom_socket = Pl_Create_Atom("socket");
+  atom_character_device = Pl_Create_Atom("character_device");
+  atom_block_device = Pl_Create_Atom("block_device");
+  atom_unknown = Pl_Create_Atom("unknown");
 
   nb_sig = 0;
 #if defined(__unix__) || defined(__CYGWIN__)
-  tsig[nb_sig].atom = Create_Atom("SIGHUP");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGHUP");
   tsig[nb_sig++].sig = SIGHUP;
-  tsig[nb_sig].atom = Create_Atom("SIGINT");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGINT");
   tsig[nb_sig++].sig = SIGINT;
-  tsig[nb_sig].atom = Create_Atom("SIGQUIT");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGQUIT");
   tsig[nb_sig++].sig = SIGQUIT;
-  tsig[nb_sig].atom = Create_Atom("SIGILL");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGILL");
   tsig[nb_sig++].sig = SIGILL;
-  tsig[nb_sig].atom = Create_Atom("SIGTRAP");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGTRAP");
   tsig[nb_sig++].sig = SIGTRAP;
-  tsig[nb_sig].atom = Create_Atom("SIGABRT");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGABRT");
   tsig[nb_sig++].sig = SIGABRT;
 #ifndef M_ix86_cygwin
-  tsig[nb_sig].atom = Create_Atom("SIGIOT");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGIOT");
   tsig[nb_sig++].sig = SIGIOT;
 #endif
-  tsig[nb_sig].atom = Create_Atom("SIGBUS");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGBUS");
   tsig[nb_sig++].sig = SIGBUS;
-  tsig[nb_sig].atom = Create_Atom("SIGFPE");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGFPE");
   tsig[nb_sig++].sig = SIGFPE;
-  tsig[nb_sig].atom = Create_Atom("SIGKILL");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGKILL");
   tsig[nb_sig++].sig = SIGKILL;
-  tsig[nb_sig].atom = Create_Atom("SIGUSR1");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGUSR1");
   tsig[nb_sig++].sig = SIGUSR1;
-  tsig[nb_sig].atom = Create_Atom("SIGSEGV");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGSEGV");
   tsig[nb_sig++].sig = SIGSEGV;
-  tsig[nb_sig].atom = Create_Atom("SIGUSR2");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGUSR2");
   tsig[nb_sig++].sig = SIGUSR2;
-  tsig[nb_sig].atom = Create_Atom("SIGPIPE");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGPIPE");
   tsig[nb_sig++].sig = SIGPIPE;
-  tsig[nb_sig].atom = Create_Atom("SIGALRM");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGALRM");
   tsig[nb_sig++].sig = SIGALRM;
-  tsig[nb_sig].atom = Create_Atom("SIGTERM");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGTERM");
   tsig[nb_sig++].sig = SIGTERM;
-  tsig[nb_sig].atom = Create_Atom("SIGCHLD");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGCHLD");
   tsig[nb_sig++].sig = SIGCHLD;
-  tsig[nb_sig].atom = Create_Atom("SIGCONT");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGCONT");
   tsig[nb_sig++].sig = SIGCONT;
-  tsig[nb_sig].atom = Create_Atom("SIGSTOP");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGSTOP");
   tsig[nb_sig++].sig = SIGSTOP;
-  tsig[nb_sig].atom = Create_Atom("SIGTSTP");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGTSTP");
   tsig[nb_sig++].sig = SIGTSTP;
-  tsig[nb_sig].atom = Create_Atom("SIGTTIN");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGTTIN");
   tsig[nb_sig++].sig = SIGTTIN;
-  tsig[nb_sig].atom = Create_Atom("SIGTTOU");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGTTOU");
   tsig[nb_sig++].sig = SIGTTOU;
-  tsig[nb_sig].atom = Create_Atom("SIGURG");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGURG");
   tsig[nb_sig++].sig = SIGURG;
-  tsig[nb_sig].atom = Create_Atom("SIGXCPU");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGXCPU");
   tsig[nb_sig++].sig = SIGXCPU;
-  tsig[nb_sig].atom = Create_Atom("SIGXFSZ");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGXFSZ");
   tsig[nb_sig++].sig = SIGXFSZ;
-  tsig[nb_sig].atom = Create_Atom("SIGVTALRM");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGVTALRM");
   tsig[nb_sig++].sig = SIGVTALRM;
-  tsig[nb_sig].atom = Create_Atom("SIGPROF");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGPROF");
   tsig[nb_sig++].sig = SIGPROF;
-  tsig[nb_sig].atom = Create_Atom("SIGWINCH");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGWINCH");
   tsig[nb_sig++].sig = SIGWINCH;
 #ifndef M_ix86_sco
-  tsig[nb_sig].atom = Create_Atom("SIGIO");
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGIO");
   tsig[nb_sig++].sig = SIGIO;
 #endif
-#if !defined( M_ix86_bsd ) && !defined( M_powerpc_darwin )
-  tsig[nb_sig].atom = Create_Atom("SIGPOLL");
+#if !defined(M_bsd) && !defined(M_darwin)
+  tsig[nb_sig].atom = Pl_Create_Atom("SIGPOLL");
   tsig[nb_sig++].sig = SIGPOLL;
 #endif
 #endif
@@ -233,17 +246,17 @@ Os_Interf_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_DIRECTORY_1                                                        *
+ * PL_MAKE_DIRECTORY_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Make_Directory_1(WamWord path_name_word)
+Pl_Make_Directory_1(WamWord path_name_word)
 {
   char *path_name;
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(_mkdir(path_name));
 #else
   Os_Test_Error(mkdir(path_name, 0777));
@@ -256,11 +269,11 @@ Make_Directory_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * DELETE_DIRECTORY_1                                                      *
+ * PL_DELETE_DIRECTORY_1                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Delete_Directory_1(WamWord path_name_word)
+Pl_Delete_Directory_1(WamWord path_name_word)
 {
   char *path_name;
 
@@ -275,35 +288,36 @@ Delete_Directory_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * WORKING_DIRECTORY_1                                                     *
+ * PL_WORKING_DIRECTORY_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Working_Directory_1(WamWord path_name_word)
+Pl_Working_Directory_1(WamWord path_name_word)
 {
   char *path_name;
 
-  path_name = M_Get_Working_Dir();
+  path_name = Pl_M_Get_Working_Dir();
 
-  return Un_String_Check(path_name, path_name_word);
+  return Pl_Un_String_Check(path_name, path_name_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHANGE_DIRECTORY_1                                                      *
+ * PL_CHANGE_DIRECTORY_1                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Change_Directory_1(WamWord path_name_word)
+Pl_Change_Directory_1(WamWord path_name_word)
 {
   char *path_name;
 
   path_name = Get_Path_Name(path_name_word);
 
   errno = -1;
-  Os_Test_Error(!M_Set_Working_Dir(path_name));
+  if (!Pl_M_Set_Working_Dir(path_name))
+    Os_Test_Error(-1);
   return TRUE;
 }
 
@@ -311,68 +325,41 @@ Change_Directory_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * DIRECTORY_FILES_2                                                       *
+ * PL_DIRECTORY_FILES_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Directory_Files_2(WamWord path_name_word, WamWord list_word)
+Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
 {
   char *path_name;
   Bool res;
   char *name;
-
-#ifdef M_ix86_win32
-  long h;
-  struct _finddata_t d;
-  static char buff[MAXPATHLEN];
-#else
   DIR *dir;
   struct dirent *cur_entry;
-#endif
 
-
-  Check_For_Un_List(list_word);
+  Pl_Check_For_Un_List(list_word);
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef M_ix86_win32
-  sprintf(buff, "%s\\*.*", path_name);
-  h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
-  Os_Test_Error(h == -1);
-#else
-  dir = opendir(path_name);
-  Os_Test_Error(dir == NULL);
-#endif
+  dir = opendir(path_name);	/* on windows: see opendir in ../EnginePl/arch_dep.c */
+  Os_Test_Error_Null(dir);
 
-#ifdef M_ix86_win32
-  do
-    {
-      name = d.name;
-#else
   while ((cur_entry = readdir(dir)) != NULL)
     {
       name = cur_entry->d_name;
-#endif
-      if (!Get_List(list_word) || !Unify_Atom(Create_Allocate_Atom(name)))
+      if (!Pl_Get_List(list_word) || !Pl_Unify_Atom(Pl_Create_Allocate_Atom(name)))
 	{
 	  res = FALSE;
 	  goto finish;
 	}
 
-      list_word = Unify_Variable();
+      list_word = Pl_Unify_Variable();
     }
-#ifdef M_ix86_win32
-  while (_findnext(h, &d) == 0);
-#endif
 
-  res = Get_Nil(list_word);
+  res = Pl_Get_Nil(list_word);
 
 finish:
-#ifdef M_ix86_win32
-  _findclose(h);
-#else
   closedir(dir);
-#endif
 
   return res;
 }
@@ -381,11 +368,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * RENAME_FILE_2                                                           *
+ * PL_RENAME_FILE_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
+Pl_Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
 {
   char path_name1[MAXPATHLEN];
   char *path_name2;
@@ -402,11 +389,93 @@ Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
 
 
 /*-------------------------------------------------------------------------*
- * UNLINK_1                                                                *
+ * PL_COPY_FILE_2                                                          *
+ *                                                                         *
+ * We could use some OS-dependent utility to be faster, e.g.:              *
+ * on WinXX: use CopyFileA(src, dst, false);                               *
+ * on MacOS: copyfile(src, dst, NULL, COPYFILE_DATA);                      *
+ * on Linux: sendfile(dst_fd, src_fd, NULL, stat_buf.st_size);             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
+{
+  char path_name1[MAXPATHLEN];
+  char *path_name2;
+  FILE *f_in = NULL, *f_out = NULL;
+  int is_dir;
+  char *base, *suffix;
+  int size_rd;
+  char buff[BUFSIZ];
+
+  strcpy(path_name1, Get_Path_Name(path_name1_word));
+  path_name2 = Get_Path_Name0(path_name2_word, FALSE);
+
+  if ((f_in = fopen(path_name1, "rb")) == NULL)
+    {
+      int err_no;
+    error:
+      err_no = errno;
+      if (f_in != NULL)
+	fclose(f_in);
+      if (f_out != NULL)
+	fclose(f_out);
+      errno = err_no;
+      Os_Test_Error(-1);
+    }
+
+  is_dir = Pl_M_Is_Dir_Name(path_name2, FALSE);
+  if (is_dir < 0)
+    goto error;
+  if (is_dir)
+    {
+      Pl_M_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
+      sprintf(path_name2 + strlen(path_name2), "/%s", base);
+    }
+
+  if ((f_out = fopen(path_name2, "wb")) == NULL)
+    goto error;
+
+  while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
+    {
+      int size_left = size_rd;
+      int try_wr = 0;
+      char *p = buff;
+      while(size_left > 0)
+	{
+	  int size_wr = fwrite(p, 1, size_left, f_out);
+	  if (size_wr > 0)
+	    {
+	      size_left -= size_wr;
+	      p += size_wr;
+	      continue;
+	    }
+	  
+	  if (size_wr == 0)
+	    errno = EAGAIN;
+
+	  if ((errno != EAGAIN && errno != EINTR) || ++try_wr >= 5)
+	    goto error;
+	}
+    }
+
+  if (size_rd < 0)
+    goto error;
+
+  fclose(f_in);
+  fclose(f_out);
+  
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_UNLINK_1                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Unlink_1(WamWord path_name_word)
+Pl_Unlink_1(WamWord path_name_word)
 {
   char *path_name;
 
@@ -419,11 +488,11 @@ Unlink_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * DELETE_FILE_1                                                           *
+ * PL_DELETE_FILE_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Delete_File_1(WamWord path_name_word)
+Pl_Delete_File_1(WamWord path_name_word)
 {
   char *path_name;
 
@@ -438,11 +507,11 @@ Delete_File_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * FILE_EXISTS_1                                                           *
+ * PL_FILE_EXISTS_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Exists_1(WamWord path_name_word)
+Pl_File_Exists_1(WamWord path_name_word)
 {
   char *path_name;
 
@@ -453,7 +522,7 @@ File_Exists_1(WamWord path_name_word)
       if (errno == ENOENT || errno == ENOTDIR)
 	return FALSE;
 
-      Os_Test_Error(1);
+      Os_Test_Error(-1);
     }
 
   return TRUE;
@@ -463,11 +532,11 @@ File_Exists_1(WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PERMISSION_2                                                       *
+ * PL_FILE_PERMISSION_2                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
+Pl_File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 {
   WamWord word, tag_mask;
   WamWord save_perm_list_word;
@@ -482,7 +551,7 @@ File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 
   res = stat(path_name, &file_info);
   if (res == -1 && errno != ENOENT && errno != ENOTDIR)
-    Os_Test_Error(1);
+    Os_Test_Error(-1);
 
   mode = file_info.st_mode;
 
@@ -506,7 +575,7 @@ File_Permission_2(WamWord path_name_word, WamWord perm_list_word)
 	    break;
 
 	  if (tag_mask != TAG_LST_MASK)
-	    Pl_Err_Type(type_list, save_perm_list_word);
+	    Pl_Err_Type(pl_type_list, save_perm_list_word);
 
 	  lst_adr = UnTag_LST(word);
 	  perm |= Flag_Of_Permission(Car(lst_adr), is_a_directory);
@@ -530,12 +599,12 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
 {
   int atom;
 
-  atom = Rd_Atom_Check(perm_word);
+  atom = Pl_Rd_Atom_Check(perm_word);
 
-  if (atom == atom_read)
+  if (atom == pl_atom_read)
     return S_IRUSR;
 
-  if (atom == atom_write)
+  if (atom == pl_atom_write)
     return S_IWUSR;
 
   if (atom == atom_execute)
@@ -544,7 +613,7 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
   if (atom == atom_search)
     return (is_a_directory) ? S_IXUSR : -1;
 
-  Pl_Err_Domain(domain_os_file_permission, perm_word);
+  Pl_Err_Domain(pl_domain_os_file_permission, perm_word);
   return 0;			/* anything for the compiler */
 }
 
@@ -552,12 +621,12 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PROP_ABSOLUTE_FILE_NAME_2                                          *
+ * PL_FILE_PROP_ABSOLUTE_FILE_NAME_2                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
-			       WamWord path_name_word)
+Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
+				  WamWord path_name_word)
 {
   char *path_name;
 
@@ -565,42 +634,42 @@ File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
 
   Os_Test_Error(access(path_name, F_OK));	/* test if file exists */
 
-  return Un_String_Check(path_name, absolute_path_name_word);
+  return Pl_Un_String_Check(path_name, absolute_path_name_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PROP_REAL_FILE_NAME_2                                              *
+ * PL_FILE_PROP_REAL_FILE_NAME_2                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Prop_Real_File_Name_2(WamWord real_path_name_word,
-			   WamWord path_name_word)
+Pl_File_Prop_Real_File_Name_2(WamWord real_path_name_word,
+			      WamWord path_name_word)
 {
   char *path_name = Get_Path_Name(path_name_word);
 
-#ifndef M_ix86_win32
+#ifndef _WIN32
   char real_path_name[MAXPATHLEN];
 
-  Os_Test_Error(realpath(path_name, real_path_name) == NULL);
+  Os_Test_Error_Null(realpath(path_name, real_path_name));
 #else
   char *real_path_name = path_name;
 #endif
 
-  return Un_String_Check(real_path_name, real_path_name_word);
+  return Pl_Un_String_Check(real_path_name, real_path_name_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PROP_TYPE_2                                                        *
+ * PL_FILE_PROP_TYPE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Prop_Type_2(WamWord type_word, WamWord path_name_word)
+Pl_File_Prop_Type_2(WamWord type_word, WamWord path_name_word)
 {
   char *path_name;
   struct stat file_info;
@@ -633,18 +702,18 @@ File_Prop_Type_2(WamWord type_word, WamWord path_name_word)
   else
     atom = atom_unknown;
 
-  return Un_Atom_Check(atom, type_word);
+  return Pl_Un_Atom_Check(atom, type_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PROP_SIZE_2                                                        *
+ * PL_FILE_PROP_SIZE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Prop_Size_2(WamWord size_word, WamWord path_name_word)
+Pl_File_Prop_Size_2(WamWord size_word, WamWord path_name_word)
 {
   char *path_name;
   struct stat file_info;
@@ -653,18 +722,18 @@ File_Prop_Size_2(WamWord size_word, WamWord path_name_word)
 
   Os_Test_Error(stat(path_name, &file_info));
 
-  return Un_Positive_Check((int) file_info.st_size, size_word);
+  return Pl_Un_Positive_Check((int) file_info.st_size, size_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CHECK_PROP_PERM_AND_FILE_2                                              *
+ * PL_CHECK_PROP_PERM_AND_FILE_2                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Check_Prop_Perm_And_File_2(WamWord perm_word, WamWord path_name_word)
+Pl_Check_Prop_Perm_And_File_2(WamWord perm_word, WamWord path_name_word)
 {
   WamWord word, tag_mask;
   char *path_name;
@@ -684,11 +753,11 @@ Check_Prop_Perm_And_File_2(WamWord perm_word, WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * FILE_PROP_DATE_2                                                        *
+ * PL_FILE_PROP_DATE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-File_Prop_Date_2(WamWord date_time_word, WamWord path_name_word)
+Pl_File_Prop_Date_2(WamWord date_time_word, WamWord path_name_word)
 {
   char *path_name;
   struct stat file_info;
@@ -698,7 +767,7 @@ File_Prop_Date_2(WamWord date_time_word, WamWord path_name_word)
 
   Os_Test_Error(stat(path_name, &file_info));
 
-  switch (sys_var[0])
+  switch (pl_sys_var[0])
     {
     case 0:
       t = &(file_info.st_ctime);
@@ -720,63 +789,63 @@ File_Prop_Date_2(WamWord date_time_word, WamWord path_name_word)
 
 
 /*-------------------------------------------------------------------------*
- * TEMPORARY_NAME_2                                                        *
+ * PL_TEMPORARY_NAME_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Temporary_Name_2(WamWord template_word, WamWord path_name_word)
+Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
 {
   char *template;
   char *path_name;
- 
+
   template = Get_Path_Name(template_word);
- 
-  path_name = M_Mktemp(template);
-  Os_Test_Error(path_name == NULL);
- 
-  return path_name && Un_String_Check(path_name, path_name_word);
+
+  path_name = Pl_M_Mktemp(template);
+  Os_Test_Error_Null(path_name);
+
+  return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * TEMPORARY_FILE_3                                                        *
+ * PL_TEMPORARY_FILE_3                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Temporary_File_3(WamWord dir_word, WamWord prefix_word,
-		 WamWord path_name_word)
+Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
+		    WamWord path_name_word)
 {
   char *dir;
   char *prefix;
   char *path_name;
- 
-  dir = Rd_String_Check(dir_word);
+
+  dir = Pl_Rd_String_Check(dir_word);
   if (*dir == '\0')
     dir = NULL;
   else
     dir = Get_Path_Name(dir_word);
- 
-  prefix = Rd_String_Check(prefix_word);
+
+  prefix = Pl_Rd_String_Check(prefix_word);
   if (*prefix == '\0')
     prefix = NULL;
- 
-  path_name = M_Tempnam(dir, prefix);
-  Os_Test_Error(path_name == NULL);
- 
-  return path_name && Un_String_Check(path_name, path_name_word);
+
+  path_name = Pl_M_Tempnam(dir, prefix);
+  Os_Test_Error_Null(path_name);
+
+  return path_name && Pl_Un_String_Check(path_name, path_name_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * DATE_TIME_1                                                             *
+ * PL_DATE_TIME_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Date_Time_1(WamWord date_time_word)
+Pl_Date_Time_1(WamWord date_time_word)
 {
   time_t t;
 
@@ -789,11 +858,11 @@ Date_Time_1(WamWord date_time_word)
 
 
 /*-------------------------------------------------------------------------*
- * HOST_NAME_1                                                             *
+ * PL_HOST_NAME_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Host_Name_1(WamWord host_name_word)
+Pl_Host_Name_1(WamWord host_name_word)
 {
   WamWord word, tag_mask;
   int atom;
@@ -802,71 +871,71 @@ Host_Name_1(WamWord host_name_word)
 				        /* (ifndef NO_USE_SOCKETS) */
 
   if (atom_host_name < 0)
-    atom_host_name = Create_Allocate_Atom(M_Host_Name_From_Name(NULL));
+    atom_host_name = Pl_Create_Allocate_Atom(Pl_M_Host_Name_From_Name(NULL));
 
   DEREF(host_name_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
-    return Get_Atom(atom_host_name, host_name_word);
+    return Pl_Get_Atom(atom_host_name, host_name_word);
 
-  atom = Rd_Atom_Check(word);
+  atom = Pl_Rd_Atom_Check(word);
 
   return atom == atom_host_name ||
-    strcmp(M_Host_Name_From_Name(atom_tbl[atom].name),
-	   atom_tbl[atom_host_name].name) == 0;
+    strcmp(Pl_M_Host_Name_From_Name(pl_atom_tbl[atom].name),
+	   pl_atom_tbl[atom_host_name].name) == 0;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * OS_VERSION_1                                                            *
+ * PL_OS_VERSION_1                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Os_Version_1(WamWord os_version_word)
+Pl_Os_Version_1(WamWord os_version_word)
 {
-  return Un_String_Check(m_os_version, os_version_word);
+  return Pl_Un_String_Check(pl_m_os_version, os_version_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * ARCHITECTURE_1                                                          *
+ * PL_ARCHITECTURE_1                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Architecture_1(WamWord architecture_word)
+Pl_Architecture_1(WamWord architecture_word)
 {
-  return Un_String_Check(m_architecture, architecture_word);
+  return Pl_Un_String_Check(pl_m_architecture, architecture_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SLEEP_1                                                                 *
+ * PL_SLEEP_1                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sleep_1(WamWord seconds_word)
+Pl_Sleep_1(WamWord seconds_word)
 {
-#ifdef M_ix86_win32
+#ifdef _WIN32
   DWORD ms;
 
-  ms = (DWORD) (Rd_Number_Check(seconds_word) * 1000);
+  ms = (DWORD) (Pl_Rd_Number_Check(seconds_word) * 1000);
 
   if (ms < 0)
-    Pl_Err_Domain(domain_not_less_than_zero, seconds_word);
+    Pl_Err_Domain(pl_domain_not_less_than_zero, seconds_word);
 
   Sleep(ms);
 #else
-  long us;
+  PlLong us;
 
-  us = (long) (Rd_Number_Check(seconds_word) * 1000000);
+  us = (PlLong) (Pl_Rd_Number_Check(seconds_word) * 1000000);
 
   if (us < 0)
-    Pl_Err_Domain(domain_not_less_than_zero, seconds_word);
+    Pl_Err_Domain(pl_domain_not_less_than_zero, seconds_word);
 
   usleep(us);
 #endif
@@ -876,61 +945,61 @@ Sleep_1(WamWord seconds_word)
 
 
 /*-------------------------------------------------------------------------*
- * SHELL_2                                                                 *
+ * PL_SHELL_2                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Shell_2(WamWord cmd_word, WamWord status_word)
+Pl_Shell_2(WamWord cmd_word, WamWord status_word)
 {
   char *cmd;
   int status;
 
-  cmd = Rd_String_Check(cmd_word);
+  cmd = Pl_Rd_String_Check(cmd_word);
   if (*cmd == '\0')
     cmd = NULL;
-  Check_For_Un_Integer(status_word);
+  Pl_Check_For_Un_Integer(status_word);
 
-  Flush_All_Streams();
-  status = M_Shell(cmd);
+  Pl_Flush_All_Streams();
+  status = Pl_M_Shell(cmd);
 
-  return Get_Integer(status, status_word);
+  return Pl_Get_Integer(status, status_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SYSTEM_2                                                                *
+ * PL_SYSTEM_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-System_2(WamWord cmd_word, WamWord status_word)
+Pl_System_2(WamWord cmd_word, WamWord status_word)
 {
   char *cmd;
   int status;
 
-  cmd = Rd_String_Check(cmd_word);
-  Check_For_Un_Integer(status_word);
+  cmd = Pl_Rd_String_Check(cmd_word);
+  Pl_Check_For_Un_Integer(status_word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   _flushall();
 #endif
 
-  Flush_All_Streams();
+  Pl_Flush_All_Streams();
   status = system(cmd);
 
-  return Get_Integer(status, status_word);
+  return Pl_Get_Integer(status, status_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SPAWN_3                                                                 *
+ * PL_SPAWN_3                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
+Pl_Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -942,7 +1011,7 @@ Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 
   save_list_word = list_word;
 
-  *p++ = Rd_String_Check(cmd_word);
+  *p++ = Pl_Rd_String_Check(cmd_word);
 
   for (;;)
     {
@@ -955,134 +1024,140 @@ Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
-      
+	Pl_Err_Type(pl_type_list, save_list_word);
+
       lst_adr = UnTag_LST(word);
 
-      *p++ = Rd_String_Check(Car(lst_adr));
+      *p++ = Pl_Rd_String_Check(Car(lst_adr));
 
       list_word = Cdr(lst_adr);
     }
 
   *p = NULL;
-  Check_For_Un_Integer(status_word);
+  Pl_Check_For_Un_Integer(status_word);
 
-  Flush_All_Streams();
-  status = M_Spawn(arg);
+  Pl_Flush_All_Streams();
+  status = Pl_M_Spawn(arg);
 
-  Os_Test_Error(status == -1);
-  if (status == -2)
+  if (status == -1)
+    Os_Test_Error(status);
+  else if (status == -2)
     {
       sprintf(err, "error trying to execute %s", arg[0]);
-      Pl_Err_System(Create_Allocate_Atom(err));
+      Pl_Err_System(Pl_Create_Allocate_Atom(err));
       return FALSE;
     }
 
-  return Get_Integer(status, status_word);
+  return Pl_Get_Integer(status, status_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * POPEN_3                                                                 *
+ * PL_POPEN_3                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
+Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
 {
   char *cmd;
   int atom;
-  int mode;
+  int mode = 0;			/* init for the compiler */
   int stm;
   FILE *f;
   char open_str[10];
 
-  cmd = Rd_String_Check(cmd_word);
+  cmd = Pl_Rd_String_Check(cmd_word);
 
-  atom = Rd_Atom_Check(mode_word);
-  if (atom == atom_read)
+  atom = Pl_Rd_Atom_Check(mode_word);
+  if (atom == pl_atom_read)
     {
       mode = STREAM_MODE_READ;
       strcpy(open_str, "r");
     }
-  else if (atom == atom_write)
+  else if (atom == pl_atom_write)
     {
       mode = STREAM_MODE_WRITE;
       strcpy(open_str, "w");
     }
   else
-    Pl_Err_Domain(domain_io_mode, mode_word);
+    Pl_Err_Domain(pl_domain_io_mode, mode_word);
 
 
-  Flush_All_Streams();
+  Pl_Flush_All_Streams();
   f = popen(cmd, open_str);
-  Os_Test_Error(f == NULL);
+  Os_Test_Error_Null(f);
 
-  sprintf(glob_buff, "popen_stream('%.1024s')", cmd);
-  atom = Create_Allocate_Atom(glob_buff);
-  stm = Add_Stream_For_Stdio_Desc(f, atom, mode, TRUE);
-  stm_tbl[stm]->fct_close = (StmFct) pclose;
+  sprintf(pl_glob_buff, "popen_stream('%.1024s')", cmd);
+  atom = Pl_Create_Allocate_Atom(pl_glob_buff);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f, atom, mode, TRUE, FALSE);
+  pl_stm_tbl[stm]->fct_close = (StmFct) pclose;
 
-  return Get_Integer(stm, stm_word);
+  return Pl_Get_Integer(stm, stm_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * EXEC_5                                                                  *
+ * PL_EXEC_5                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
-       WamWord stm_err_word, WamWord pid_word)
+Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
+	  WamWord stm_err_word, WamWord pid_word)
 {
   char *cmd;
   char **arg;
   int stm;
   FILE *f_in, *f_out, *f_err;
   int pid;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   int atom;
-  char err[64];
+  char err[1024];
 
-  cmd = Rd_String_Check(cmd_word);
-  arg = M_Create_Shell_Command(cmd);
+  cmd = Pl_Rd_String_Check(cmd_word);
+  arg = Pl_M_Create_Shell_Command(cmd);
 
-  Flush_All_Streams();
-  pid = M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, &f_err);
-  Os_Test_Error(pid == -1);
-  if (pid == -2)
+  Pl_Flush_All_Streams();
+  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, &f_err);
+
+  /* If the command is not found we get ENOENT under Windows. 
+   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
+
+  if (pid == -1 && errno != ENOENT)
+    Os_Test_Error(pid); /* ENOENT is for Windows */
+  if (pid < 0)
     {
-      sprintf(err, "error trying to execute %s", cmd);
-      Pl_Err_System(Create_Allocate_Atom(err));
+      sprintf(err, "error trying to execute %s (maybe not found)", cmd);
+      Pl_Err_System(Pl_Create_Allocate_Atom(err));
       return FALSE;
     }
 
   if (mask & 1)			/* pid needed ? */
-    Get_Integer(pid, pid_word);
+    Pl_Get_Integer(pid, pid_word);
 
-  sprintf(glob_buff, "exec_stream('%.1024s')", cmd);
-  atom = Create_Allocate_Atom(glob_buff);
+  sprintf(pl_glob_buff, "exec_stream('%.1024s')", cmd);
+  atom = Pl_Create_Allocate_Atom(pl_glob_buff);
 
-  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE);
-  Get_Integer(stm, stm_in_word);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
+  Pl_Get_Integer(stm, stm_in_word);
 #ifdef DEBUG
   DBGPRINTF("Added Stream Input: %d\n", stm);
 #endif
 
-  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE);
-  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Get_Integer(stm, stm_out_word);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
+  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  Pl_Get_Integer(stm, stm_out_word);
 
 #ifdef DEBUG
   DBGPRINTF("Added Stream Output: %d\n", stm);
 #endif
 
-  stm = Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE);
-  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Get_Integer(stm, stm_err_word);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
+  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  Pl_Get_Integer(stm, stm_err_word);
 #ifdef DEBUG
   DBGPRINTF("Added Stream Error: %d\n", stm);
 #endif
@@ -1094,35 +1169,35 @@ Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_PIPE_2                                                           *
+ * PL_CREATE_PIPE_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
+Pl_Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
 {
   int p[2];
   int stm;
   FILE *f_in, *f_out;
   int atom;
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   Os_Test_Error(_pipe(p, 4096, O_TEXT));
 #else
   Os_Test_Error(pipe(p));
 #endif
 
-  Os_Test_Error((f_in = fdopen(p[0], "rt")) == NULL);
-  sprintf(glob_buff, "pipe_stream_in");
-  atom = Create_Allocate_Atom(glob_buff);
-  stm = Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE);
-  stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Get_Integer(stm, stm_in_word);
+  Os_Test_Error_Null((f_in = fdopen(p[0], "rt")));
+  sprintf(pl_glob_buff, "pipe_stream_in");
+  atom = Pl_Create_Allocate_Atom(pl_glob_buff);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_READ, TRUE, FALSE);
+  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+  Pl_Get_Integer(stm, stm_in_word);
 
-  Os_Test_Error((f_out = fdopen(p[1], "wt")) == NULL);
-  sprintf(glob_buff, "pipe_stream_out");
-  atom = Create_Allocate_Atom(glob_buff);
-  stm = Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE);
-  Get_Integer(stm, stm_out_word);
+  Os_Test_Error_Null((f_out = fdopen(p[1], "wt")));
+  sprintf(pl_glob_buff, "pipe_stream_out");
+  atom = Pl_Create_Allocate_Atom(pl_glob_buff);
+  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_WRITE, TRUE, FALSE);
+  Pl_Get_Integer(stm, stm_out_word);
 
   return TRUE;
 }
@@ -1131,16 +1206,16 @@ Create_Pipe_2(WamWord stm_in_word, WamWord stm_out_word)
 
 
 /*-------------------------------------------------------------------------*
- * FORK_PROLOG_1                                                           *
+ * PL_FORK_PROLOG_1                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fork_Prolog_1(WamWord pid_word)
+Pl_Fork_Prolog_1(WamWord pid_word)
 
 {
-#if defined(M_ix86_win32)
+#ifdef _WIN32
 
-  Pl_Err_Resource(Create_Atom("not implemented"));
+  Pl_Err_Resource(Pl_Create_Atom("not implemented"));
   return FALSE;
 
 #else
@@ -1148,9 +1223,9 @@ Fork_Prolog_1(WamWord pid_word)
   int pid;
 
   pid = fork();
-  Os_Test_Error(pid == -1);
+  Os_Test_Error(pid);
 
-  return Get_Integer(pid, pid_word);
+  return Pl_Get_Integer(pid, pid_word);
 
 #endif
 }
@@ -1159,17 +1234,17 @@ Fork_Prolog_1(WamWord pid_word)
 
 
 /*-------------------------------------------------------------------------*
- * SELECT_5                                                                *
+ * PL_SELECT_5                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Select_5(WamWord reads_word, WamWord ready_reads_word,
+Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
 	 WamWord writes_word, WamWord ready_writes_word,
 	 WamWord time_out_word)
 {
-#if defined(M_ix86_win32) && defined(NO_USE_SOCKETS)
+#if defined(_WIN32) && defined(NO_USE_SOCKETS)
 
-  Pl_Err_Resource(Create_Atom("not implemented"));
+  Pl_Err_Resource(Pl_Create_Atom("not implemented"));
   return FALSE;
 
 #else
@@ -1180,15 +1255,15 @@ Select_5(WamWord reads_word, WamWord ready_reads_word,
   int max, n;
 
   max = Select_Init_Set(reads_word, &read_set, STREAM_CHECK_INPUT);
-  Check_For_Un_List(ready_reads_word);
+  Pl_Check_For_Un_List(ready_reads_word);
   n = Select_Init_Set(writes_word, &write_set, STREAM_CHECK_OUTPUT);
   if (n > max)
     max = n;
 
-  Check_For_Un_List(ready_writes_word);
+  Pl_Check_For_Un_List(ready_writes_word);
 
 
-  time_out = Rd_Number_Check(time_out_word);
+  time_out = Pl_Rd_Number_Check(time_out_word);
   if (time_out <= 0)
     p = NULL;
   else
@@ -1199,7 +1274,7 @@ Select_5(WamWord reads_word, WamWord ready_reads_word,
     }
 
 
-  Os_Test_Error(select(max + 1, &read_set, &write_set, NULL, p) < 0);
+  Os_Test_Error(select(max + 1, &read_set, &write_set, NULL, p));
 
 
   return Select_Init_Ready_List(reads_word, &read_set, ready_reads_word) &&
@@ -1238,26 +1313,26 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask);
       if (tag_mask == TAG_INT_MASK)
-	fd = Rd_Positive_Check(word);
+	fd = Pl_Rd_C_Int_Positive_Check(word);
       else
 	{
-	  stm = Get_Stream_Or_Alias(word, check);
+	  stm = Pl_Get_Stream_Or_Alias(word, check);
 
-	  fd = Io_Fileno_Of_Stream(stm);
+	  fd = Pl_Io_Fileno_Of_Stream(stm);
 	  if (fd < 0)
-	    Pl_Err_Domain(domain_selectable_item, word);
+	    Pl_Err_Domain(pl_domain_selectable_item, word);
 	}
 
-#ifdef FD_SETSIZE
+#if !defined(_WIN32) && defined(FD_SETSIZE)	/* not true on Windows */
       if (fd >= FD_SETSIZE)
 	{
 	  errno = EBADF;
-	  Os_Test_Error(1);
+	  Os_Test_Error(-1);
 	}
 #endif
 
@@ -1296,53 +1371,53 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       DEREF(Car(lst_adr), word, tag_mask);
 
       if (tag_mask == TAG_INT_MASK)
-	fd = UnTag_INT(word);
+	fd = (int) UnTag_INT(word);
       else
 	{
-	  stm = Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
-	  fd = (stm < 0) ? -1 : Io_Fileno_Of_Stream(stm);
+	  stm = Pl_Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
+	  fd = (stm < 0) ? -1 : Pl_Io_Fileno_Of_Stream(stm);
 	}
 
       if (FD_ISSET(fd, set))
 	{
-	  if (!Get_List(ready_list_word) || !Unify_Value(word))
+	  if (!Pl_Get_List(ready_list_word) || !Pl_Unify_Value(word))
 	    return FALSE;
 
-	  ready_list_word = Unify_Variable();
+	  ready_list_word = Pl_Unify_Variable();
 	}
 
       list_word = Cdr(lst_adr);
     }
 
-  return Get_Nil(ready_list_word);
+  return Pl_Get_Nil(ready_list_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PROLOG_PID_1                                                            *
+ * PL_PROLOG_PID_1                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Prolog_Pid_1(WamWord prolog_pid_word)
+Pl_Prolog_Pid_1(WamWord prolog_pid_word)
 {
   int prolog_pid;
 
   prolog_pid = (int) getpid();
 
-  return Un_Integer_Check(prolog_pid, prolog_pid_word);
+  return Pl_Un_Integer_Check(prolog_pid, prolog_pid_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SEND_SIGNAL_2                                                           *
+ * PL_SEND_SIGNAL_2                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Send_Signal_2(WamWord pid_word, WamWord signal_word)
+Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
 {
   WamWord word, tag_mask;
   int pid;
@@ -1350,12 +1425,12 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
   int atom;
   int i;
 
-  pid = Rd_Integer_Check(pid_word);
+  pid = Pl_Rd_C_Int_Check(pid_word);
 
   DEREF(signal_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = (int) UnTag_ATM(word);
       sig = -1;
       for (i = 0; i < nb_sig; i++)
 	if (tsig[i].atom == atom)
@@ -1365,16 +1440,16 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
 	  }
     }
   else
-    sig = Rd_Integer_Check(word);
+    sig = Pl_Rd_C_Int_Check(word);
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
   {
     int ret;
 
     if (pid != _getpid())
       {
 	errno = EINVAL;
-	ret = 1;
+	ret = -1;
       }
     else
       {
@@ -1395,45 +1470,39 @@ Send_Signal_2(WamWord pid_word, WamWord signal_word)
 
 
 /*-------------------------------------------------------------------------*
- * WAIT_2                                                                  *
+ * PL_WAIT_2                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Wait_2(WamWord pid_word, WamWord status_word)
+Pl_Wait_2(WamWord pid_word, WamWord status_word)
 {
   int pid;
   int status;
 
-  pid = Rd_Integer_Check(pid_word);
-  Check_For_Un_Integer(status_word);
+  pid = Pl_Rd_C_Int_Check(pid_word);
+  Pl_Check_For_Un_Integer(status_word);
 
-#ifdef M_ix86_win32
-  Os_Test_Error(_cwait(&status, pid, _WAIT_CHILD) == -1);
-#else
-  Os_Test_Error(waitpid(pid, &status, 0) == -1);
+  status  = Pl_M_Get_Status(pid);
+  Os_Test_Error(status);
 
-  if (WIFEXITED(status))
-    status = WEXITSTATUS(status);
-#endif
-
-  return Get_Integer(status, status_word);
+  return Pl_Get_Integer(status, status_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GET_PATH_NAME                                                           *
+ * GET_PATH_NAME0                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Path_Name(WamWord path_name_word)
+Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash)
 {
   char *path_name;
 
-  path_name = Rd_String_Check(path_name_word);
-  if ((path_name = M_Absolute_Path_Name(path_name)) == NULL)
-    Pl_Err_Domain(domain_os_path, path_name_word);
+  path_name = Pl_Rd_String_Check(path_name_word);
+  if ((path_name = Pl_M_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
+    Pl_Err_Domain(pl_domain_os_path, path_name_word);
 
   return path_name;
 }
@@ -1468,28 +1537,28 @@ Date_Time_To_Prolog(time_t *t, WamWord date_time_word)
   DEREF(date_time_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_LST_MASK &&
       tag_mask != TAG_STC_MASK)
-    Pl_Err_Type(type_compound, word);
+    Pl_Err_Type(pl_type_compound, word);
 
-  if (!Get_Structure(atom_dt, 6, word))
-    Pl_Err_Domain(domain_date_time, word);
+  if (!Pl_Get_Structure(atom_dt, 6, word))
+    Pl_Err_Domain(pl_domain_date_time, word);
 
-  year_word = Unify_Variable();
-  month_word = Unify_Variable();
-  day_word = Unify_Variable();
-  hour_word = Unify_Variable();
-  minute_word = Unify_Variable();
-  second_word = Unify_Variable();
+  year_word = Pl_Unify_Variable();
+  month_word = Pl_Unify_Variable();
+  day_word = Pl_Unify_Variable();
+  hour_word = Pl_Unify_Variable();
+  minute_word = Pl_Unify_Variable();
+  second_word = Pl_Unify_Variable();
 
-  Check_For_Un_Integer(year_word);
-  Check_For_Un_Integer(month_word);
-  Check_For_Un_Integer(day_word);
-  Check_For_Un_Integer(hour_word);
-  Check_For_Un_Integer(minute_word);
-  Check_For_Un_Integer(second_word);
+  Pl_Check_For_Un_Integer(year_word);
+  Pl_Check_For_Un_Integer(month_word);
+  Pl_Check_For_Un_Integer(day_word);
+  Pl_Check_For_Un_Integer(hour_word);
+  Pl_Check_For_Un_Integer(minute_word);
+  Pl_Check_For_Un_Integer(second_word);
 
-  return Get_Integer(year, year_word) &&
-    Get_Integer(month, month_word) &&
-    Get_Integer(day, day_word) &&
-    Get_Integer(hour, hour_word) &&
-    Get_Integer(minute, minute_word) && Get_Integer(second, second_word);
+  return Pl_Get_Integer(year, year_word) &&
+    Pl_Get_Integer(month, month_word) &&
+    Pl_Get_Integer(day, day_word) &&
+    Pl_Get_Integer(hour, hour_word) &&
+    Pl_Get_Integer(minute, minute_word) && Pl_Get_Integer(second, second_word);
 }

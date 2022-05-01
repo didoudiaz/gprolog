@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Daniel Diaz 
+# Manual fix-point checker
+#
+# Usage: check_fp dvi/pdf prefix [ verbose ]
+#
+#    dvi/pdf:  dvi to use latex, pdf to use pdflatex
+#    prefix:   LaTeX file name prefix
+#    verbose:  0 no, 1 yes
+
+verbose_msg ()
+
+{
+ test $verbose = 1 && echo $*
+}
+
+
+
+differ ()
+
+{
+ if diff $1 $2  >/dev/null 2>&1
+ then
+    false
+ else
+    true
+ fi
+}
+
+
+copy ()
+
+{
+ f=$1.$2
+ fp=$f.fp
+
+ if test ! -f $f; then
+    verbose_msg "$f does not exist - rebuild (rm $res)"
+    rm -f $res
+    return
+ fi
+
+ if test ! -f $fp || `differ $f $fp`; then
+    verbose_msg "$f and $fp differ - rebuild (rm $res)"
+    cp $f $fp
+    rm -f $res
+    return
+ fi
+
+ verbose_msg $f and $fp are identical
+}
+
+type=$1
+base=$2
+verbose=${3:-0}
+
+if test $1 = pdf; then
+    res=$base.pdf
+else
+    res=$base.dvi
+fi
+
+copy $base aux
+copy $base toc
+copy $base idx
+
+exit 0
+

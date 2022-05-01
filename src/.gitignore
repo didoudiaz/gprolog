@@ -1,0 +1,15 @@
+TO_DO
+TO_OPTIMIZE
+CONF
+MSCONF
+VC_TODO
+Makefile
+LocalStuff
+Release
+TestsPl
+DevUtils
+config.status
+config.cache
+autom4te.cache
+config.log
+gprolog-*.tar*

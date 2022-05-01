@@ -6,23 +6,35 @@
  * Descr.: atom table management - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #if 1
 #define OPTIM_1_CHAR_ATOM
@@ -53,8 +65,10 @@
 
 
 
+/* NB: (hash) atom table size should not be < ATOM_NIL (else module will change it) */
 
-#define ATOM_NIL                  1766
+#define ATOM_NIL                 256
+
 
 
 
@@ -68,10 +82,10 @@
 
 
 
-#define Is_Valid_Code(c)           ((unsigned) (c)-1 <256-1)	/* 1<= c <256 */
-#define Is_Valid_Byte(c)           ((unsigned) (c) <256)	/* 0=< c <256 */
-#define Is_Valid_Atom(a)           ((a)>=0 && (a)<MAX_ATOM && \
-                                    atom_tbl[(a)].name!=NULL)
+#define Is_Valid_Code(c)           ((PlULong) (c)-1 < 256-1)    /* 1 <= c < 256 */
+#define Is_Valid_Byte(c)           ((PlULong) (c) < 256)	/* 0 <= c < 256 */
+#define Is_Valid_Atom(a)           ((PlULong) (a) < pl_max_atom && \
+                                    pl_atom_tbl[(a)].name!=NULL)
 
 
 
@@ -96,9 +110,11 @@ AtomProp;
 typedef struct			/* Atom information               */
 {				/* ------------------------------ */
   char *name;			/* key is <name> (the string)     */
+  unsigned hash;		/* the hash code of string (name) */
   AtomProp prop;		/* associated properties          */
   char **modules;		/* module predicate tables        */
 				/* (indexed with the arity)       */
+  void *info;			/* user info (used by g_var)      */
 }
 AtomInf;
 
@@ -111,53 +127,56 @@ AtomInf;
 
 #ifdef ATOM_FILE
 
-AtomInf atom_tbl[MAX_ATOM];
-int nb_atom;
+AtomInf *pl_atom_tbl;
+PlULong pl_max_atom;
+PlULong pl_nb_atom;
 
-int atom_void;
-int atom_curly_brackets;
+int pl_atom_void;
+int pl_atom_curly_brackets;
 
-int atom_false;
-int atom_true;
+int pl_atom_false;
+int pl_atom_true;
 
-int atom_end_of_file;
+int pl_atom_end_of_file;
 
 #ifndef OPTIM_1_CHAR_ATOM
 int atom_char[256];
 #endif
 
-    /* int     char_type[256];                    see definition in atom.c */
-char char_conv[256];
+    /* int     pl_char_type[256];                    see definition in atom.c */
+char pl_char_conv[256];
 
 
-    /* char    escape_symbol[];                   see definition in atom.c */
-    /* char    escape_char  [];                   see definition in atom.c */
+    /* char    pl_escape_symbol[];                   see definition in atom.c */
+    /* char    pl_escape_char  [];                   see definition in atom.c */
 
 #else
 
-extern AtomInf atom_tbl[];
-extern int nb_atom;
+extern AtomInf *pl_atom_tbl;
+extern PlULong pl_max_atom;
+extern PlULong pl_nb_atom;
 
-extern int atom_void;
-extern int atom_curly_brackets;
+extern int pl_atom_void;
+extern int pl_atom_curly_brackets;
 
-extern int atom_false;
-extern int atom_true;
+extern int pl_atom_false;
+extern int pl_atom_true;
 
-extern int atom_end_of_file;
+extern int pl_atom_end_of_file;
 
 #ifndef OPTIM_1_CHAR_ATOM
 extern int atom_char[];
 #endif
 
-extern char char_conv[];
-extern int char_type[];
+extern char pl_char_conv[];
+extern int pl_char_type[];
 
-extern char escape_symbol[];
-extern char escape_char[];
+extern char pl_escape_symbol[];
+extern char pl_escape_char[];
 
 #endif
 
+PlLong pl_def_max_atom;		/* overwritten if needed (see top_comp.c) */
 
 
 
@@ -165,19 +184,19 @@ extern char escape_char[];
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Atom(void);
+void Pl_Init_Atom(void);
 
-int Create_Allocate_Atom(char *name) FC;
+int Pl_Create_Allocate_Atom(char *name);
 
-int Create_Atom(char *name) FC;
+int Pl_Create_Atom(char *name);
 
-WamWord Create_Atom_Tagged(char *name) FC;
+WamWord FC Pl_Create_Atom_Tagged(char *name);
 
-int Find_Atom(char *name) FC;
+int Pl_Find_Atom(char *name);
 
-int Gen_New_Atom(unsigned char *prefix, int hash) FC;
+int Pl_Gen_New_Atom(char *prefix);
 
-int Find_Next_Atom(int last_atom) FC;
+int Pl_Find_Next_Atom(int last_atom);
 
 
 

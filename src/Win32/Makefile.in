@@ -1,0 +1,46 @@
+NAME         = @PROLOG_DIALECT@
+VERSION      = @PROLOG_VERSION@
+PKG_NAME     = @PKG_NAME@
+CC           = @CC@ @CFLAGS_MACHINE@
+CFLAGS       = @CFLAGS@
+WITH_MSVC    = @WITH_MSVC@
+WIN_TMP_DIR  = @WIN_TMP_DIR@
+WIN_CONF_OPT = @WIN_CONF_OPT@
+ISCC         = iscc.exe
+AS           = @AS@
+
+
+# the name gprolog_win32 is also used inside gp-setup.iss.in
+TMPDIR=/tmp/gprolog_win32
+
+# put create-bat as a target (not as a dependency) to avoid conflict 32/64 bits
+create-bat: create_bat.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@create_bat@EXE_SUFFIX@ create_bat.c
+
+compile:
+	(cd ..; make copy_dist_tree distdir=/tmp/)
+	compile_install "$(WIN_CONF_OPT)" /tmp/$(PKG_NAME)/src $(TMPDIR)
+
+compile-link:
+	compile_install "$(WIN_CONF_OPT)" .. $(TMPDIR)
+
+
+setup: compile create-setup
+
+
+setup-link: compile-link create-setup
+
+
+create-setup: create-bat
+	if test $(WITH_MSVC) != no; then cp `which $(AS)` $(TMPDIR)/bin; fi
+	cp create_bat@EXE_SUFFIX@ $(TMPDIR)/bin
+	$(ISCC) gp-setup.iss
+
+../$(PKG_NAME).tar.gz:
+	(cd ..; make dist)
+
+clean:
+	rm -rf create_bat@OBJ_SUFFIX@ create_bat@EXE_SUFFIX@ /tmp/$(PKG_NAME).tar.gz /tmp/$(PKG_NAME) $(TMPDIR)
+
+
+distclean: clean

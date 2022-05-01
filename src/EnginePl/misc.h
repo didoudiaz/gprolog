@@ -6,23 +6,35 @@
  * Descr.: miscellaneous operations - header file                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 
@@ -42,29 +54,63 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Malloc_Check(unsigned size, char *src_file, int src_line);
+char *Pl_Malloc_Check(unsigned size, char *src_file, int src_line);
 
-char *Calloc_Check(unsigned nb, unsigned size, char *src_file,
+char *Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file,
 		   int src_line);
 
-char *Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
+char *Pl_Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
 
-char *Strdup_Check(char *str, char *src_file, int src_line);
+char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 
-#define Malloc(size)       Malloc_Check(size, __FILE__, __LINE__)
+#define Malloc(size)       Pl_Malloc_Check(size, __FILE__, __LINE__)
 
-#define Calloc(nb, size)   Calloc_Check(nb, size, __FILE__, __LINE__)
+#define Calloc(nb, size)   Pl_Calloc_Check(nb, size, __FILE__, __LINE__)
 
-#define Realloc(ptr, size) Realloc_Check(ptr, size, __FILE__, __LINE__)
+#define Realloc(ptr, size) Pl_Realloc_Check(ptr, size, __FILE__, __LINE__)
 
 #define Free(ptr)          free(ptr)
 
-#define Strdup(str)        Strdup_Check(str, __FILE__, __LINE__)
+#define Strdup(str)        Pl_Strdup_Check(str, __FILE__, __LINE__)
 
-void Extend_Table_If_Needed(char **hash_tbl);
+void Pl_Extend_Table_If_Needed(char **hash_tbl);
 
-void Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
+void Pl_Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);
 
-void Exit_With_Value(int ret_val);
+void Pl_Exit_With_Value(int ret_val);
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
+
+
+
+/* NB: for LSB/MSB the result is undefined if x == 0 */
+
+#if defined(__GNUC__) && __GNUC__ >= 4 && SIZEOF_LONG == SIZEOF_PTR
+
+#define Pl_Least_Significant_Bit(x)   (__builtin_ctzl(x))
+
+#define Pl_Most_Significant_Bit(x)    (WORD_SIZE - 1 - __builtin_clzl(x))
+
+#define Pl_Count_Set_Bits(x)          (__builtin_popcountl(x))
+
+
+#else /* !__GNUC__ || __GNUC__ < 4 || SIZEOF_LONG != SIZEOF_PTR */
+
+#define Pl_Least_Significant_Bit(x)   Pl_LSB(x)
+
+#define Pl_Most_Significant_Bit(x)    Pl_MSB(x)
+
+#define Pl_Count_Set_Bits(x)          Pl_Popcount(x)
+
+int Pl_LSB(PlLong x);
+
+int Pl_MSB(PlLong x);
+
+int Pl_Popcount(PlLong x);
+
+#endif /* !__GNUC__ || __GNUC__ < 4 || SIZEOF_LONG != SIZEOF_PTR */
+
+
+void *Pl_Dummy_Ptr(void *p);
+
+

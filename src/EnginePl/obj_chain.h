@@ -6,55 +6,46 @@
  * Descr.: object chaining management - header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
+
+#include "gp_config.h"
+#include "pl_long.h"
 
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
 
-#define OBJ_CHAIN_MAGIC_1          0xdeadbeef
-#define OBJ_CHAIN_MAGIC_2          0x12345678
-
-
-
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
-
-#ifndef _MSC_VER
-
-typedef struct objchain *PObjChain;
-
-typedef struct objchain
-{
-  long magic1;
-  long magic2;
-  PObjChain *next;
-  void (*fct_init) ();
-}
-ObjChain;
-
-#endif
-
-
-
 
 /*---------------------------------*
  * Global Variables                *
@@ -64,33 +55,51 @@ ObjChain;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Find_Linked_Objects(void);
+void Pl_Find_Linked_Objects(void);
 
-void New_Object(void (*fct_exec_system) (), void (*fct_exec_user) ());
-
+void Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ());
 
 
 #ifdef OBJ_INIT
 
-static void (OBJ_INIT) ();
+static void OBJ_INIT(void);
 
-#ifndef _MSC_VER
+#define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
 
-static ObjChain *obj_chain_stop;
 
-static ObjChain obj_chain_start =
-  { OBJ_CHAIN_MAGIC_1, OBJ_CHAIN_MAGIC_2, &obj_chain_stop, OBJ_INIT };
+#ifdef __GNUC__
+static void __attribute__ ((constructor))
+OBJ_CTOR(void)
+{
+  Pl_New_Object(OBJ_INIT, NULL, NULL);
+}
 
-static ObjChain *obj_chain_stop = &obj_chain_start;
 
-#else
+#else /* _MSC_VER */
 
-#pragma data_seg(".INIT$b")
+static void
+OBJ_CTOR(void)
+{
+  Pl_New_Object(OBJ_INIT, NULL, NULL);
+}
 
-static long obj_chain_start = (long) OBJ_INIT;
+#pragma data_seg(".GPLC$m")
+
+static PlLong obj_chain_start = (PlLong) OBJ_CTOR;
 
 #pragma data_seg()
 
 #endif /* _MSC_VER */
 
 #endif /* OBJ_INIT */
+
+
+
+#if (defined(_MSC_VER) || defined(M_darwin)) && !defined(OBJ_CHAIN_REVERSE_ORDER)
+#define OBJ_CHAIN_REVERSE_ORDER
+#endif
+
+#if 0
+#define OBJ_CHAIN_REVERSE_ORDER
+#endif
+

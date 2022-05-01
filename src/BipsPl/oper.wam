@@ -1,24 +1,20 @@
-% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
+% compiler: GNU Prolog 1.5.1
 % file    : oper.pl
-% date    : 6 12 2002
-% time    : 13:44:57
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/oper.pl').
+file_name('/home/diaz/GP/src/BipsPl/oper.pl').
 
 
-predicate('$use_oper'/0,29,static,private,built_in,[
+predicate('$use_oper'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(op/3,31,static,private,built_in,[
+predicate(op/3,43,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    put_atom(op,0),
-    put_integer(3,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[op,3]),
     put_value(y(2),0),
     call('$check_atom_or_atom_list'/1),
     put_value(y(2),0),
@@ -28,12 +24,13 @@ predicate(op/3,31,static,private,built_in,[
     execute('$op/3_$aux1'/3)]).
 
 
-predicate('$op/3_$aux1'/3,31,static,private,built_in,[
-    load_cut_level(3),
+predicate('$op/3_$aux1'/3,43,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     get_variable(x(4),2),
     get_variable(x(2),0),
-    call_c('Blt_Atom',[fast_call,boolean],[x(2)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(2)]),
     cut(x(3)),
     put_value(x(1),0),
     put_value(x(4),1),
@@ -47,7 +44,7 @@ label(1),
     execute('$op1'/3)]).
 
 
-predicate('$op1'/3,40,static,private,built_in,[
+predicate('$op1'/3,52,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -77,19 +74,17 @@ label(4),
     execute('$op1'/3)]).
 
 
-predicate('$op2'/3,47,static,private,built_in,[
-    call_c('Op_3',[],[x(0),x(1),x(2)]),
+predicate('$op2'/3,59,static,private,monofile,built_in,[
+    call_c('Pl_Op_3',[],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(current_op/3,53,static,private,built_in,[
-    put_atom(current_op,3),
-    put_integer(3,4),
-    call_c('Set_Bip_Name_2',[],[x(3),x(4)]),
-    call_c('Current_Op_3',[boolean],[x(0),x(1),x(2)]),
+predicate(current_op/3,65,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_op,3]),
+    call_c('Pl_Current_Op_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$current_op_alt'/0,58,static,private,built_in,[
-    call_c('Current_Op_Alt_0',[boolean],[]),
+predicate('$current_op_alt'/0,70,static,private,monofile,built_in,[
+    call_c('Pl_Current_Op_Alt_0',[boolean],[]),
     proceed]).

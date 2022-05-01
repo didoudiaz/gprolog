@@ -6,23 +6,35 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * Data structures:                                                        *
@@ -79,6 +91,13 @@
  * ensure_linked(Pred,N):                                                  *
  *    asserted for each Pred/N occuring in a :- ensure_linked directive.   *
  *                                                                         *
+ * module_export(Pred,N,Module):                                           *
+ *    asserted for each imported Pred/N from Module.                       *
+ *    asserted for each exported Pred/N from Module.                       *
+ *                                                                         *
+ * meta_pred(Pred,N,MetaDecl):                                             *
+ *    asserted for each meta_predicate declaration.                        *
+ *                                                                         *
  * Buffers for executable directive management (with assert/retract):      *
  *                                                                         *
  * buff_exe_system(SrcDirec)                                               *
@@ -115,10 +134,15 @@ read_file_init(PlFile) :-
 	retractall(empty_dyn_pred(_, _, _)),
 	retractall(ensure_linked(_, _)),
 	retractall(pred_info(_, _, _)),
+	retractall(module_export(_, _, _)),
+	retractall(meta_pred(_, _, _)),
+	g_assign(module, user),
+	g_assign(module_already_seen, f),
 	g_assign(default_kind, user),
 	g_assign(reading_dyn_pred, f),
 	g_assign(eof_reached, f),
 	g_assign(open_file_stack, []),
+	g_assign(if_stack, []),
 	g_assign(where, 0),
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
@@ -143,15 +167,52 @@ read_file_error_nb(SynErrNb) :-
 
 
 open_new_prolog_file(PlFile0) :-
-	prolog_file_name(PlFile0, PlFile),
-	(   PlFile = user ->
-	    current_input(Stream)
-	;   open(PlFile, read, Stream)
-	),
 	g_read(open_file_stack, OpenFileStack),
-	g_assign(open_file_stack, [PlFile * Stream|OpenFileStack]).
+	prolog_file_name(PlFile0, PlFile),
+	open_new_prolog_file1(PlFile, OpenFileStack, PlFile1, Stream), !,
+	g_assign(open_file_stack, [PlFile1 * Stream|OpenFileStack]),
+	(   peek_char(Stream, '#'), % ignore #! starting line (for shebang support)
+	    repeat,
+	    get_char(Stream, X),
+	    (X = '\n' ; X = end_of_file)
+	;
+	    true
+	).
 
 
+open_new_prolog_file1(user, _, user, Stream) :-
+	current_input(Stream).
+	
+open_new_prolog_file1(PlFile, _, PlFile, Stream) :-
+%	format('~n*** Trying to open ~a~n', [PlFile]),
+	catch(open(PlFile, read, Stream), error(existence_error(source_sink, _), _), fail).
+
+open_new_prolog_file1(PlFile, OpenFileStack, PlFile1, Stream) :-
+%	format('file stack: ~w~n', [OpenFileStack]),
+	is_relative_file_name(PlFile),
+	try_other_directory(OpenFileStack, PlFile, PlFile1, Stream).
+
+open_new_prolog_file1(PlFile, _, _, _) :-
+	throw(error(existence_error(source_sink, PlFile), open/3)).
+
+
+	/* If an included file is not found try to look in "parents" (includers) path.
+	 * If found return the new name (to have correct error msg and file_name in .wam)
+	 */
+
+try_other_directory([PlFile1 * _|_], PlFile, PlFile2, Stream) :-
+	decompose_file_name(PlFile1, Directory, _, _),
+	Directory \== '',
+	atom_concat(Directory, PlFile, PlFile2),
+%	format('   fail.~n+++ Trying to open ~a~n', [PlFile2]),
+	catch(open(PlFile2, read, Stream), _, fail).
+
+try_other_directory([_|OpenFileStack], PlFile, PlFile1, Stream) :-
+	try_other_directory(OpenFileStack, PlFile, PlFile1, Stream).
+
+
+
+	
 
 
 close_last_prolog_file :-
@@ -193,7 +254,7 @@ read_predicate(Pred, N, LSrcCl) :-
 
 
 read_predicate_next(Pred, N, LSrcCl) :-
-	test_pred_info(dyn, Pred, N), !,
+	(test_pred_info(dyn, Pred, N) ; test_pred_info(multi, Pred, N)), !,
 	LSrcCl = [Where + _|_],
 	add_dyn_interf_clause(Pred, N, Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N),
@@ -235,14 +296,12 @@ read_predicate1(Pred, N, LSrcCl) :-
 	group_clauses_by_pred(Pred, N, SrcCl, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
-	retract(buff_discontig_clause(Pred, N, SrcCl)),  % discontiguous pred
-	                                                !,
+	retract(buff_discontig_clause(Pred, N, SrcCl)), !,  % discontiguous pred
 	recover_discontig_clauses(Pred, N, LSrcCl).
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
-	retract(buff_dyn_interf_clause(Pred, N, SrcCl)),      % dyn predicate
-	                                                 !.
+	retract(buff_dyn_interf_clause(Pred, N, SrcCl)), !.     % dyn predicate
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
@@ -269,8 +328,8 @@ read_predicate1(Pred, N, LSrcCl) :-
 read_predicate1(Pred, N, LSrcCl) :-
 	Pred = end_of_file,
 	N = 0,
-	LSrcCl = [],                                            % end of file
-	             !.
+	LSrcCl = [], !.                                         % end of file
+
 
 
 
@@ -292,8 +351,7 @@ group_clauses_by_pred(Pred, N, SrcCl, [SrcCl|LSrcCl1]) :-
 
 
 add_dyn_interf_clause(Pred, N, _) :-
-	clause(buff_dyn_interf_clause(Pred, N, _), true),  % already asserted
-	                                                  !.
+	clause(buff_dyn_interf_clause(Pred, N, _), true), !.  % already asserted
 
 add_dyn_interf_clause(Pred, N, Where) :-
 	create_dyn_interf_clause(Pred, N, Where, SrcCl),
@@ -323,8 +381,9 @@ create_exe_clauses_for_dyn_pred([], _, _).
 
 create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
+	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	handle_initialization(system, '$add_clause_term_and_bc'(Cl, [execute(AuxName / N)]), Where),
+	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -333,8 +392,12 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 create_exe_clauses_for_pub_pred([]).
 
 create_exe_clauses_for_pub_pred([Where + Cl|LSrcCl]) :-
-	handle_initialization(system, '$add_clause_term'(Cl), Where),
+	get_file_name(Where, PlFile),
+	handle_initialization(system, '$add_clause_term'(Cl, PlFile), Where),
 	create_exe_clauses_for_pub_pred(LSrcCl).
+
+
+get_file_name([PlFile * _|_] + _, PlFile).
 
 
 
@@ -363,6 +426,8 @@ get_next_clause(Pred, N, SrcCl) :-
 	;   get_next_clause(Pred, N, SrcCl)
 	), !.
 
+
+
 get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	close_last_prolog_file,
 	g_read(open_file_stack, OpenFileStack),
@@ -370,7 +435,13 @@ get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	    Pred = end_of_file,
 	    N = 0,
 	    SrcCl = _ + end_of_file,
-	    g_assign(eof_reached, t)
+	    g_assign(eof_reached, t),
+	    (   g_read(if_stack, []) ->
+		true
+	    ;
+		error('endif directive expected', [])
+	    )
+
 	;   get_next_clause(Pred, N, SrcCl)
 	).
 
@@ -399,6 +470,8 @@ get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	;   error('head is not a callable (~q)', [Head])
 	),
 	functor(Head, Pred, N),
+	check_head_is_module_free(Head),
+	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
 	display_singletons(SingNames, Pred / N).
 
@@ -413,10 +486,10 @@ after_syn_error :-
 	g_read(syn_error_nb, SynErrNb),
 	SynErrNb1 is SynErrNb + 1,
 	g_assign(syn_error_nb, SynErrNb1),
-	syntax_error_info(_, Line, Char, Msg),
+	syntax_error_info(_, Line, Column, Msg),
 	g_read(open_file_stack, OpenFileStack),
 	g_assign(where, OpenFileStack + (Line - Line)),
-	disp_msg('syntax error: ~a (char:~d)', [Msg, Char], error).
+	disp_msg('syntax error', Column, '~a', [Msg]).
 
 
 
@@ -474,6 +547,12 @@ handle_directive(dynamic, DLst, Where) :-
 	set_flag_for_preds(DLst, pub),
 	add_empty_dyn(DLst, Where).
 
+handle_directive(multifile, DLst, Where) :-
+	!,
+	DLst \== [],
+	set_flag_for_preds(DLst, multi),
+	add_empty_dyn(DLst, Where).
+
 handle_directive(discontiguous, DLst, _) :-
 	!,
 	DLst \== [],
@@ -503,9 +582,9 @@ handle_directive(ensure_linked, DLst, _) :-
 	    add_ensure_linked(DLst)
 	).
 
-handle_directive(multifile, _, _) :-
+handle_directive(encoding, _, _) :-
 	!,
-	warn('multifile directive not supported - directive ignored', []).
+	warn('encoding directive not supported - directive ignored', []).
 
 handle_directive(ensure_loaded, _, _) :-
 	!,
@@ -538,6 +617,32 @@ handle_directive(initialization, [Body], Where) :-
 	!,
 	handle_initialization(user, Body, Where).
 
+
+handle_directive(module, [Module, DLst], _) :-
+	!,
+	(   g_read(module_already_seen, f) ->
+	    check_module_name(Module, false),
+	    g_assign(module_already_seen, t),
+	    g_assign(module, Module),
+	    add_module_export_info(DLst, Module)
+	;
+	    error('directive module/2 already declared', [])
+	).
+
+handle_directive(use_module, [Module, DLst], _) :-
+	!,
+	check_module_name(Module, false),
+	add_module_export_info(DLst, Module).
+
+handle_directive(meta_predicate, [MetaDecl], _) :-
+	!,
+	(   callable(MetaDecl) ->
+	    functor(MetaDecl, Pred, N),
+	    set_flag_for_preds(Pred/N, meta),
+	    assertz(meta_pred(Pred, N, MetaDecl))
+	;
+	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
+	).
 
 handle_directive(foreign, [Template], Where) :-
 	!,
@@ -708,7 +813,11 @@ add_empty_dyn((P1, P2), Where) :-
 	add_empty_dyn(P2, Where).
 
 add_empty_dyn(Pred / N, Where) :-
-	assertz(empty_dyn_pred(Pred, N, Where)).
+	(   clause(empty_dyn_pred(Pred, N, _), _) ->
+	    true
+	;
+	    assertz(empty_dyn_pred(Pred, N, Where))
+	).
 
 
 
@@ -731,6 +840,100 @@ add_ensure_linked(Pred / N) :-
 
 add_ensure_linked(Pred / N) :-
 	assertz(ensure_linked(Pred, N)).
+
+
+
+
+add_module_export_info([], _) :-
+	!.
+
+add_module_export_info([P1|P2], Module) :-
+	!,
+	add_module_export_info(P1, Module),
+	add_module_export_info(P2, Module).
+
+add_module_export_info((P1, P2), Module) :-
+	!,
+	add_module_export_info(P1, Module),
+	add_module_export_info(P2, Module).
+
+add_module_export_info(Pred / N, _) :-
+	clause(module_export(Pred, N, Module1), true), !,
+	error('predicate ~w already exported from module ~w', [Pred/N, Module1]).
+
+add_module_export_info(Pred / N, Module) :-
+	assertz(module_export(Pred, N, Module)),
+	(   test_pred_info(def, Pred, N) ->
+	    check_module_clash(Pred, N)
+	;
+	    true
+	).
+
+
+check_module_name(Module, true) :-
+	var(Module), !.
+
+check_module_name(Module, _) :-
+	atom(Module), !.
+
+check_module_name(Module, _) :-
+	error('invalid module name (~q) should be an atom', [Module]).
+
+/*
+check_module_name(Module, _) :-
+	atom(Module),
+	\+ atom_property(Module, needs_quotes), !.
+
+check_module_name(Module, _) :-
+	error('invalid module name (~q) should only containts lower chars', [Module]).
+*/
+
+
+
+check_head_is_module_free(Module:Head) :-
+	!,
+	error('module qualification is not allowed for the head of a clause (~w)', [Module:Head]).
+
+check_head_is_module_free(_).
+
+
+
+
+check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
+	clause(module_export(Pred, N, Module), true),
+	g_read(module, Module1),
+	Module \== Module1, !,
+	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
+
+check_module_clash(_, _).
+
+
+
+
+
+get_owner_module(Pred, N, Module) :-
+	clause(module_export(Pred, N, Module), true),
+	Module \== system, !.
+
+get_owner_module(_, _, _).
+
+
+
+is_exported(Pred, N) :-
+	clause(module_export(Pred, N, _), true), !.
+
+
+
+
+get_module_of_cur_pred(Module) :-
+	cur_pred(Pred, N),
+	(   test_pred_info(bpl, Pred, N) ->
+	    Module = system
+	;   test_pred_info(bfd, Pred, N) ->
+	    Module = system
+	;
+	    g_read(module, Module)
+	).
 
 
 
@@ -793,27 +996,29 @@ flag_bit(pub, 2).
 flag_bit(bpl, 3).
 flag_bit(bfd, 4).
 flag_bit(discontig, 5).
-flag_bit(cut, 6).
+flag_bit(need_cut_level, 6).
+flag_bit(meta, 7).
+flag_bit(multi, 8).
 
 
 
 
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	(   retract(pred_info(F, N, X))
-	;   X = 0
+	(   retract(pred_info(F, N, InfoMask))
+	;   InfoMask = 0
 	), !,
-	X1 is X \/ 1 << Bit,
-	assertz(pred_info(F, N, X1)).
+	InfoMask1 is InfoMask \/ 1 << Bit,
+	assertz(pred_info(F, N, InfoMask1)).
 
 
 
 
 unset_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	retract(pred_info(F, N, X)), !,
-	X1 is X /\ \ (1 << Bit),
-	assertz(pred_info(F, N, X1)).
+	retract(pred_info(F, N, InfoMask)), !,
+	InfoMask1 is InfoMask /\ \ (1 << Bit),
+	assertz(pred_info(F, N, InfoMask1)).
 
 unset_pred_info(_, _, _).
 
@@ -822,21 +1027,21 @@ unset_pred_info(_, _, _).
 
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	clause(pred_info(F, N, X), _),
-	X /\ 1 << Bit > 0 .
+	clause(pred_info(F, N, InfoMask), _),
+	InfoMask /\ 1 << Bit > 0 .
 
 
 
-
-check_predicate(Pred, N) :-
-	g_read(redef_error, t),
-	bip(Pred, N), !,
-	error('redefining built-in predicate ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
 	control_construct(Pred, N), !,
 	error('redefining control construct ~q', [Pred / N]).
+
+check_predicate(Pred, N) :-
+	g_read(redef_error, t),
+	bip(Pred, N), !,
+	error('redefining built-in predicate ~q', [Pred / N]).
 
 check_predicate(Pred, N) :-
 	g_read(susp_warn, t),
@@ -851,6 +1056,13 @@ check_predicate(_, _).
 
 
 
+bip(F, N) :-
+	'$predicate_property1'(F, N, built_in), !.
+/* no longer needed built_in_fd ==> built_in
+bip(F, N) :-
+	'$predicate_property1'(F, N, built_in_fd).
+*/
+
 
 control_construct(',', 2).
 control_construct(;, 2).
@@ -862,15 +1074,15 @@ control_construct(call, 1).
 control_construct(catch, 3).
 control_construct(throw, 1).
 
-suspicious_predicate(',', 2).
-suspicious_predicate(;, 2).
-suspicious_predicate(->, 2).
-suspicious_predicate(!, 0).
+%suspicious_predicate(',', 2).
+%suspicious_predicate(;, 2).
+%suspicious_predicate(->, 2).
+%suspicious_predicate(!, 0).
+suspicious_predicate(:, 2).
 suspicious_predicate(:-, 1).
 suspicious_predicate(:-, 2).
 suspicious_predicate(-->, 2).
-suspicious_predicate({}, X) :-
-	X < 2 .
+suspicious_predicate({}, X) :- X < 2.
 suspicious_predicate(+, 2).
 suspicious_predicate(-, 2).
 suspicious_predicate(*, 2).
@@ -881,13 +1093,13 @@ suspicious_predicate(//, 2).
 
 
 warn(Msg, LArg) :-
-	disp_msg(Msg, LArg, warning).
+	disp_msg(warning, 0, Msg, LArg).
 
 
 
 
 error(Msg, LArg) :-
-	disp_msg(Msg, LArg, 'fatal error'),
+	disp_msg('fatal error', 0, Msg, LArg),
 	repeat,                                      % close all opened files
 	(   close_last_prolog_file ->
 	    fail
@@ -898,13 +1110,14 @@ error(Msg, LArg) :-
 
 
 
-disp_msg(Msg, LArg, MsgType) :-
+disp_msg(MsgType, Column, Msg, LArg) :-
 	numbervars(LArg),
 	g_read(where, Where),
 	(   Where = OpenFileStack + L12,
 	    L12 = _ - _ ->
 	    disp_file_name(OpenFileStack, _),
-	    disp_lines(L12)
+	    disp_lines(L12),
+	    disp_column(Column)
 	;   true
 	),
 	format('~a: ', [MsgType]),
@@ -926,10 +1139,19 @@ disp_file_name([FileName * _|OpenFileStack], ' including ') :-
 
 disp_lines(L - L) :-
 	!,
-	format(':~d ', [L]).
+	format(':~d', [L]).
 
 disp_lines(L1 - L2) :-
-	format(':~d--~d ', [L1, L2]).
+	format(':~d-~d', [L1, L2]).
+
+
+
+disp_column(Column) :-
+	Column > 0, !,
+	format(':~d: ', [Column]).
+
+disp_column(_) :-
+	write(': ').
 
 
 

@@ -1,25 +1,24 @@
-ROOT_DIR1     = @ROOT_DIR1@
-TOP_LEVEL     = @TOP_LEVEL@
 LIB_ENGINE_PL = @LIB_ENGINE_PL@
 GPLC          = @GPLC@
-CC            = @CC@
+CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
+LDFLAGS       = @LDFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
 
 
 LIBNAME = $(LIB_ENGINE_PL)
-OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
-          misc@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
+OBJLIB  = arch_dep@OBJ_SUFFIX@ machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ \
+          misc@OBJ_SUFFIX@ hash_fct@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
           engine@OBJ_SUFFIX@ engine1@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
-          if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
+          mem_alloc@OBJ_SUFFIX@ if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
-all: wam_regs.h $(TOP_LEVEL).h obj_begin@OBJ_SUFFIX@ obj_end@OBJ_SUFFIX@ $(LIBNAME)
+all: config wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME) 
+	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
@@ -36,11 +35,11 @@ $(LIBNAME): $(OBJLIB)
 
 config: pl_config@EXE_SUFFIX@ wam_regs.h
 
-pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h wam_archi.def
-	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
+pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h stacks_sigsegv.h wam_archi.def
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
 
 
-wam_regs.h: pl_config@EXE_SUFFIX@ machine.h wam_archi.def 
+wam_regs.h: pl_config@EXE_SUFFIX@ machine.h stacks_sigsegv.h wam_archi.def
 	./pl_config@EXE_SUFFIX@
 	(cd ../TopComp; $(MAKE) $(GPLC)@EXE_SUFFIX@)
 
@@ -51,21 +50,24 @@ gp_config.h:
 
 
 cpp_headers@EXE_SUFFIX@: cpp_headers.c
-	$(CC) $(CFLAGS) $(LFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
 
+try_sigaction@EXE_SUFFIX@: try_sigaction.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
 
-$(TOP_LEVEL).h: headers.h cpp_headers
-	D=`(cd ..;for i in *;do test -d $$i && X="$$X $(ROOT_DIR1)/src/$$i";done;echo $$X)`; ./cpp_headers headers.h $(TOP_LEVEL).h $$D
 
 
 # General core
 
+arch_dep@OBJ_SUFFIX@: arch_dep.h gp_config.h
 
-machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h 
+machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h
+
+stacks_sigsegv@OBJ_SUFFIX@: stacks_sigsegv.h stacks_sigsegv.c gp_config.h wam_regs.h
 
 mem_alloc@OBJ_SUFFIX@: mem_alloc.c
 
-misc@OBJ_SUFFIX@: misc.h misc.c machine.h 
+misc@OBJ_SUFFIX@: misc.h misc.c machine.h
 
 hash@OBJ_SUFFIX@: hash.h hash.c
 
@@ -73,22 +75,20 @@ main@OBJ_SUFFIX@: main.c
 
 obj_chain@OBJ_SUFFIX@: obj_chain.h obj_chain.c
 
-obj_begin@OBJ_SUFFIX@: obj_chain.h obj_begin.c
-
-obj_end@OBJ_SUFFIX@: obj_chain.h obj_end.c
-
 
 
 # Prolog engine
 
-# engine1 should be compiled without optimizations
+# engine1.c should be compiled without optimizations (or else it is a .s)
 
-engine1@OBJ_SUFFIX@: engine1.c
-	$(GPLC) -c engine1.c
+engine1@OBJ_SUFFIX@: @MAKE_ENGINE1_SRC@
+	$(GPLC) -c -o engine1@OBJ_SUFFIX@ @MAKE_ENGINE1_SRC@
 
-engine@OBJ_SUFFIX@: engine.h engine.c 
+engine@OBJ_SUFFIX@: engine.h engine.c
 
 wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
+
+hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct1.c
 
 atom@OBJ_SUFFIX@: atom.h atom.c gp_config.h
 
@@ -100,42 +100,31 @@ if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
 clean:
-	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
-distclean: clean
-	rm -f wam_archi.h wam_regs.h $(TOP_LEVEL).h gp_config.h
+distclean: clean clean-test_oc
+	rm -f wam_archi.h wam_regs.h gp_config.h
 
 
 
+
+check:	test_oc@EXE_SUFFIX@
+	./test_oc@EXE_SUFFIX@
+
+clean-check: clean-test_oc
 
 # test obj chain utility
 
-TEST_OC_OBJS=test_oc_m1@OBJ_SUFFIX@ test_oc_m2@OBJ_SUFFIX@
+TEST_OC_SRC=obj_chain.c test_oc.c
 
-obj_chain1@OBJ_SUFFIX@: obj_chain.h obj_chain.c
-	$(CC) $(CFLAGS) @CC_OBJ_NAME_OPT@obj_chain1@OBJ_SUFFIX@ -c obj_chain.c -DDEBUG
+test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
+	for i in 1 2 3 4 5; do \
+	  (echo "#define OBJ_NO $$i" && \
+	   echo "#include \"test_oc_defs.h\"") >test_oc_m$$i.c || exit; \
+	done
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. test_oc_m[1-5].c
+	rm -f test_oc_m* test_oc*@OBJ_SUFFIX@
 
-obj_begin1@OBJ_SUFFIX@: obj_chain.h obj_begin.c
-	$(CC) $(CFLAGS) @CC_OBJ_NAME_OPT@obj_begin1@OBJ_SUFFIX@ -c obj_begin.c
-
-obj_end1@OBJ_SUFFIX@: obj_chain.h obj_end.c
-	$(CC) $(CFLAGS) @CC_OBJ_NAME_OPT@obj_end1@OBJ_SUFFIX@ -c obj_end.c
-
-test_oc_m1@OBJ_SUFFIX@: test_oc_m1.c
-	$(CC) $(CFLAGS) -c test_oc_m1.c
-
-test_oc_m2@OBJ_SUFFIX@: test_oc_m2.c
-	$(CC) $(CFLAGS) -c test_oc_m2.c
-
-test_oc@OBJ_SUFFIX@: test_oc.c
-	$(CC) $(CFLAGS) -c test_oc.c
-
-test_oc@EXE_SUFFIX@: obj_begin1@OBJ_SUFFIX@ $(TEST_OC_OBJS) obj_chain1@OBJ_SUFFIX@ test_oc@OBJ_SUFFIX@ obj_end1@OBJ_SUFFIX@
-	$(CC) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ obj_begin1@OBJ_SUFFIX@ \
-              $(TEST_OC_OBJS) obj_chain1@OBJ_SUFFIX@ test_oc@OBJ_SUFFIX@ \
-              obj_end1@OBJ_SUFFIX@
-
-clean-test_oc: 
-	rm -f obj_begin1@OBJ_SUFFIX@ obj_chain1@OBJ_SUFFIX@ obj_end1@OBJ_SUFFIX@ \
-              test_oc*@OBJ_SUFFIX@ test_oc@EXE_SUFFIX@
+clean-test_oc:
+	rm -f test_oc@EXE_SUFFIX@ test_oc_m*
 

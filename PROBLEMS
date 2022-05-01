@@ -1,3 +1,13 @@
+If your installation does not work (compilation is ok but when running the
+system fails) you can try to recompile the whole system with --disable-regs
+(after make distclean).
+
+If this fails, try to recompile the whole system with --with-c-flags=debug and --disable-regs
+
+If this installation works with -O and not -O2 (or higher) it can be due to
+strict-aliasing. Try compiling with --with-c-flags='-O2 -fno-strict-aliasing'.
+
+
 sparc/sunos:
  	under SunOs <= 4.1.2 even if the processor is a supersparc, the gcc
 	option -msupersparc cannot be used in CFLAGS_MACHINE. The configure
@@ -13,28 +23,43 @@ sparc/solaris:
 ix86/win32 with Cygwin:
 	timmings system_time is always 0 and user time = real time
 	buffering not implemented (after setvbuf each read returns EOF)
-	sockets (AF_UNIX not supported with old versions of CYGWIN, modify
-        file BipsPl/sockets_c.c or use --disable-sockets)
-	stack overflow detection does not work
+	Linedit does not work if CYGWIN=TTY is defined.
 
-ix86/win32 with VC++ 6.0:
+ix86/win32 with VC++ 6.0 and MinGW (I suppose):
 	sockets not implemented
 	shell/2 and system/2 do not return correct error code 
         (due to command.com bad interpreted)
         popen/3 does not work (due to command.com)
 	exec/5 does not work (due to command.com)
         send_signal/2 (does not work apparently)
-        select/5 only implemented with sockets (to test more deeply)
+        select/5 only implemented with sockets (to be tested more deeply)
+
+ix86/win32 with MinGW
+	cannot be compiled with -fomit-frame-pointer (gcc 3.3.1 and 3.3.3)
+	more precisely fails if engine.c compiled with -O2 -fomit-frame-pointer
+	(and only these 3 functions Execute_Directive Call_Prolog Call_Next 
+         suffice to fail with -O2 -fomit-frame-pointer)
 
 ppc/linux:
 	with no optimization options for gcc do not use global registers
 	(use: ./configure --with-c-flags=debug --disable-regs)
 
-ix86/FreeBSD (OpenBSD ?):
-	linedit is not yet supported, use --disable-linedit when 
-	using ./configure
-	check before (this is maybe no longer true)
+ppc/darwin-macosx:
+	for gcc 3.3 do not use global registers
+	(use: ./configure --disable-regs)
+
+ix86/OpenBSD:
+	use gmake instead of make 
 
 ix86/sco:
 	On SCO UnixWare use --host=i586-pc-sco when using ./configure
 	(until autoconf is updated to recognize UnixWare).
+
+MacOS:
+	if a Fatal Error: Segmentation Violation occurs it can be due to a C
+	stack overflow. It is possible to change the size of the C stack
+	before starting GNU Prolog. For instance the following command set the
+	C stack size to 8Mb:
+
+	ulimit -s 8192     (with bash)
+	limit stacksize 8M (with csh) 

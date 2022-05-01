@@ -6,23 +6,35 @@
  * Descr.: all solution collector management - C part                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <sys/types.h>
 
@@ -31,7 +43,7 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifndef M_ix86_win32
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/wait.h>
 #endif
@@ -71,7 +83,7 @@ static WamWord new_gen_word;
 
 
 
-static long *bound_var_ptr;
+static PlLong *bound_var_ptr;
 static WamWord *free_var_base;
 
 
@@ -79,9 +91,9 @@ static WamWord *free_var_base;
 static OneSol dummy = { NULL, 0, 0 };
 static OneSol *sol = &dummy;
 
-static long *key_var_ptr;
-static long *save_key_var_ptr;
-static long *next_key_var_ptr;
+static PlLong *key_var_ptr;
+static PlLong *save_key_var_ptr;
+static PlLong *next_key_var_ptr;
 
 
 
@@ -90,17 +102,17 @@ static long *next_key_var_ptr;
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Bound_Var(WamWord *adr);
+static Bool Bound_Var(WamWord *adr);
 
 static WamWord Existential_Variables(WamWord start_word);
 
-static void Free_Var(WamWord *adr);
+static Bool Free_Var(WamWord *adr);
 
 
 
 static void Handle_Key_Variables(WamWord start_word);
 
-static void Link_Key_Var(WamWord *adr);
+static Bool Link_Key_Var(WamWord *adr);
 
 
 
@@ -109,7 +121,7 @@ static WamWord Group(WamWord all_sol_word, WamWord gl_key_word,
 
 
 
-#define GROUP_SOLUTIONS_ALT       X2467726F75705F736F6C7574696F6E735F616C74
+#define GROUP_SOLUTIONS_ALT       X1_2467726F75705F736F6C7574696F6E735F616C74
 
 Prolog_Prototype(GROUP_SOLUTIONS_ALT, 0);
 
@@ -135,7 +147,7 @@ All_Solut_Initializer(void)
  * qualified variables.                                                    *
  *   - collect variables of the template (bound variables)                 *
  *   - collect existentially qualified variables of the generator          *
- *     btw: compute the unqualified generator                              *
+ *     btw: compute the existentially unqualified generator                *
  *   - make in the heap the array of free variables of the unqualified     *
  *     generator                                                           *
  *   - create a Prolog term (gl_key) with the free variables.              *
@@ -143,28 +155,28 @@ All_Solut_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * FREE_VARIABLES_4                                                        *
+ * PL_FREE_VARIABLES_4                                                     *
  *                                                                         *
  * Fail if no free variables.                                              *
  *-------------------------------------------------------------------------*/
 Bool
-Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
-		 WamWord key_word)
+Pl_Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
+		    WamWord key_word)
 {
   WamWord gl_key_word;
   WamWord *save_H, *arg;
   int nb_free_var = 0;
 
-  bound_var_ptr = glob_dico_var;	/* glob_dico_var: stores bound vars */
+  bound_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: stores bound vars */
 
-  Treat_Vars_Of_Term(templ_word, TRUE, Bound_Var);
+  Pl_Treat_Vars_Of_Term(templ_word, TRUE, Bound_Var);
 
   new_gen_word = Existential_Variables(gen_word);
 
   save_H = H++;			/* one more word for f/n is possible */
 
   arg = free_var_base = H;	/* array is in the heap */
-  Treat_Vars_Of_Term(new_gen_word, TRUE, Free_Var);
+  Pl_Treat_Vars_Of_Term(new_gen_word, TRUE, Free_Var);
   nb_free_var = H - arg;
 
   if (nb_free_var == 0)
@@ -178,24 +190,24 @@ Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
   else
     {
       H = free_var_base;
-      gl_key_word = Mk_Proper_List(nb_free_var, arg);
+      gl_key_word = Pl_Mk_Proper_List(nb_free_var, arg);
     }
 
-  Unify(new_gen_word, gen1_word);
-  return Unify(gl_key_word, key_word);
+  Pl_Unify(new_gen_word, gen1_word);
+  return Pl_Unify(gl_key_word, key_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RECOVER_GENERATOR_1                                                     *
+ * PL_RECOVER_GENERATOR_1                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Recover_Generator_1(WamWord gen1_word)
+Pl_Recover_Generator_1(WamWord gen1_word)
 {
-  Unify(new_gen_word, gen1_word);
+  Pl_Unify(new_gen_word, gen1_word);
 }
 
 
@@ -205,19 +217,20 @@ Recover_Generator_1(WamWord gen1_word)
  * BOUND_VAR                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Bound_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
-  for (p = glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (long) adr)
-      return;
+  for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
+    if (*p == (PlLong) adr)
+      return TRUE;
 
-  if (bound_var_ptr - glob_dico_var >= MAX_VAR_IN_TERM)
-    Pl_Err_Representation(representation_too_many_variables);
+  if (bound_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *bound_var_ptr++ = (long) adr;
+  *bound_var_ptr++ = (PlLong) adr;
+  return TRUE;
 }
 
 
@@ -234,13 +247,13 @@ Existential_Variables(WamWord start_word)
   WamWord *adr;
 
   DEREF(start_word, word, tag_mask);
-  
+
   if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
       if (Functor_And_Arity(adr) == exist_2)
 	{
-	  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
+	  Pl_Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Bound_Var);
 	  word = Existential_Variables(Arg(adr, 1));
 	}
     }
@@ -255,23 +268,24 @@ Existential_Variables(WamWord start_word)
  * FREE_VAR                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Free_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
   WamWord word;
 
-  for (p = glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (long) adr)
-      return;
+  for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
+    if (*p == (PlLong) adr)
+      return TRUE;
 
   word = Tag_REF(adr);	/* if an FDV for a Dont_Separate_Tag */
 
   for (p = free_var_base; p < H; p++)
     if (*p == word)
-      return;
+      return TRUE;
 
   *H++ = word;
+  return TRUE;
 }
 
 
@@ -291,7 +305,7 @@ Free_Var(WamWord *adr)
  *                                                                         *
  * There is a special treatment for bagof/3. Each solution is a term of    *
  * the form Key-Value. In order to group solutions by Key we use a keysort *
- * (done in Prolog) + Group_Solutions_3 (written in C). However, keysort/2 *
+ * (done in Prolog) + Pl_Group_Solutions_3 (done in C). However, keysort/2 *
  * tests a term equality (==) while a structural equality is needed.       *
  *                                                                         *
  * Structural equality: T1 and T2 are structurally equal if their tree     *
@@ -313,7 +327,7 @@ Free_Var(WamWord *adr)
  *   - for each variable V of Key:                                         *
  *       - if V is in the stack do nothing                                 *
  *       - if next_key_var_ptr<save_key_var_ptr (can reuse a variable)     *
- *         then Unify(V,*next_key_var_ptr++)                               *
+ *         then Pl_Unify(V,*next_key_var_ptr++)                            *
  *       - otherwise push V (*key_var_ptr++=V)                             *
  *                                                                         *
  * E.g. the keys [A,B,A], [f(C),D,E,F], [G,H,G] and [f(C),D,E,F] become:   *
@@ -327,24 +341,24 @@ Free_Var(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * STOP_MARK_1                                                             *
+ * PL_STOP_MARK_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Stop_Mark_1(WamWord stop_word)
+Pl_Stop_Mark_1(WamWord stop_word)
 {
-  Get_Integer(sol->sol_no, stop_word);
+  Pl_Get_Integer(sol->sol_no, stop_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * STORE_SOLUTION_1                                                        *
+ * PL_STORE_SOLUTION_1                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Store_Solution_1(WamWord term_word)
+Pl_Store_Solution_1(WamWord term_word)
 {
   OneSol *s;
   int size;
@@ -353,15 +367,15 @@ Store_Solution_1(WamWord term_word)
  * This corrupts ebp on ix86 */
   static WamWord fix_bug;
 
-  size = Term_Size(term_word);
+  size = Pl_Term_Size(term_word);
 
   s = (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) +
 			size * sizeof(WamWord));
   s->prev = sol;
   s->sol_no = sol->sol_no + 1;
   s->term_size = size;
-  fix_bug = term_word;	
-  Copy_Term(&s->term_word, &fix_bug);
+  fix_bug = term_word;
+  Pl_Copy_Term(&s->term_word, &fix_bug);
   sol = s;
 }
 
@@ -369,12 +383,12 @@ Store_Solution_1(WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * RECOVER_SOLUTIONS_2                                                     *
+ * PL_RECOVER_SOLUTIONS_4                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
-		    WamWord list_word)
+Pl_Recover_Solutions_4(WamWord stop_word, WamWord handle_key_word,
+		       WamWord list_word, WamWord tail_word)
 {
   int stop;
   int nb_sol;
@@ -382,17 +396,26 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
   OneSol *s;
   Bool handle_key;
 
-  stop = Rd_Integer(stop_word);
+  stop = Pl_Rd_Integer(stop_word);
   nb_sol = sol->sol_no - stop;
 
   if (nb_sol == 0)
-    return Get_Nil(list_word);
+    return Pl_Unify(list_word, tail_word);
 
-  handle_key = Rd_Integer(handle_key_word);
-  key_var_ptr = glob_dico_var;	/* glob_dico_var: key vars */
+  handle_key = Pl_Rd_Integer(handle_key_word);
+  key_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: key vars */
 
 
   H += 2 * nb_sol;
+
+  /* Since we start from the end to the beginning, if nb_sol is very big
+   * when the heap overflow triggers a SIGSEGV the handler will not detect
+   * that the heap is the culprit (and emits a simple Segmentation Violation
+   * message). To avoid this we remain just after the end of the stack.
+   */
+  if (H > Global_Stack + Global_Size)
+    H =  Global_Stack + Global_Size;
+
   p = q = H;
 
   while (nb_sol--)
@@ -400,7 +423,7 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
       p--;
       *p = Tag_LST(p + 1);
       *--p = Tag_REF(H);
-      Copy_Contiguous_Term(H, &sol->term_word);
+      Pl_Copy_Contiguous_Term(H, &sol->term_word);
 
       if (handle_key)
 	Handle_Key_Variables(*H);
@@ -411,8 +434,8 @@ Recover_Solutions_2(WamWord stop_word, WamWord handle_key_word,
       Free(s);
     }
 
-  q[-1] = NIL_WORD;
-  return Unify(Tag_LST(p), list_word);
+  q[-1] = tail_word;
+  return Pl_Unify(Tag_LST(p), list_word);
 }
 
 
@@ -429,11 +452,11 @@ Handle_Key_Variables(WamWord start_word)
   WamWord *adr;
 
   save_key_var_ptr = key_var_ptr;
-  next_key_var_ptr = glob_dico_var;
+  next_key_var_ptr = pl_glob_dico_var;
 
   DEREF(start_word, word, tag_mask);
   adr = UnTag_STC(word);
-  Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Link_Key_Var);
+  Pl_Treat_Vars_Of_Term(Arg(adr, 0), TRUE, Link_Key_Var);
 }
 
 
@@ -443,26 +466,27 @@ Handle_Key_Variables(WamWord start_word)
  * LINK_KEY_VAR                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
+static Bool
 Link_Key_Var(WamWord *adr)
 {
-  long *p;
+  PlLong *p;
 
-  for (p = glob_dico_var; p < key_var_ptr; p++)
-    if (*p == (long) adr)
-      return;
+  for (p = pl_glob_dico_var; p < key_var_ptr; p++)
+    if (*p == (PlLong) adr)
+      return TRUE;
 
   if (next_key_var_ptr < save_key_var_ptr)
-    {		      /* same as Unify(Tag_REF(adr), *next_key_var_ptr++) */
+    {		      /* same as Pl_Unify(Tag_REF(adr), *next_key_var_ptr++) */
       *adr = *(WamWord *) (*next_key_var_ptr);
       next_key_var_ptr++;
-      return;
+      return TRUE;
     }
 
-  if (key_var_ptr - glob_dico_var >= MAX_VAR_IN_TERM)
-    Pl_Err_Representation(representation_too_many_variables);
+  if (key_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
+    Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *key_var_ptr++ = (long) adr;
+  *key_var_ptr++ = (PlLong) adr;
+  return TRUE;
 }
 
 
@@ -477,12 +501,12 @@ Link_Key_Var(WamWord *adr)
 
 
 /*-------------------------------------------------------------------------*
- * GROUP_SOLUTIONS_3                                                       *
+ * PL_GROUP_SOLUTIONS_3                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
-		  WamWord sol_word)
+Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
+		     WamWord sol_word)
 {
   WamWord word, tag_mask;
   WamWord key_word;
@@ -490,37 +514,35 @@ Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
   DEREF(all_sol_word, word, tag_mask);
   if (word == NIL_WORD)
     return FALSE;
-  
+
   word = Group(all_sol_word, gl_key_word, &key_word);
   if (word != NOT_A_WAM_WORD)
     {
       A(0) = word;
       A(1) = gl_key_word;
       A(2) = sol_word;
-      Create_Choice_Point((CodePtr)
-			  Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 3);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 3);
     }
 
-  Unify(key_word, gl_key_word);
-  return Unify(sol_word, all_sol_word);
+  Pl_Unify(key_word, gl_key_word);
+  return Pl_Unify(sol_word, all_sol_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GROUP_SOLUTIONS_ALT_0                                                   *
+ * PL_GROUP_SOLUTIONS_ALT_0                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Group_Solutions_Alt_0(void)
+Pl_Group_Solutions_Alt_0(void)
 {
   WamWord all_sol_word, gl_key_word, sol_word;
   WamWord word;
   WamWord key_word;
 
-  Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0),
-		      0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(GROUP_SOLUTIONS_ALT, 0), 0);
 
   all_sol_word = AB(B, 0);
   gl_key_word = AB(B, 1);
@@ -538,8 +560,8 @@ Group_Solutions_Alt_0(void)
 #endif
     }
 
-  Unify(key_word, gl_key_word);
-  return Unify(sol_word, all_sol_word);
+  Pl_Unify(key_word, gl_key_word);
+  return Pl_Unify(sol_word, all_sol_word);
 }
 
 
@@ -579,7 +601,7 @@ Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr)
       adr = UnTag_STC(word);
       key_word1 = Arg(adr, 0);
 
-      if (Term_Compare(key_word, key_word1) != 0)
+      if (Pl_Term_Compare(key_word, key_word1) != 0)
 	break;
     }
 

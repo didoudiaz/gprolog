@@ -6,23 +6,35 @@
  * Descr.: hash table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +52,8 @@
 #define Calloc(nb, size)   calloc(nb, size)
 #define Realloc(ptr, size) realloc(ptr, size)
 #define Free(ptr)          free(ptr)
+
+typedef long PlLong;
 
 #else
 
@@ -61,7 +75,7 @@ typedef struct hash_node *HashNode;
 struct hash_node
 {
   HashNode next;
-  long key;
+  PlLong key;
   /* the rest of the elem comes here */
 };
 
@@ -75,7 +89,7 @@ struct hash_node
  * Function Prototypes             *
  *---------------------------------*/
 
-static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
+static HashNode *Hash_Locate(HashNode *t, int tbl_size, PlLong key);
 
 
 
@@ -91,7 +105,7 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
 
 
 
-#define Hash_Function(k, size)     ((unsigned long) (k) % (size))
+#define Hash_Function(k, size)     ((PlULong) (k) % (size))
 
 
 
@@ -100,16 +114,16 @@ static HashNode *Hash_Locate(HashNode *t, int tbl_size, long key);
  * A hash table consists of a header (tbl_size, elem_size, nb_elem) and a  *
  * table of tbl_size pointers to nodes.                                    *
  * Each node records a pointer to the next node, and a user element whose  *
- * size is elem_size. Each element must begin with the key (a long).       *
+ * size is elem_size. Each element must begin with the key (a PlLong).     *
  *-------------------------------------------------------------------------*/
 
 
 /*-------------------------------------------------------------------------*
- * HASH_ALLOC_TABLE                                                        *
+ * PL_HASH_ALLOC_TABLE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Alloc_Table(int tbl_size, int elem_size)
+Pl_Hash_Alloc_Table(int tbl_size, int elem_size)
 {
   char *tbl;
 
@@ -133,12 +147,12 @@ Hash_Alloc_Table(int tbl_size, int elem_size)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_REALLOC_TABLE                                                      *
+ * PL_HASH_REALLOC_TABLE                                                   *
  *                                                                         *
  * NB: user information is not moved elsewhere                             *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Realloc_Table(char *tbl, int new_tbl_size)
+Pl_Hash_Realloc_Table(char *tbl, int new_tbl_size)
 {
   int tbl_size = Tbl_Size(tbl);
   int elem_size = Elem_Size(tbl);
@@ -149,7 +163,7 @@ Hash_Realloc_Table(char *tbl, int new_tbl_size)
   char *new_tbl;
   HashNode *new_t;
 
-  if ((new_tbl = Hash_Alloc_Table(new_tbl_size, elem_size)) == NULL)
+  if ((new_tbl = Pl_Hash_Alloc_Table(new_tbl_size, elem_size)) == NULL)
     return NULL;
 
   Nb_Elem(new_tbl) = Nb_Elem(tbl);
@@ -179,11 +193,11 @@ Hash_Realloc_Table(char *tbl, int new_tbl_size)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FREE_TABLE                                                         *
+ * PL_HASH_FREE_TABLE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Hash_Free_Table(char *tbl)
+Pl_Hash_Free_Table(char *tbl)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -209,11 +223,11 @@ Hash_Free_Table(char *tbl)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_DELETE_ALL                                                         *
+ * PL_HASH_DELETE_ALL                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Hash_Delete_All(char *tbl)
+Pl_Hash_Delete_All(char *tbl)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -245,12 +259,12 @@ Hash_Delete_All(char *tbl)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Insert(char *tbl, char *elem, int replace)
+Pl_Hash_Insert(char *tbl, char *elem, int replace)
 {
   int tbl_size = Tbl_Size(tbl);
   int elem_size = Elem_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
-  long key = *(long *) elem;
+  PlLong key = *(PlLong *) elem;
   HashNode *prev;
   HashNode p;
 
@@ -259,9 +273,7 @@ Hash_Insert(char *tbl, char *elem, int replace)
 
   if (p == NULL)		/* the key does not exist */
     {
-      p =
-	(HashNode) Malloc(sizeof(struct hash_node) - sizeof(long) +
-			  elem_size);
+      p = (HashNode) Malloc(sizeof(struct hash_node) - sizeof(PlLong) + elem_size);
 #ifdef USE_ALONE
       if (p == NULL)
 	return NULL;
@@ -284,11 +296,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FIND                                                               *
+ * PL_HASH_FIND                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Find(char *tbl, long key)
+Pl_Hash_Find(char *tbl, PlLong key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -308,11 +320,11 @@ Hash_Find(char *tbl, long key)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_DELETE                                                             *
+ * PL_HASH_DELETE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Delete(char *tbl, long key)
+Pl_Hash_Delete(char *tbl, PlLong key)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -342,7 +354,7 @@ Hash_Delete(char *tbl, long key)
  * to the key (if the pointer is NULL the key is not in the table).        *
  *-------------------------------------------------------------------------*/
 static HashNode *
-Hash_Locate(HashNode *t, int tbl_size, long key)
+Hash_Locate(HashNode *t, int tbl_size, PlLong key)
 {
   int n = Hash_Function(key, tbl_size);
   HashNode p;
@@ -364,7 +376,7 @@ Hash_Locate(HashNode *t, int tbl_size, long key)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_FIRST                                                              *
+ * PL_HASH_FIRST                                                           *
  *                                                                         *
  * Hash_First and Hash_Next make it possible to scan a hash table.         *
  * Example of use:                                                         *
@@ -372,11 +384,12 @@ Hash_Locate(HashNode *t, int tbl_size, long key)
  *   HashScan scan;                                                        *
  *   char     *buff_ptr;                                                   *
  *                                                                         *
- *   for(buff_ptr=Hash_First(tbl,&scan);buff_ptr;buff_ptr=Hash_Next(&scan))*
+ * for(buff_ptr=Pl_Hash_First(tbl,&scan); buff_ptr;                        *
+ *     buff_ptr=Pl_Hash_Next(&scan))                                       *
  *       Display_Element(buff_ptr);                                        *
  *-------------------------------------------------------------------------*/
 char *
-Hash_First(char *tbl, HashScan *scan)
+Pl_Hash_First(char *tbl, HashScan *scan)
 {
   int tbl_size = Tbl_Size(tbl);
   HashNode *t = Hsh_Table(tbl);
@@ -387,18 +400,18 @@ Hash_First(char *tbl, HashScan *scan)
   scan->cur_t = (char *) t;
   scan->cur_p = (char *) (*t);
 
-  return Hash_Next(scan);
+  return Pl_Hash_Next(scan);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * HASH_NEXT                                                               *
+ * PL_HASH_NEXT                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Hash_Next(HashScan *scan)
+Pl_Hash_Next(HashScan *scan)
 {
   HashNode *t;
   HashNode *endt;
@@ -432,11 +445,11 @@ Hash_Next(HashScan *scan)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_TABLE_SIZE                                                         *
+ * PL_HASH_TABLE_SIZE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Hash_Table_Size(char *tbl)
+Pl_Hash_Table_Size(char *tbl)
 {
   return Tbl_Size(tbl);
 }
@@ -445,11 +458,11 @@ Hash_Table_Size(char *tbl)
 
 
 /*-------------------------------------------------------------------------*
- * HASH_NB_ELEMENTS                                                        *
+ * PL_HASH_NB_ELEMENTS                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Hash_Nb_Elements(char *tbl)
+Pl_Hash_Nb_Elements(char *tbl)
 {
   return Nb_Elem(tbl);
 }
@@ -477,7 +490,7 @@ Hash_Check_Table(char *tbl)
       printf("Hash Code:%d\n", t - Hsh_Table(tbl));
 
       for (p = *t; p; p = p->next, i++)
-	printf("\tadr:%#x  key:%ld\n", (int) p, p->key);
+	printf("\tadr:%#x  key:%" PL_FMT_d "\n", (int) p, p->key);
     }
   while (++t < endt);
 
@@ -489,7 +502,7 @@ Hash_Check_Table(char *tbl)
 
 typedef struct
 {
-  long key;
+  PlLong key;
   int info1;
   int info2;
 }
@@ -508,7 +521,7 @@ main(void)
 {
   char *t;
   int size;
-  long key;
+  PlLong key;
   Elem elem, *p;
   HashScan scan;
   int c;
@@ -519,7 +532,7 @@ main(void)
   printf("initial size: ");
   scanf("%d", &size);
   getchar();
-  t = Hash_Alloc_Table(size, sizeof(Elem));
+  t = Pl_Hash_Alloc_Table(size, sizeof(Elem));
   if (t == NULL)
     printf("Cannot allocate the table\n");
 
@@ -538,7 +551,7 @@ main(void)
       if (c <= 4)
 	{
 	  printf("Key:");
-	  scanf("%ld", &key);
+	  scanf("%" PL_FMT_d "", &key);
 	  getchar();
 	  elem.key = key;
 	}
@@ -550,43 +563,43 @@ main(void)
 	case 2:
 	  elem.info1 = key * i * 10;
 	  elem.info2 = key * i * 100;
-	  printf("passed value: Key:%ld  Info1:%d  Info2:%d\n",
+	  printf("passed value: Key:%" PL_FMT_d "  Info1:%d  Info2:%d\n",
 		 elem.key, elem.info1, elem.info2);
-	  p = (Elem *) Hash_Insert(t, (char *) &elem, c - 1);
+	  p = (Elem *) Pl_Hash_Insert(t, (char *) &elem, c - 1);
 	  break;
 	  break;
 
 	case 3:
-	  p = (Elem *) Hash_Find(t, key);
+	  p = (Elem *) Pl_Hash_Find(t, key);
 	  break;
 
 	case 4:
-	  p = (Elem *) Hash_Delete(t, key);
+	  p = (Elem *) Pl_Hash_Delete(t, key);
 	  break;
 
 	case 5:
-	  Hash_Delete_All(t);
+	  Pl_Hash_Delete_All(t);
 	  break;
 
 	case 6:
 	  k = 0;
-	  for (p = (Elem *) Hash_First(t, &scan); p;
-	       p = (Elem *) Hash_Next(&scan))
+	  for (p = (Elem *) Pl_Hash_First(t, &scan); p;
+	       p = (Elem *) Pl_Hash_Next(&scan))
 	    {
-	      printf("adr: %#lx  (Key:%ld  Info1:%d  Info2:%d)\n",
-		     (long) p, p->key, p->info1, p->info2);
+	      printf("adr: %#" PL_FMT_x "  (Key:%" PL_FMT_d "  Info1:%d  Info2:%d)\n",
+		     (PlLong) p, p->key, p->info1, p->info2);
 	      k++;
 	    }
-	  if (k != Hash_Nb_Elements(t))
+	  if (k != Pl_Hash_Nb_Elements(t))
 	    printf("# displayed elements: %d <> %d\n",
-		   k, Hash_Nb_Elements(t));
+		   k, Pl_Hash_Nb_Elements(t));
 	  break;
 
 	case 7:
 	  printf("new size: ");
 	  scanf("%d", &size);
 	  getchar();
-	  t = Hash_Realloc_Table(t, size);
+	  t = Pl_Hash_Realloc_Table(t, size);
 	  if (t == NULL)
 	    printf("Cannot extend the table\n");
 	  break;
@@ -601,11 +614,11 @@ main(void)
 	  if (p == NULL)
 	    printf("returned value: NULL\n");
 	  else
-	    printf("returned value: %#lx  (Key:%ld  Info1:%d  Info2:%d)\n",
-		   (long) p, p->key, p->info1, p->info2);
+	    printf("returned value: %#" PL_FMT_x "  (Key:%" PL_FMT_d "  Info1:%d  Info2:%d)\n",
+		   (PlLong) p, p->key, p->info1, p->info2);
 	}
 
-      printf("Nb Elements:%d\n", Hash_Nb_Elements(t));
+      printf("Nb Elements:%d\n", Pl_Hash_Nb_Elements(t));
     }
 
   return 0;

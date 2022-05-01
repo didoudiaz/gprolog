@@ -1,8 +1,6 @@
-/* $Id$ */
 
 :-	include(read_file).
 :-	include(bip_list).
-:-	include(context).
 :-	include(syn_sugar).
 :-	include(internal).
 :-	include(code_gen).

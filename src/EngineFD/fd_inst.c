@@ -6,34 +6,51 @@
  * Descr.: FD instruction implementation                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #define FD_INST_FILE
 
+#define OBJ_INIT Fd_Inst_Initializer
+
 #include "engine_pl.h"
 #include "engine_fd.h"
 
 #include "bips_pl.h"
 
+#if 0
+#define DEBUG_CHECK_DATES_AND_QUEUE
+#endif
 
 
 
@@ -41,7 +58,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%d)\n"
+#define MSG_VECTOR_TOO_SMALL       "Warning: Vector too small - maybe lost solutions (FD Var:_%ld)\n"
 
 
 
@@ -54,13 +71,111 @@
  * Global Variables                *
  *---------------------------------*/
 
+static WamWord *TP;
+
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
-static unsigned long always_date = -1;	/* must be always > DATE */
-static unsigned long never_date = 0;	/* must be always < DATE */
+static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (intptr_t) */
 
-void (*fd_init_solver) () = Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
-void (*fd_reset_solver) () = Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
+/*
+ * When a constraint X in ...  is added the following sequence is executed:
+ * Pl_Fd_Before_Add_Cstr  (init the queue)
+ * compute the range/interval to restrict the variable X
+ * Pl_Fd_Tell_...(X, range/interval)   (restrict X)
+ *    these functions call All_Propagations to add constraint depending on X to the queue
+ * Pl_Fd_After_Add_Cstr   (execute constraints in the queue)
+ *
+ * NB: Pl_Fd_Tell_... functions must be called inside Pl_Fd_Before_Add_Cstr / Pl_Fd_After_Add_Cstr
+ */
+
+/*
+ * FD_INT_Date(fdv_adr): is the date at which the FD var has been instantiated
+ * Optim #2: if a var has been instantiated before the post of the current 
+ * constraint it is not necessary to reexecute it (in the propagation phase).
+ *
+ * For this we use a counter DATE (an unsigned) ranging from 1 to 0xFFFF...F
+ *    - value 0 is reserved for DATE_NEVER  (never  reexecute it)
+ *    - value 1 is reserved for DATE_ALWAYS (always reexecute it)
+ *        e.g. used as long as an FD variable is not instantiated
+ *
+ * NB: it is not a problem if DATE == 1 (see test below)
+ *     ideally we would like that all DATE == DATE_ALWAYS
+ *
+ * A X in r constraint on X maintains a pointer to the FD_INT_Date(X)
+ * (see Optim_Pointer(cf)). The main test is as follows:
+ *
+ *   if *Optim_Pointer(cf) != both DATE and DATE_ALWAYS
+ *      skip the constraint (optim #2 or constraint stopped)
+ *   else 
+ *      execute the constraint
+ *
+ * For some constraints optim #2 is invalid: point to optim2_date_always
+ * To stop a constraint: point to optim2_date_never
+ *
+ * Since DATE is never decremented, for long computations it can overflow.
+ * In that case DATE restarts from 2, 3,... (rotation).
+ * Due to rotations, it is no longer possible to use tests like (xxx < DATE)
+ *
+ * This prevents to use DATE to test if a variable is already in the queue.
+ *
+ * We now mark variables which are in the queue using the Queue_Propag_Mask
+ * (which is the mask of all chains to reexecute for this var).
+ * if Queue_Propag_Mask == 0 the var is not in the queue (else it is).
+ *
+ * When a constraint is told, in case of success, the queue has been
+ * fully scanned and all variable are unmarked (i.e. no longer in the queue).
+ * However, when a failure occurs in the propagation phase, some vars remain
+ * in the queue (marked). Thus Clear_Queue() is called to clean the queue.
+ *
+ *   NB: in 1.4.2, Clear_Queue() was called in Pl_Fd_Before_Add_Cstr() to clear 
+ *   the variables remaining in the queue (i.e. of the previous constraint post).
+ *   But this does not work if FD vars are created/restored (choice-point)
+ *   between a failure (remaining vars in the queue) and the next Clear_Queue().
+ *
+ * About propagation phase (Pl_Fd_After_Add_Cstr). The queue of constraint
+ * having constraints to reconsider (reexecute) is handled as follows:
+ * Queue_Next_Fdv_Adr(dummy_fd_var) points to the first variable.
+ * TP points to the last variable in queue
+ * 
+ * The queue is empty if TP == dummy_fd_var. Constraints are added at the
+ * end modifying TP.
+ *
+ * When a variable X is taken into account, all needed chains are traversed
+ * and constraints depending on X are reexecuted. This can in turn trigger a 
+ * reconsideration of X. It is important to not re-add X to the queue (else
+ * TP will be modified to X and since BP = TP = X the propagation algorithm 
+ * considers everything is done). We use MASK_TO_KEEP_IN_QUEUE to ensure X
+ * continues to be considered in the queue and to clear the chains to 
+ * propagate for it. This gives in the propagation loop:
+ * 
+ * X = BP
+ * propag = Queue_Propag_Mask(X);
+ * Queue_Propag_Mask(X) = MASK_TO_KEEP_IN_QUEUE
+ * for each cstr C in a chain of X wrt to propag
+ *    reexecute C (NB: skip it depending on DATE for optim #2, see above)
+ * Queue_Propag_Mask(X) &= (MASK_TO_KEEP_IN_QUEUE - 1)
+ * if (Queue_Propag_Mask(fdv_adr) == 0) {  ie. no longer in the queue
+ *   if (BP == TP)
+ *       success
+ *   BP = Queue_Next_Fdv_Adr(BP);
+ * }
+ *
+ * NB: if a constraint reexecution fails (in the above loop), X has the 
+ * MASK_TO_KEEP_IN_QUEUE set. This is not a problem since at the next
+ * constraint post the queue is cleared assigning 0 to each Queue_Propag_Mask.
+ */
+
+#define DATE_NEVER   0
+#define DATE_ALWAYS  1
+
+static PlULong optim2_date_never = DATE_NEVER;  /* must be always != any DATE */
+static PlULong optim2_date_always = DATE_ALWAYS; /* must be considered as == all DATE */
+
+
+
+
+void (*pl_fd_init_solver) () = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
+void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
 
 
 
@@ -71,6 +186,8 @@ void (*fd_reset_solver) () = Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
 
 static void All_Propagations(WamWord *fdv_adr, int propag);
 
+static void Clear_Queue(void);
+
 
 
 
@@ -78,16 +195,33 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
  * Auxiliary engine macros         *
  *---------------------------------*/
 
-#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)  	\
-  do							\
-    {							\
-      if (Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))	\
-	{						\
-	  Trail_OV(&FD_Tag_Value(fdv_adr));		\
-	  Trail_OV(&FD_INT_Date(fdv_adr));		\
-	  Trail_Range_If_Necessary(fdv_adr);		\
-	}						\
-    }							\
+#define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
+
+
+
+
+#define FD_Bind_OV(adr, word)       		\
+  do						\
+    {						\
+      if (FD_Word_Needs_Trailing(adr))		\
+	Trail_OV(adr);				\
+      *(adr) = (word);				\
+    }						\
+  while (0)
+
+
+
+
+#define Trail_Fd_Int_Variable_If_Necessary(fdv_adr)		\
+  do								\
+    {								\
+      if (FD_Word_Needs_Trailing(&FD_Tag_Value(fdv_adr)))	\
+	{							\
+	  Trail_OV(&FD_Tag_Value(fdv_adr));			\
+	  Trail_OV(&FD_INT_Date(fdv_adr));			\
+	  Trail_Range_If_Necessary(fdv_adr);			\
+	}							\
+    }								\
   while (0)
 
 
@@ -99,8 +233,8 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
       if (Range_Stamp(fdv_adr) != STAMP)			\
 	{							\
 	  Trail_MV(fdv_adr + OFFSET_RANGE, RANGE_SIZE);		\
-	  if (Is_Sparse(Range (fdv_adr)))			\
-	      Trail_MV((WamWord *) Vec(fdv_adr), vec_size);	\
+	  if (Is_Sparse(Range(fdv_adr)))			\
+	      Trail_MV((WamWord *) Vec(fdv_adr), pl_vec_size);	\
 								\
 	  Range_Stamp(fdv_adr) = STAMP;				\
 	}							\
@@ -189,19 +323,6 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 
 
 
-#define FD_Word_Needs_Trailing(adr)  ((adr) <  CSB(B))
-
-
-
-
-#define FD_Bind_OV(adr, word)       		\
-  do						\
-    {						\
-      if (FD_Word_Needs_Trailing(adr))		\
-	Trail_OV(adr);				\
-      *(adr) = (word);				\
-    }						\
-  while (0)
 
 
 
@@ -209,7 +330,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 #define Update_Range_From_Range(fdv_adr, nb_elem, range, propag)           \
   do									   \
     {									   \
-      Range *r = Range (fdv_adr);					   \
+      Range *r = Range(fdv_adr);					   \
 									   \
       propag = MASK_EMPTY;						   \
 									   \
@@ -232,7 +353,7 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 	{								   \
 	  Trail_Range_If_Necessary(fdv_adr);				   \
 	  Nb_Elem(fdv_adr) = nb_elem;					   \
-	  Range_Copy(r, range);						   \
+	  Pl_Range_Copy(r, range);				       	   \
 	}								   \
       else if (r->extra_cstr != (range)->extra_cstr)			   \
 	{								   \
@@ -245,12 +366,38 @@ static void All_Propagations(WamWord *fdv_adr, int propag);
 
 
 
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+
+static WamWord *last_fdv_avr = NULL; /* a list of all FD vars (see Pl_Fd_New_Variable) */
+
+static void Check_Queue_Consistency(void);
+
+#endif
+
+
+
+
 /*-------------------------------------------------------------------------*
- * FD_INIT_SOLVER0                                                         *
+ * FD_INST_INITIALIZER                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Fd_Inst_Initializer(void)
+{
+  pl_fd_init_solver = Pl_Fd_Init_Solver0;
+  pl_fd_reset_solver = Pl_Fd_Reset_Solver0;
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_INIT_SOLVER0                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Init_Solver0(void)
+Pl_Fd_Init_Solver0(void)
 {
   char *p;
   int max_val;
@@ -262,38 +409,40 @@ Fd_Init_Solver0(void)
   else
     max_val = DEFAULT_VECTOR_MAX;
 
-  Define_Vector_Size(max_val);
+  Pl_Define_Vector_Size(max_val);
 
-  Fd_Reset_Solver0();
+  Pl_Fd_Reset_Solver0();
 
-  fd_unify_with_integer = Fd_Unify_With_Integer0;
-  fd_unify_with_fd_var = Fd_Unify_With_Fd_Var0;
-  fd_variable_size = Fd_Variable_Size0;
-  fd_copy_variable = Fd_Copy_Variable0;
-  fd_variable_to_string = Fd_Variable_To_String0;
+  pl_fd_unify_with_integer = Pl_Fd_Unify_With_Integer0;
+  pl_fd_unify_with_fd_var = Pl_Fd_Unify_With_Fd_Var0;
+  pl_fd_variable_size = Pl_Fd_Variable_Size0;
+  pl_fd_copy_variable = Pl_Fd_Copy_Variable0;
+  pl_fd_variable_to_string = Pl_Fd_Variable_To_String0;
 }
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_RESET_SOLVER0                                                        *
+ * PL_FD_RESET_SOLVER0                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Reset_Solver0(void)
+Pl_Fd_Reset_Solver0(void)
 {
-  STAMP = DATE = 0;
+  STAMP = 0;
+  DATE = 1;
+  TP = dummy_fd_var;		/* the queue is empty */
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_FD_VAR                                                     *
+ * PL_FD_PROLOG_TO_FD_VAR                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
+Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
 {
   WamWord word, tag_mask;
   WamWord *adr, *fdv_adr;
@@ -307,30 +456,29 @@ Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
 	Pl_Err_Instantiation();
 
       adr = UnTag_REF(word);
-      fdv_adr = Fd_New_Variable();
+      fdv_adr = Pl_Fd_New_Variable();
       Bind_UV(adr, Tag_REF(fdv_adr));
       return fdv_adr;
     }
 
   if (tag_mask == TAG_INT_MASK)
-    return Fd_New_Int_Variable(UnTag_INT(word));
-  
-  if (tag_mask == TAG_FDV_MASK)
-    return UnTag_FDV(word);
-  
-  Pl_Err_Type(type_fd_variable, word);
-  return NULL;
+    return Pl_Fd_New_Int_Variable(UnTag_INT(word));
+
+  if (tag_mask != TAG_FDV_MASK)
+    Pl_Err_Type(pl_type_fd_variable, word);
+
+  return UnTag_FDV(word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_RANGE                                                      *
+ * PL_FD_PROLOG_TO_RANGE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Range *
-Fd_Prolog_To_Range(WamWord list_word)
+Pl_Fd_Prolog_To_Range(WamWord list_word)
 {
   Range *range;
 
@@ -339,7 +487,7 @@ Fd_Prolog_To_Range(WamWord list_word)
 
   range->vec = NULL;
 
-  Fd_List_Int_To_Range(range, list_word);
+  Pl_Fd_List_Int_To_Range(range, list_word);
 
   return range;
 }
@@ -348,34 +496,33 @@ Fd_Prolog_To_Range(WamWord list_word)
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_VALUE                                                      *
+ * PL_FD_PROLOG_TO_VALUE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Fd_Prolog_To_Value(WamWord arg_word)
+Pl_Fd_Prolog_To_Value(WamWord arg_word)
 {
-  WamWord word, tag_mask;
+  PlLong v = Pl_Rd_Integer_Check(arg_word);
 
-  DEREF(arg_word, word, tag_mask);
+				/* conversion PlLong -> int (Fd only uses int) */
+  if (v < -INTERVAL_MAX_INTEGER)
+    v = -INTERVAL_MAX_INTEGER;
 
-  if (tag_mask == TAG_REF_MASK)
-    Pl_Err_Instantiation();
+  if (v > INTERVAL_MAX_INTEGER)
+    v = INTERVAL_MAX_INTEGER;
 
-  if (tag_mask != TAG_INT_MASK)
-    Pl_Err_Type(type_integer, word);
-
-  return UnTag_INT(word);
+  return (int) v;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_LIST_INT_TO_RANGE                                                    *
+ * PL_FD_LIST_INT_TO_RANGE                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_List_Int_To_Range(Range *range, WamWord list_word)
+Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -388,12 +535,12 @@ Fd_List_Int_To_Range(Range *range, WamWord list_word)
 
   range->extra_cstr = FALSE;
   Vector_Allocate_If_Necessary(range->vec);
-  Vector_Empty(range->vec);
+  Pl_Vector_Empty(range->vec);
 
   for (;;)
     {
       DEREF(list_word, word, tag_mask);
-      
+
       if (tag_mask == TAG_REF_MASK)
 	Pl_Err_Instantiation();
 
@@ -401,20 +548,13 @@ Fd_List_Int_To_Range(Range *range, WamWord list_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
-      DEREF(Car(lst_adr), word, tag_mask);
-      if (tag_mask == TAG_REF_MASK)
-	Pl_Err_Instantiation();
+      
+      val = Pl_Fd_Prolog_To_Value(Car(lst_adr));
 
-      if (tag_mask != TAG_INT_MASK)
-	Pl_Err_Type(type_integer, word);
-
-
-      val = UnTag_INT(word);
-
-      if ((unsigned) val > (unsigned) vec_max_integer)
+      if ((unsigned) val > (unsigned) pl_vec_max_integer)
 	range->extra_cstr = TRUE;
       else
 	{
@@ -428,18 +568,18 @@ Fd_List_Int_To_Range(Range *range, WamWord list_word)
   if (n == 0)
     Set_To_Empty(range);
   else
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_ARRAY_INT                                                  *
+ * PL_FD_PROLOG_TO_ARRAY_INT                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_Prolog_To_Array_Int(WamWord list_word)
+Pl_Fd_Prolog_To_Array_Int(WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -468,7 +608,7 @@ Fd_Prolog_To_Array_Int(WamWord list_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
       DEREF(Car(lst_adr), word, tag_mask);
@@ -476,7 +616,7 @@ Fd_Prolog_To_Array_Int(WamWord list_word)
 	Pl_Err_Instantiation();
 
       if (tag_mask != TAG_INT_MASK)
-	Pl_Err_Type(type_integer, word);
+	Pl_Err_Type(pl_type_integer, word);
 
 
       val = UnTag_INT(word);
@@ -499,11 +639,11 @@ Fd_Prolog_To_Array_Int(WamWord list_word)
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_ARRAY_ANY                                                  *
+ * PL_FD_PROLOG_TO_ARRAY_ANY                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_Prolog_To_Array_Any(WamWord list_word)
+Pl_Fd_Prolog_To_Array_Any(WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -531,7 +671,7 @@ Fd_Prolog_To_Array_Any(WamWord list_word)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
@@ -553,11 +693,11 @@ Fd_Prolog_To_Array_Any(WamWord list_word)
 
 
 /*-------------------------------------------------------------------------*
- * FD_PROLOG_TO_ARRAY_FDV                                                  *
+ * PL_FD_PROLOG_TO_ARRAY_FDV                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
+Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 {
   WamWord word, tag_mask;
   WamWord save_list_word;
@@ -603,11 +743,11 @@ Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 	break;
 
       if (tag_mask != TAG_LST_MASK)
-	Pl_Err_Type(type_list, save_list_word);
+	Pl_Err_Type(pl_type_list, save_list_word);
 
       lst_adr = UnTag_LST(word);
 
-      *array++ = (WamWord) Fd_Prolog_To_Fd_Var(Car(lst_adr), pl_var_ok);
+      *array++ = (WamWord) Pl_Fd_Prolog_To_Fd_Var(Car(lst_adr), pl_var_ok);
 
       list_word = Cdr(lst_adr);
     }
@@ -622,18 +762,17 @@ Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
 
 
 /*-------------------------------------------------------------------------*
- * FD_CREATE_C_FRAME                                                       *
+ * PL_FD_CREATE_C_FRAME                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
-		  Bool optim2)
+Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
+		     Bool optim2)
 {
   WamWord *CF = CS;
 
   AF_Pointer(CF) = AF;
-  Optim_Pointer(CF) = (optim2 && fdv_adr) ? &FD_INT_Date(fdv_adr)
-    : (WamWord *) &always_date;
+  Optim_Pointer(CF) = (optim2 && fdv_adr) ? &FD_INT_Date(fdv_adr) : &optim2_date_always;
   Cstr_Address(CF) = cstr_fct;
 
   /* if ground Nb_Cstr not allocated (Fd_Int_Frame) */
@@ -649,11 +788,11 @@ Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
 
 
 /*-------------------------------------------------------------------------*
- * FD_ADD_DEPENDENCY                                                       *
+ * PL_FD_ADD_DEPENDENCY                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
+Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 {
   WamWord **chain_adr;
 
@@ -664,7 +803,7 @@ Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 
   Chains_Mask(fdv_adr) |= (1 << chain_nb);
 
-  chain_adr = (WamWord **) (&Chain_Min(fdv_adr) + chain_nb);
+  chain_adr = (&Chain_Min(fdv_adr) + chain_nb);
 
   CF_Pointer(CS) = CF;
   Next_Chain(CS) = *chain_adr;
@@ -678,67 +817,82 @@ Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 
 
 /*-------------------------------------------------------------------------*
- * FD_ADD_LIST_DEPENDENCY                                                  *
+ * PL_FD_ADD_LIST_DEPENDENCY                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF)
+Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF)
 {
   int n = *array++;
 
   while (n--)
-    Fd_Add_Dependency((WamWord *) (*array++), chain_nb, CF);
+    Pl_Fd_Add_Dependency((WamWord *) (*array++), chain_nb, CF);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_NEW_VARIABLE                                                         *
+ * PL_FD_NEW_VARIABLE_INTERVAL                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_New_Variable(void)
+Pl_Fd_New_Variable_Interval(int min, int max)
 {
-  WamWord *fdv_adr = CS;
+  WamWord *fdv_adr;
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  Trail_OV(&last_fdv_avr);	/* reserve a cell just before the FD var to link prev FD var (stack) */
+  *CS = (WamWord) last_fdv_avr;
+  last_fdv_avr = CS++;
+#endif
+
+  fdv_adr = CS;
 
   FD_Tag_Value(fdv_adr) = Tag_FDV(fdv_adr);
-  FD_INT_Date(fdv_adr) = always_date;	/* must be>DATE while tag==FDV */
-  Queue_Date_At_Push(fdv_adr) = 0;
+  FD_INT_Date(fdv_adr) = DATE_ALWAYS;	/* must be awoken as long as tag == FDV */
+
   Queue_Propag_Mask(fdv_adr) = 0;
-  Queue_Next_Fdv_Adr(fdv_adr) = (WamWord) NULL;
+  Queue_Next_Fdv_Adr(fdv_adr) = NULL;
 
   Range_Stamp(fdv_adr) = STAMP;
-  Nb_Elem(fdv_adr) = INTERVAL_MAX_INTEGER + 1;
-  Range_Init_Interval(Range(fdv_adr), 0, INTERVAL_MAX_INTEGER);
+  Nb_Elem(fdv_adr) = max - min + 1;
+  Range_Init_Interval(Range(fdv_adr), min, max);
 
   Chains_Stamp(fdv_adr) = STAMP;
   Nb_Cstr(fdv_adr) = 0;
   Chains_Mask(fdv_adr) = MASK_EMPTY;
-  Chain_Min(fdv_adr) = Chain_Max(fdv_adr) = Chain_Min_Max(fdv_adr) =
-    (WamWord) NULL;
-  Chain_Dom(fdv_adr) = Chain_Val(fdv_adr) = (WamWord) NULL;
+  Chain_Min(fdv_adr) = Chain_Max(fdv_adr) = Chain_Min_Max(fdv_adr) = NULL;
+  Chain_Dom(fdv_adr) = Chain_Val(fdv_adr) = NULL;
 
   CS += FD_VARIABLE_FRAME_SIZE;
   return fdv_adr;
 }
 
+/*-------------------------------------------------------------------------*
+ * PL_FD_NEW_VARIABLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+WamWord *
+Pl_Fd_New_Variable(void)
+{
+  return Pl_Fd_New_Variable_Interval(0, INTERVAL_MAX_INTEGER);
+}
+
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_NEW_BOOL_VARIABLE                                                    *
+ * PL_FD_NEW_VARIABLE_RANGE                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_New_Bool_Variable(void)
+Pl_Fd_New_Variable_Range(Range *r)
 {
-  WamWord *fdv_adr = Fd_New_Variable();
-
-  Nb_Elem(fdv_adr) = 2;
-  Min(fdv_adr) = 0;
-  Max(fdv_adr) = 1;
-
+  WamWord *fdv_adr = Pl_Fd_New_Variable();
+  Pl_Range_Copy(Range(fdv_adr), r);
+  Nb_Elem(fdv_adr) = Pl_Range_Nb_Elem(r);
+ 
   return fdv_adr;
 }
 
@@ -746,19 +900,19 @@ Fd_New_Bool_Variable(void)
 
 
 /*-------------------------------------------------------------------------*
- * FD_NEW_INT_VARIABLE                                                     *
+ * PL_FD_NEW_INT_VARIABLE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Fd_New_Int_Variable(int n)
+Pl_Fd_New_Int_Variable(int n)
 {
   WamWord *fdv_adr = CS;
 
   FD_Tag_Value(fdv_adr) = Tag_INT(n);
-  FD_INT_Date(fdv_adr) = DATE;	/* put a great value to have an exact optim #2 */
-  Queue_Date_At_Push(fdv_adr) = 0;
+  FD_INT_Date(fdv_adr) = DATE_NEVER;
+
   Queue_Propag_Mask(fdv_adr) = 0;
-  Queue_Next_Fdv_Adr(fdv_adr) = (WamWord) NULL;
+  Queue_Next_Fdv_Adr(fdv_adr) = NULL;
 
   Range_Stamp(fdv_adr) = STAMP;
   Nb_Elem(fdv_adr) = 1;
@@ -773,32 +927,115 @@ Fd_New_Int_Variable(int n)
 
 
 /*-------------------------------------------------------------------------*
- * FD_BEFORE_ADD_CSTR                                                      *
+ * PL_FD_BEFORE_ADD_CSTR                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Before_Add_Cstr(void)
+Pl_Fd_Before_Add_Cstr(void)
 {
-  TP = dummy_fd_var;
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  PlULong last_date = DATE;
+  static int nb_rot = 0;
+
+  DATE += (PlULong) -1 / 10000000;	/* for rotations (decrease denom for more often) */
+
+  if (DATE < last_date)
+    printf(">>>>>>>>>>>>>>> ROTATION OCCURS: #%d\n", ++nb_rot);
+
+#else
+
   DATE++;
+
+#endif
+
+  if (DATE == DATE_NEVER) /* reserve DATE_NEVER (i.e. 0) */
+    DATE++;		  /* NB: it is not a problem if DATE == DATE_ALWAYS (i.e. 1) */
+
+  TP = dummy_fd_var;		/* the queue is empty */
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+  Check_Queue_Consistency();
+#endif
+}
+
+
+
+
+#ifdef DEBUG_CHECK_DATES_AND_QUEUE
+
+/*-------------------------------------------------------------------------*
+ * CHECK_QUEUE_CONSISTENCY                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Check_Queue_Consistency(void)
+{
+  WamWord *fdv_adr = last_fdv_avr;
+  WamWord *prev;
+
+  while(fdv_adr != NULL)
+    {
+      prev = (WamWord *) (*fdv_adr); /* link to (cell - 1 of) previous FD var */
+      fdv_adr++;	      /* FD var is just after stack previous links */
+#if 0
+      printf("Checking var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+#endif
+      if (Is_Var_In_Queue(fdv_adr))
+	printf("ERROR QUEUE should be empty but contains var:_#%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+
+      fdv_adr = prev;
+    }
+}
+
+#endif
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CLEAR_QUEUE                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Clear_Queue(void)
+{
+  WamWord *BP;
+  WamWord *fdv_adr;
+
+  if (TP == dummy_fd_var)	/* empty ? */
+    return;
+
+  BP = Queue_Next_Fdv_Adr(dummy_fd_var);
+    
+  for(;;) 
+    {
+      fdv_adr = (WamWord *) BP;
+      Del_Var_From_Queue(fdv_adr);
+      if (BP == TP)
+	break;
+		    
+      BP = Queue_Next_Fdv_Adr(BP);
+    }
+
+  TP = dummy_fd_var;		/* empty */
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_TELL_VALUE                                                           *
+ * PL_FD_TELL_VALUE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Tell_Value(WamWord *fdv_adr, int n)
+Pl_Fd_Tell_Value(WamWord *fdv_adr, int n)
 {
   int propag;
 
-  if (!Range_Test_Value(Range(fdv_adr), n))
+  if (!Pl_Range_Test_Value(Range(fdv_adr), n))
     {
-      if (Extra_Cstr(fdv_adr) && n > vec_max_integer)
-	Fd_Display_Extra_Cstr(fdv_adr);
+      if (Extra_Cstr(fdv_adr) && n > pl_vec_max_integer)
+	Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       return FALSE;
     }
@@ -816,11 +1053,11 @@ Fd_Tell_Value(WamWord *fdv_adr, int n)
 
 
 /*-------------------------------------------------------------------------*
- * FD_TELL_NOT_VALUE                                                       *
+ * PL_FD_TELL_NOT_VALUE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Tell_Not_Value(WamWord *fdv_adr, int n)
+Pl_Fd_Tell_Not_Value(WamWord *fdv_adr, int n)
 {
   Range *r;
   int min, max;
@@ -830,13 +1067,13 @@ start:
 
   r = Range(fdv_adr);
 
-  if (!Range_Test_Value(r, n))
+  if (!Pl_Range_Test_Value(r, n))
     return TRUE;
 
   if (Fd_Variable_Is_Ground(fdv_adr))
     {
       if (Extra_Cstr(fdv_adr))
-	Fd_Display_Extra_Cstr(fdv_adr);
+	Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       return FALSE;
     }
@@ -847,22 +1084,22 @@ start:
 
   if (Is_Interval(r) && n != min && n != max)
     {
-      if (min > vec_max_integer)
+      if (min > pl_vec_max_integer)
 	{
-	  Fd_Display_Extra_Cstr(fdv_adr);
+	  Pl_Fd_Display_Extra_Cstr(fdv_adr);
 	  return FALSE;
 	}
 
-      if (min == vec_max_integer)
+      if (min == pl_vec_max_integer)
 	{
-	  Fd_Display_Extra_Cstr(fdv_adr);
+	  Pl_Fd_Display_Extra_Cstr(fdv_adr);
 	  Update_Range_From_Int(fdv_adr, min, propag);
 	  All_Propagations(fdv_adr, propag);
 	  return TRUE;
 	}
 
       Trail_Range_If_Necessary(fdv_adr);
-      Range_Becomes_Sparse(r);
+      Pl_Range_Becomes_Sparse(r);
       Nb_Elem(fdv_adr) = r->max - r->min + 1;
       if (r->extra_cstr)	/* the max has been changed */
 	{
@@ -899,7 +1136,7 @@ start:
     {
       Set_Min_Mask(propag);
       Set_Min_Max_Mask(propag);
-      r->min = (Is_Interval(r)) ? n + 1 : Vector_Next_After(r->vec, n);
+      r->min = (Is_Interval(r)) ? n + 1 : Pl_Vector_Next_After(r->vec, n);
       goto do_propag;
     }
 
@@ -907,7 +1144,7 @@ start:
     {
       Set_Max_Mask(propag);
       Set_Min_Max_Mask(propag);
-      r->max = (Is_Interval(r)) ? n - 1 : Vector_Next_Before(r->vec, n);
+      r->max = (Is_Interval(r)) ? n - 1 : Pl_Vector_Next_Before(r->vec, n);
       goto do_propag;
     }
 
@@ -921,18 +1158,18 @@ do_propag:
 
 
 /*-------------------------------------------------------------------------*
- * FD_TELL_INT_RANGE                                                       *
+ * PL_FD_TELL_INT_RANGE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range)
+Pl_Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range)
 {
   int n = Min(fdv_adr);
 
-  if (!Range_Test_Value(range, n))
+  if (!Pl_Range_Test_Value(range, n))
     {
-      if (n > vec_max_integer && range->extra_cstr)
-	Fd_Display_Extra_Cstr(fdv_adr);
+      if (n > pl_vec_max_integer && range->extra_cstr)
+	Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       return FALSE;
     }
@@ -944,11 +1181,11 @@ Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range)
 
 
 /*-------------------------------------------------------------------------*
- * FD_TELL_INTERV_INTERV                                                   *
+ * PL_FD_TELL_INTERV_INTERV                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
+Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
 {
   int nb_elem;
   int propag;
@@ -982,28 +1219,28 @@ Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
 
 
 /*-------------------------------------------------------------------------*
- * FD_TELL_RANGE_RANGE                                                     *
+ * PL_FD_TELL_RANGE_RANGE                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
+Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
 {
   int nb_elem;
   int propag;
   WamWord *save_CS = CS;
 
   if (range->vec)
-    CS = range->vec;
-  CS += vec_size;
+    CS = (WamWord *) range->vec;
+  CS += pl_vec_size;
 
-  Range_Inter(range, Range(fdv_adr));
+  Pl_Range_Inter(range, Range(fdv_adr));
 
   CS = save_CS;
 
   if (Is_Empty(range))
     {
       if (range->extra_cstr)
-	Fd_Display_Extra_Cstr(fdv_adr);
+	Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       return FALSE;
     }
@@ -1011,13 +1248,13 @@ Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
   if (range->min == range->max)
     {
       if (range->extra_cstr)
-	Fd_Display_Extra_Cstr(fdv_adr);
+	Pl_Fd_Display_Extra_Cstr(fdv_adr);
 
       Update_Range_From_Int(fdv_adr, range->min, propag);
     }
   else
     {
-      nb_elem = Range_Nb_Elem(range);
+      nb_elem = Pl_Range_Nb_Elem(range);
       Update_Range_From_Range(fdv_adr, nb_elem, range, propag);
     }
 
@@ -1025,6 +1262,53 @@ Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
     All_Propagations(fdv_adr, propag);
 
   return TRUE;
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_TELL_INTERVAL                                                     *
+ *                                                                         *
+ * Called by fd_to_c.h                                                     *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Tell_Interval(WamWord *fdv_adr, int min, int max)
+{
+  int n;
+  Range range;
+
+  if (Fd_Variable_Is_Ground(fdv_adr))
+    {
+      n = Min(fdv_adr);
+      return (n >= min && n <= max); /* also detects if initial range is empty */
+    }
+
+  if (Is_Sparse(Range(fdv_adr)))
+    {
+      Range_Init_Interval(&range, min, max);
+      return Pl_Fd_Tell_Range_Range(fdv_adr, &range);
+    }
+
+  return Pl_Fd_Tell_Interv_Interv(fdv_adr, min, max);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_TELL_RANGE                                                        *
+ *                                                                         *
+ * Called by fd_to_c.h                                                     *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Tell_Range(WamWord *fdv_adr, Range *range)
+{
+  if (Fd_Variable_Is_Ground(fdv_adr))
+    return Pl_Fd_Tell_Int_Range(fdv_adr, range);
+
+  return Pl_Fd_Tell_Range_Range(fdv_adr, range);
 }
 
 
@@ -1038,12 +1322,11 @@ static void
 All_Propagations(WamWord *fdv_adr, int propag)
 {
   if (propag &= Chains_Mask(fdv_adr))
-    {
-      if (Queue_Date_At_Push(fdv_adr) < DATE)	/* not yet in the queue */
+    {				     /* here propag != 0 */
+      if (!Is_Var_In_Queue(fdv_adr)) /* not yet in the queue */
 	{
-	  Queue_Date_At_Push(fdv_adr) = DATE;
-	  Queue_Propag_Mask(fdv_adr) = propag;
-	  Queue_Next_Fdv_Adr(TP) = (WamWord) fdv_adr;
+	  Queue_Propag_Mask(fdv_adr) = propag; /* setting propag != 0 adds the var to the queue */
+	  Queue_Next_Fdv_Adr(TP) = fdv_adr;
 	  TP = fdv_adr;
 	}
       else			/* already in the queue */
@@ -1055,82 +1338,104 @@ All_Propagations(WamWord *fdv_adr, int propag)
 
 
 /*-------------------------------------------------------------------------*
- * FD_AFTER_ADD_CSTR                                                       *
+ * PL_FD_AFTER_ADD_CSTR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_After_Add_Cstr(void)
+Pl_Fd_After_Add_Cstr(Bool result_of_tell)
 {
   WamWord *fdv_adr;
   WamWord propag;
   WamWord *record_adr;
-  WamWord *chain_adr;
+  WamWord **chain_adr;
   WamWord *CF;
   WamWord *BP;
-  unsigned long date = DATE;
-  unsigned long *pdate;
+  PlULong date = DATE;		/* local copy for efficiency */
+  PlULong *pdate;
   WamWord *AF;
-  long (*fct) ();
+  PlLong (*fct) ();
+
+  if (!result_of_tell)
+    {
+    clear_queue:
+      Clear_Queue(); /* Do it now, not in Pl_Fd_Before_Add_Cstr (see comment above) */
+      return FALSE;
+    }
 
   if (TP == dummy_fd_var)
     return TRUE;
 
-  BP = dummy_fd_var;
-  BP = (WamWord *) Queue_Next_Fdv_Adr(BP);
+  BP = Queue_Next_Fdv_Adr(dummy_fd_var);
+
 
   for (;;)
     {
       fdv_adr = (WamWord *) BP;
       propag = Queue_Propag_Mask(fdv_adr);
-      Queue_Propag_Mask(fdv_adr) = 0;
+
+      /* NB: the var must stay in the queue until fix-point (no more reactivations) */
+      /* add a mask to keep it in the queue (in case it is reactivated) */
+      Queue_Propag_Mask(fdv_adr) = MASK_TO_KEEP_IN_QUEUE;
 
       chain_adr = &Chain_Min(fdv_adr);
+
 
       for (; propag; propag >>= 1, chain_adr++)
 	if (propag & 1)
 	  {
-	    record_adr = (WamWord *) (*chain_adr);
+	    record_adr = (*chain_adr);
 	    do
 	      {
 		CF = CF_Pointer(record_adr);
 
 #if 1
-		/* optim #2 */
+		/* optim #2 (and for 'stop constraint' management) */
 		pdate = Optim_Pointer(CF);
-		if (*pdate < date)
+		if (*pdate != DATE_ALWAYS && *pdate != date)
 		  continue;
 #endif
 
 		fct = Cstr_Address(CF);
 		AF = AF_Pointer(CF);
 
-		fct = (long (*)()) (*fct) (AF);
+		fct = (PlLong (*)()) (*fct) (AF);
 
-		if (fct == (long (*)()) FALSE)
-		  return FALSE;
+		if (fct == (PlLong (*)()) FALSE)
+		  {
+		  failure:
+		    Queue_Next_Fdv_Adr(dummy_fd_var) = BP; /* update begin of remaining queue */
+		    goto clear_queue;
+		  }
 #if 1				/* FD switch */
-		if (fct != (long (*)()) TRUE)	/* FD switch case triggered */
+		if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */
 		  {
 		    if ((*fct) (AF) == FALSE)
-		      return FALSE;
+		      goto failure;
 
-		    Fd_Stop_Constraint(CF);
+		    Pl_Fd_Stop_Constraint(CF);
 		  }
 #endif
 	      }
 	    while ((record_adr = Next_Chain(record_adr)) != NULL);
 	  }
 
-      if (Queue_Propag_Mask(fdv_adr) == 0)
+
+      /* undo the mask */
+      Queue_Propag_Mask(fdv_adr) &= (MASK_TO_KEEP_IN_QUEUE - 1);
+
+      /* reactivated ? */
+      if (Queue_Propag_Mask(fdv_adr) == 0) /* no longer in queue ? */
 	{
+	  /*  Del_Var_From_Queue(fdv_adr); since Queue_Propag_Mask(fdv_adr) == 0 */
+
 	  if (BP == TP)
 	    break;
 
-	  BP = (WamWord *) Queue_Next_Fdv_Adr(BP);
-	  Queue_Date_At_Push(fdv_adr) = 0;
+	  BP = Queue_Next_Fdv_Adr(BP);
 	}
     }
 
+  TP = dummy_fd_var;		/* queue is now empty */
 
   return TRUE;
 }
@@ -1139,114 +1444,162 @@ Fd_After_Add_Cstr(void)
 
 
 /*-------------------------------------------------------------------------*
- * FD_STOP_CONSTRAINT                                                      *
+ * PL_FD_STOP_CONSTRAINT                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Stop_Constraint(WamWord *CF)
+Pl_Fd_Stop_Constraint(WamWord *CF)
 {
   FD_Bind_OV((WamWord *) (CF + OFFSET_OF_OPTIM_POINTER),
-	     (WamWord) (&never_date));
+	     (WamWord) (&optim2_date_never));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_ASSIGN_VALUE                                                         *
+ * PL_FD_IN_INTERVAL                                                       *
  *                                                                         *
- * fdv_adr is a FDV and n belongs to the range of the FD var               *
- * like Fd_Unify_With_Integer0 but specialized Fd_Tell_Value without       *
- * useless tests (ie. groundness and Range_Test_Value())                   *
+ * Used by domain predicates.                                              *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max)
+{
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Interval(fdv_adr, min, max));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_IN_RANGE                                                          *
+ *                                                                         *
+ * Used by domain predicates.                                              *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_In_Range(WamWord *fdv_adr, Range *range)
+{
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Range(fdv_adr, range));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_ASSIGN_VALUE_FAST                                                 *
+ *                                                                         *
+ * fdv_adr is an FDV and n belongs to the range of the FD var.             *
+ * Like Pl_Fd_Unify_With_Integer0 but specialized Pl_Fd_Tell_Value without *
+ * useless tests (ie. groundness and Pl_Range_Test_Value())                *
  * Used by labeling predicates.                                            *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Assign_Value(WamWord *fdv_adr, int n)
+Pl_Fd_Assign_Value_Fast(WamWord *fdv_adr, int n)
 {
   int propag;
 
-  /* Unify(X,n) == X in n..n */
-  Fd_Before_Add_Cstr();
+  /* Pl_Unify(X,n) == X in n..n */
+  Pl_Fd_Before_Add_Cstr();
 
   Update_Range_From_Int(fdv_adr, n, propag);
   All_Propagations(fdv_adr, propag);
-  return Fd_After_Add_Cstr();
+  return Pl_Fd_After_Add_Cstr(TRUE);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_UNIFY_WITH_INTEGER0                                                  *
+ * PL_FD_UNIFY_WITH_INTEGER0                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Unify_With_Integer0(WamWord *fdv_adr, int n)
+Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n)
 {
-  /* Unify(X,n) == X in n..n */
-  Fd_Before_Add_Cstr();
+  /* Pl_Unify(X,n) == X in n..n */
+  Pl_Fd_Before_Add_Cstr();
 
-  return Fd_Tell_Value(fdv_adr, n) && Fd_After_Add_Cstr();
+  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Value(fdv_adr, n));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_UNIFY_WITH_FD_VAR0                                                   *
+ * PL_FD_REMOVE_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2)
+Pl_Fd_Remove_Value(WamWord *fdv_adr, int n)
 {
-  Bool unify_x_y(WamWord x, WamWord y);
+  Pl_Fd_Before_Add_Cstr();
+
+  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Not_Value(fdv_adr, n));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_FD_UNIFY_WITH_FD_VAR0                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2)
+{
+  Bool pl_unify_x_y(WamWord x, WamWord y);
 
   /* defined in fd_unify.fd as a constraint */
-  return unify_x_y(Tag_REF(fdv_adr1), Tag_REF(fdv_adr2));
+  return pl_unify_x_y(Tag_REF(fdv_adr1), Tag_REF(fdv_adr2));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_USE_VECTOR                                                           *
+ * PL_FD_USE_VECTOR                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Use_Vector(WamWord *fdv_adr)
+Pl_Fd_Use_Vector(WamWord *fdv_adr)
 {
   Range range;
 
   if (Is_Sparse(Range(fdv_adr)))
     return TRUE;
 
-  Fd_Before_Add_Cstr();
+  Pl_Fd_Before_Add_Cstr();
   {
-    WamWord *save_CS=CS;	/* code of fd_allocate (from fd_to_c.h) */
-    CS+=vec_size;
+    WamWord *save_CS = CS;	/* code of fd_allocate (from fd_to_c.h) */
+    CS += pl_vec_size;
 
     Range_Init_Interval(&range, 0, INTERVAL_MAX_INTEGER);
 
-    Range_Becomes_Sparse(&range);
+    Pl_Range_Becomes_Sparse(&range);
 
-    CS=save_CS;			/* code of fd_deallocate (from fd_to_c.h) */
+    CS = save_CS;		/* code of fd_deallocate (from fd_to_c.h) */
   }
-  return Fd_Tell_Range_Range(fdv_adr, &range) && Fd_After_Add_Cstr();
+  return Pl_Fd_After_Add_Cstr(Pl_Fd_Tell_Range_Range(fdv_adr, &range));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_CHECK_FOR_BOOL_VAR                                                   *
+ * PL_FD_CHECK_FOR_BOOL_VAR                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Fd_Check_For_Bool_Var(WamWord x_word)
+Pl_Fd_Check_For_Bool_Var(WamWord x_word)
 {
   WamWord word, tag_mask;
   WamWord *adr, *fdv_adr;
   Range range;
+  Bool result_of_tell;
 
 
   DEREF(x_word, word, tag_mask);
@@ -1254,16 +1607,16 @@ Fd_Check_For_Bool_Var(WamWord x_word)
   if (tag_mask == TAG_REF_MASK)
     {
       adr = UnTag_REF(word);
-      fdv_adr = Fd_New_Bool_Variable();
+      fdv_adr = Pl_Fd_New_Bool_Variable();
       Bind_UV(adr, Tag_REF(fdv_adr));
       return TRUE;
     }
 
   if (tag_mask == TAG_INT_MASK)
-    return (unsigned long) (UnTag_INT(word)) <= 1;
+    return (PlULong) (UnTag_INT(word)) <= 1;
 
   if (tag_mask != TAG_FDV_MASK)
-    Pl_Err_Type(type_fd_variable, word);
+    Pl_Err_Type(pl_type_fd_variable, word);
 
   fdv_adr = UnTag_FDV(word);
 
@@ -1274,44 +1627,43 @@ Fd_Check_For_Bool_Var(WamWord x_word)
     return TRUE;
 				/* here max > 1 */
   if (Min(fdv_adr) == 1)
-    return Fd_Unify_With_Integer0(fdv_adr, 1);
+    return Pl_Fd_Unify_With_Integer0(fdv_adr, 1);
 
 				/* here min == 0 */
 
-  if (!Range_Test_Value(Range(fdv_adr), 1))
-    return Fd_Unify_With_Integer0(fdv_adr, 0);
-  
+  if (!Pl_Range_Test_Value(Range(fdv_adr), 1))
+    return Pl_Fd_Unify_With_Integer0(fdv_adr, 0);
+
 
 				/* Check Bool == X in 0..1 */
-  Fd_Before_Add_Cstr();
-  
+  Pl_Fd_Before_Add_Cstr();
+
   if (Is_Sparse(Range(fdv_adr)))
     {
       Range_Init_Interval(&range, 0, 1);
-      
-      if (!Fd_Tell_Range_Range(fdv_adr, &range))
-	return FALSE;
-    }
-  else if (!Fd_Tell_Interv_Interv(fdv_adr, 0, 1))
-    return FALSE;
 
-  return Fd_After_Add_Cstr();
+      result_of_tell = Pl_Fd_Tell_Range_Range(fdv_adr, &range);
+    }
+  else 
+    result_of_tell = Pl_Fd_Tell_Interv_Interv(fdv_adr, 0, 1);
+
+  return Pl_Fd_After_Add_Cstr(result_of_tell);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_VARIABLE_SIZE0                                                       *
+ * PL_FD_VARIABLE_SIZE0                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Fd_Variable_Size0(WamWord *fdv_adr)
+Pl_Fd_Variable_Size0(WamWord *fdv_adr)
 {
   int size = FD_VARIABLE_FRAME_SIZE;
 
   if (Is_Sparse(Range(fdv_adr)))
-      size += vec_size;
+      size += pl_vec_size;
 
   return size;
 }
@@ -1320,12 +1672,12 @@ Fd_Variable_Size0(WamWord *fdv_adr)
 
 
 /*-------------------------------------------------------------------------*
- * FD_COPY_VARIABLE0                                                       *
+ * PL_FD_COPY_VARIABLE0                                                    *
  *                                                                         *
  * returns the size of the created fd var.                                 *
  *-------------------------------------------------------------------------*/
 int
-Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
+Pl_Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
 {
   WamWord *save_CS;
   int size;
@@ -1333,10 +1685,10 @@ Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
   save_CS = CS;
   CS = dst_adr;
 
-  Fd_New_Variable();		/* we know that it is pushed at CS (=dst_adr) */
+  Pl_Fd_New_Variable();		/* we know that it is pushed at CS (=dst_adr) */
   Nb_Elem(dst_adr) = Nb_Elem(fdv_adr);
 
-  Range_Copy(Range(dst_adr), Range(fdv_adr));
+  Pl_Range_Copy(Range(dst_adr), Range(fdv_adr));
 
   size = CS - dst_adr;
   CS = save_CS;
@@ -1348,25 +1700,25 @@ Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
 
 
 /*-------------------------------------------------------------------------*
- * FD_VARIABLE_TO_STRING0                                                  *
+ * PL_FD_VARIABLE_TO_STRING0                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Fd_Variable_To_String0(WamWord *fdv_adr)
+Pl_Fd_Variable_To_String0(WamWord *fdv_adr)
 {
-  return Range_To_String(Range(fdv_adr));
+  return Pl_Range_To_String(Range(fdv_adr));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_DISPLAY_EXTRA_CSTR                                                   *
+ * PL_FD_DISPLAY_EXTRA_CSTR                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Display_Extra_Cstr(WamWord *fdv_adr)
+Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr)
 {
-  Stream_Printf(stm_tbl[stm_stdout], MSG_VECTOR_TOO_SMALL,
-		Cstr_Offset(fdv_adr));
+  Pl_Stream_Printf(pl_stm_tbl[pl_stm_stdout], MSG_VECTOR_TOO_SMALL,
+		   Cstr_Offset(fdv_adr));
 }

@@ -1,0 +1,32 @@
+	MacOS (darwin) compilation/installation instructions
+	----------------------------------------------------
+
+The procedure is standard and detailed in ../INSTALL file.
+
+Under MacOS, by default, gcc is a shorthand for clang (both compilers
+are widely compatible).
+
+It is however possible to real use gcc (gcc can be installed with
+homebrew).  NB: gcc provides global register variables (clang does not
+(yet?) support them).
+
+It is possible to set PATH so that gcc is selected (before clang). In
+that case simply use: ./configure
+
+If the binary is not called gcc (e.g. gcc-10) or if it is not in the
+PATH and needs an absolute path, set the CC variable before
+./configure. Examples:
+
+CC=gcc-10 ./configure
+or
+CC=/opt/homebrew/bin/gcc-10 ./configure
+
+This will use gcc for C code and linkage. Assembly code will be done
+by clang/llvm (this should work as both assemblers are compatible).
+
+To even force to use another assembler, set the AS variable before
+configure.  It is even possible to use the gcc assembler (do not
+forget to pass -c) with:
+
+CC=gcc-10 AS='gcc-10 -c' ./configure
+

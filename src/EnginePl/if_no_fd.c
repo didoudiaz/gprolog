@@ -6,23 +6,35 @@
  * Descr.: FD interface for Prolog engine                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 
@@ -40,7 +52,7 @@
 
 	  /* Errors Messages */
 
-#define ERR_FD_SOLVER_MISSING      "fd_interf.c: FD Solver not linked"
+#define ERR_FD_SOLVER_MISSING      __FILE__ ": FD Solver not linked"
 
 
 
@@ -63,39 +75,41 @@ static void Fd_Solver_Missing(void);
 
 
 /*-------------------------------------------------------------------------*
- * FD_INIT_SOLVER                                                          *
+ * PL_FD_INIT_SOLVER                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Init_Solver(void)
+Pl_Fd_Init_Solver(void)
 {
-  if (fd_init_solver == NULL)	/* FD solver not linked */
+  if (pl_fd_init_solver == NULL)	/* FD solver not linked */
     {
-      fd_unify_with_integer = (Bool (*)()) Fd_Solver_Missing;
-      fd_unify_with_fd_var = (Bool (*)()) Fd_Solver_Missing;
-      fd_variable_size = (int (*)()) Fd_Solver_Missing;
-      fd_copy_variable = (int (*)()) Fd_Solver_Missing;
-      fd_variable_to_string = (char *(*)()) Fd_Solver_Missing;
+      pl_fd_unify_with_integer = (Bool (*)()) Fd_Solver_Missing;
+      pl_fd_unify_with_fd_var = (Bool (*)()) Fd_Solver_Missing;
+      pl_fd_variable_size = (int (*)()) Fd_Solver_Missing;
+      pl_fd_copy_variable = (int (*)()) Fd_Solver_Missing;
+      pl_fd_variable_to_string = (char *(*)()) Fd_Solver_Missing;
       return;
     }
 
-  (*fd_init_solver) ();
+  (*pl_fd_init_solver) ();
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FD_RESET_SOLVER                                                         *
+ * PL_FD_RESET_SOLVER                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fd_Reset_Solver(void)
+Pl_Fd_Reset_Solver(void)
 {
-  if (fd_reset_solver == NULL)	/* FD solver not linked */
+  void (*copy_of_pl_fd_reset_solver) () = Pl_Dummy_Ptr(pl_fd_reset_solver);
+
+  if (copy_of_pl_fd_reset_solver == NULL)	/* FD solver not linked */
     return;
 
-  (*fd_reset_solver) ();
+  (*copy_of_pl_fd_reset_solver) ();
 }
 
 
@@ -108,5 +122,5 @@ Fd_Reset_Solver(void)
 void
 Fd_Solver_Missing(void)
 {
-  Fatal_Error(ERR_FD_SOLVER_MISSING);
+  Pl_Fatal_Error(ERR_FD_SOLVER_MISSING);
 }

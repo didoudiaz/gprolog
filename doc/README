@@ -1,0 +1,210 @@
+                            GNU-Prolog Documentation
+
+
+1- Contents of this directory
+-----------------------------
+
+This directory contains the source of the manual written in LaTeX and several
+target versions:
+
+   - gprolog.dvi  (DVI version)
+   - gprolog.pdf  (PDF version)
+   - gprolog.ps   (PostScript version)
+   - gprolog.html (HTML version entirely in one page)
+   - gprolog.chm  (Compressed HTML used by MS HTMLHelp under Win32)
+
+The html_node directory contains the HTML version in several pages (on per node)
+(files index.html, gprolog*.html)
+
+This manual is also available at http://www.gprolog.org/manual
+
+By default, the installation procedure copies each version in a directory
+INSTALL_DIR/doc (see file ../INSTALL for more details).
+
+
+
+2- Rebuilding the manual
+------------------------
+
+Each version can be reconstructed using the Makefile (type 'make help' for
+a brief summary of available targets). Be sure to have the following environment
+before trying to rebuild the manual:
+
+   - LaTeX2e with standard packages
+   - mklatex
+   - pdflatex is needed to rebuild the PDF version.
+   - HeVeA (version >= 1.06) is required to rebuild the HTML version.
+     HeVeA can be obtained at http://hevea.inria.fr/
+   - The HTML Help compiler is needed to rebuild the HTML Help version
+     (see below).
+   - ImageMagick version >= 7 is needed (convert) for the icon -> logo
+
+
+
+3- The HTML Help Version
+------------------------
+
+Microsoft HTML Help (HH for short) is the standard help system for the Win32
+platforms (replacing old WinHelp). It is mainly based on HTML files + add-ons
+(table of contents, index, search facilities,...). A SDK is freely available
+as a "HTML Help Workshop". To obtain more information and/or the workshop
+consult:
+http://msdn.microsoft.com/library/en-us/htmlhelp/html/vsconHH1Start.asp
+
+To install the workshop consult the file src/WINDOWS.
+
+The HH version of the manual is constructed from the HTML files
+(html_node/index.html and html_node/gprolog*.html) using a HH project (.hhp) which
+includes a HH table of contents (.hhc) and a HH index (.hhk). The .hhc and
+.hhk files are constructed wih HeVeA with a script hh_do_hhc_hhk and 2 .tex files. 
+The result is a compressed (or compiled) HTML file (.chm).
+
+The user does not need the entire HTML Help Workshop to view a .chm, only a
+runtime called "Help Viewer" is necessary. It is provided with recent
+versions of windows (e.g Windows XP). Else a viewer can be downloaded (file:
+HHUPD.EXE) from the same URL (also available in C:\Program Files\HTML Help
+Workshop\REDIST).
+
+The .chm version is used by the Win32 GUI Console of GNU Prolog.
+
+
+HTML Help File Formats
+----------------------
+
+This information is get from:
+http://parthe.lpthe.jussieu.fr/~zeitlin/wxWindows/docs/wxwin495.htm#helpformat
+
+
+wxHTML library uses a reduced version of MS HTML Workshop format. Tex2RTF can 
+produce these files when generating HTML, if you set htmlWorkshopFiles to true 
+in your tex2rtf.ini file.
+(See wxHtmlHelpController for help controller description.)
+A book consists of three files: header file, contents file and index file. You 
+can make a regular zip archive of these files, plus the HTML and any image 
+files, for wxHTML (or helpview) to read; and the .zip file can optionally be 
+renamed to .htb.
+Header file (.hhp)
+Header file must contain these lines (and may contain additional lines which are 
+ignored) :
+Contents file=<filename.hhc>
+Index file=<filename.hhk>
+Title=<title of your book>
+Default topic=<default page to be displayed.htm>
+
+All filenames (including the Default topic) are relative to the location of .hhp 
+file.
+Localization note: In addition, .hhp file may contain line
+Charset=<rfc_charset>
+
+which specifies what charset (e.g. "iso8859_1") was used in contents and index 
+files. Please note that this line is incompatible with MS HTML Help Workshop and 
+it would either silently remove it or complain with some error. See also Writing 
+non-English applications.
+Contents file (.hhc)
+Contents file has HTML syntax and it can be parsed by regular HTML parser. It 
+contains exactly one list (<ul>....</ul> statement):
+<ul>
+
+  <li> <object type="text/sitemap">
+           <param name="Name" value="@topic name@">
+           <param name="ID" value=@numeric_id@>
+           <param name="Local" value="@filename.htm@">
+       </object>
+  <li> <object type="text/sitemap">
+           <param name="Name" value="@topic name@">
+           <param name="ID" value=@numeric_id@>
+           <param name="Local" value="@filename.htm@">
+       </object>
+  ...    
+
+</ul>
+
+You can modify value attributes of param tags. topic name is name of 
+chapter/topic as is displayed in contents, filename.htm is HTML page name 
+(relative to .hhp file) and numeric_id is optional - it is used only when you 
+use wxHtmlHelpController::Display(int)
+Items in the list may be nested - one <li> statement may contain a <ul> 
+sub-statement:
+<ul>
+
+  <li> <object type="text/sitemap">
+           <param name="Name" value="Top node">
+           <param name="Local" value="top.htm">
+       </object>
+       <ul>
+         <li> <object type="text/sitemap">
+              <param name="Name" value="subnode in topnode">
+              <param name="Local" value="subnode1.htm">
+              </object>
+      ...
+       </ul>
+       
+  <li> <object type="text/sitemap">
+           <param name="Name" value="Another Top">
+           <param name="Local" value="top2.htm">
+       </object>
+  ...    
+
+</ul>
+
+Index file (.hhk)
+Index files have same format as contents file except that ID params are ignored.
+
+
+
+HEVEA SPECIFIC
+
+In LaTeX the \index{word} refers the current section no. 
+Classically we have \section{section title} ... \index{word}.
+
+In HeVeA the corresponding HTML anchor is defined at the position the
+\index{word} appears. This is a problem if we want to associate an index to
+(a word appearing in) a section title. Clicking on the 'word' in the HTML
+index will show the page starting from 'word' and not from the section title
+(which is hidden).  
+
+Previously we tried to reference the section for anchors in the index using
+this in custom.hva:
+
+%To get index citations that point to section titles
+%this comes from /usr/lib/hevea/makeidx.hva
+%NB: no longer works in HeVeA 2.0 !!! 
+%
+%\usepackage{makeidx}
+%\renewcommand{\index}[1]
+%{\if@refs\@saveclosed%
+%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
+%\@restoreclosed\fi}
+
+However this no longer works in HeVeA 2.0. The solution consisted in writing
+\section{...\index{...}...}. NB: LaTeX removes \index (and \label) when
+generating the TOC (see addcontentsline in file .toc).  Using macros is OK
+but not \if in macros (else they are not expansed and the \index will appear
+in the TOC resulting in a wrong index (TOC lines referenced).
+If the \if is really necessary the are 2 other possibilities:
+
+1) deactivate the macro(s) appearing in the \section whose expansion give a \index
+before the table of contents and reactivate after. E.g., (let us suppose it is IdxPBD):
+
+let\saveIdxPBD=\IdxPBD
+\renewcommand{\IdxPBD}[1] {\texttt{#1}}
+\tableofcontents
+\let\IdxPBD=\saveIdxPBD
+
+
+2) Define a macro to emit such a subsection (e.g., let us suppose it is as
+subsubsection) with 2 args: the section title and the index entry/ies. For
+LaTeX, define \section and then \index.  For HeVeA do the reverse: \index and
+then \section
+
+
+in macros.tex:
+\newcommand{\SSSect}[2]{\subsubsection{#1}#2}
+
+
+and in custom.hva
+\newcommand{\SSSect}[2]{#2\subsubsection{#1}}
+
+Use as follows:
+
+\SSSect{\texttt{var/1}, \texttt{nonvar/1}} {\AddPBD{var/1} \AddPBD{nonvar/1}}

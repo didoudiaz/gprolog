@@ -6,42 +6,113 @@
  * Descr.: general configuration file (handled by autoconf) - header file  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999 Daniel Diaz                                          *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
 #ifndef _GP_CONFIG_H
 #define _GP_CONFIG_H
 
+/* Define if you have inttypes.h */
+#undef HAVE_INTTYPES_H
+
 /* Define if you have sys/ioctl_compat.h */
 #undef HAVE_SYS_IOCTL_COMPAT_H
+
+/* Define if you have sys/syginfo.h */
+#undef HAVE_SYS_SIGINFO_H
 
 /* Define if you have termios.h */
 #undef HAVE_TERMIOS_H
 
-/* Define if you have termios.h */
+/* Define if you have termio.h */
+#undef HAVE_TERMIO_H
+
+/* Define if you have malloc.h */
 #undef HAVE_MALLOC_H
 
-/* Define if you have a working `mmap' system call */
+/* Define if you have endian.h */
+#undef HAVE_ENDIAN_H
+
+/* Define if you have sys/endian.h */
+#undef HAVE_SYS_ENDIAN_H
+
+/* Define if you have byteswap.h */
+#undef HAVE_BYTESWAP_H
+
+/* Define if you have float.h */
+#undef HAVE_FLOAT_H
+
+/* Define if you have the fgetc function */
+#undef HAVE_FGETC
+
+/* Define if you have the sigsetjmp function */
+#undef HAVE_SIGSETJMP
+
+/* NB: fpclassify is a macro, see BipsPl/arith_inl_c.c */
+/* Define if you have the fpclass function */
+#undef HAVE_FPCLASS
+
+/* Define if you have the _fpclass function (windows) */
+#undef HAVE__FPCLASS
+
+/* Define if you have the isnan function */
+#undef HAVE_ISNAN
+
+/* Define if you have the isinf function */
+#undef HAVE_ISINF
+
+/* Define if you have the asinh function */
+#undef HAVE_ASINH
+
+/* Define if you have the acosh function */
+#undef HAVE_ACOSH
+
+/* Define if you have the atanh function */
+#undef HAVE_ATANH
+
+/* Define if you have a working mmap system call */
 #undef HAVE_MMAP
+
+/* Define if you have a working mprotect system call */
+#undef HAVE_MPROTECT
 
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
 
 /* Define if you have a mkstemp function */
 #undef HAVE_MKSTEMP
+
+/* Define if you have a htole32 function */
+#undef HAVE_DECL_HTOLE32
+
+/* Define if you have a bswap_32 function */
+#undef HAVE_DECL_BSWAP_32
 
 /* Define inline keyword */
 #undef inline
@@ -77,29 +148,42 @@
 #undef USE_DYNAMIC
 
 
-/* Define if the cpu is a mips */
-#undef M_mips
+/* Define if the cpu is a mips32 */
+#undef M_mips32
 
 /* Define if the cpu is an alpha */
 #undef M_alpha
 
-/* Define if the cpu is a sparc */
-#undef M_sparc
+/* Define if the cpu is a sparc32 */
+#undef M_sparc32
+
+/* Define if the cpu is a sparc64 */
+#undef M_sparc64
 
 /* Define if the cpu is a ix86 */
 #undef M_ix86
 
-/* Define if the cpu is a powerpc */
-#undef M_powerpc
+/* Define if the cpu is a ppc32 */
+#undef M_ppc32
 
 /* Define if the cpu is a x86-64 */
 #undef M_x86_64
 
+/* Define if the cpu is an arm32 (armv7, armhf) */
+#undef M_arm32
 
-/* Define if the OS is an SGI IRIX */
+/* Define if the cpu is an arm64 (arch64) */
+#undef M_arm64
+
+/* Define if the cpu is a riscv64 */
+#undef M_riscv64
+
+
+
+/* Define if the OS is a SGI IRIX */
 #undef M_irix
 
-/* Define if the OS is an DEC OSF1 */
+/* Define if the OS is a DEC OSF1 */
 #undef M_osf
 
 /* Define if the OS is a sunos */
@@ -111,21 +195,28 @@
 /* Define if the OS is a linux */
 #undef M_linux
 
+/* Define if the OS is a darwin */
+#undef M_darwin
+
 /* Define if the OS is a WinXX based on Cygwin */
 #undef M_cygwin
 
 /* Define if the OS is a WIN32 */
 #undef M_win32
 
+/* Define if the OS is a WIN64 (in addition to M_win32) */
+#undef M_win64
+
 /* Define if the OS is a SCO */
 #undef M_sco
 
-/* Define if the OS is a BSD */
+/* Define if the OS is a (Free/Open/Net)BSD */
 #undef M_bsd
 
 
-/* Define if the system is an mips/irix */
-#undef M_mips_irix
+
+/* Define if the system is a mips32/irix */
+#undef M_mips32_irix
 
 /* Define if the system is an alpha/linux */
 #undef M_alpha_linux
@@ -139,38 +230,96 @@
 /* Define if the system is a ix86/sco */
 #undef M_ix86_sco
 
-/* Define if the system is a ix86/freebsd */
+/* Define if the system is a ix86/freebsd or openbsd or netbsd */
 #undef M_ix86_bsd
 
 /* Define if the system is a ix86/cygwin */
 #undef M_ix86_cygwin
 
+/* Define if the system is a ix86/mingw */
+#undef M_ix86_mingw
+
 /* Define if the system is a ix86/win32 */
 #undef M_ix86_win32
+
+/* Define if the system is a ix86/darwin */
+#undef M_ix86_darwin
 
 /* Define if the system is a ix86/solaris */
 #undef M_ix86_solaris
 
-/* Define if the system is a sparc/solaris */
-#undef M_sparc_solaris
+/* Define if the system is a sparc32/solaris */
+#undef M_sparc32_solaris
 
-/* Define if the system is a sparc/sunos */
-#undef M_sparc_sunos
+/* Define if the system is a sparc32/sunos */
+#undef M_sparc32_sunos
 
-/* Define if the system is a powerpc/linux */
-#undef M_powerpc_linux
+/* Define if the system is a sparc32/bsd */
+#undef M_sparc32_bsd
 
-/* Define if the system is a powerpc/bsd */
-#undef M_powerpc_darwin
+/* Define if the system is a sparc64/bsd */
+#undef M_sparc64_bsd
+
+/* Define if the system is a ppc32/linux */
+#undef M_ppc32_linux
+
+/* Define if the system is a ppc32/darwin */
+#undef M_ppc32_darwin
+
+/* Define if the system is a ppc32/bsd */
+#undef M_ppc32_bsd
 
 /* Define if the system is a x86-64/linux */
 #undef M_x86_64_linux
 
+/* Define if the system is a x86-64/solaris */
+#undef M_x86_64_solaris
+
+/* Define if the system is a x86-64/bsd */
+#undef M_x86_64_bsd
+
+/* Define if the system is a x86-64/cygwin */
+#undef M_x86_64_cygwin
+
+/* Define if the system is a x86-64/mingw */
+#undef M_x86_64_mingw
+
+/* Define if the system is a x86-64/darwin */
+#undef M_x86_64_darwin
+
+/* Define if the system is an arm32/linux */
+#undef M_arm32_linux
+
+/* Define if the system is an arm64/linux */
+#undef M_arm64_linux
+
+/* Define if the system is an arm64/darwin (e.g. Apple arm M1/MacOS) */
+#undef M_arm64_darwin
+
+/* Define if the system is a riscv64/linux */
+#undef M_riscv64_linux
+
+
+
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
 
 
 /* Constant definitions */
 
-#define PROLOG_NAME1               any
+#define PROLOG_DIALECT             any
 #define PROLOG_NAME                any
 #define PROLOG_VERSION             any
 #define PROLOG_VARIANT             any
@@ -197,6 +346,7 @@
 #define LDFLAGS                    any
 #define LDLIBS                     any
 #define AS                         any
+#define ASFLAGS                    any
 #define STRIP                      any
 
 #define ASM_SUFFIX                 any
@@ -205,6 +355,8 @@
 #define CC_OBJ_NAME_OPT            any
 #define CC_EXE_NAME_OPT            any
 
+/* define if Windows HtmlHelp is used 1=static (-lhtmlhelp), 2=dynamic (DLL) */
+#undef WITH_HTMLHELP
 
 #define DLL_W32GUICONS             any
 #define LIB_LINEDIT                any
@@ -214,9 +366,23 @@
 #define LIB_BIPS_FD                any
 
 
+#define SIZEOF_INT                 any
 #define SIZEOF_LONG                any
-#define WORD_SIZE                  (8 * SIZEOF_LONG)
+#define SIZEOF_VOIDP               any
+
+#define SIZEOF_PTR                 SIZEOF_VOIDP
+#define WORD_SIZE                  (8 * SIZEOF_PTR)
+
+/* Define if socklen_t is not defined */
+#undef socklen_t
+
+/* Define if you have a working sigaction to detect SIGSEGV bad addr */
+#undef HAVE_WORKING_SIGACTION
+
+/* Define if obj chain needs to reverse order of collected objects */
+#undef OBJ_CHAIN_REVERSE_ORDER
 
 #include "arch_dep.h"
+#include "pl_long.h"
 
 #endif /* !_GP_CONFIG_H */

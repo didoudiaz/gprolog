@@ -1,0 +1,53 @@
+% use filter mode:  hevea -text -w 1000 <hh-mktoc.tex >hh-gprolog.hhc
+\documentclass{article}
+\usepackage{hevea}
+\usepackage{makeidx}
+\usepackage{ifpdf}
+
+%\input{../packages.tex}
+\input{../macros.tex}
+
+%\def\bs{\char'134}
+%\def\lt{\char'074}
+%\def\gt{\char'076}
+%\def\lb{\char'173}
+%\def\rb{\char'175}
+%\def\us{\char'137}
+\newcommand{\Tag}[1]{{\lt}#1{\gt}}
+
+\renewenvironment{tocenv}{\Tag{ul}\\}{\Tag{/ul}\\}
+
+\renewcommand{\tocitem}[1][]{}
+
+\renewcommand{\@locref}[2]{\OneEntry{\csname#1\endcsname\#{}#1}{#2}}
+\renewcommand{\ahrefloc}[2]{\@locref{#1}{#2}}
+
+\newcommand{\OneEntry}[2]{%
+\Tag{li}\Tag{object type="text/sitemap"}\\%
+~~~~\Tag{param name="Name" value="{\def\\{}#2}"}\\%
+~~~~\Tag{param name="Local" value="#1"}\\%
+~~~~\Tag{/object}\\}
+
+\newcommand{\remember}[2]{\def\csname#1\endcsname{#2}}
+
+\input{/tmp/gprolog.hrf.hh}
+
+\begin{document}
+\Tag{HTML}\\
+\Tag{HEAD}\\
+\Tag{!-- Sitemap 1.0 --}\\
+\Tag{/HEAD}\\
+\Tag{BODY}\\
+%\Tag{object type="text/site properties"}\\
+%~~~~\Tag{param name="FrameName" value="right"}\\
+%~~~~\Tag{param name="Window Styles" value="0x800025"}\\
+%\Tag{/object}\\
+\begin{tocenv}
+\OneEntry{index.html}{The GNU Prolog Manual}
+\input{../gprolog.htoc}
+%\input{foo.htoc}
+\end{tocenv}
+\Tag{/BODY}\\
+\Tag{/HTML}\\
+\end{document}
+

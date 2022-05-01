@@ -1,40 +1,334 @@
-Change in GNU Prolog version 1.2.16:
+Change in GNU Prolog version 1.5.1
 
-* official release (Oct 1 2002)
+* port to RISC-V 64 bits/Linux - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* fix issue #23: add built-in predicate copy_file/2
+* fix issue #10: missing int_overflow
+* fix issue #22: math evaluation raises a float_overflow instead of int_overflow
+* fix issue #21: bug in append/3
+* fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
+* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)
+* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
+* fix issue #4: directory_files/2 now uses native Win32 functions
+* fix small problem when bootstrapping due to Makefiles
+* fix format/2-3 to throw a domain error on invalid radix (pr #16)
+* fix issue #9: format/2-3 now also accept a list of character for format
+* fix problem in arm32 mapper when passing more than 8 double to a C function
+* fix issue #7: length/2 now emits a type_error(list) only if the strict_iso flag is off
+* fix infinite loop in debugger for multifile/dynamic predicates (issue #12)
+* improve Makefiles with patches sent by Keri Harris on July 2021
+
+Change in GNU Prolog version 1.5.0
+
+* source repository moved to GiHub https://github.com/didoudiaz/gprolog
+* port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
+* port to arm64 (aarch64)/Linux (armv8) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* port to arm32/Linux (armv6, armv7) - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* port to Termux on aarch64/android
+* accept clang as C compiler on x86_64/linux (use CC=clang ./configure)
+* restructure and improve the code of all MA-ASM mappers
+* fix a bug in absolute_file_name, '/src/../' returned '' now '/'
+* add error case to findall/4 (detects when Tail is not a list)
+* set eof_action to reset for standard input/output/error streams even if not a tty
+* add float_overflow and undefined for float arithmetic functions
+* update ports to windows (32 and 64 bits with MSVC and masys2/mingw64)
+* fix a bug when closing user_error
+* fix a bug in phrase/2-3
+* fix problem with gcc 10 which needs explicitly -fcommon
+* fix bugs when Prolog integers are internally converted to C int (on 64 bits machine)
+
+Change in GNU Prolog version 1.4.5 (Feb 2018):
+
+* fix a bug in soft-cut (when a cut appears in the if-part)
+* fix bug when consulting multifile predicates with alternatives
+* add ?- ISO prefix operator
+* add gplc option --new-top-level (add top-level command-line option handling)
+* fix a bug on linux witg gcc 6.3.0 (or binutils): needs PIC code
+* fix a bug in findall/4
+* fix a bug in select/5 under Windows
+* fix a bug in the compiler
+* fix a bug in read/1
+* fix large address awarenes under cygwin32 (configure.in)
+* improve memory limitation of acyclic_term/1
+* improve term output (write/1 and friends)
+* improve error handling for options (e.g. in write_term/3)
+* fix bug with cut in the if-part of if-then(-else)
+* fix port to x86_64/OpenBSD
+  (machine kindly provided by Duncan Patton a Campbell)
+* fix a bug with Apple/Yosemite gcc = LLVM version 6.0 (clang-600.0.56) on x86_64
+* allow to define more atoms with MAX_ATOM env var on 64 bits machines
+* fix a bug in bagof/3 when used as findall/3
+* port to sparc64/OpenBSD
+  (machine kindly provided by Duncan Patton a Campbell)
+* add built-in predicate findall/4
+* fix a bug with linedit when environment variable LINEDIT=no
+* fix bugs in the FD solver
+* set socket option SO_REUSEADDR at socket creation
+* support for alternate Prolog file extension .prolog
+* fix a bug in atoms for 1-char atom '\0' (now acts as the empty atom)
+* fix problems with Apple/Mavericks gcc = LLVM version 5.0 (clang-500.2.79) on x86_64
+* remove clang warnings (uninitialized variables)
+* fix bugs in the lexer of the form 0bop 2 when bop is an infix op
+* fix terminal ANSI sequence handling in linedit
+* increase internal compiler data sizes
+* fix bug in gprolog.h (invalid 64 bits PL_MAX_INTEGER)
+
+Change in GNU Prolog version 1.4.4 (Apr 2013):
+
+* add Prolog flags c_cc_version_data
+* fix a regression bug in linedit
+* fix a little bug in the debugger
+* add subtract/3 built-in predicate
+
+Change in GNU Prolog version 1.4.3 (Mar 2013):
+
+* add new C foreign interface functions converting term to/from C strings
+* modify top-level banner to show 32/64 bits, compile date, C compiler name
+* modify Linedit: fix Prolog prompt when Linedit is not activated
+* modify linedit: accept gui=silent in env var LINEDIT
+  (does not warn if the windows gui DLL is not found)
+* fixes for Windows 8 (i686 and x86_64) with MSVS 2012, mingw64 gcc > 4.5.3
+* add Prolog flags address_bits, compiled_at, c_cc, c_cflags, c_ldflags
+* fix a bug in the FD solver (option backtracks in fd_labeling)
+* improve the FD solver (better propagation for reified constraints at labeling)
+* improve the FD solver (add labeling option: value_method(bisect))
+* improve the FD solver (avoid some cases of C stack overflow, improved fd_domain/3)
+* fix another bug in the FD solver (regression bug in 1.4.2)
+* add PlULong to gprolog.h and PlThrow(ball) to C foreign interface
+* fix a bug in the FD solver (regression bug in 1.4.2)
+
+Change in GNU Prolog version 1.4.2 (Dec 2012):
+
+* fix a bug in the compiler for byte-code with op/3 directive
+* fix a bug in the debugger
+* modify decompose_file_name/4 (fix problems under windows)
+* add built-in is_absolute_file_name/1 and is_relative_file_name/1
+* modify the compiler include/1 directive handling
+  (if the file to include is not found, search in directories of parent includers)
+* modify atom table management (its size can be defined via env. var MAX_ATOM)
+* fix a bug with soft-call inside a meta-call
+* implement term_hash/2 and term_hash/4. Backward incompatibility:
+  new_atom/3 and and atom_hash/2 no longer exists.
+* fix some little bugs with 64 bits (e.g. stream id)
+* modify the FD solver to handle very long computations
+* fix a bug in the compiler (unification with fresh vars in the body)
+* fix a bug with *-> containing ! in the test part (! was not local to the test)
+* fix a bug to configure with sigaction on old Linux kernels
+* fix some problems/bugs on 64 bits machine
+
+Change in GNU Prolog version 1.4.1 (Jun 2012):
+
+* improve signal handling
+* add an option --wam-comment to gplc and pl2wam
+* fix multifile directive (works now with an empty predicate as required by ISO)
+* fix absolute_file_name to expand ~ using HOMEDRIVE and HOMEPATH under windows
+  if HOME is not defined
+* improve listing/0-1 output
+* add soft cut control construct and its associated operator *->
+* improve the top-level results in case of cyclic terms
+* fix arithmetic evaluable functor ^/2 to work with floats
+* increase maximum number of variables in a term
+* add write_term option variable_names
+* add built-in predicates between/3 and succ/2
+* fix bug in the DCG expander
+* fix bug in member/2
+* recognize escape sequence \s (space) and \e (escape) if strict_iso is off
+* add error detection in length/2 if given length is negative
+* add built-in predicates maplist/2-9
+* fix a regression bug in the FD solver about sparse domains
+* increase size of FD internal stacks and fix memory leak
+* port to x86_64/Darwin (Mac OS X) - many thanks to
+  Ozaki Kiichi <gclient.gaap@gmail.com>
+* fix a bug in x86_64 with --disable-regs
+* fix a bug when consulting a file under Win XP/Vista 32 bits
+* fix a bug when consulting a file using '$VAR'(N) or '$VARNAME'(A)
+* fix a bug in new_atom/1-2 which returned duplicates
+* fix a bug in write/1 when an empty atom is passed
+* improve portray_clause (numbervars and space before final dot)
+
+Change in GNU Prolog version 1.4.0 (Jul 2011):
+
+* GNU Prolog is now licensed under a dual license LGPL or GPL
+* port to x86_64/MinGW64 - many thanks to
+  Jasper Taylor <jasper@simulistics.com> (see src/WINDOWS64)
+* port to x86_64/MSVC (see src/WINDOWS64)
+* add a configure option to control Windows HtmlHelp
+  --disable-htmlhelp or --enable-htmlhelp[=static/dynamic]
+* improve a lot (and fix some bugs in) the Windows GUI Console
+* change location of gprologvars.bat under Windows (in install directory)
+* increase default stack sizes (32Mb for heap, 16Mb for others)
+* change the default setting for flag strict_iso: it is on now
+* add control constructs to the predicate table
+* modify predicate_property/2 (built_in_fd ==> built_in, add control_construct)
+  only accepts a Head (a callable) (no longer a predicate indicator)
+* fix a bug in the compiler (bad unification with singleton variable)
+* fix a bug with strict_iso flag (was not passed to consult)
+* add shebang support using #!/usr/bin/gprolog --consult-file
+* modify the mangling scheme for future module support (see hexgplc)
+* fix write_term default options (now numbervars(false) and namevars(false))
+* fix read/1: tab and newlines are not accepted inside single/back/double quoted tokens
+* add additional errors to compare/3 and keysort/2
+* accept space under the top-level (same as ;)
+* modify portray_clause/1-2 to add a newline at the end of the output
+* add acyclic_term/1 (compatibility only since GNU Prolog does not handle cyclic terms)
+* fix write/1 to treat '$VARNAME'(Atom) as a var name only if Atom is a valid var name
+* rename evaluable functor atan/2 as atan2/2 and >< as xor
+* add evaluable functor div/2
+* detect op/3 error cases for | [] {}
+* replace type_error(variable, X) by uninstantiation_error(X) (e.g. open/3-4)
+* add built-in term_variables/2-3 and subsumes_term/2
+* add some type tests on chars and codes (in number_chars/2, number_codes/2,..)
+* fix some little bugs in the parser
+* add meta_predicate property to predicate_property/2
+* fix a memory leak in atom_concat/3 (in case of failure)
+* add infix operator '|' (and allow it to be unquoted in read/write)
+* improve top-level variables display adding () when needed
+* fix a bug in length/2 (length(L,L) now loops)
+* support the ISO multifile/1 directive
+* add built-ins false/0 and forall/2
+* detect an instantiation_error in phrase/2-3
+* GNU Prolog is now licensed under LGPL
+* allow rounding functions to accept an integer if strict_iso is off
+* group all examples under a new directory 'examples'
+* fix a bug in read_from_codes/2 and number_codes/2
+* improve speed of built-in predicates on list (append, member, reverse,...).
+* improve CTRL+C handling under the top-level
+* add is_list/1 (same as list/1)
+* add Prolog flags: dialect, home, host_os, host_vendor, host_cpu,
+  host, arch, version, version_data, unix, argv
+* add preprocessor directives if/1 else/0 elif/1 endif/0
+* fix a bug on large ints in the byte-code for 64-bits machine
+* fix a bug with call/2-N
+* change listing/0-1 printing stream: now it is current_output
+* add a new stream alias: user_error associated to stderr
+* add evaluable functors: (a)sinh/1, (a)cosh/1, (a)tanh/1
+* add evaluable functors: epsilon/0, lsb/1, msb/1, popcount/1
+* fix compilation problem under Mac OS X Snow Leopard (force 32-bits mode)
+* add evaluable functors: log/2, gcd/2, tan/1, atan2/2, pi/0, e/0
+* add built-in ground/1
+* rename built-in sort0 as msort
+* add new error detection for keysort
+* accept (but ignore) directive encoding/1
+* add xor/2 operator (bitwise XOR) ^/2 becomes integer exponentiation
+* improve randomize/0 (more different values on consecutive calls)
+* relax the lexer to also accept 0'' (ISO requires 0''' or 0'\') if strict_iso is off
+* fix a bug with top-level options --entry-goal and --query-goal
+
+Change in GNU Prolog version 1.3.1 (Feb 2009):
+
+* add working sigaction detection to detect fault addr (e.g. Mac OS X)
+* add gplc option --no-mult-warn
+* add prolog flags suspicious_warning, multifile_warning
+* detect integer underflow/overflow in the parser
+* fix a memory leak in catch/3
+* increase limits (MAX_VAR_NAME_LENGTH=1024 and MAX_VAR_IN_TERM=10240)
+* add PL_INT_LOWEST_VALUE and PL_INT_GREATEST_VALUE to gprolog.h
+* prefix all global symbols, constants and types with Pl_ PL_ Pl
+* fix a bug in the byte-code due to new max number of atoms
+* provide a minimal gprolog.h
+* detect if struct sigcontext needs asm/sigcontext.h on Linux
+* modify gplc: --c-compiler also sets linker and --linker added
+* port to x86_64/BSD - many thanks to
+  David Holland <dholland@netbsd.org>
+* fix problem using ebx as global reg (bug in gcc 4.3.2)
+* fix a bug in is/2 with [X] (X should only be an integer)
+* fix a bug with atoms '/*' '*/' and '%' (were not quoted)
+* increase maximum number of atoms to 1048576 (2^20)
+* increase default stack sizes (16Mb for heap, 8Mb for others)
+* fix stack alignment for x86_64/Solaris
+* include patch from Paul Eggert <eggert@cs.ucla.edu> for sparc/solaris8
+* port to x86_64/Solaris - many thanks to
+  Scott L. Burson <Scott@coral8.com>
+* fix a bug in the FD solver (under 64 bits machines)
+* fix a bug in arithmetics (mod)
+
+Change in GNU Prolog version 1.3.0 (Jan 2007):
+
+* change error messages emitted by the compiler to follow GNU standards
+* modify doc (mainly rename manual.xxx to gprolog.xxx)
+* add DESTDIR variable support in main Makefile for staged installs
+* fix a bug with Prolog floats in x86_64/Linux (bad stack alignment)
+* port for ix86/Darwin (Mac OS X)
+* add check target to main Makefile
+* improve Win32 ports (Cygwin, MinGW, MSVC 6.0 and 2005 Express Edition)
+  (MSVC port uses MinGW as.exe instead of nasm.exe - named mingw-as.exe
+   provided in the setup.exe)
+* rename call/2 to call_det/2
+* implement call/2-11 as will be defined in the next standard
+* fix various problems when compiling with gcc 4 (gcc 4.1.1)
+* emit .note.GNU-stack to mark the stack as no executable
+  in x86_any.c, x86_64_any.c and powerpc_any.c
+* change the way objects are found (obj_chain.c) using gcc ctors
+* use Doug Lea malloc for OpenBSD (problem with malloc using mmap)
+* fix problems in various ports:
+  alpha/Linux, powerpc/Darwin (Mac OS X), sparc/solaris, ix86/OpenBSD
+
+Change in GNU Prolog version 1.2.19 (Jun 2005):
+
+* fix 2 bugs in global variables
+
+Change in GNU Prolog version 1.2.18 (Jun 2004):
+
+* fix problem when compiling with gcc 3.4.0
+* fix bug in term comparison involving negative integers
+* add consult, ... and fix minor bugs in the Win32 GUI console menu
+* fix the stack overflow detection under Cygwin
+* port to ix86/MinGW - many thanks to
+  Cesar Rabak <csrabak@ig.com.br>
+* fix a bug in the port to sparc/solaris
+* fix a problem in the port to x86/OpenBSD
+* port to sparc/NetBSD and powerpc/NetBSD - many thanks to
+  Jason Beegan <jtb@netbsd.org>
+* fix a bug in =../2 involving FD variables
+* fix a bug in arithmetics (in float_{integer/fractional}_part)
+* fix a bug in FD solver (wrong union with a singleton)
+* fix a bug with the foreign C interface
+
+Change in GNU Prolog version 1.2.17 (Feb 2003):
+
+* change configure.in: by default ebp is not used
+* fix a but with CTRL+C handler not reinstalled
+* fix a bug with _XXX (re)displayed under the top-level
+* port to x86_64/Linux - many thanks to
+  Gwenole Beauchesne <gbeauchesne@mandrakesoft.com>
+
+Change in GNU Prolog version 1.2.16 (Sep 2002):
+
 * fix bug in predicate_property/2
 * add new built-in fork_prolog/1 and create_pipe/2
 * fix a bug in atom_concat/3
 * fix bug when detecting if a stream can be repositioned
 
-Change in GNU Prolog version 1.2.15:
+Change in GNU Prolog version 1.2.15 (Sep 2002):
 
 * fix bug in output to constant terms (e.g. write_to_atom/2)
-* include another additional patch for sockets under win32 - due to:
+* include another additional patch for sockets under win32 - due to
   Brent Fulgham <brent.fulgham@xpsystems.com>
 * fix bug in bagof/3 with FD variables
 * fix bug with randomize/0
 
-Change in GNU Prolog version 1.2.14:
+Change in GNU Prolog version 1.2.14 (Jun 2002):
 
 * added min/max to Prolog arithmetics
 * fix bugs in current_predicate and predicate_property
 
-Change in GNU Prolog version 1.2.13:
+Change in GNU Prolog version 1.2.13 (Jun 2002):
 
-* official release (Jun 14 2002)
-* port to powerpc/Darwin (Mac OS X) - many thanks to:
+* port to powerpc/Darwin (Mac OS X) - many thanks to
   Lindsey Spratt <spratt@alum.mit.edu>
 * fix bug in Win32 GUI console (deal with edit control text limit)
 * fix bug with in-place installation procedure
 * fix problem with portray_clause/2 using $VARNAME and $VAR
-  now portray_clause((p(Z):-p('$VARNAME'('A'),Z))) is ok
+  now portray_clause((p(Z):-p('$VARNAME'('A'),Z))) is OK
 * fix bug with stream buffering (open/4 and set_stream_buffering/2)
 * add stream mirror facility (see add_stream_mirror/2)
 
-Change in GNU Prolog version 1.2.12:
+Change in GNU Prolog version 1.2.12 (Apr 2002):
 
 * improve global vars (arg. selector, automatic array, new built-ins)
-* fix two bugs with Ctrl+C reentrency under the top-level
+* fix two bugs with Ctrl+C reentrancy under the top-level
 * added priority/1 option to write_term to specify starting priority
 * now under the top-level, _XXX variables are not displayed
 * fix bug in decompose_file_name/4 (tried to modify read-only string)
@@ -46,29 +340,29 @@ Change in GNU Prolog version 1.2.12:
 * now linedit avoids to put in history 2 same consecutive lines
 * remove max_stream limitation (the Prolog flag no longer exists)
 * the template of get_print_stream/1 is now ?stream
-* patch to allow more than 64Mb for the stacks under ix86/linux
+* patch to allow more than 64Mb for the stacks under ix86/Linux
 * fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
 
-Change in GNU Prolog version 1.2.11:
+Change in GNU Prolog version 1.2.11 (Mar 2002):
 
 * fix a problem under sparc/solaris using mmap (adding MAP_FIXED)
 * fix a problem with gcc 3.0.x which always uses ebp in main()
 * use -march=xxx gcc option instead of -mxxx for ix86
 
-Change in GNU Prolog version 1.2.10:
+Change in GNU Prolog version 1.2.10 (Jan 2002):
 
 * gplc now passes -L option to ld in the order of apparition
 * gplc accepts meta-characters %p, %d,... in output file names
-* include additional patch for sockets under win32 - due to:
+* include additional patch for sockets under win32 - due to
   Brent Fulgham <brent.fulgham@xpsystems.com>
 
-Change in GNU Prolog version 1.2.9:
+Change in GNU Prolog version 1.2.9 (Dec 2001):
 
 * re-write Windows GUI Console in pure Win32 (no more MFC)
 * adapt configure.in to work with autoconf 2.52
 * add Prolog flag back_quotes and values {atom,chars,codes}_no_escape
-* use a terminal recusion in FD arithmetic normalization
-* fix bug in bind_variables/2, reported by: 
+* use a terminal recursion in FD arithmetic normalization
+* fix bug in bind_variables/2, reported by:
   Bowie Owens <owe043@phi-cq.vic.cmis.csiro.au>
 * modify Ma2Asm mappers to use Y_OFFSET (from ENVIR_STATIC_SIZE)
 * fix some bugs in the Wam debugger
@@ -82,7 +376,7 @@ Change in GNU Prolog version 1.2.9:
 * add built-in get_key/1-2
 * use get_key/1-2 in the top_level + debugger (thus with echo)
 * improve the top-level Ctrl+C manager
-* fix bux on linux configured with --disable-regs
+* fix bug on Linux configured with --disable-regs
 * add pipe to pl2wam stdin when called by consult/1
 * fix bug in FD: forall is now recognized in .fd files
 * fix bug in DCG: expand_term((a --> X), Y) is OK
@@ -90,43 +384,42 @@ Change in GNU Prolog version 1.2.9:
 * simplify top_comp.c to better control include dirs in devel. mode
 * specialized functions for create/update/delete choice points
 * fix a bug in wam2ma (hexa name creation overflowed malloc buffer)
-* include patch to support basic sockets under win32 - due to:
+* include patch to support basic sockets under win32 - due to
   Brent Fulgham <brent.fulgham@xpsystems.com>
 * arithmetic functions and inlined built-ins use fast call
 * specialized functions for switch_on_term_xxx
 * modify pl2wam to generalize '$call_c' (add options)
 
-Change in GNU Prolog version 1.2.8:
+Change in GNU Prolog version 1.2.8 (Oct 2001):
 
-* official release (Oct 15 2001)
 * fix bug - delete file created by mkstemp(2), patch from:
   Salvador Abreu <spa@debian.org>
 * space_args(true) now displays a space inside {}/1
 * space_args(true) now displays a space after a comma (','/2)
 
-Change in GNU Prolog version 1.2.7:
+Change in GNU Prolog version 1.2.7 (Sep 2001):
 
 * add a --foreign-only option to pl2wam
 * foreign/2 directives are ignored in byte-code mode (no fatal error)
 * space_args(true) now displays space between operators and arguments
 * add CVS Id to prolog files
-* get rid of mktemp and tempnam calls (use mkstemp if available)
 * fix bug in pl2wam to include break/0, trace/0,... in bip_list.pl
+* get rid of mktemp and tempnam calls (use mkstemp if available)
 * fix a bug in fd_element_var/3 constraint
 * fix bug in fd headers (fd_to_c.h not installed)
 * fix a bug with unify_with_occurs_check/2
 * fix bug on ix86 using ebp (add -fomit-frame-pointer in CFLAGS_MACHINE)
 
-Change in GNU Prolog version 1.2.6:
+Change in GNU Prolog version 1.2.6 (Jan 2001):
 
 * fix a bug with ! in dynamic code
 * fix a bug in arithmetics
 
-Change in GNU Prolog version 1.2.5:
+Change in GNU Prolog version 1.2.5 (Dec 2000):
 
 * big modification (1 month) to optimize the execution speed
 
-Change in GNU Prolog version 1.2.4:
+Change in GNU Prolog version 1.2.4 (Nov 2000):
 
 * implement fast call (mainly for WAM functions)
 * modify C->Prolog foreign interface to recover arguments space
@@ -134,124 +427,152 @@ Change in GNU Prolog version 1.2.4:
 * fix _ symbol prefix problem for Free BSD
 * no longer use dl_malloc on Linux but prevent MMAP using mallopt
 
-Change in GNU Prolog version 1.2.3:
+Change in GNU Prolog version 1.2.3 (Sep 2000):
 
-* added acos/asin to Prolog arithmetics
 * full re-indentation of the sources for CVS
+* added acos/asin to Prolog arithmetics
 
-Change in GNU Prolog version 1.2.2:
+Change in GNU Prolog version 1.2.2 (Sep 2000):
 
-* port to alpha/linux - many thanks to: Alexander Diemand <ax@apax.net>
+* port to alpha/Linux - many thanks to
+  Alexander Diemand <ax@apax.net>
 * port to alpha/OSF1
-* port to mips/irix - many thanks to: Alexander Diemand <ax@apax.net>
+* port to mips/irix - many thanks to
+  Alexander Diemand <ax@apax.net>
 * fix a bug in stty.c (use standard termios if present)
 
-Change in GNU Prolog version 1.2.1:
+Change in GNU Prolog version 1.2.1 (Jul 2000):
 
 * fix a bug in stty.c (use termio by default and else termios)
 
-Change in GNU Prolog version 1.2.0:
+Change in GNU Prolog version 1.2.0 (Jul 2000):
 
-* official release (Jul 28 2000)
-
-Change in GNU Prolog version 1.1.7:
-
-* port for ix86/NetBSD - many thanks to: Brook Milligan <brook@nmsu.edu>
 * more customizable configuration/installation procedure
 
-Change in GNU Prolog version 1.1.6:
+Change in GNU Prolog version 1.1.7 (Jul 2000):
 
-* start of native Win32 port
-* added creation/1 and last_access/1 property to file_property/2
+* port for ix86/NetBSD - many thanks to
+  Brook Milligan <brook@nmsu.edu>
+
+Change in GNU Prolog version 1.1.6 (Jun 2000):
+
+* rename configuration file config.h by gp_config.h
+* avoid to establish a connection at start to get the hostname
 * fix a bug in the compiler about \\ inside quoted atoms
 * fix a bug in dynamic clause retraction (memory leak)
 * fix a bug in atom management (existing atoms eat mallocated space)
-* avoid to establish a connection at start to get the hostname
-* rename configuration file config.h by gp_config.h
+* added creation/1 and last_access/1 property to file_property/2
+* start of native Win32 port
 
-Change in GNU Prolog version 1.1.5:
+Change in GNU Prolog version 1.1.5 (Mar 2000):
 
-* internal version
+* port for ix86/FreeBSD - many thanks to
+  Nicolas Ollinger <nollinge@ens-lyon.fr>
 
-Change in GNU Prolog version 1.1.4:
+Change in GNU Prolog version 1.1.4 (Jan 2000):
 
 * fix a bug in the byte-code loader (bad realloc computation)
-* fix a bug in the malloc (used MMAP under linux)
+* fix a bug in the malloc (used MMAP under Linux)
 
-Change in GNU Prolog version 1.1.3:
+Change in GNU Prolog version 1.1.3 (Dec 1999):
 
-* port for ix86/SCO - many thanks to:
+* port for ix86/SCO - many thanks to
   Clive Cox <clive@laluna.demon.co.uk> and
-  Edmund Grimley Evans <edmundo@rano.demon.co.uk>)
-* port for ix86/solaris - many thanks to: 
+  Edmund Grimley Evans <edmundo@rano.demon.co.uk>
+* port for ix86/solaris - many thanks to
   Andreas Stolcke <stolcke@speech.sri.com>
 * fix a bug in the FD solver for X#\=C (if C is max(X))
 * fix a bug with directory_files/2 (too many open files)
 
-Change in GNU Prolog version 1.1.2:
+Change in GNU Prolog version 1.1.2 (Nov 1999):
 
-* official release (Nov 29 1999)
-* fix a bug in the scanner about 0'<character>
 * fix a bug in the compiler about \t in quoted atoms
+* fix a bug in the scanner about 0'<character>
 
-Change in GNU Prolog version 1.1.1:
+Change in GNU Prolog version 1.1.1 (Oct 1999):
 
 * fix bug with popen/3
 * update machine.c for struct sigcontext under Linux
 
-Change in GNU Prolog version 1.1.0:
+Change in GNU Prolog version 1.1.0 (Oct 1999):
 
-* official release (Oct 4 1999)
 * fix a bug in the output of some extended characters in native-compilation
 
-Change in GNU Prolog version 1.0.6:
+Change in GNU Prolog version 1.0.6 (Sep 1999):
 
-* fix a bug in sign/1 for arithmetic evaluation
 * implementation of call_with_args
+* fix a bug in sign/1 for arithmetic evaluation
 
-Change in GNU Prolog version 1.0.5:
+Change in GNU Prolog version 1.0.5 (Jul 1999):
 
 * fix a bug in foreign C calling Prolog on sparc
 
-Change in GNU Prolog version 1.0.4:
+Change in GNU Prolog version 1.0.4 (Jul 1999):
 
-* fix a bug with sparc compilation
+* fix a bug in sparc compilation
+* fix a bug in foreign code under sparc
+* update pl_config.c to show which version is installed
 
-Change in GNU Prolog version 1.0.3:
+Change in GNU Prolog version 1.0.3 (Jun 1999):
 
-* a first final port for cygwin (see PROBLEMS)
-* fix some bugs in the FD solver
-* fix some other bugs
+* add linedit test to avoid to re-echo an already buffered full-line
+* fix bugs is sort/1
+* fix bug in sleep/1 (incorrect behavior with a float)
+* finish preliminary port to Cygwin (see file src/PROBLEMS)
+* fix bug in FD solver (too much trail allocated due to bad vec_size)
+* fix labeling first-fail to correspond to clp(FD)
+* fix message from consult when pl2wam cannot be found
 
-Change in GNU Prolog version 1.0.2:
+Change in GNU Prolog version 1.0.2 (Jun 1999):
 
 * fix precision bug on floating constants
 
-Change in GNU Prolog version 1.0.1:
+Change in GNU Prolog version 1.0.1 (Jun 1999):
 
+* initial port for ix86/Cygwin (Win32) (to finish)
+* fix bug in throw_c.c (foreign code catch exception)
+* improve Ma2Asm check.c and FromC/ utilities
+* port for PowerPC / GNU/Linux  (see file src/PROBLEMS)
+* fix bug using egcs-1.1.2 (RedHat 6.0) (add a Stop_Prolog() fct)
+* removed Configure directory (clashes with ./configure under WinXX)
+* fix Linedit/Makefile.in (CFLAGS added)
 * add ensure_linked directive
-* fix known bugs under RedHat 6.0 usgin egcs
-* port for PowerPC / GNU/Linux
+* fix bug in gplc help (-C/-A/-L instead of --C/--A/--L)
+* fix bug in gplc (with too long command-lines)
+* fix bug in M_Absolute_Path_Name() (/.automount gave /automount)
+* work release 1.0.1
+* fix bug --disable-regs works now for solaris
+* optimize FD equations (math_supp.c) avoid qsort sometimes
+* fix bug in installation procedure (Html doc installation)
 
-Change in GNU Prolog version 1.0.0:
+Change in GNU Prolog version 1.0.0 (Apr 1999):
 
-* official release (Apr 16 1999)
-* rewrite DCG in C (unification optimized, avoid ill-balanced conjunctions)
-* fix known bugs
+* rewrite in C DCG translation:
+  optimize unifications, no more ill-balanced conjunctions
+* fix bug in bc_supp.c to avoid aux pred name for unknown predicate
+* fix bug in pl2wam (:- set_prolog_flag(singleton_warning,off))
+* current_prolog/1 conforms to ISO thanks to strict_iso flag
+* fix bug (type_list instead of instantiation error for Options)
+* fix bug setof (not sorted when comes down to findall)
 
-Change in GNU Prolog version 0.9.0:
+Change in GNU Prolog version 0.9.0 (Mar 1999):
 
-* Calypso becomes GNU Prolog
-* in-place installation facility
-* fix compiler bug
-* rewrite sorts built-in predicates and add in-place sorts predicates
-* rewrite DCG translation
-* rewrite all solutions built-in predicates
+* add Prolog flag strict_iso (to relax predicate indicators)
+* fix number_chars and friends non ISO conforming behavior
+* modify wam2ma to avoid static arrays (use dynamic allocation)
+* add in-place installation (modify configure.in and Makefile.in)
+* add copyright headers in source files
+* rewrite all solutions built-in predicates (in C)
+* add in-place sorts
+* rewrite DCG translations
+* fix compiler bug in wam2ma (atom using \xHH\ not correctly handled)
+* rewrite sorts built-in predicates (in C)
+* Calypso (beta 7) becomes GNU Prolog 0.9.0
+  change command names (calypso -> gprolog, plcc -> gplc,...)
+  copyright messages (--version),...
 
-Change in Calypso version 1.0-beta7:
+Change in Calypso version 1.0-beta7 (Mar 1999):
 
-* use autoconf
-* fix known bugs
-* add :- built_in/0-1 and :- built_in_fd/0-1 directives
-* complete C foreign interface
-
+* fail/0 caused an existence_error under the debugger
+* user/built_in/built_in_fd not recognized by load/1
+* Calypso version 1.0-beta7 ready for internal use

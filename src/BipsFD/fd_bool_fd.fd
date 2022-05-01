@@ -6,101 +6,113 @@
  * Descr.: boolean and meta-constraint predicate management - FD part      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 %{
-#define not(x)   (1 - (x))
-#define and(x,y) ((x) & (y))
-#define or(x,y)  ((x) | (y))
-#define xor(x,y) ((x) ^ (y))
-#define eqv(x,y) (not(xor(x,y)))
-#define impl(x,y)(not(x) | (y))
+#define not(x)     (1 - (x))
+#define and(x, y)  ((x) & (y))
+#define or(x, y)   ((x) | (y))
+#define xor(x, y)  ((x) ^ (y))
+#define eqv(x, y)  (not(xor(x, y)))
+#define impl(x, y) (not(x) | (y))
 %}
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * How are written the boolean primitive constraints.                      * 
- *                                                                         * 
- * I- When a variable X can only be determined when all other variables are* 
- * instantiated, we use:                                                   * 
- *                                                                         * 
- *    X in { true_formula }                                                * 
- *                                                                         * 
- * where true_formula is the formula when X is true.                       * 
- * The value of the other variables are get with val() to avoid useless    * 
- * reevaluation of the constraint.                                         * 
- *                                                                         * 
- * Ex: #~ X <=> B                                                          * 
- *                                                                         * 
- * var  true_formula                                                 X B   * 
- * ---  ------------                                                 ---   * 
- *  B    ~X                                                          0 1   * 
- *  X    ~B                                                          1 0   * 
- *                                                                         * 
- *  X in { not(val(B)) }                                                   * 
- *  B in { not(val(X)) }                                                   * 
- *                                                                         * 
- *                                                                         * 
- * II- When a variable X can be determined thanks to a subset of other     * 
- * variables, we use:                                                      * 
- *                                                                         * 
- *    X in true_formula .. not_false_formula                               * 
- *                                                                         * 
- * where true_formula is the formula when X is true and not_false_formula  * 
- * is the negation of the formula when X is false. To find when a variable * 
- * is true (resp. false) look at the truth table of THAT VARIABLE (the one * 
- * determining that variable from all combinations of the other variables).* 
- * Combinations when the variable can be 0 or 1 (undefined) are ignored.   * 
- *                                                                         * 
- * NB: for functions, true_formula = not_false_formula but it is not the   * 
- * case for surjective mappings. The value of the other variables are get  * 
- * with min() in the lower bound of the constraint (or inside a not in the * 
- * upper bound and with max in the upper bound of the constraint (or inside* 
- * a not in the lower bound).                                              * 
- *                                                                         * 
- * Ex: X ==> Y <=> B                                                       * 
- *                                                                         * 
- * var  true_formula   false_formula    not_false_formula          X Y B   * 
- * ---  ------------   -------------    -----------------          -----   * 
- *  B    ~X \/ Y       X /\ ~Y          ~X \/ Y                    0 0 1   * 
- *  X    ~B            B /\ ~Y          ~B \/ Y                    0 1 1   * 
- *  Y    X /\ B        ~B               B                          1 0 0   * 
- *                                                                 1 1 1   * 
- *  B in or(not(max(X)),min(Y)) .. or(not(min(X)),max(Y))                  * 
- *  X in not(max(B))            .. or(not(min(B)),max(Y))                  * 
- *  Y in and(min(B),min(X))     .. max(B)                                  * 
- *                                                                         * 
- * The obtained formula is simplified if possible. For instance in         * 
- * X /\ Y <=> B the true_formula for X is Y /\ B, However, B ==> Y, then   * 
- * the formula becomes: B (since if B is false, Y /\ B is false and if B is* 
- * true, Y is also true (since B==>Y) then Y /\ B is also true).           * 
+/*-------------------------------------------------------------------------*
+ * How are written the boolean primitive constraints.                      *
+ *                                                                         *
+ * I- When a variable X can only be determined when all other variables are*
+ * instantiated, we use:                                                   *
+ *                                                                         *
+ *    X in { true_formula }                                                *
+ *                                                                         *
+ * where true_formula is the formula when X is true.                       *
+ * The value of the other variables are get with val() to avoid useless    *
+ * reevaluation of the constraint.                                         *
+ *                                                                         *
+ * Ex: #~ X <=> B                                                          *
+ *                                                                         *
+ * var  true_formula                                                 X B   *
+ * ---  ------------                                                 ---   *
+ *  B    ~X                                                          0 1   *
+ *  X    ~B                                                          1 0   *
+ *                                                                         *
+ *  X in { not(val(B)) }                                                   *
+ *  B in { not(val(X)) }                                                   *
+ *                                                                         *
+ *                                                                         *
+ * II- When a variable X can be determined thanks to a subset of other     *
+ * variables, we use:                                                      *
+ *                                                                         *
+ *    X in true_formula .. not_false_formula                               *
+ *                                                                         *
+ * where true_formula is the formula when X is true and not_false_formula  *
+ * is the negation of the formula when X is false. To find when a variable *
+ * is true (resp. false) look at the truth table of THAT VARIABLE (the one *
+ * determining that variable from all combinations of the other variables).*
+ * Combinations when the variable can be 0 or 1 (undefined) are ignored.   *
+ *                                                                         *
+ * NB: for functions, true_formula = not_false_formula but it is not the   *
+ * case for surjective mappings. The value of the other variables are get  *
+ * with min() in the lower bound of the constraint (or inside a not in the *
+ * upper bound and with max in the upper bound of the constraint (or inside*
+ * a not in the lower bound).                                              *
+ *                                                                         *
+ * Ex: X ==> Y <=> B                                                       *
+ *                                                                         *
+ * var  true_formula   false_formula    not_false_formula          X Y B   *
+ * ---  ------------   -------------    -----------------          -----   *
+ *  B    ~X \/ Y       X /\ ~Y          ~X \/ Y                    0 0 1   *
+ *  X    ~B            B /\ ~Y          ~B \/ Y                    0 1 1   *
+ *  Y    X /\ B        ~B               B                          1 0 0   *
+ *                                                                 1 1 1   *
+ *  B in or(not(max(X)), min(Y)) .. or(not(min(X)), max(Y))                *
+ *  X in not(max(B))             .. or(not(min(B)), max(Y))                *
+ *  Y in and(min(B), min(X))     .. max(B)                                 *
+ *                                                                         *
+ * The obtained formula is simplified if possible. For instance in         *
+ * X /\ Y <=> B the true_formula for X is Y /\ B, However, B ==> Y, then   *
+ * the formula becomes: B (since if B is false, Y /\ B is false and if B is*
+ * true, Y is also true (since B==>Y) then Y /\ B is also true).           *
  *-------------------------------------------------------------------------*/
 
 
-/*-------------------------------------------------------------------------* 
- * NOT                                                                     * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * NOT                                                                     *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-not_x_eq_b(fdv X,fdv B)
+pl_not_x_eq_b(fdv X, fdv B)
 
 {
  start X in { not(val(B)) }
@@ -110,55 +122,55 @@ not_x_eq_b(fdv X,fdv B)
 
 
 
-/*-------------------------------------------------------------------------* 
- * EQUIVALENT                                                              * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * EQUIVALENT                                                              *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_equiv_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_equiv_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in { eqv(val(X),val(Y)) }
- start X in { eqv(val(Y),val(B)) }
- start Y in { eqv(val(X),val(B)) }
+ start B in { eqv(val(X), val(Y)) }
+ start X in { eqv(val(Y), val(B)) }
+ start Y in { eqv(val(X), val(B)) }
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * NOT EQUIVALENT (ie. XOR)                                                * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * NOT EQUIVALENT (ie. XOR)                                                *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_nequiv_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nequiv_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in { xor(val(X),val(Y)) }
- start X in { xor(val(Y),val(B)) }
- start Y in { xor(val(X),val(B)) }
+ start B in { xor(val(X), val(Y)) }
+ start X in { xor(val(Y), val(B)) }
+ start Y in { xor(val(X), val(B)) }
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * IMPLY                                                                   * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * IMPLY                                                                   *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_imply_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_imply_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in or(not(max(X)),min(Y)) .. or(not(min(X)),max(Y))
- start X in not(max(B))            .. or(not(min(B)),max(Y))
- start Y in and(min(B),min(X))     .. max(B)
+ start B in or(not(max(X)), min(Y)) .. or(not(min(X)), max(Y))
+ start X in not(max(B))             .. or(not(min(B)), max(Y))
+ start Y in and(min(B), min(X))     .. max(B)
 }
 
 
 
 
-x_imply_y_eq_1(fdv X,fdv Y)
+pl_x_imply_y_eq_1(fdv X, fdv Y)
 
 {
  start X in 0      .. max(Y)
@@ -168,39 +180,39 @@ x_imply_y_eq_1(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * NOT IMLPY                                                               * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * NOT IMLPY                                                               *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_nimply_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nimply_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in and(min(X),not(max(Y))) .. and(max(X),not(min(Y)))
- start X in min(B)                  .. or(max(B),max(Y))
- start Y in and(not(max(B)),min(X)) .. not(min(B))
+ start B in and(min(X), not(max(Y))) .. and(max(X), not(min(Y)))
+ start X in min(B)                   .. or(max(B), max(Y))
+ start Y in and(not(max(B)), min(X)) .. not(min(B))
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * AND                                                                     * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * AND                                                                     *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_and_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_and_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in and(min(X),min(Y)) .. and(max(X),max(Y))
- start X in min(B)             .. or(max(B),not(min(Y)))
- start Y in min(B)             .. or(max(B),not(min(X)))
+ start B in and(min(X), min(Y)) .. and(max(X), max(Y))
+ start X in min(B)              .. or(max(B), not(min(Y)))
+ start Y in min(B)              .. or(max(B), not(min(X)))
 }
 
 
 
 
-x_and_y_eq_0(fdv X,fdv Y)
+pl_x_and_y_eq_0(fdv X, fdv Y)
 
 {
  start X in 0 .. not(min(Y))
@@ -210,39 +222,39 @@ x_and_y_eq_0(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * NOT AND                                                                 * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * NOT AND                                                                 *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_nand_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nand_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in or(not(max(X)),not(max(Y))) .. or(not(min(X)),not(min(Y)))
- start X in not(max(B))                 .. or(not(min(B)),not(min(Y)))
- start Y in not(max(B))                 .. or(not(min(B)),not(min(X)))
+ start B in or(not(max(X)), not(max(Y))) .. or(not(min(X)), not(min(Y)))
+ start X in not(max(B))                  .. or(not(min(B)), not(min(Y)))
+ start Y in not(max(B))                  .. or(not(min(B)), not(min(X)))
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * OR                                                                      * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * OR                                                                      *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_or_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_or_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in or(min(X),min(Y))       .. or(max(X),max(Y))
- start X in and(min(B),not(max(Y))) .. max(B)
- start Y in and(min(B),not(max(X))) .. max(B)
+ start B in or(min(X), min(Y))       .. or(max(X), max(Y))
+ start X in and(min(B), not(max(Y))) .. max(B)
+ start Y in and(min(B), not(max(X))) .. max(B)
 }
 
 
 
 
-x_or_y_eq_1(fdv X,fdv Y)
+pl_x_or_y_eq_1(fdv X, fdv Y)
 
 {
  start X in not(max(Y)) .. 1
@@ -252,299 +264,299 @@ x_or_y_eq_1(fdv X,fdv Y)
 
 
 
-/*-------------------------------------------------------------------------* 
- * NOR                                                                     * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * NOR                                                                     *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
-x_nor_y_eq_b(fdv X,fdv Y,fdv B)
+pl_x_nor_y_eq_b(fdv X, fdv Y, fdv B)
 
 {
- start B in and(not(max(X)),not(max(Y))) .. and(not(min(X)),not(min(Y)))
- start X in and(not(max(B)),not(max(Y))) .. not(min(B))
- start Y in and(not(max(B)),not(max(X))) .. not(min(B))
+ start B in and(not(max(X)), not(max(Y))) .. and(not(min(X)), not(min(Y)))
+ start X in and(not(max(B)), not(max(Y))) .. not(min(B))
+ start Y in and(not(max(B)), not(max(X))) .. not(min(B))
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * TRUTH OF EQUAL (LINEAR)                                                 * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * TRUTH OF EQUAL (LINEAR)                                                 *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
-truth_x_eq_c(fdv X,int C,fdv B)
+pl_truth_x_eq_c(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in { C }
 
-        case min(X)>C || max(X)<C
+        case min(X) > C || max(X) < C
                 start B in { 0 }
 
-        case min(X)==C && max(X)==C
+        case min(X) == C && max(X) == C
                 start B in { 1 }
 }
 
 
 
 
-truth_x_eq_y(fdv X,fdv Y,fdv B)
+pl_truth_x_eq_y(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ val(Y) }
                 start Y in ~{ val(X) }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in min(Y) .. max(Y)
                 start Y in min(X) .. max(X)
 
-        case min(X)>max(Y) || max(X)<min(Y)
+        case min(X) > max(Y) || max(X) < min(Y)
                 start B in { 0 }
 
-        case min(X)==max(Y) && max(X)==min(Y)
+        case min(X) == max(Y) && max(X) == min(Y)
                 start B in { 1 }
 }
 
 
 
 
-truth_x_plus_c_eq_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_eq_y(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ val(Y)-C }
-                start Y in ~{ val(X)+C }
+                start Y in ~{ val(X) + C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in min(Y)-C .. max(Y)-C
-                start Y in min(X)+C .. max(X)+C
+                start Y in min(X) + C .. max(X) + C
 
-        case min(X)+C>max(Y) || max(X)+C<min(Y)
+        case min(X) + C > max(Y) || max(X) + C < min(Y)
                 start B in { 0 }
 
-        case min(X)+C==max(Y) && max(X)+C==min(Y)
+        case min(X) + C == max(Y) && max(X) + C == min(Y)
                 start B in { 1 }
 }
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
-truth_x_eq_c_F(fdv X,int C,fdv B)
+pl_truth_x_eq_c_F(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in { C }
 
-        case Range_Test_Value(dom(X),C)==0
+        case Pl_Range_Test_Value(dom(X), C) == 0
                 start B in { 0 }
 
-        case min(X)==C && max(X)==C
+        case min(X) == C && max(X) == C
                 start B in { 1 }
 }
 
 
 
 
-truth_x_eq_y_F(fdv X,fdv Y,fdv B)
+pl_truth_x_eq_y_F(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ val(Y) }
                 start Y in ~{ val(X) }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in dom(Y)
                 start Y in dom(X)
 
-        case Range_Test_Null_Inter(dom(X),dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X), dom(Y))
                 start B in { 0 }
 
-        case min(X)==max(Y) && max(X)==min(Y)
+        case min(X) == max(Y) && max(X) == min(Y)
                 start B in { 1 }
 }
 
 
 
-truth_x_plus_c_eq_y_F(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_eq_y_F(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in ~{ val(Y)-C }
-                start Y in ~{ val(X)+C }
+                start Y in ~{ val(X) + C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in dom(Y) - C
                 start Y in dom(X) + C
 
-        case Range_Test_Null_Inter(dom(X)+C,dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X) + C, dom(Y))
                 start B in { 0 }
 
-        case min(X)+C==max(Y) && max(X)+C==min(Y)
+        case min(X) + C == max(Y) && max(X) + C == min(Y)
                 start B in { 1 }
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * TRUTH OF DIFFERENT (LINEAR)                                             * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * TRUTH OF DIFFERENT (LINEAR)                                             *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
-truth_x_neq_c(fdv X,int C,fdv B)
+pl_truth_x_neq_c(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in { C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ C }
 
-        case min(X)==C && max(X)==C
+        case min(X) == C && max(X) == C
                 start B in { 0 }
 
-        case min(X)>C || max(X)<C
+        case min(X) > C || max(X) < C
                 start B in { 1 }
 }
 
 
 
 
-truth_x_neq_y(fdv X,fdv Y,fdv B)
+pl_truth_x_neq_y(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in min(Y) .. max(Y)
                 start Y in min(X) .. max(X)
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ val(Y) }
                 start Y in ~{ val(X) }
 
-        case min(X)==max(Y) && max(X)==min(Y)
+        case min(X) == max(Y) && max(X) == min(Y)
                 start B in { 0 }
 
-        case min(X)>max(Y) || max(X)<min(Y)
+        case min(X) > max(Y) || max(X) < min(Y)
                 start B in { 1 }
 }
 
 
 
 
-truth_x_plus_c_neq_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_neq_y(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in min(Y)-C .. max(Y)-C
-                start Y in min(X)+C .. max(X)+C
+                start Y in min(X) + C .. max(X) + C
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ val(Y)-C }
-                start Y in ~{ val(X)+C }
+                start Y in ~{ val(X) + C }
 
-        case min(X)+C==max(Y) && max(X)+C==min(Y)
+        case min(X) + C == max(Y) && max(X) + C == min(Y)
                 start B in { 0 }
 
-        case min(X)+C>max(Y) || max(X)+C<min(Y)
+        case min(X) + C > max(Y) || max(X) + C < min(Y)
                 start B in { 1 }
 }
 
 
 
-	/*------------* 
-	 *  Full AC   * 
+	/*------------*
+	 *  Full AC   *
 	 *------------*/
 
 
-truth_x_neq_c_F(fdv X,int C,fdv B)
+pl_truth_x_neq_c_F(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in { C }
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ C }
 
-        case min(X)==C && max(X)==C
+        case min(X) == C && max(X) == C
                 start B in { 0 }
 
-        case Range_Test_Value(dom(X),C)==0
+        case Pl_Range_Test_Value(dom(X), C) == 0
                 start B in { 1 }
 }
 
 
 
 
-truth_x_neq_y_F(fdv X,fdv Y,fdv B)
+pl_truth_x_neq_y_F(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in dom(Y)
                 start Y in dom(X)
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ val(Y) }
                 start Y in ~{ val(X) }
 
-        case min(X)==max(Y) && max(X)==min(Y)
+        case min(X) == max(Y) && max(X) == min(Y)
                 start B in { 0 }
 
-        case Range_Test_Null_Inter(dom(X),dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X), dom(Y))
                 start B in { 1 }
 }
 
 
 
-truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_neq_y_F(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in dom(Y) - C
                 start Y in dom(X) + C
 
-        case min(B)==1
+        case min(B) == 1
                 start X in ~{ val(Y)-C }
-                start Y in ~{ val(X)+C }
+                start Y in ~{ val(X) + C }
 
-        case min(X)+C==max(Y) && max(X)+C==min(Y)
+        case min(X) + C == max(Y) && max(X) + C == min(Y)
                 start B in { 0 }
 
-        case Range_Test_Null_Inter(dom(X)+C,dom(Y))
+        case Pl_Range_Test_Null_Inter(dom(X) + C, dom(Y))
                 start B in { 1 }
 }
 
@@ -552,160 +564,182 @@ truth_x_plus_c_neq_y_F(fdv X,int C,fdv Y,fdv B)
 
 
 
-/*-------------------------------------------------------------------------* 
- * TRUTH OF LESS THAN (LINEAR)                                             * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * TRUTH OF LESS THAN (LINEAR)                                             *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
-truth_x_lt_y(fdv X,fdv Y,fdv B)
+pl_truth_x_lt_y(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
 		start X in min(Y) .. max_integer
                 start Y in 0      .. max(X)
 
-        case min(B)==1
+        case min(B) == 1
                 start X in 0        .. max(Y)-1
                 start Y in min(X)+1 .. max_integer
 
-        case min(X)>=max(Y)
+        case min(X) >= max(Y)
                 start B in { 0 }
 
-        case max(X)<min(Y)
+        case max(X) < min(Y)
                 start B in { 1 }
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * TRUTH OF LESS THAN OR EQUAL TO (LINEAR)                                 * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * TRUTH OF LESS THAN OR EQUAL TO (LINEAR)                                 *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
-truth_x_lte_c(fdv X,int C,fdv B)
+pl_truth_x_lte_c(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in C+1 .. max_integer
 
-        case min(B)==1
+        case min(B) == 1
                 start X in 0 .. C
 
-        case min(X)>C
+        case min(X) > C
                 start B in { 0 }
 
-        case max(X)<=C
+        case max(X) <= C
                 start B in { 1 }
 }
 
 
 
 
-truth_x_lte_y(fdv X,fdv Y,fdv B)
+pl_truth_x_lte_y(fdv X, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0
+        case max(B) == 0
 		start X in min(Y)+1 .. max_integer
                 start Y in 0        .. max(X)-1
 
-        case min(B)==1
+        case min(B) == 1
                 start X in 0      .. max(Y)
                 start Y in min(X) .. max_integer
 
-        case min(X)>max(Y)
+        case min(X) > max(Y)
                 start B in { 0 }
 
-        case max(X)<=min(Y)
+        case max(X) <= min(Y)
                 start B in { 1 }
 }
 
 
 
 
-truth_x_plus_c_lte_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_lte_y(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0
+        case max(B) == 0
 		start X in min(Y)-C+1 .. max_integer
-                start Y in 0          .. max(X)+C-1
+                start Y in 0          .. max(X) + C-1
 
-        case min(B)==1
-                start X in 0        .. max(Y)-C
-                start Y in min(X)+C .. max_integer
+        case min(B) == 1
+                start X in 0          .. max(Y)-C
+                start Y in min(X) + C .. max_integer
 
-        case min(X)+C>max(Y)
+        case min(X) + C > max(Y)
                 start B in { 0 }
 
-        case max(X)+C<=min(Y)
+        case max(X) + C <= min(Y)
                 start B in { 1 }
 }
 
 
 
 
-/*-------------------------------------------------------------------------* 
- * TRUTH OF GREATER THAN OR EQUAL TO (LINEAR)                              * 
- *                                                                         * 
+/*-------------------------------------------------------------------------*
+ * TRUTH OF GREATER THAN OR EQUAL TO (LINEAR)                              *
+ *                                                                         *
  *-------------------------------------------------------------------------*/
 
 
-	/*------------* 
-	 * Partial AC * 
+	/*------------*
+	 * Partial AC *
 	 *------------*/
 
 
-truth_x_gte_c(fdv X,int C,fdv B)
+pl_truth_x_gte_c(fdv X, int C, fdv B)
 
 {
  wait_switch
-        case max(B)==0 
+        case max(B) == 0
                 start X in 0 .. C-1
 
-        case min(B)==1
+        case min(B) == 1
                 start X in C .. max_integer
 
         case max(X)<C
                 start B in { 0 }
 
-        case min(X)>=C
+        case min(X) >= C
                 start B in { 1 }
 }
 
 
 
 
-truth_x_plus_c_gte_y(fdv X,int C,fdv Y,fdv B)
+pl_truth_x_plus_c_gte_y(fdv X, int C, fdv Y, fdv B)
 
 {
  wait_switch
-        case max(B)==0
-                start X in 0          .. max(Y)-C-1
-                start Y in min(X)+C+1 .. max_integer
+        case max(B) == 0
+                start X in 0            .. max(Y)-C-1
+                start Y in min(X) + C+1 .. max_integer
 
-        case min(B)==1
+        case min(B) == 1
 		start X in min(Y)-C .. max_integer
-                start Y in 0        .. max(X)+C
+                start Y in 0        .. max(X) + C
 
-        case max(X)+C<min(Y)
+        case max(X) + C<min(Y)
                 start B in { 0 }
 
-        case min(X)+C>=max(Y)
+        case min(X) + C >= max(Y)
+                start B in { 1 }
+}
+
+
+
+
+
+
+pl_truth_x_in_l_u(fdv X, int L, int U, fdv B)
+
+{
+ wait_switch
+        case max(B) == 0
+                start X in ~ (L .. U)
+
+        case min(B) == 1
+                start X in L .. U
+
+        case min(X) > U || max(X) < L
+                start B in { 0 }
+
+        case min(X) >= L && max(X) <= U
                 start B in { 1 }
 }

@@ -1,107 +1,93 @@
-% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
+% compiler: GNU Prolog 1.5.1
 % file    : sort.pl
-% date    : 6 12 2002
-% time    : 13:44:57
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/sort.pl').
+file_name('/home/diaz/GP/src/BipsPl/sort.pl').
 
 
-predicate('$use_sort'/0,29,static,private,built_in,[
+predicate('$use_sort'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(sort/2,32,static,private,built_in,[
+predicate(sort/2,44,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(sort,0),
-    put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,2]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('Sort_List_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Sort_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(sort0/2,40,static,private,built_in,[
+predicate(msort/2,52,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(sort0,0),
-    put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,2]),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('Sort_List_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Sort_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(keysort/2,48,static,private,built_in,[
+predicate(keysort/2,60,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(keysort,0),
-    put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,2]),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
-    call_c('Sort_List_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Sort_List_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(sort/1,56,static,private,built_in,[
+predicate(sort/1,68,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    put_atom(sort,0),
-    put_integer(1,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,1]),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
-    call_c('Sort_List_1',[],[x(0)]),
+    call_c('Pl_Sort_List_1',[],[x(0)]),
     proceed]).
 
 
-predicate(sort0/1,64,static,private,built_in,[
+predicate(msort/1,76,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    put_atom(sort0,0),
-    put_integer(1,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,1]),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
-    call_c('Sort_List_1',[],[x(0)]),
+    call_c('Pl_Sort_List_1',[],[x(0)]),
     proceed]).
 
 
-predicate(keysort/1,72,static,private,built_in,[
+predicate(keysort/1,84,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    put_atom(keysort,0),
-    put_integer(1,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,1]),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
     deallocate,
-    call_c('Sort_List_1',[],[x(0)]),
+    call_c('Pl_Sort_List_1',[],[x(0)]),
     proceed]).

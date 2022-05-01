@@ -1,0 +1,137 @@
+% To have a title on the first page
+
+\input{article.hva}
+
+%\let\oldmeta=\@meta
+%\renewcommand{\@meta}{%
+%\oldmeta
+%\begin{rawhtml}
+%<meta name="Author" content="Daniel Diaz">
+%<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+%<link rel="icon" type="image/x-icon" href="/gprolog.ico">
+%\end{rawhtml}}
+
+\addto{\@meta}
+{\begin{rawhtml}
+<meta name="Author" content="Daniel Diaz">
+<meta name="Keywords" content="GNU Prolog, manual, Prolog, compiler, constraints, finite domains">
+<link rel="icon" type="image/x-icon" href="/gprolog.ico">
+\end{rawhtml}}
+
+\title{GNU-Prolog Manual}
+
+
+
+
+% To have colored headings
+
+\def\@color{194}
+\input{fancysection.hva}       % comment this to switch off colors
+
+
+% Define a section without no and include it in the TOC
+% 1= a label (name) for HeVeA (useless for LaTeX)
+% 2= The text of the section
+
+\newcommand{\SectionWithoutNo}[2]
+{\section*{\aname{#1}{#2}}%
+\addcontentsline{toc}{section}{\ahrefloc{#1}{#2}}}
+
+% Redefine default HeVeA behavior to add References and Index in the TOC
+
+\renewcommand{\@indexsection}[1]{\SectionWithoutNo{@index}{#1}}
+\renewcommand{\@bibliosection}[1]{\SectionWithoutNo{@biblio}{#1}}
+
+
+% To have a copyright footer
+
+\htmlfoot{
+\rule{\linewidth}{1mm}
+\input{copyright.tex}
+
+Verbatim copying and distribution of this entire article is permitted in any
+medium, provided this notice is preserved. 
+
+
+\ahref{index.html\#copyright}{More about the copyright}
+}
+
+
+
+% To set foreground and background colors
+
+\renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
+
+
+
+% To only have a reference to a section (without referencing the page)
+
+\newcommand{\RefSP}[1]{(section~\ref{#1})}
+
+
+
+% Url in HTML output
+
+\newcommand{\MyUrl}[2]{\ahref{#1}{#2}}
+\newcommand{\MyUrlHtml}[2]{\ahref{#1}{#2}}
+\newcommand{\MyEMail}[2]{\@aelement{HREF="mailto:#1"}{#2}}
+
+
+
+% Ignore vspace{xxx} of the original definition:
+
+\newcommand{\BL}{}
+\newcommand{\SkipUp}{}
+
+
+
+% To replace @{} in original definition by @{\quad}:
+
+\newenvironment{CodeTwoCols}[1][4cm]%
+   {\begin{Indentation}\begin{tabular}{l@{\quad}l}}%
+   {\end{tabular}\end{Indentation}}
+
+
+
+% To avoid the use of TabularC (\the\tmplg is not ok for HeVeA)
+% and to avoid vertical lines
+
+\newenvironment{PlErrorsNoTitle}%
+   {\par\begin{tabular}{p{}@{\quad}p{}}\hline}%
+   {\end{tabular}}
+
+
+
+
+% To use a PNG image instead of an EPS as in the original definition:
+
+\newcommand{\InsertImage}[2][]{\begin{center}\imgsrc{#2.png}\end{center}}
+
+
+
+% To define unknown macros:
+
+\newenvironment{multicols}[1]{}{}
+
+\def\arraybackslash{}
+\def\raggedcolumns{}
+
+
+
+% To give a name to the HTML file containing the index
+
+\let\@isection=\@indexsection
+\renewcommand{\@indexsection}[1]{\@isection{#1}\cutname{gprolog-idx.html}}
+
+
+\setcounter{tocdepth}{3}
+
+%To get index citations that point to section titles
+%this comes from /usr/lib/hevea/makeidx.hva
+%NB: no longer works in HeVeA 2.0 !!! 
+%
+%\usepackage{makeidx}
+%\renewcommand{\index}[1]
+%{\if@refs\@saveclosed%
+%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
+%\@restoreclosed\fi}

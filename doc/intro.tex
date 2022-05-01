@@ -1,0 +1,160 @@
+\newpage
+\section{GNU Prolog License Conditions}
+
+GNU Prolog is free software. Since version 1.4.0, GNU Prolog distributed under
+a dual license: LGPL \textit{or} GPL. So, you can redistribute it and/or
+modify it under the terms of either:
+
+\begin{description}
+
+\item[] -- the GNU Lesser General Public License (LGPL) as published by the Free
+  Software Foundation; either version 3 of the License, or (at your
+  option) any later version. 
+
+\item[] \textbf{or} 
+
+\item[] -- the GNU General Public License (GPL) as published by the Free
+  Software Foundation; either version 2 of the License, or (at your option)
+  any later version.
+
+\item[] \textbf{or} both in parallel (as here). 
+\end{description}
+
+GNU Prolog is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received copies of the GNU General Public License and
+the GNU Lesser General Public License along with this program. If
+not, see \MyUrl{http://www.gnu.org/licenses/}{http://www.gnu.org/licenses/}.
+
+Remark: versions of GNU Prolog prior to 1.4.0 were entirely released under
+the GNU General Public License (GPL).
+
+\section{Introduction}
+
+GNU Prolog \cite{gnu-prolog} is a free Prolog compiler with constraint
+solving over finite domains.  For recent information about GNU Prolog
+please consult \MyUrl{http://www.gprolog.org}{the GNU Prolog page}.
+
+\index{Warren Abstract Machine|see {WAM}} GNU Prolog is a Prolog compiler
+based on the Warren Abstract Machine (\IdxD{WAM}) \cite{Warren83,Ait-Kaci91}.
+It first compiles a Prolog program to a WAM file which is then translated to
+a low-level machine independent language called \Idx{mini-assembly}
+specifically designed for GNU Prolog. The resulting file is then translated
+to the assembly language of the target machine (from which an object is
+obtained). This allows GNU Prolog to produce a native stand alone executable
+from a Prolog source (similarly to what does a C compiler from a C program).
+The main advantage of this compilation scheme is to produce native code and
+to be fast. Another interesting feature is that executables are small.
+Indeed, the code of most unused built-in predicates is not included in the
+executables at link-time.
+
+A lot of work has been devoted to the ISO compatibility. Indeed, GNU Prolog
+is very close to the ISO standard for Prolog~\cite{iso-part1}.
+
+GNU Prolog also offers various extensions very useful in practice (global
+variables, OS interface, sockets,...). In particular, GNU Prolog contains an
+efficient constraint solver over Finite Domains (FD). This opens constraint
+logic programming to the user combining the power of constraint programming to
+the declarativity of logic programming. The key feature of the GNU Prolog
+solver is the use of a single (low-level) primitive to define all
+(high-level) FD constraints. There are many advantages of this approach:
+constraints can be compiled, the user can define his own constraints (in
+terms of the primitive), the solver is open and extensible (as opposed to
+black-box solvers like CHIP),\ldots Moreover, the GNU Prolog solver is rather
+efficient, often more than commercial solvers.
+
+GNU Prolog is inspired from two systems:
+
+\begin{itemize}
+
+\item \texttt{wamcc}: a Prolog to C compiler \cite{wamcc}. the key point of \texttt{wamcc} was its
+ability to produce stand alone executables using an original compilation
+scheme: the translation of Prolog to C via the WAM. Its drawback was the time
+needed by \texttt{gcc} to compile the produced sources. GNU Prolog can also
+produce stand alone executables but using a faster compilation scheme.
+
+\item \texttt{clp(FD)}: a constraint programming language over FD
+\cite{long-clp-fd}. Its key feature was the use of a
+single primitive to define FD constraints. GNU Prolog is based on the same
+idea but offers an extended constraint definition language. In comparison to
+\texttt{clp(FD)}, GNU Prolog offers new predefined constraints, new
+predefined heuristics, reified constraints,\ldots
+
+\end{itemize}
+
+Here are some features of GNU Prolog:
+
+\begin{itemize}
+
+
+\item Prolog system:
+
+\begin{itemize}
+
+\item conforms to the ISO standard for Prolog (floating point numbers,
+streams, dynamic code,\dots).
+
+\item a lot of extensions: global variables, definite clause grammars (DCG),
+sockets interface, operating system interface,\ldots
+
+\item more than 300 Prolog built-in predicates.
+
+\item Prolog debugger and a low-level WAM debugger.
+
+\item line editing facility under the interactive interpreter with
+completion on atoms.
+
+\item powerful bidirectional interface between Prolog and C.
+
+\end{itemize}
+
+
+\item Compiler:
+
+\begin{itemize}
+
+\item native-code compiler producing stand alone executables.
+
+\item simple command-line compiler accepting a wide variety of files:
+Prolog files, C files, WAM files,\ldots
+
+\item direct generation of assembly code 15 times faster than
+\texttt{wamcc} + \texttt{gcc}.
+
+\item most of unused built-in predicates are not linked (to reduce the size
+of the executables).
+
+\item compiled predicates (native-code) as fast as \texttt{wamcc} on average.
+
+\item consulted predicates (byte-code) 5 times faster than \texttt{wamcc}.
+
+\end{itemize}
+
+\item Constraint solver:
+
+\begin {itemize}
+
+\item FD variables well integrated into the Prolog environment (full
+compatibility with Prolog variables and integers). No need for
+explicit FD declarations.
+
+\item very efficient FD solver (comparable to commercial solvers).
+
+\item high-level constraints can be described in terms of simple primitives.
+
+\item a lot of predefined constraints: arithmetic constraints, boolean
+constraints, symbolic constraints, reified constraints,\ldots
+
+\item several predefined enumeration heuristics.
+
+\item the user can define his own new constraints.
+
+\item more than 50 FD built-in constraints/predicates.
+
+\end{itemize}
+
+\end{itemize}
+

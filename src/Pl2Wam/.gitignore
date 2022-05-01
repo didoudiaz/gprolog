@@ -1,0 +1,9 @@
+Makefile
+*.wam1
+*.po *.itf
+?.pl
+TO_DO
+pl2wam
+pl2wam0
+spl2wam
+make_bip_list

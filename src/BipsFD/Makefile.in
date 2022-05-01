@@ -1,7 +1,7 @@
 LIB_BIPS_FD   = @LIB_BIPS_FD@
 LIB_ENGINE_FD = @LIB_ENGINE_FD@
 GPLC          = @GPLC@
-CC            = @CC@
+CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
 AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
@@ -17,7 +17,7 @@ OBJLIB  = fd_infos@OBJ_SUFFIX@ fd_infos_c@OBJ_SUFFIX@ \
           fd_optim@OBJ_SUFFIX@ \
           math_supp@OBJ_SUFFIX@ \
           oper_supp@OBJ_SUFFIX@ \
-          all_fd_bips@OBJ_SUFFIX@ 
+          all_fd_bips@OBJ_SUFFIX@
 
 
 .SUFFIXES:
@@ -31,18 +31,18 @@ OBJLIB  = fd_infos@OBJ_SUFFIX@ fd_infos_c@OBJ_SUFFIX@ \
 	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.fd
 
 .c@OBJ_SUFFIX@:
-	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.c 
+	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.c
 
 
 $(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME) 
+	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
 distclean: clean

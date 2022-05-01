@@ -6,24 +6,37 @@
  * Descr.: file consulting - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
+#include <errno.h>
 #include <sys/types.h>
 
 #include "engine_pl.h"
@@ -49,28 +62,35 @@
 #if 1
 
 /*-------------------------------------------------------------------------*
- * CONSULT_2                                                               *
+ * PL_CONSULT_2                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
+Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 {
-  char *tmp_file = Rd_String_Check(tmp_file_word);
-  char *pl_file = Rd_String_Check(pl_file_word);
-  char *singl_warn = (Flag_Value(FLAG_SINGLETON_WARNING)) ? NULL
-    : "--no-singl-warn";
-  StmInf *pstm_o = stm_tbl[stm_top_level_output];
-  StmInf *pstm_i = stm_tbl[stm_top_level_input];
+  char *tmp_file = Pl_Rd_String_Check(tmp_file_word);
+  char *pl_file = Pl_Rd_String_Check(pl_file_word);
+  StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
+  StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
   int pid;
   FILE *f_out, *f_in;
   FILE **pf_in;
-  long save;
+  PlLong save;
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
   char *arg[] = { "pl2wam", "-w", "--compile-msg", "--no-redef-error",
 		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
-		  singl_warn, NULL };
+		  NULL, NULL, NULL, NULL };  /* 3 warnings + 1 for terminal NULL */
+  int warn_i = sizeof(arg) / sizeof(arg[0]) - 4; /* the 4 NULL */
+
+
+#define ADD_WARN(flag, opt_str)  if (!Flag_Value(flag))  arg[warn_i++] = opt_str
+
+  ADD_WARN(suspicious_warning, "--no-susp-warn");
+  ADD_WARN(singleton_warning, "--no-singl-warn");
+  ADD_WARN(multifile_warning, "--no-mult-warn");
+
 
   save = SYS_VAR_SAY_GETC;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
@@ -80,22 +100,27 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   f_in = NULL;
   pf_in = NULL;
 #endif
-  Write_Pl_State_File(tmp_file_word);
+  Pl_Write_Pl_State_File(tmp_file_word);
   SYS_VAR_SAY_GETC = save;
 
-  Flush_All_Streams();
-  pid = M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
-  Os_Test_Error(pid == -1);
-  if (pid == -2)
+  Pl_Flush_All_Streams();
+  pid = Pl_M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
+
+  /* If pl2wam is not found we get ENOENT under Windows. 
+   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
+
+  if (pid == -1 && errno != ENOENT)
+    Os_Test_Error(pid); /* ENOENT is for Windows */
+  if (pid < 0)
     {
     error_pl2wam:
-      Pl_Err_System(Create_Atom("error trying to execute pl2wam "
+      Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam "
 				"(maybe not found)"));
       return FALSE;
     }
 
-  save_use_le_prompt = use_le_prompt;
-  use_le_prompt = 0;
+  save_use_le_prompt = pl_use_le_prompt;
+  pl_use_le_prompt = 0;
   for (;;)
     {
 #if 1
@@ -106,17 +131,17 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 #endif
       if (c == EOF)
 	break;
-	  
+
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
       if (c == CHAR_TO_EMIT_WHEN_CHAR)
 	{
 	  if (p == NULL)
 	    {
-	      c = Stream_Getc(pstm_i);
+	      c = Pl_Stream_Getc(pstm_i);
 	      if (c == EOF)
 		{
 		eof_reached:
-		  p = "end_of_file.\n";
+		  p = (unsigned char *) "end_of_file.\n";
 		  c = *p++;
 		}
 	    }
@@ -132,15 +157,15 @@ Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	  continue;
 	}
 #endif
-      Stream_Putc(c, pstm_o);
+      Pl_Stream_Putc(c, pstm_o);
     }
-  use_le_prompt = save_use_le_prompt;
+  pl_use_le_prompt = save_use_le_prompt;
 
   if (f_in)
     fclose(f_in);
   fclose(f_out);
 
-  status = M_Get_Status(pid);
+  status = Pl_M_Get_Status(pid);
   if (status < 0)
     goto error_pl2wam;
 

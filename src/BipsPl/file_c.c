@@ -6,30 +6,42 @@
  * Descr.: file name management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <string.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifdef M_ix86_win32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>
@@ -55,156 +67,187 @@
  * Function Prototypes             *
  *---------------------------------*/
 
+static char *Find_Suffix(char *suffixes, char *suffix);
+
 
 
 
 /*-------------------------------------------------------------------------*
- * ABSOLUTE_FILE_NAME_2                                                    *
+ * PL_ABSOLUTE_FILE_NAME_2                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Absolute_File_Name_2(WamWord f1_word, WamWord f2_word)
+Pl_Absolute_File_Name_2(WamWord path1_word, WamWord path2_word)
 {
-  char *f1, *f2;
+  char *path1, *path2;
 
-  f1 = atom_tbl[Rd_Atom_Check(f1_word)].name;
+  path1 = pl_atom_tbl[Pl_Rd_Atom_Check(path1_word)].name;
 
-  f2 = M_Absolute_Path_Name(f1);
-  if (f2 == NULL)
-    Pl_Err_Domain(domain_os_path, f1_word);
+  path2 = Pl_M_Absolute_Path_Name(path1);
+  if (path2 == NULL)
+    Pl_Err_Domain(pl_domain_os_path, path1_word);
 
-  return Un_String_Check(f2, f2_word);
+  return Pl_Un_String_Check(path2, path2_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * DECOMPOSE_FILE_NAME_4                                                   *
+ * PL_IS_ABSOLUTE_FILE_NAME_1                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
-		      WamWord prefix_word, WamWord suffix_word)
+Pl_Is_Absolute_File_Name_1(WamWord path_word)
 {
-  char *path;
-  char *p;
-  int atom;
+  char *path = pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name;
+
+  return Pl_M_Is_Absolute_File_Name(path);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_IS_RELATIVE_FILE_NAME_1                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Is_Relative_File_Name_1(WamWord path_word)
+{
+  return !Pl_Is_Absolute_File_Name_1(path_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_DECOMPOSE_FILE_NAME_4                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
+			 WamWord prefix_word, WamWord suffix_word)
+{
+  char *path = pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name;
+  char *dir, *base, *suffix;
   char c;
 
-  strcpy(glob_buff, atom_tbl[Rd_Atom_Check(path_word)].name);
-  path = glob_buff;
+  Pl_Check_For_Un_Atom(dir_word);
+  Pl_Check_For_Un_Atom(prefix_word);
+  Pl_Check_For_Un_Atom(suffix_word);
 
+  dir = Pl_M_Decompose_File_Name(path, FALSE, &base, &suffix);
 
-  Check_For_Un_Atom(dir_word);
-  Check_For_Un_Atom(prefix_word);
-  Check_For_Un_Atom(suffix_word);
-
-  p = strrchr(path, DIR_SEP_C);
-#ifdef M_ix86_win32
-  {
-    char *q = strrchr(path, '/');
-
-    if (p == NULL || p > q)
-      p = q;
-  }
-#endif
-
-  if (p != NULL)
-    {
-      p++;
-      c = *p;
-      *p = '\0';
-      atom = Create_Allocate_Atom(path);
-      *p = c;
-      path = p;
-    }
-  else
-    atom = atom_void;
-
-  if (!Get_Atom(atom, dir_word))
+  if (!Pl_Un_String(dir, dir_word))
     return FALSE;
 
+  c = *suffix;
+  *suffix = '\0';
 
-  p = strrchr(path, '.');
-  if (p != NULL)
-    {
-      *p = '\0';
-      atom = Create_Allocate_Atom(path);
-      *p = '.';
-      path = p;
-    }
-  else
-    atom = Create_Allocate_Atom(path);
-
-  if (!Get_Atom(atom, prefix_word))
+  if (!Pl_Un_String(base, prefix_word))
     return FALSE;
 
-  if (p != NULL)
-    atom = Create_Allocate_Atom(path);
-  else
-    atom = atom_void;
+  *suffix = c;
 
-  return Get_Atom(atom, suffix_word);
+  return Pl_Un_String(suffix, suffix_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PROLOG_FILE_NAME_2                                                      *
+ * PL_PROLOG_FILE_NAME_2                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Prolog_File_Name_2(WamWord f1_word, WamWord f2_word)
+Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
 {
   int atom;
-  char *f1;
+  char *path1;
   int len;
-  char *p;
-  Bool suffix_pl;
+  char *p, *q;
+  char suffixes[] = "|" PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT;
 
-  atom = Rd_Atom_Check(f1_word);
-  f1 = atom_tbl[atom].name;
+  atom = Pl_Rd_Atom_Check(path1_word);
+  path1 = pl_atom_tbl[atom].name;
 
-  f1 = M_Absolute_Path_Name(f1);
-  if (f1 == NULL)
-    Pl_Err_Domain(domain_os_path, f1_word);
+  path1 = Pl_M_Absolute_Path_Name(path1);
+  if (path1 == NULL)
+    Pl_Err_Domain(pl_domain_os_path, path1_word);
 
-  if (strcmp(f1, "user") == 0)
+  if (strcmp(path1, "user") == 0)
     {
     same:
-      return Un_Atom_Check(atom, f2_word);
+      return Pl_Un_Atom_Check(atom, path2_word);
     }
 
-  p = strrchr(f1, DIR_SEP_C);
-#ifdef M_ix86_win32
-  {
-    char *q = strrchr(f1, '/');
+  Find_Last_Dir_Sep(p, path1);
 
-    if (p == NULL || p > q)
-      p = q;
-  }
-#endif
-
-  if (strchr((p) ? p : f1, '.'))
+  if (strchr((p) ? p : path1, '.'))
     goto same;
 
-  strcpy(glob_buff, f1);
-  len = strlen(f1);
+  strcpy(pl_glob_buff, path1);
+  len = strlen(path1);
 
-  strcpy(glob_buff + len, ".pl");
-  suffix_pl = TRUE;
-  if (access(glob_buff, F_OK))	/* f1.pl does not exist */
+  q = suffixes;
+  do
     {
-      strcpy(glob_buff + len, ".pro");
-      suffix_pl = FALSE;
-      if (access(glob_buff, F_OK))	/* f1.pro does not exist */
-	suffix_pl = TRUE;
+      p = q + 1;
+      if (*p == '\0')		/* no more suffixes: set default one */
+	{
+	  p = PROLOG_FILE_SUFFIX;
+	  break;
+	}
+
+      q = strchr(p, '|');
+      *q = '\0';
+      strcpy(pl_glob_buff + len, p);
     }
+  while(access(pl_glob_buff, F_OK)); /* while not found */
 
-  sprintf(glob_buff, "%s%s", atom_tbl[atom].name,
-	  (suffix_pl) ? ".pl" : ".pro");
+  sprintf(pl_glob_buff, "%s%s", pl_atom_tbl[atom].name, p);
 
-  return Un_String_Check(glob_buff, f2_word);
+  return Pl_Un_String_Check(pl_glob_buff, path2_word);
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PROLOG_FILE_SUFFIX_1                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Prolog_File_Suffix_1(WamWord suffix_word)
+{
+  int atom;
+  char *suffix;
+
+  atom = Pl_Rd_Atom_Check(suffix_word);
+  suffix = pl_atom_tbl[atom].name;
+
+  return Find_Suffix("|" PROLOG_FILE_SUFFIX PROLOG_FILE_SUFFIXES_ALT, suffix) != NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * FIND_SUFFIX                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char *
+Find_Suffix(char *suffixes, char *suffix)
+
+{
+  char *p;
+  /* TODO: use strcasestr (must be tested in configure.in) */
+
+  if ((p = strstr(suffixes, suffix)) && p[-1] == '|' && p[strlen(suffix)] == '|')
+    return p;
+
+  return NULL;
+}
+
+

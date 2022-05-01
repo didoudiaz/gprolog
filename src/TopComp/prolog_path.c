@@ -6,25 +6,40 @@
  * Descr.: Prolog installation path detector                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
-/* This file is included by top_comp.c and w32_console.c */
+#ifndef _PROLOG_PATH_C
+#define _PROLOG_PATH_C
+
+/* This file is included by top_comp.c, engine.c and w32_console.c */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +52,7 @@
 
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
+#include <sys/param.h>
 #endif
 
 #include "../EnginePl/gp_config.h"
@@ -45,29 +61,131 @@
 #define DEBUG
 #endif
 
+static char *Get_Prolog_Path_From_Exec(char *str, int *devel_mode);
 static char *Is_A_Valid_Root(char *str, int *devel_mode);
 static char *Search_Path(char *file);
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-static int Read_Write_Registry(int read, char *key_name, char *buff,
-			       long buff_size);
-#endif
 
 #define COMPILER_EXE  GPLC EXE_SUFFIX
 
 
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * READ_WINDOWS_REGISTRY                                                   *
+ *                                                                         *
+ * key_name : name of the key                                              *
+ * key_type : type of the key (use Windows constant REG_SZ,...)            *
+ * buff     : buffer to receive the value                                  *
+ * buff_size: size of the buffer                                           *
+ *                                                                         *
+ * return: 1 in case of success (0 else)                                   *
+ *-------------------------------------------------------------------------*/
+static int
+Read_Windows_Registry(char *key_name, DWORD key_type, void *buff, DWORD buff_size)
+{
+  DWORD dw_type;                                                \
+
+#define INIT_REGISTRY_ACCESS                                    \
+  HKEY hkey_software, hkey_prolog;                              \
+  DWORD disp;                                                   \
+  int r;                                                        \
+                                                                \
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0,            \
+                   KEY_QUERY_VALUE, &hkey_software) != 0)       \
+    return 0;                                                   \
+                                                                \
+  if (RegCreateKeyEx(hkey_software, "GnuProlog", 0,             \
+                     NULL, 0, KEY_ALL_ACCESS, NULL,             \
+                     &hkey_prolog, &disp) != 0)                 \
+    {                                                           \
+      RegCloseKey(hkey_software);                               \
+      return 0;                                                 \
+    }
+
+  INIT_REGISTRY_ACCESS;
+
+  dw_type = key_type;           /* useless in fact: it is a output arg */
+  memset(buff, 0, buff_size);
+
+  r = RegQueryValueEx(hkey_prolog, key_name, 0, &dw_type, (LPBYTE) buff, &buff_size);
+
+  if (r == ERROR_SUCCESS && dw_type != key_type)    /* not good key type: et an error */
+    r++;
+
+  RegCloseKey(hkey_prolog);
+  RegCloseKey(hkey_software);
+
+  return r == ERROR_SUCCESS;
+}
+
+#ifndef READ_REGISTRY_ONLY      /* to avoid gcc warning on unused static fct */
+/*-------------------------------------------------------------------------*
+ * WRITE_WINDOWS_REGISTRY                                                  *
+ *                                                                         *
+ * key_name : name of the key                                              *
+ * key_type : type of the key (use Windows constant REG_SZ,...)            *
+ * buff     : buffer containing the value                                  *
+ * buff_size: size of the data to write                                    *
+ *                                                                         *
+ * return: 1 in case of success (0 else)                                   *
+ *-------------------------------------------------------------------------*/
+static int
+Write_Windows_Registry(char *key_name, DWORD key_type, void *buff, DWORD buff_size)
+{
+  INIT_REGISTRY_ACCESS;
+
+  r = RegSetValueEx(hkey_prolog, key_name, 0, key_type, (LPBYTE) buff, buff_size);
+
+  RegCloseKey(hkey_prolog);
+  RegCloseKey(hkey_software);
+
+  return r == ERROR_SUCCESS;
+}
+
+
+/*-------------------------------------------------------------------------*
+ * DELETE_WINDOWS_REGISTRY                                                 *
+ *                                                                         *
+ * key_name : name of the key                                              *
+ *                                                                         *
+ * return: 1 in case of success (0 else)                                   *
+ *-------------------------------------------------------------------------*/
+static int
+Delete_Windows_Registry(char *key_name)
+{
+  INIT_REGISTRY_ACCESS;
+
+  r = RegDeleteValue(hkey_prolog, key_name);
+
+  RegCloseKey(hkey_prolog);
+  RegCloseKey(hkey_software);
+
+  return r == ERROR_SUCCESS;
+}
+#endif  /* !TOP_COMP_C */
+#endif
+
+
 /*-------------------------------------------------------------------------*
  * GET_PROLOG_PATH                                                         *
  *                                                                         *
- * returns the GNU Prolog start path (or NULL) and if devel_mode           *
- * the returned buffer can be written.                                     *
+ * Returns the GNU Prolog start path (or NULL) and if in devel_mode.       *
+ * The returned buffer can be written.                                     *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Prolog_Path(int *devel_mode)
+Get_Prolog_Path(char *argv0, int *devel_mode)
 {
+  static char *prolog_path_cache = NULL;
+  static int devel_mode_cache = 0;
   static char resolved[MAXPATHLEN];
   char *p;
+
+  if (prolog_path_cache != NULL)
+    {
+      *devel_mode = devel_mode_cache;
+      return prolog_path_cache;
+    }
 
   if ((p = getenv(ENV_VARIABLE)) != NULL)
     {
@@ -76,19 +194,29 @@ Get_Prolog_Path(int *devel_mode)
       fprintf(stderr, "Prolog path from " ENV_VARIABLE ": %s\n", resolved);
 #endif
       if ((p = Is_A_Valid_Root(resolved, devel_mode)) != NULL)
-	return p;
+        goto ok;
     }
+
+  if (argv0 != NULL && (p = Get_Prolog_Path_From_Exec(argv0, devel_mode)) != NULL)
+    {
+#ifdef DEBUG
+      fprintf(stderr, "Prolog path from argv[0]: %s\n", p);
+#endif
+      goto ok;
+    }
+
 
   if ((p = Search_Path(COMPILER_EXE)) == NULL)
     {
-#if defined(_WIN32) || defined(__CGYWIN__)
-      if (Read_Write_Registry(1, "RootPath", resolved, sizeof(resolved)))
-	{
+#if defined(_WIN32) || defined(__CYGWIN__)
+      if (Read_Windows_Registry("RootPath", REG_SZ, resolved, sizeof(resolved)) && *resolved)
+        {
 #ifdef DEBUG
-	  fprintf(stderr, "Prolog path from Registry: %s\n", resolved);
+          fprintf(stderr, "Prolog path from Registry: %s\n", resolved);
 #endif
-	  return Is_A_Valid_Root(resolved, devel_mode);
-	}
+          if ((p = Is_A_Valid_Root(resolved, devel_mode)) == NULL)
+            goto ok;
+        }
 #endif
       return NULL;
     }
@@ -97,11 +225,34 @@ Get_Prolog_Path(int *devel_mode)
   fprintf(stderr, GPLC " found from PATH: %s\n", p);
 #endif
 
+  if ((p = Get_Prolog_Path_From_Exec(p, devel_mode)) != NULL)
+    {
+    ok:
+      devel_mode_cache = *devel_mode;
+      prolog_path_cache = strdup(p);
+      return p;
+    }
+  return NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_PROLOG_PATH_FROM_EXEC                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static char *
+Get_Prolog_Path_From_Exec(char *str, int *devel_mode)
+{
+  static char resolved[MAXPATHLEN];
+  char *p;
+
 #if defined(__unix__) || defined(__CYGWIN__)
-  if (realpath(p, resolved) == NULL)
+  if (realpath(str, resolved) == NULL)
     return NULL;
 #else  /* realpath useless under Win32 since SearchPath resolves it */
-  strcpy(resolved, p);
+  strcpy(resolved, str);
 #endif
 
 #ifdef DEBUG
@@ -109,14 +260,23 @@ Get_Prolog_Path(int *devel_mode)
 #endif
 
   p = resolved + strlen(resolved) - 1;
-  while (p > resolved && *p != DIR_SEP_C)	/* skip exec_name */
+  while (p > resolved && !Is_Dir_Sep(*p)) /* skip exec_name */
     p--;
 
-  while (p > resolved && *p == DIR_SEP_C)	/* skip / */
+  if (p == resolved)
+    return NULL;
+
+  while (p > resolved && Is_Dir_Sep(*p)) /* skip / */
     p--;
 
-  while (p > resolved && *p != DIR_SEP_C)	/* skip previous dir name */
+  if (p == resolved)
+    return NULL;
+
+  while (p > resolved && !Is_Dir_Sep(*p)) /* skip previous dir name */
     p--;
+
+  if (p == resolved)
+    return NULL;
 
   p[1] = '\0';
 
@@ -126,7 +286,6 @@ Get_Prolog_Path(int *devel_mode)
 
   return Is_A_Valid_Root(resolved, devel_mode);
 }
-
 
 
 
@@ -145,7 +304,7 @@ Is_A_Valid_Root(char *str, int *devel_mode)
 
   p = str + strlen(str) - 1;
 
-  while (p >= str && *p == DIR_SEP_C)
+  while (p >= str && Is_Dir_Sep(*p))
     p--;
 
   if (p < str)
@@ -208,25 +367,25 @@ Search_Path(char *file)
   for (;;)
     {
       if ((p = strchr(path, ':')) != NULL)
-	{
-	  l = p - path;
-	  strncpy(buff, path, l);
-	}
+        {
+          l = p - path;
+          strncpy(buff, path, l);
+        }
       else
-	{
-	  strcpy(buff, path);
-	  l = strlen(buff);
-	}
+        {
+          strcpy(buff, path);
+          l = strlen(buff);
+        }
 
       buff[l++] = DIR_SEP_C;
 
       strcpy(buff + l, file);
 
       if (access(buff, X_OK) == 0)
-	return buff;
+        return buff;
 
       if (p == NULL)
-	break;
+        break;
 
       path = p + 1;
     }
@@ -247,60 +406,6 @@ Search_Path(char *file)
 }
 
 
-
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-
-/*-------------------------------------------------------------------------*
- * READ_WRITE_REGISTRY                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-Read_Write_Registry(int read, char *key_name, char *buff, long buff_size)
-{
-  HKEY hkey_software, hkey_prolog;
-  DWORD dw_type;
-  unsigned long disp;
-
-  if (RegOpenKeyExA(HKEY_CURRENT_USER,
-		    "Software", 0, KEY_QUERY_VALUE, &hkey_software) != 0)
-    return 0;
-
-  if (RegCreateKeyEx
-      (hkey_software, "GnuProlog", 0, NULL, 0, KEY_ALL_ACCESS, NULL,
-       &hkey_prolog, &disp) != 0)
-    {
-      RegCloseKey(hkey_software);
-      return 0;
-    }
-
-  if (read)
-    {
-      dw_type = REG_SZ;
-      memset(buff, 0, buff_size);
-      if (RegQueryValueExA
-	  (hkey_prolog, key_name, 0, &dw_type, buff, &buff_size) != 0
-	  || *buff == '\0')
-	{
-	  RegCloseKey(hkey_software);
-	  *buff = '\0';
-	  return 0;
-	}
-    }
-  else
-    {
-      RegSetValueEx(hkey_prolog, key_name, 0, REG_SZ, buff,
-		    strlen(buff) + 1);
-    }
-  RegCloseKey(hkey_prolog);
-  RegCloseKey(hkey_software);
-  return 1;
-}
-
-#endif
-
-
-
 #ifdef USE_ALONE
 /*-------------------------------------------------------------------------*
  * MAIN                                                                    *
@@ -318,7 +423,7 @@ main(int argc, char *argv[])
       return 1;
     }
 
-  if (*start_path == '@')	/* development mode */
+  if (*start_path == '@')       /* development mode */
     {
       start_path++;
       devel_mode = 1;
@@ -332,3 +437,5 @@ main(int argc, char *argv[])
 }
 
 #endif
+
+#endif  /* _PROLOG_PATH_C */

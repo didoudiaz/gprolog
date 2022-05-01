@@ -6,23 +6,35 @@
  * Descr.: parser                                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,9 +56,9 @@
  *---------------------------------*/
 
 #define MAX_FCT_ARITY              10
-#define MAX_LINE_LEN               32767
-#define MAX_STR_LEN                4096
-#define MAX_ARGS                   4096
+#define MAX_LINE_LEN               65536
+#define MAX_STR_LEN                32768
+#define MAX_ARGS                   65536 /* for big swith_on_... */
 
 
 
@@ -62,7 +74,7 @@ typedef struct
   int nb_args;
   ArgTyp arg_type[MAX_FCT_ARITY];
 }
-InstInf;
+ParseInf;
 
 
 
@@ -71,7 +83,18 @@ InstInf;
  * Global Variables                *
  *---------------------------------*/
 
-InstInf inst[] = {
+ParseInf decl[] = {
+  {"unit_name", F_unit_name, 2, {ATOM, INTEGER}},
+  {"file_name", F_file_name, 1, {ATOM}},
+  {"directive", F_directive, 3, {INTEGER, ATOM, LIST_INST}},
+  {"predicate", F_predicate, 7, {MP_N, INTEGER, ATOM, ATOM, ATOM, ATOM, LIST_INST}},
+  {"ensure_linked", F_ensure_linked, 1, {L1(MP_N)}},
+  {NULL, NULL, 0, {0}}
+};
+
+
+
+ParseInf inst[] = {
   {"get_variable", F_get_variable, 2, {X_Y, INTEGER}},
   {"get_value", F_get_value, 2, {X_Y, INTEGER}},
   {"get_atom", F_get_atom, 2, {ATOM, INTEGER}},
@@ -79,7 +102,7 @@ InstInf inst[] = {
   {"get_float", F_get_float, 2, {FLOAT, INTEGER}},
   {"get_nil", F_get_nil, 1, {INTEGER}},
   {"get_list", F_get_list, 1, {INTEGER}},
-  {"get_structure", F_get_structure, 2, {F_N, INTEGER,}},
+  {"get_structure", F_get_structure, 2, {F_N, INTEGER}},
 
   {"put_variable", F_put_variable, 2, {X_Y, INTEGER}},
   {"put_void", F_put_void, 1, {INTEGER}},
@@ -90,7 +113,8 @@ InstInf inst[] = {
   {"put_float", F_put_float, 2, {FLOAT, INTEGER}},
   {"put_nil", F_put_nil, 1, {INTEGER}},
   {"put_list", F_put_list, 1, {INTEGER}},
-  {"put_structure", F_put_structure, 2, {F_N, INTEGER,}},
+  {"put_structure", F_put_structure, 2, {F_N, INTEGER}},
+  {"put_meta_term", F_put_meta_term, 2, {ATOM, INTEGER}},
   {"math_load_value", F_math_load_value, 2, {X_Y, INTEGER}},
   {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, INTEGER}},
 
@@ -107,8 +131,8 @@ InstInf inst[] = {
   {"allocate", F_allocate, 1, {INTEGER}},
   {"deallocate", F_deallocate, 0, {0}},
 
-  {"call", F_call, 1, {F_N,}},
-  {"execute", F_execute, 1, {F_N,}},
+  {"call", F_call, 1, {MP_N}},
+  {"execute", F_execute, 1, {MP_N}},
   {"proceed", F_proceed, 0, {0}},
   {"fail", F_fail, 0, {0}},
 
@@ -127,12 +151,15 @@ InstInf inst[] = {
   {"retry", F_retry, 1, {INTEGER}},
   {"trust", F_trust, 1, {INTEGER}},
 
-  {"load_cut_level", F_load_cut_level, 1, {INTEGER}},
+  {"pragma_arity", F_pragma_arity, 1, {INTEGER}},
+
+  {"get_current_choice", F_get_current_choice, 1, {X_Y}},
   {"cut", F_cut, 1, {X_Y}},
+  {"soft_cut", F_soft_cut, 1, {X_Y}},
 
   {"call_c", F_call_c, 3, {ATOM, L1(ANY), L1(ANY)}},
 
-  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER, 
+  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER,
 					   L2(ATOM, ATOM)}},
 
   {"cxt_call", F_cxt_call, 2, {F_N, X_Y}},
@@ -166,7 +193,7 @@ char *cur_line_p;
 char *beg_last_token;
 
 char str_val[MAX_STR_LEN];
-long int_val;
+PlLong int_val;
 double dbl_val;
 
 
@@ -178,7 +205,7 @@ double dbl_val;
 
 static void Parser(void);
 
-static void Read_Instruction(void);
+static int Parse_And_Treat_Decl_Or_Inst(ParseInf *in);
 
 static void Read_Argument(ArgTyp arg_type, ArgVal **top);
 
@@ -232,131 +259,10 @@ Parse_Wam_File(char *file_name_in, int comment)
 static void
 Parser(void)
 {
-  int k;
-  char *name;
-  int arity;
-  int inside_directive;
-  int dynamic, public, built_in, built_in_fd;
-  int system;
-  ArgVal *top;
-
-  while ((k = Scanner(0)) != 0)	/* end of file */
+  for(;;)
     {
-      if (k != ATOM)
-	{
-	top_error:
-	  Syntax_Error("unit_name file_name, predicate, directive "
-		       "or ensure_linked expected");
-	}
-
-      if (strcmp(str_val, "unit_name") == 0)
-	{
-	  Read_Token('(');
-	  Read_Token(ATOM);
-	  Read_Token('/');
-	  Read_Token(INTEGER);
-	  Read_Token(')');
-	  Read_Token('.');
-	  Cxt_Unit_Name(strdup(str_val), int_val);
-	  continue;
-	}
-
-      if (strcmp(str_val, "file_name") == 0)
-	{
-	  Read_Token('(');
-	  Read_Token(ATOM);
-	  Read_Token(')');
-	  Read_Token('.');
-	  Prolog_File_Name(strdup(str_val));
-	  continue;
-	}
-
-      if (strcmp(str_val, "ensure_linked") == 0)
-	{
-	  top = arg;
-	  Read_Token('(');
-	  Read_Argument(L1(F_N), &top);
-	  Read_Token(')');
-	  Read_Token('.');
-	  Ensure_Linked(arg);
-	  continue;
-	}
-
-      inside_directive = system = dynamic = public = built_in =
-	built_in_fd = 0;
-
-      if (strcmp(str_val, "directive") == 0)
-	inside_directive = 1;
-      else if (strcmp(str_val, "predicate") != 0)
-	goto top_error;
-
-      Read_Token('(');
-      if (!inside_directive)
-	{
-	  Read_Token(ATOM);
-	  Read_Token('/'), Read_Token(INTEGER);
-	  name = strdup(str_val);
-	  arity = int_val;
-	  Read_Token(',');
-
-	  Read_Token(INTEGER);	/* pl_line */
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "dynamic") == 0)
-	    dynamic = 1;
-	  else if (strcmp(str_val, "static") != 0)
-	    Syntax_Error("static or dynamic expected");
-
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "public") == 0)
-	    public = 1;
-	  else if (strcmp(str_val, "private") != 0)
-	    Syntax_Error("public or private expected");
-
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "built_in") == 0)
-	    built_in = 1;
-	  else if (strcmp(str_val, "built_in_fd") == 0)
-	    built_in_fd = 1;
-	  else if (strcmp(str_val, "user") != 0)
-	    Syntax_Error("user, built_in or built_in_fd expected");
-
-	  Read_Token(',');
-
-	  New_Predicate(name, arity, int_val, dynamic, public,
-			built_in, built_in_fd);
-	}
-      else
-	{
-	  Read_Token(INTEGER);	/* pl_line */
-	  Read_Token(',');
-
-	  Read_Token(ATOM);
-	  if (strcmp(str_val, "system") == 0)
-	    system = 1;
-	  else if (strcmp(str_val, "user") != 0)
-	    Syntax_Error("user or system expected");
-
-	  Read_Token(',');
-	  New_Directive(int_val, system);
-	}
-
-      Read_Token('[');
-      for (;;)
-	{
-	  Read_Instruction();
-	  k = Scanner(0);
-	  if (k == ']')
-	    break;
-	  if (k != ',')
-	    Syntax_Error("] or , expected");
-	}
-      Read_Token(')');
+      if (!Parse_And_Treat_Decl_Or_Inst(decl)) /* end of file */
+	break;
       Read_Token('.');
     }
 }
@@ -365,25 +271,29 @@ Parser(void)
 
 
 /*-------------------------------------------------------------------------*
- * READ_INSTRUCTION                                                        *
+ * READ_DECL_OR_INST                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Read_Instruction(void)
+static int
+Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 {
-  InstInf *in;
+  ParseInf *in = what;
   ArgVal *top = arg;
-  int i;
+  int i, k;
+  Bool fct_called = FALSE;
 
-  if (Scanner(0) != ATOM)
-    Syntax_Error("wam instruction expected");
+  k = Scanner(0);
+  if (k == 0 && what == decl)			/* end of file */
+    return 0;
 
-  for (in = inst; in->keyword; in++)
-    if (strcmp(str_val, in->keyword) == 0)
-      break;
+  if (k != ATOM)
+    Syntax_Error((what == decl) ? "wam declaration expected" : "wam instruction expected");
+
+  for(in = what; in->keyword && strcmp(str_val, in->keyword) != 0; in++)
+    ;
 
   if (in->keyword == NULL)
-    Syntax_Error("unknown wam instruction");
+    Syntax_Error((what == decl) ? "unknown wam declaration" : "unknown wam instruction");
 
   if (in->nb_args)
     {
@@ -393,12 +303,32 @@ Read_Instruction(void)
 	  if (i > 0)
 	    Read_Token(',');
 
-	  Read_Argument(in->arg_type[i], &top);
+	  if (in->arg_type[i] == LIST_INST)
+	    {
+	      (*in->fct) (arg);
+	      fct_called = TRUE;
+
+	      Read_Token('[');
+	      for (;;)
+		{
+		  Parse_And_Treat_Decl_Or_Inst(inst); /* only works because LIST_INST is the last argument */
+		  k = Scanner(0);
+		  if (k == ']')
+		    break;
+		  if (k != ',')
+		    Syntax_Error("] or , expected");
+		}
+	    }
+	  else
+	    Read_Argument(in->arg_type[i], &top);
 	}
       Read_Token(')');
     }
 
-  (*in->fct) (arg);
+  if (!fct_called)
+    (*in->fct) (arg);
+
+  return 1;
 }
 
 
@@ -414,6 +344,8 @@ Read_Instruction(void)
  * FLOAT     : the associated (double)                                     *
  * X_Y       : the (int) associated to the var no (Y vars from 5000)       *
  * F_N       : the loading of ATOM (F) and the loading of INTEGER (N)      *
+ * MP_N      : the loading of ATOM (M) or NULL (no module) followed by F_N *
+ *             the loading of ATOM (F) and the loading of INTEGER (N)      *
  * LABEL     : the associated (int) or -1 for 'fail'                       *
  * ANY       : the type of the arg (an INTEGER) and the loading of arg     *
  * L1(T)     : an (int) n associated to the number of elements and         *
@@ -438,7 +370,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
     case INTEGER:
       Read_Token(INTEGER);
     load_integer:
-      Add_Arg(*top, long, int_val);
+      Add_Arg(*top, PlLong, int_val);
       return;
 
     case FLOAT:
@@ -456,14 +388,35 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       Read_Token(INTEGER);
       Read_Token(')');
       if (*str_val == 'x')
-	Add_Arg(*top, long, int_val);
+	Add_Arg(*top, PlLong, int_val);
       else
-	Add_Arg(*top, long, 5000 + int_val);
+	Add_Arg(*top, PlLong, 5000 + int_val);
       return;
 
     case F_N:
       Read_Argument(ATOM, top);
       Read_Token('/');
+      Read_Argument(INTEGER, top);
+      return;
+
+    case MP_N:
+      Read_Token(ATOM);
+      k = Scanner(0);
+      if (k == ':')
+	{
+	  Add_Arg(*top, char *, strdup(str_val));
+	  Read_Token(ATOM);
+	  Add_Arg(*top, char *, strdup(str_val));
+	  Read_Token('/');
+	}
+      else if (k == '/')
+	{
+	  Add_Arg(*top, char *, NULL);
+	  Add_Arg(*top, char *, strdup(str_val));
+	}
+      else
+	Syntax_Error("/ or : expected");
+
       Read_Argument(INTEGER, top);
       return;
 
@@ -476,13 +429,13 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	  else
 	    int_val = -1;
 	}
-      Add_Arg(*top, long, int_val);
+      Add_Arg(*top, PlLong, int_val);
       return;
 
     case ANY:
       t1 = Scanner(1);
       top1 = *top;		/* to update type if needed */
-      Add_Arg(*top, long, t1);
+      Add_Arg(*top, PlLong, t1);
 
       if (t1 == INTEGER)
 	goto load_integer;
@@ -498,7 +451,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' &&
 	  Peek_Char(0) == '(')
 	{
-	  Add_Arg(top1, long, X_Y);
+	  Add_Arg(top1, PlLong, X_Y);
 	  goto load_x_y;
 	}
 
@@ -507,8 +460,12 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	{
 	  Read_Token('/');
 	  Read_Argument(INTEGER, top);
-	  Add_Arg(top1, long, F_N);
+	  Add_Arg(top1, PlLong, F_N);
 	}
+      return;
+
+    case LIST_INST:		/* should not occur */
+      fprintf(stderr, "BAD Read_Argument(LIST_INST) !!!\n");
       return;
     }
 
@@ -516,7 +473,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
   DECODE_L2(arg_type, t1, t2);
 
   top1 = *top;
-  Add_Arg(*top, long, 0);	/* reserve space for counter */
+  Add_Arg(*top, PlLong, 0);	/* reserve space for counter */
 
   n = 0;
   k = Scanner(1);
@@ -545,14 +502,14 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       if (k != ',')
 	Syntax_Error("] or , expected");
     }
-  Add_Arg(top1, long, n);
+  Add_Arg(top1, PlLong, n);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * READ_TOKEN                                                              *
+ * PL_READ_TOKEN                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
@@ -605,7 +562,7 @@ static int
 Scanner(int complex_atom)
 {
   char *p, *p1;
-  long i;
+  PlLong i;
   double d;
   double strtod();
 
@@ -618,7 +575,10 @@ Scanner(int complex_atom)
       if (*cur_line_p != '\0' && *cur_line_p != '%')
 	break;
 
-      fgets(cur_line_str, sizeof(cur_line_str), file_in);
+      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
+	{
+	}
+
       if (feof(file_in))
 	return 0;
 
@@ -679,7 +639,7 @@ Scanner(int complex_atom)
 		    i = 8;
 		  i = strtol(cur_line_p, &p1, i);	/* stop on the closing \ */
 		  cur_line_p = p1 + 1;
-		  sprintf(p, "%03lo", i);
+		  sprintf(p, "%03" PL_FMT_o, i);
 		  p += 3;
 		}
 	    }
@@ -734,7 +694,7 @@ Scanner(int complex_atom)
     }
 
 
-  i = strtol(cur_line_p, &p, 0);
+  i = Str_To_PlLong(cur_line_p, &p, 0);
   if (p == cur_line_p)		/* not an integer return that character */
     return *cur_line_p++;
   d = strtod(cur_line_p, &p1);
@@ -773,7 +733,7 @@ Peek_Char(int skip_spaces)
 
 
 /*-------------------------------------------------------------------------*
- * SYNTAX_ERROR                                                            *
+ * PL_SYNTAX_ERROR                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void

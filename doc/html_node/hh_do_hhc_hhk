@@ -1,0 +1,19 @@
+#!/bin/bash
+
+p=${1:-gprolog}
+
+sed -e 's!^\([^	]*\)	\(.*\)$!\\remember{\1}{\2}!' $p.hrf \
+    | sed -e 's!\([^\\]\)_!\1\\_!g' \
+    >/tmp/$p.hrf.hh
+hevea -text -s -w 1000 <hh-mktoc.tex | sed  -e '/^----------/,$d' >hh-$p.hhc
+
+# NB: sed -e 's/@@@@@/\'$'\n/g' replace @@@@@ by \n ($'cst' is replaced in BASH by C-style backslash \cst)
+sed -e 's!^\\indexitem \([^,]*\)\(, .*\)!\\indexitem{\1}\2@@@@@\\enditem!' \
+    -e 's!^\\indexitem \([^,]*,[^,]*\)\(, .*\)!\\indexitem{\1}\2@@@@@\\enditem!' \
+    -e 's!^\\indexitem{\([^}]*\)}\(, \\see *{\(.*\)} *{\\@locref\)!\\indexitem{\1, see \3}\2!' \
+    -e 's!, \\!@@@@@\\!g' \
+    ../$p.hind \
+    | sed -e 's!\([^\\]\)_!\1\\_!g' \
+    | sed -e 's/@@@@@/\'$'\n/g' \
+    >/tmp/$p.hind.hh
+hevea -text -s -w 1000 <hh-mkind.tex | sed  -e '/^----------/,$d' >hh-$p.hhk

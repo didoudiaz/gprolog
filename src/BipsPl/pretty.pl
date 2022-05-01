@@ -1,28 +1,40 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : pretty.pl                                                       * 
- * Descr.: pretty print clause management                                  * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : pretty.pl                                                       *
+ * Descr.: pretty print clause management                                  *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -30,8 +42,8 @@
 
 
 portray_clause(Term) :-
-	'$portray_clause'(Term, 1),
-	'$call_c'('Portray_Clause_1'(Term)),
+	'$portray_clause'(Term, 1, AboveB),
+	'$call_c'('Pl_Portray_Clause_2'(Term, AboveB)),
 	fail.
 
 portray_clause(_).
@@ -40,8 +52,8 @@ portray_clause(_).
 
 
 portray_clause(SorA, Term) :-
-	'$portray_clause'(Term, 2),
-	'$call_c'('Portray_Clause_2'(SorA, Term)),
+	'$portray_clause'(Term, 2, AboveB),
+	'$call_c'('Pl_Portray_Clause_3'(SorA, Term, AboveB)),
 	fail.
 
 portray_clause(_, _).
@@ -49,7 +61,8 @@ portray_clause(_, _).
 
 
 
-'$portray_clause'(Term, Arity) :-
+'$portray_clause'(Term, Arity, AboveB) :- % create choice point for '$above'/1 write option
+        '$get_current_B'(AboveB),	
 	set_bip_name(portray_clause, Arity),
 	(   var(Term) ->
 	    '$pl_err_instantiation'
@@ -63,19 +76,21 @@ portray_clause(_, _).
 	bind_variables(Term, [exclude([Term])]),
 	set_bip_name(portray_clause, Arity).
 
+'$portray_clause'(_, _, _) :-
+	fail.
 
 
 
 name_singleton_vars(Term) :-
 	set_bip_name(name_singleton_vars, 1),
-	'$call_c'('Name_Singleton_Vars_1'(Term)).
+	'$call_c'('Pl_Name_Singleton_Vars_1'(Term)).
 
 
 
 
 name_query_vars(QueryVars, RestVars) :-
 	set_bip_name(name_query_vars, 2),
-	'$call_c_test'('Name_Query_Vars_2'(QueryVars, RestVars)).
+	'$call_c_test'('Pl_Name_Query_Vars_2'(QueryVars, RestVars)).
 
 
 
@@ -90,7 +105,7 @@ bind_variables(Term, Options) :-
 
 
 '$bind_variables'(Term, Exclude, From, Next) :-
-	'$call_c_test'('Bind_Variables_4'(Term, Exclude, From, Next)).
+	'$call_c_test'('Pl_Bind_Variables_4'(Term, Exclude, From, Next)).
 
 
 
@@ -127,9 +142,11 @@ bind_variables(Term, Options) :-
 	g_link('$bind_exclude', Exclude).
 
 '$get_bind_variables_options2'(from(From)) :-
+	'$check_nonvar'(From), integer(From),
 	g_link('$bind_from', From).
 
 '$get_bind_variables_options2'(next(Next)) :-
+	'$check_nonvar'(Next), integer(Next),
 	g_link('$bind_next', Next).
 
 '$get_bind_variables_options2'(numbervars) :-

@@ -1,28 +1,40 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : debugger.pl                                                     * 
- * Descr.: debugger                                                        * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : debugger.pl                                                     *
+ * Descr.: debugger                                                        *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -40,7 +52,7 @@
 	g_assign('$debug_next', nodebug),
 	g_assign('$debug_leash', 31),
 	g_assign('$debug_depth', 10),
-	'$call_c'('Reset_Debug_Call_Code_0').
+	'$call_c'('Pl_Reset_Debug_Call_Code_0').
 
 
 
@@ -50,7 +62,7 @@
 	g_read('$debug_info', DebugInfo),
 	setarg(1, DebugInfo, 0, false),
 	setarg(2, DebugInfo, [], false),
-	'$call_c'('Set_Debug_Call_Code_0').
+	'$call_c'('Pl_Set_Debug_Call_Code_0').
 
 
 
@@ -59,7 +71,7 @@
 
 wam_debug :-
 	set_bip_name(wam_debug, 0),
-	'$call_c'('Debug_Wam').
+	'$call_c'('Pl_Debug_Wam').
 
 
 
@@ -486,25 +498,25 @@ nospyall.
 	NewAncLst = [a(Goal, Invoc1, Index1, B)|OldAncLst],
 	setarg(1, DebugInfo, Invoc1),
 	setarg(2, DebugInfo, NewAncLst),
-% format('starting of call:~w',[Goal]), disp_B(''),
+%format('DBG: starting of call:~w',[Goal]), disp_B(''),
 	'$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, Invoc, OldAncLst).
 
 
 
 %disp_B(Msg):-
 %'$get_current_B'(B),
-%format(' ~w B:%#x\n',[Msg,B]).
+%format(' ~w B:%d (%#x)\n',[Msg, B, B]).
 
 
 '$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, _, OldAncLst) :-
-% format('Goal:~w  Call Info:~w~n',[Goal,CallInfo]),
+%format('DBG: Goal:~w  Call Info:~w~n',[Goal,CallInfo]),
 	'$get_current_B'(B),
 	'$catch_internal'('$debug_call_port'(Goal, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Invoc1, Index1, NewAncLst, Ball), 0),
 	'$get_current_B'(B1),
-% format(' after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
-% disp_B('before end call'),
+%format('DBG: after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
+%disp_B('before end call'),
 	'$debug_end_call'(Goal, Invoc1, Index1, NewAncLst, DebugInfo, OldAncLst),
-% disp_B('after end call and before test determin'),
+%disp_B('after end call and before test determin'),
 	(   B1 =< B, !
 	;   true
 	).
@@ -512,11 +524,12 @@ nospyall.
 
 
 '$debug_call1'(Goal, _, Invoc1, Index1, NewAncLst, _, _, _) :-
+%format('the call to ~w failed~n', [Goal]),	
 	'$debug_port'(Goal, Invoc1, Index1, NewAncLst, fail),
 	fail.
 
 '$debug_call1'(Goal, CallInfo, Invoc1, _, _, DebugInfo, Invoc, OldAncLst) :-
-	g_read('$debug_next', retry(X)),
+	g_read('$debug_next', retry(X)), % if user asked a 'retry'
 	X >= Invoc1,
 	setarg(1, DebugInfo, Invoc),
 	setarg(2, DebugInfo, OldAncLst),
@@ -531,6 +544,10 @@ nospyall.
 	'$debug_port'(Goal, Invoc, Index, AncLst, call),
 	g_read('$debug_unify', DebugUnify),
 	(   DebugUnify == '' ->
+%format('DBG: now I call ~w~n', [Goal]),
+	    Goal \== fail,	% NB: bc_supp.c calls the debugger for 'fail/0'.
+				% but don't call 'call_from_debugger' since it is a
+				% control-construct (thus its native codep == NULL)
 	    '$call_from_debugger'(Goal, CallInfo)
 	;   Goal = DebugUnify
 	).
@@ -647,7 +664,7 @@ nospyall.
 	repeat,
 	get_code(debugger_input, 10),                         % the last '\n'
 	                              !.
-	
+
 
 
 '$debug_exec_cmd'(C, _, _, _, _, _) :-
@@ -682,7 +699,7 @@ nospyall.
 	'$debug_read_integer'(Invoc),
 	g_assign('$debug_next', skip),
 	g_assign('$debug_skip', s(Invoc, 31)).
-	
+
 '$debug_exec_cmd'(r, _, _, _, call, _) :-                             % retry
 	!,
 	fail.
@@ -783,10 +800,13 @@ nospyall.
 	functor(Goal, N, A),
 	PI = N / A,
 	(   '$current_predicate_any'(PI) ->
-	    (   '$predicate_property_any'(PI, native_code) ->
+	    (   '$predicate_property1'(N, A, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
-	    ;   listing(PI),
-	        nl(debugger_output)
+	    ;
+		'$call_c'('Pl_Reset_Debug_Call_Code_0'),
+		'$listing_any'(PI),
+	        nl(debugger_output),
+		'$call_c'('Pl_Set_Debug_Call_Code_0')
 	    )
 	;   format(debugger_output, 'cannot find any info on ~a/~d~n', [N, A])
 	),
@@ -911,7 +931,7 @@ nospyall.
 	'$debug_is_debug_predicate'(N).
 
 '$debug_disp_alt1'(_, _, B) :-                           % clause selection ?
-	'$call_c_test'('Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
+	'$call_c_test'('Pl_Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
 	'$pred_without_aux'(N, A, N1, A1),
 	'$debug_disp_alt2'(N1 / A1).
 
@@ -924,14 +944,16 @@ nospyall.
 
 '$debug_disp_alt1'(N, A, _) :-                      % detect system predicate
 	sub_atom(N, 0, 1, _, $),
-	'$predicate_property_any'(N / A, native_code),
+	'$predicate_property1'(N, A, native_code),
 	(   (   sub_atom(N, 1, _, 4, N1),
 	        '$debug_check_bip'(N1, A1)
-	    ;   sub_atom(N, 1, _, 1, N1),
+	    ;
+		sub_atom(N, 1, _, 1, N1),
 	        '$debug_check_bip'(N1, A1)
 	    ) ->
 	    '$debug_disp_alt2'(N1 / A1)
-	;   '$debug_disp_alt2'('system predicate'(N / A))
+	;
+	    '$debug_disp_alt2'('system predicate'(N / A))
 	).
 
 '$debug_disp_alt1'(N, A, _) :-                             % normal predicate
@@ -946,15 +968,17 @@ nospyall.
 
 '$debug_is_debug_predicate'(N) :-
 	sub_atom(N, 0, 7, _, '$debug_').
-	
 
 
 
-'$debug_check_bip'(N1, A1) :-
-	predicate_property(N1 / A1, built_in), !.
 
 '$debug_check_bip'(N1, A1) :-
-	predicate_property(N1 / A1, built_in_fd).
+	'$predicate_property1'(N1, A1, built_in).
+
+/* useless since now built_in_fd ==> built_in
+'$debug_check_bip'(N1, A1) :-
+	'$predicate_property1'(N1, A1, built_in_fd).
+*/
 
 
 
@@ -981,8 +1005,8 @@ nospyall.
 
 
 '$choice_point_info'(B, N, A, LastB) :-
-	'$call_c'('Choice_Point_Info_4'(B, N, A, LastB)).
+	'$call_c'('Pl_Choice_Point_Info_4'(B, N, A, LastB)).
 
 
 '$choice_point_arg'(B, I, Arg) :-
-	'$call_c'('Choice_Point_Arg_3'(B, I, Arg)).
+	'$call_c'('Pl_Choice_Point_Arg_3'(B, I, Arg)).

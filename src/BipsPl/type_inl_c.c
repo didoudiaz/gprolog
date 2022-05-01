@@ -6,23 +6,35 @@
  * Descr.: type testing (inline) management - C part                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -88,79 +100,79 @@
 
 
 Bool FC
-Blt_Var(WamWord x)
+Pl_Blt_Var(WamWord x)
 {
   Type_Test(Tag_Is_Var, x);
 }
 
 Bool FC
-Blt_Non_Var(WamWord x)
+Pl_Blt_Non_Var(WamWord x)
 {
   Type_Test(Tag_Is_Nonvar, x);
 }
 
 Bool FC
-Blt_Atom(WamWord x)
+Pl_Blt_Atom(WamWord x)
 {
   Type_Test(Tag_Is_Atom, x);
 }
 
 Bool FC
-Blt_Integer(WamWord x)
+Pl_Blt_Integer(WamWord x)
 {
   Type_Test(Tag_Is_Integer, x);
 }
 
 Bool FC
-Blt_Float(WamWord x)
+Pl_Blt_Float(WamWord x)
 {
   Type_Test(Tag_Is_Float, x);
 }
 
 Bool FC
-Blt_Number(WamWord x)
+Pl_Blt_Number(WamWord x)
 {
   Type_Test(Tag_Is_Number, x);
 }
 
 Bool FC
-Blt_Atomic(WamWord x)
+Pl_Blt_Atomic(WamWord x)
 {
   Type_Test(Tag_Is_Atomic, x);
 }
 
 Bool FC
-Blt_Compound(WamWord x)
+Pl_Blt_Compound(WamWord x)
 {
   Type_Test(Tag_Is_Compound, x);
 }
 
 Bool FC
-Blt_Callable(WamWord x)
+Pl_Blt_Callable(WamWord x)
 {
   Type_Test(Tag_Is_Callable, x);
 }
 
 Bool FC
-Blt_Fd_Var(WamWord x)
+Pl_Blt_Fd_Var(WamWord x)
 {
   Type_Test(Tag_Is_Fd_Var, x);
 }
 
 Bool FC
-Blt_Non_Fd_Var(WamWord x)
+Pl_Blt_Non_Fd_Var(WamWord x)
 {
   Type_Test(Tag_Is_Non_Fd_Var, x);
 }
 
 Bool FC
-Blt_Generic_Var(WamWord x)
+Pl_Blt_Generic_Var(WamWord x)
 {
   Type_Test(Tag_Is_Generic_Var, x);
 }
 
 Bool FC
-Blt_Non_Generic_Var(WamWord x)
+Pl_Blt_Non_Generic_Var(WamWord x)
 {
   Type_Test(Tag_Is_Non_Generic_Var, x);
 }
@@ -169,11 +181,61 @@ Blt_Non_Generic_Var(WamWord x)
 
 
 /*-------------------------------------------------------------------------*
- * BLT_LIST                                                                *
+ * PL_BLT_GROUND                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_List(WamWord start_word)
+Pl_Blt_Ground(WamWord start_word)
+{
+  WamWord word, tag_mask;
+  WamWord *adr;
+  int arity;
+
+ terminal_rec:
+  DEREF(start_word, word, tag_mask);
+
+  if (Tag_Is_Generic_Var(tag_mask))
+    return FALSE;
+
+  if (tag_mask == TAG_LST_MASK)
+    {
+      adr = UnTag_LST(word);
+      if (!Pl_Blt_Ground(Car(adr)))
+	return FALSE;
+
+      start_word = Cdr(adr);
+      goto terminal_rec;
+    }
+
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_LST(word);
+      arity = Arity(adr);
+
+      adr = &Arg(adr, 0);
+      while(--arity > 0)
+	{
+	  if (!Pl_Blt_Ground(*adr++))
+	    return FALSE;
+
+	}
+
+      start_word = *adr;
+      goto terminal_rec;
+    }
+
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BLT_LIST                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool FC
+Pl_Blt_List(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -195,11 +257,11 @@ Blt_List(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * BLT_PARTIAL_LIST                                                        *
+ * PL_BLT_PARTIAL_LIST                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_Partial_List(WamWord start_word)
+Pl_Blt_Partial_List(WamWord start_word)
 {
   WamWord word, tag_mask;
 
@@ -221,11 +283,11 @@ Blt_Partial_List(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
- * BLT_LIST_OR_PARTIAL_LIST                                                *
+ * PL_BLT_LIST_OR_PARTIAL_LIST                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Blt_List_Or_Partial_List(WamWord start_word)
+Pl_Blt_List_Or_Partial_List(WamWord start_word)
 {
   WamWord word, tag_mask;
 

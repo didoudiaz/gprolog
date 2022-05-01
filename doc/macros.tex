@@ -1,0 +1,431 @@
+% general page/margin sizes
+
+\setlength{\oddsidemargin}{-.25cm}
+\setlength{\evensidemargin}{-.25cm}
+\setlength{\topmargin}{-50pt}
+\setlength{\headheight}{1.5cm}
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{23cm}
+
+% spacing lengths (note that we should define our own itemize environment
+% customizing the sizes with the second argument {decls}
+% cf. p112 of the LaTeX book or p59-62 of the Companion book
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{\baselineskip}
+\setlength{\partopsep}{-\baselineskip}
+\setlength{\topsep}{0pt}
+
+	% save parskip for destroy+restore (cf. cover, tbl-contents)
+
+\newlength{\saveparskip}
+\setlength{\saveparskip}{\parskip}
+
+
+% To avoid underfull vbox errors due to [twosides]
+
+\raggedbottom
+
+
+% Fancy headings
+
+\pagestyle{fancy}
+%\setlength{\headrulewidth}{0.8pt}
+\renewcommand{\headrulewidth}{0.8pt}
+
+\lhead[\thepage]{\rightmark}
+\chead{}
+\rhead[\leftmark]{\thepage}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+
+
+
+% New space for subsubsection numbers in the table of contents
+
+%BEGIN LATEX
+\makeatletter
+\renewcommand{\l@subsubsection}{\@dottedtocline{3}{3.8em}{3.6em}}
+\makeatother
+%END LATEX
+
+
+
+% Vertical space commands
+
+\newcommand{\BL}{\vspace{\baselineskip}}
+\newcommand{\SkipUp}{\vspace{-\multicolsep}}
+
+
+% Some characters in tt font
+
+\def\bs{\char'134}
+\def\lt{\char'074}
+\def\gt{\char'076}
+\def\lb{\char'173}
+\def\rb{\char'175}
+\def\us{\char'137}
+
+
+% Style of a parameter
+
+\def\Param#1{\texttt{\textit{#1}}}
+
+
+
+% A reference to a section/page
+
+\newcommand{\RefSP}[1]{(section~\ref{#1}, page~\pageref{#1})}
+
+
+% Url in LaTeX output
+
+\ifpdf
+\newcommand{\Tilde}[1]{~#1}
+\newcommand{\MyUrl}[2]{\href{#1}{#2}}
+\newcommand{\MyUrlHtml}[2]{\href{#1}{#2}}
+\else
+\newcommand{\Tilde}[1]{\~{}#1}
+\newcommand{\MyUrl}[2]{\footahref{#1}{#2}}
+\newcommand{\MyUrlHtml}[2]{#2}
+\fi
+\newcommand{\MyEMail}[2]{#2\footnote{\texttt{#1}}}
+
+% General environments
+
+   % below we use m{4.5cm} instead of p{4.5cm} to avoid vertical alignment problems
+\newenvironment{CmdOptions}%
+   {\begin{tabular}{m{4.5cm}l}}%
+   {\end{tabular}}
+
+\newenvironment{ItemizeThreeCols}%
+   {\begin{multicols}{3}\raggedcolumns\begin{itemize}}%
+   {\end{itemize}\end{multicols}\SkipUp}
+
+\newenvironment{Indentation}%
+   {\begin{list}{}{}%
+      \item }%
+   {\end{list}}
+
+\newenvironment{Code}%
+   {\begin{Indentation}\begin{tt}}%
+   {\end{tt}\end{Indentation}}
+
+\newenvironment{CodeTwoCols}[1][4cm]%
+   {\begin{Indentation}\begin{tabular}{@{}p{#1}@{}l@{}}}%
+   {\end{tabular}\end{Indentation}}
+
+\def\One#1{\multicolumn{2}{@{}l}{\texttt{#1}} \\}
+\def\Two#1#2{\texttt{#1} & #2\\}
+\def\SkipLine{\multicolumn{2}{@{}l}{} \\}
+\def\OneLine#1{\begin{Code}#1\end{Code}}
+\newcommand{\OneLineTwoCols}[3][4cm]%
+   {\begin{CodeTwoCols}[#1]\Two{#2}{#3}\end{CodeTwoCols}}
+
+% fix for HeVeA info mode (\\ on a single line causes HeVeA to loop)
+%
+%\renewcommand{\OneLineTwoCols}[3][4cm]%
+%   {\begin{CodeTwoCols}[#1]\texttt{#2} & {#3}\end{CodeTwoCols}}
+
+
+
+\newlength{\tmplg}
+\newcounter{colnbround}
+\newenvironment{TabularC}[1]%
+   {\setcounter{colnbround}{#1}
+    \addtocounter{colnbround}{1}
+    \setlength{\tmplg}{\linewidth/#1 - \tabcolsep*2 %
+                       - \arrayrulewidth*\value{colnbround}/#1}%
+    \par\begin{tabular*}{\linewidth}%
+                      {|*{#1}{>{\raggedright\arraybackslash\hspace{0pt}}%
+                         m{\the\tmplg}|}}}%
+   {\end{tabular*}\par}
+
+
+% For use in tabular (parameter is column width)
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}m{#1}}
+
+
+
+% Image inclusion
+
+\newcommand{\InsertImage}[2][scale=0.83]%
+   {\BL\begin{center}\includegraphics[#1]{#2}\end{center}\BL}
+
+
+
+% Bips description
+
+\def\SPart#1{\textbf{#1}}
+\def\Templates{\SPart{Templates}}
+\def\Description{\SPart{Description}}
+\def\Errors{\SPart{Errors}}
+\def\Portability{\SPart{Portability}}
+
+\newenvironment{TemplatesOneCol}%
+   {\Templates\par\begin{Code}}%
+   {\end{Code}}
+
+
+\newenvironment{TemplatesTwoCols}%
+   {\Templates\par\begin{multicols}{2}\raggedcolumns\begin{Code}}%
+   {\end{Code}\end{multicols}\SkipUp}
+
+
+\def\PlErrorsNone{\Errors\par None.}
+
+\newenvironment{PlErrorsNoTitle}%
+   {\par\begin{TabularC}{2}\hline}%
+   {\end{TabularC}}
+
+\newenvironment{PlErrors}%
+   {\Errors\begin{PlErrorsNoTitle}}%
+   {\end{PlErrorsNoTitle}}
+
+\def\ErrCond#1{#1 &}
+\def\ErrTerm#1{\texttt{#1} \\ \hline}
+\def\ErrTermRm#1{#1 \\ \hline}
+
+% Index
+
+   % new environnement to use \pagestyle{fancy} and \section{}
+   % copied from article.cls with the following changes:
+   % remove \thispagestyle{plain}
+   % add \addcontentsline{toc}{section}{\numberline{}\indexname}}
+
+%BEGIN LATEX
+\makeatletter
+\renewenvironment{theindex}
+               {\if@twocolumn
+                  \@restonecolfalse
+                \else
+                  \@restonecoltrue
+                \fi
+                \columnseprule \z@
+                \columnsep 35\p@
+                \twocolumn[\section*{\indexname}]%
+                \@mkboth{\MakeUppercase\indexname}%
+                        {\MakeUppercase\indexname}%
+                \parindent\z@
+                \parskip\z@ \@plus .3\p@\relax
+		\addcontentsline{toc}{section}{\numberline{}\indexname}
+                \let\item\@idxitem}
+               {\if@restonecol\onecolumn\else\clearpage\fi}
+\makeatother
+%END LATEX
+
+\ifpdf
+\def\OneUrl#1{\href{#1}{#1}}
+\else
+\def\OneUrl#1{\ahrefurl{#1}}
+\fi
+
+
+% Define a section without no and include it in the TOC
+% 1= a label (name) for HeVeA (useless for LaTeX)
+% 2= The text of the section
+% See also redef for HeVeA in custom.hva
+
+\newcommand{\SectionWithoutNo}[2]
+{\section*{#2}%
+\addcontentsline{toc}{section}{\numberline{}#2}}
+
+
+
+% Index management:
+% in the following, suffix T/TD/D/void means:
+% T: texttt, D: definition, TD: both, void: simple
+
+
+   % |textbf for \index does not work with hyperref (pdflatex)...
+   % We need to pass by the below 'IndexBold' command.
+\ifpdf
+   \newcommand{\IndexBold}[1]{\textbf{\hyperpage{#1}}}
+\else
+   \newcommand{\IndexBold}[1]{\textbf{#1}}
+\fi
+
+
+   % Add an index entry
+   % 1=alphabetic position  2=complete index term
+
+\newcommand{\IndT} [2]{\index{#1@\texttt{#2}}}
+\newcommand{\IndTD}[2]{\index{#1@\texttt{#2}|IndexBold}}
+\newcommand{\IndD} [2]{\index{#1@#2|IndexBold}}
+\newcommand{\Ind}  [2]{\index{#1@#2}}
+
+
+   % Add text and an index entry
+   % 1=text term  2=alphabetic position  3=complete index term
+   % NB: define the \index before the text to have correct HTML anchors
+
+\newcommand{\TxtIndT} [3]{\IndT{#2}{#3}\texttt{#1}}
+\newcommand{\TxtIndTD}[3]{\IndTD{#2}{#3}\texttt{#1}}
+\newcommand{\TxtIndD} [3]{\IndD{#2}{#3}#1}
+\newcommand{\TxtInd}  [3]{\Ind{#2}{#3}#1}
+
+
+   % Add... macros insert something in the index ONLY
+   % Idx... macros insert something in the index AND in the text
+
+   % Any word (roman font)
+
+
+\newcommand{\AddD}  [1]{\IndD    {#1}{#1}}
+\newcommand{\Add}   [1]{\Ind     {#1}{#1}}
+\newcommand{\IdxD}  [1]{\TxtIndD {#1}{#1}{#1}}
+\newcommand{\Idx}   [1]{\TxtInd  {#1}{#1}{#1}}
+
+
+   % Keyword (tt font)
+
+
+\newcommand{\AddKD} [1]{\IndTD   {#1}{#1}}
+\newcommand{\AddK}  [1]{\IndT    {#1}{#1}}
+\newcommand{\IdxKD} [1]{\TxtIndTD{#1}{#1}{#1}}
+\newcommand{\IdxK}  [1]{\TxtIndT {#1}{#1}{#1}}
+
+
+   % Directive
+
+
+\newcommand{\AddDiD}[1]{\IndTD   {#1}{#1 \textrm{(directive)}}}
+\newcommand{\AddDi} [1]{\IndT    {#1}{#1 \textrm{(directive)}}}
+\newcommand{\IdxDiD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(directive)}}}
+\newcommand{\IdxDi} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(directive)}}}
+
+
+   % Control Construct
+
+
+\newcommand{\AddCCD}[1]{\IndTD   {#1}{#1}}
+\newcommand{\AddCC} [1]{\IndT    {#1}{#1}}
+\newcommand{\IdxCCD}[1]{\TxtIndTD{#1}{#1}{#1}}
+\newcommand{\IdxCC} [1]{\TxtIndT {#1}{#1}{#1}}
+
+
+   % Prolog Keyword
+
+
+\newcommand{\AddPKD}[1]{\IndTD   {#1}{#1}}
+\newcommand{\AddPK} [1]{\IndT    {#1}{#1}}
+\newcommand{\IdxPKD}[1]{\TxtIndTD{#1}{#1}{#1}}
+\newcommand{\IdxPK} [1]{\TxtIndT {#1}{#1}{#1}}
+
+
+   % Prolog Built-in
+
+
+\newcommand{\AddPBD}[1]{\IndTD   {#1}{#1}}
+\newcommand{\AddPB} [1]{\IndT    {#1}{#1}}
+\newcommand{\IdxPBD}[1]{\TxtIndTD{#1}{#1}{#1}}
+\newcommand{\IdxPB} [1]{\TxtIndT {#1}{#1}{#1}}
+
+
+   % Prolog Property
+
+
+\newcommand{\AddPPD}[1]{\IndTD   {#1}{#1 \textrm{(property)}}}
+\newcommand{\AddPP} [1]{\IndT    {#1}{#1 \textrm{(property)}}}
+\newcommand{\IdxPPD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(property)}}}
+\newcommand{\IdxPP} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(property)}}}
+
+
+   % Prolog Global Variable
+
+
+\newcommand{\AddPGD}[1]{\IndTD   {#1}{#1 \textrm{(global var.)}}}
+\newcommand{\IdxPGD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(global var.)}}}
+
+
+   % Prolog Option
+
+
+\newcommand{\AddPOD}[1]{\IndTD   {#1}{#1 \textrm{(option)}}}
+\newcommand{\AddPO} [1]{\IndT    {#1}{#1 \textrm{(option)}}}
+\newcommand{\IdxPOD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(option)}}}
+\newcommand{\IdxPO} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(option)}}}
+
+
+   % Prolog Mode
+
+
+\newcommand{\AddPMD}[1]{\IndTD   {#1}{#1 \textrm{(mode)}}}
+\newcommand{\IdxPMD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(mode)}}}
+
+
+   % Prolog Whence
+
+
+\newcommand{\AddPWD}[1]{\IndTD   {#1}{#1 \textrm{(whence)}}}
+\newcommand{\IdxPWD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(whence)}}}
+
+
+   % Prolog File Permission
+
+
+\newcommand{\AddPXD}[1]{\IndTD   {#1}{#1 \textrm{(permission)}}}
+\newcommand{\IdxPXD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(permission)}}}
+
+
+   % Prolog Token
+
+
+\newcommand{\AddPTD}[1]{\IndTD   {#1}{#1 \textrm{(token)}}}
+\newcommand{\IdxPTD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(token)}}}
+
+
+   % Prolog Flag
+
+
+\newcommand{\AddPFD}[1]{\IndTD   {#1}{#1 \textrm{(flag)}}}
+\newcommand{\AddPF} [1]{\IndT    {#1}{#1 \textrm{(flag)}}}
+\newcommand{\IdxPFD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(flag)}}}
+\newcommand{\IdxPF} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(flag)}}}
+
+
+   % Debugger Keyword
+
+
+\newcommand{\AddDKD}[1]{\IndTD   {#1}{#1 \textrm{(debug)}}}
+\newcommand{\AddDK} [1]{\IndT    {#1}{#1 \textrm{(debug)}}}
+\newcommand{\IdxDKD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(debug)}}}
+\newcommand{\IdxDK} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(debug)}}}
+
+
+   % Debugger Built-in
+
+
+\newcommand{\AddDBD}[1]{\IndTD   {#1}{#1 \textrm{(debug)}}}
+\newcommand{\AddDB} [1]{\IndT    {#1}{#1 \textrm{(debug)}}}
+\newcommand{\IdxDBD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(debug)}}}
+\newcommand{\IdxDB} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(debug)}}}
+
+
+   % FD Built-in
+
+
+\newcommand{\AddFBD}[1]{\IndTD   {#1}{#1 \textrm{(FD)}}}
+\newcommand{\AddFB} [1]{\IndT    {#1}{#1 \textrm{(FD)}}}
+\newcommand{\IdxFBD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(FD)}}}
+\newcommand{\IdxFB} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(FD)}}}
+
+
+   % FD Option
+
+
+\newcommand{\AddFOD}[1]{\IndTD   {#1}{#1 \textrm{(FD option)}}}
+\newcommand{\IdxFOD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(FD option)}}}
+
+
+   % FD Keyword
+
+
+\newcommand{\AddFKD}[1]{\IndTD   {#1}{#1 \textrm{(FD)}}}
+\newcommand{\AddFK} [1]{\IndT    {#1}{#1 \textrm{(FD)}}}
+\newcommand{\IdxFKD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(FD)}}}
+\newcommand{\IdxFK} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(FD)}}}

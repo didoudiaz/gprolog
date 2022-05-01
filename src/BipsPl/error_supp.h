@@ -6,23 +6,36 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#include <errno.h>
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -38,207 +51,214 @@
 
 #ifdef ERROR_SUPP_FILE
 
-int type_atom;
-int type_atomic;
-int type_byte;
-int type_callable;
-int type_character;
-int type_compound;
-int type_evaluable;
-int type_float;			/* for arithmetic */
-int type_boolean;		/* for setarg/4 */
-int type_in_byte;
-int type_in_character;
-int type_integer;
-int type_list;
-int type_number;
-int type_predicate_indicator;
-int type_variable;
-int type_fd_variable;		/* for FD */
-int type_fd_evaluable;		/* for FD */
-int type_fd_bool_evaluable;	/* for FD */
+int pl_type_atom;
+int pl_type_atomic;
+int pl_type_byte;
+int pl_type_callable;
+int pl_type_character;
+int pl_type_compound;
+int pl_type_evaluable;
+int pl_type_float;				/* for arithmetic */
+int pl_type_boolean;				/* for setarg/4 */
+int pl_type_in_byte;
+int pl_type_in_character;
+int pl_type_integer;
+int pl_type_list;
+int pl_type_number;
+int pl_type_predicate_indicator;
+int pl_type_variable; /* deprecated: new code should emit an uninstantiation_error */
+int pl_type_pair;
+int pl_type_fd_variable;			/* for FD */
+int pl_type_fd_evaluable;			/* for FD */
+int pl_type_fd_bool_evaluable;			/* for FD */
 
 
-int domain_character_code_list;
-int domain_close_option;
-int domain_flag_value;
-int domain_io_mode;
-int domain_non_empty_list;
-int domain_not_less_than_zero;
-int domain_operator_priority;
-int domain_operator_specifier;
-int domain_prolog_flag;
-int domain_read_option;
-int domain_source_sink;
-int domain_stream;
-int domain_stream_option;
-int domain_stream_or_alias;
-int domain_stream_position;
-int domain_stream_property;
-int domain_write_option;
-int domain_term_stream_or_alias;	/* for term_streams */
-int domain_g_array_index;	/* for g_vars */
-int domain_g_argument_selector;	/* for g_vars */
-int domain_stream_seek_method;	/* for seek/4 */
-int domain_format_control_sequence;	/* for format/2-3 */
-int domain_os_path;		/* for absolute_file_name/2 */
-int domain_os_file_permission;	/* for file_permission/2 */
-int domain_selectable_item;	/* for select_read/3 */
-int domain_date_time;		/* for os_interf */
+int pl_domain_character_code_list;
+int pl_domain_close_option;
+int pl_domain_flag_value;
+int pl_domain_io_mode;
+int pl_domain_non_empty_list;
+int pl_domain_not_less_than_zero;
+int pl_domain_operator_priority;
+int pl_domain_operator_specifier;
+int pl_domain_prolog_flag;
+int pl_domain_read_option;
+int pl_domain_source_sink;
+int pl_domain_stream;
+int pl_domain_stream_option;
+int pl_domain_stream_or_alias;
+int pl_domain_stream_position;
+int pl_domain_stream_property;
+int pl_domain_write_option;
+int pl_domain_order;
+int pl_domain_term_stream_or_alias;		/* for term_streams */
+int pl_domain_g_array_index;			/* for g_vars */
+int pl_domain_g_argument_selector;		/* for g_vars */
+int pl_domain_stream_seek_method;		/* for seek/4 */
+int pl_domain_format_control_sequence;		/* for format/2-3 */
+int pl_domain_radix;		        	/* for format/2-3 */
+int pl_domain_os_path;				/* for absolute_file_name/2 */
+int pl_domain_os_file_permission;		/* for file_permission/2 */
+int pl_domain_selectable_item;			/* for select_read/3 */
+int pl_domain_date_time;			/* for os_interf */
 #ifndef NO_USE_SOCKETS
-int domain_socket_domain;	/* for sockets */
-int domain_socket_address;	/* for sockets */
+int pl_domain_socket_domain;			/* for sockets */
+int pl_domain_socket_address;			/* for sockets */
 #endif
 
-int existence_procedure;
-int existence_source_sink;
-int existence_stream;
-int existence_sr_descriptor;	/* for source reader */
+int pl_existence_procedure;
+int pl_existence_source_sink;
+int pl_existence_stream;
+int pl_existence_sr_descriptor;			/* for source reader */
 
-int permission_operation_access;
-int permission_operation_close;
-int permission_operation_create;
-int permission_operation_input;
-int permission_operation_modify;
-int permission_operation_open;
-int permission_operation_output;
-int permission_operation_reposition;
-
-
-int permission_type_binary_stream;
-int permission_type_flag;
-int permission_type_operator;
-int permission_type_past_end_of_stream;
-int permission_type_private_procedure;
-int permission_type_static_procedure;
-int permission_type_source_sink;
-int permission_type_stream;
-int permission_type_text_stream;
+int pl_permission_operation_access;
+int pl_permission_operation_close;
+int pl_permission_operation_create;
+int pl_permission_operation_input;
+int pl_permission_operation_modify;
+int pl_permission_operation_open;
+int pl_permission_operation_output;
+int pl_permission_operation_reposition;
 
 
-int representation_character;
-int representation_character_code;
-int representation_in_character_code;
-int representation_max_arity;
-int representation_max_integer;
-int representation_min_integer;
-int representation_too_many_variables;
-				/* for Copy_Term(),... */
-
-int evluation_float_overflow;
-int evluation_int_overflow;
-int evluation_undefined;
-int evluation_underflow;
-int evluation_zero_divisor;
+int pl_permission_type_binary_stream;
+int pl_permission_type_flag;
+int pl_permission_type_operator;
+int pl_permission_type_past_end_of_stream;
+int pl_permission_type_private_procedure;
+int pl_permission_type_static_procedure;
+int pl_permission_type_source_sink;
+int pl_permission_type_stream;
+int pl_permission_type_text_stream;
 
 
-int resource_print_object_not_linked; /* for print and format */
-int resource_too_big_fd_constraint; /* for FD */
+int pl_representation_character;
+int pl_representation_character_code;
+int pl_representation_in_character_code;
+int pl_representation_max_arity;
+int pl_representation_max_integer;
+int pl_representation_min_integer;
+int pl_representation_integer_32bits;
+int pl_representation_too_many_variables;	/* for Pl_Copy_Term(),... */
+
+int pl_evaluation_float_overflow;
+int pl_evaluation_int_overflow;
+int pl_evaluation_undefined;
+int pl_evaluation_underflow;
+int pl_evaluation_zero_divisor;
+
+
+int pl_resource_print_object_not_linked; 	/* for print and format */
+int pl_resource_finite_memory;			/* e.g. for length(L, L) */
+int pl_resource_too_big_fd_constraint; 		/* for FD */
 
 
 #else
 
 
-extern int type_atom;
-extern int type_atomic;
-extern int type_byte;
-extern int type_callable;
-extern int type_character;
-extern int type_compound;
-extern int type_evaluable;
-extern int type_float;		/* for arithmetic */
-extern int type_boolean;	/* for setarg/4 */
-extern int type_in_byte;
-extern int type_in_character;
-extern int type_integer;
-extern int type_list;
-extern int type_number;
-extern int type_predicate_indicator;
-extern int type_variable;
-extern int type_fd_variable;	/* for FD */
-extern int type_fd_evaluable;	/* for FD */
-extern int type_fd_bool_evaluable;	/* for FD */
+extern int pl_type_atom;
+extern int pl_type_atomic;
+extern int pl_type_byte;
+extern int pl_type_callable;
+extern int pl_type_character;
+extern int pl_type_compound;
+extern int pl_type_evaluable;
+extern int pl_type_float;			/* for arithmetic */
+extern int pl_type_boolean;			/* for setarg/4 */
+extern int pl_type_in_byte;
+extern int pl_type_in_character;
+extern int pl_type_integer;
+extern int pl_type_list;
+extern int pl_type_number;
+extern int pl_type_predicate_indicator;
+extern int pl_type_variable;  /* deprecated: new code should emit an uninstantiation_error */
+extern int pl_type_pair;
+extern int pl_type_fd_variable;			/* for FD */
+extern int pl_type_fd_evaluable;		/* for FD */
+extern int pl_type_fd_bool_evaluable;		/* for FD */
 
 
-extern int domain_character_code_list;
-extern int domain_close_option;
-extern int domain_flag_value;
-extern int domain_io_mode;
-extern int domain_non_empty_list;
-extern int domain_not_less_than_zero;
-extern int domain_operator_priority;
-extern int domain_operator_specifier;
-extern int domain_prolog_flag;
-extern int domain_read_option;
-extern int domain_source_sink;
-extern int domain_stream;
-extern int domain_stream_option;
-extern int domain_stream_or_alias;
-extern int domain_stream_position;
-extern int domain_stream_property;
-extern int domain_write_option;
-extern int domain_term_stream_or_alias;	/* for term_streams */
-extern int domain_g_array_index;	/* for g_vars */
-extern int domain_g_argument_selector;	/* for g_vars */
-extern int domain_stream_seek_method;	/* for seek/4 */
-extern int domain_format_control_sequence;	/* for format/2-3 */
-extern int domain_os_path;	/* for absolute_file_name/2 */
-extern int domain_os_file_permission; /* for file_permission/2 */
-extern int domain_selectable_item; /* for select_read/3 */
-extern int domain_date_time;	/* for os_interf */
+extern int pl_domain_character_code_list;
+extern int pl_domain_close_option;
+extern int pl_domain_flag_value;
+extern int pl_domain_io_mode;
+extern int pl_domain_non_empty_list;
+extern int pl_domain_not_less_than_zero;
+extern int pl_domain_operator_priority;
+extern int pl_domain_operator_specifier;
+extern int pl_domain_prolog_flag;
+extern int pl_domain_read_option;
+extern int pl_domain_source_sink;
+extern int pl_domain_stream;
+extern int pl_domain_stream_option;
+extern int pl_domain_stream_or_alias;
+extern int pl_domain_stream_position;
+extern int pl_domain_stream_property;
+extern int pl_domain_write_option;
+extern int pl_domain_order;
+extern int pl_domain_term_stream_or_alias;	/* for term_streams */
+extern int pl_domain_g_array_index;		/* for g_vars */
+extern int pl_domain_g_argument_selector;	/* for g_vars */
+extern int pl_domain_stream_seek_method;	/* for seek/4 */
+extern int pl_domain_format_control_sequence;	/* for format/2-3 */
+extern int pl_domain_radix;			/* for format/2-3 */
+extern int pl_domain_os_path;			/* for absolute_file_name/2 */
+extern int pl_domain_os_file_permission; 	/* for file_permission/2 */
+extern int pl_domain_selectable_item; 		/* for select_read/3 */
+extern int pl_domain_date_time;			/* for os_interf */
 #ifndef NO_USE_SOCKETS
-extern int domain_socket_domain; /* for sockets */
-extern int domain_socket_address; /* for sockets */
+extern int pl_domain_socket_domain; 		/* for sockets */
+extern int pl_domain_socket_address; 		/* for sockets */
 #endif
 
 
-extern int existence_procedure;
-extern int existence_source_sink;
-extern int existence_stream;
-extern int existence_sr_descriptor; /* for source reader */
+extern int pl_existence_procedure;
+extern int pl_existence_source_sink;
+extern int pl_existence_stream;
+extern int pl_existence_sr_descriptor; 		/* for source reader */
 
 
-extern int permission_operation_access;
-extern int permission_operation_close;
-extern int permission_operation_create;
-extern int permission_operation_input;
-extern int permission_operation_modify;
-extern int permission_operation_open;
-extern int permission_operation_output;
-extern int permission_operation_reposition;
+extern int pl_permission_operation_access;
+extern int pl_permission_operation_close;
+extern int pl_permission_operation_create;
+extern int pl_permission_operation_input;
+extern int pl_permission_operation_modify;
+extern int pl_permission_operation_open;
+extern int pl_permission_operation_output;
+extern int pl_permission_operation_reposition;
 
 
-extern int permission_type_binary_stream;
-extern int permission_type_flag;
-extern int permission_type_operator;
-extern int permission_type_past_end_of_stream;
-extern int permission_type_private_procedure;
-extern int permission_type_static_procedure;
-extern int permission_type_source_sink;
-extern int permission_type_stream;
-extern int permission_type_text_stream;
+extern int pl_permission_type_binary_stream;
+extern int pl_permission_type_flag;
+extern int pl_permission_type_operator;
+extern int pl_permission_type_past_end_of_stream;
+extern int pl_permission_type_private_procedure;
+extern int pl_permission_type_static_procedure;
+extern int pl_permission_type_source_sink;
+extern int pl_permission_type_stream;
+extern int pl_permission_type_text_stream;
 
 
-extern int representation_character;
-extern int representation_character_code;
-extern int representation_in_character_code;
-extern int representation_max_arity;
-extern int representation_max_integer;
-extern int representation_min_integer;
-extern int representation_too_many_variables;
-				/* for Copy_Term(),... */
+extern int pl_representation_character;
+extern int pl_representation_character_code;
+extern int pl_representation_in_character_code;
+extern int pl_representation_max_arity;
+extern int pl_representation_max_integer;
+extern int pl_representation_min_integer;
+extern int pl_representation_integer_32bits;
+extern int pl_representation_too_many_variables;/* for Pl_Copy_Term(),... */
 
 
-extern int evluation_float_overflow;
-extern int evluation_int_overflow;
-extern int evluation_undefined;
-extern int evluation_underflow;
-extern int evluation_zero_divisor;
+extern int pl_evaluation_float_overflow;
+extern int pl_evaluation_int_overflow;
+extern int pl_evaluation_undefined;
+extern int pl_evaluation_underflow;
+extern int pl_evaluation_zero_divisor;
 
 
-extern int resource_too_many_open_streams; /* for streams */
-extern int resource_print_object_not_linked; /* for print and format */
-extern int resource_too_big_fd_constraint; /* for FD */
+extern int pl_resource_finite_memory;		/* e.g. for length(L, L) */
+extern int pl_resource_print_object_not_linked; /* for print and format */
+extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
 #endif
 
@@ -249,24 +269,28 @@ extern int resource_too_big_fd_constraint; /* for FD */
  * Function Prototypes             *
  *---------------------------------*/
 
-void Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
+void Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word);
 
-void Set_C_Bip_Name(char *func_str, int arity) FC;
+void Pl_Set_Bip_Name_Untagged_2(int func, int arity);
 
-void Unset_C_Bip_Name(void);
+void Pl_Set_C_Bip_Name(char *func_str, int arity);
 
-int Get_Current_Bip(int *arity);
+void Pl_Unset_C_Bip_Name(void);
 
-void Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
+int Pl_Get_Current_Bip(int *arity);
+
+void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
 			   char *err_msg);
 
-void Syntax_Error(int flag_value);
+void Pl_Syntax_Error(int flag_value);
 
-void Unknown_Pred_Error(int func, int arity);
+void Pl_Unknown_Pred_Error(int func, int arity);
 
-void Os_Error(void);
+void Pl_Os_Error(int err_no);
 
 void Pl_Err_Instantiation(void);
+
+void Pl_Err_Uninstantiation(WamWord term);
 
 void Pl_Err_Type(int atom_type, WamWord term);
 
@@ -278,15 +302,30 @@ void Pl_Err_Permission(int atom_oper, int atom_perm, WamWord term);
 
 void Pl_Err_Representation(int atom_flag);
 
-void Pl_Err_Evaluation(int atom_error);
+void Pl_Err_Evaluation(int pl_atom_error);
 
 void Pl_Err_Resource(int atom_resource);
 
-void Pl_Err_Syntax(int atom_error);
+void Pl_Err_Syntax(int pl_atom_error);
 
-void Pl_Err_System(int atom_error);
+void Pl_Err_System(int pl_atom_error);
+
+#define Os_Test_Error_Null(tst)			\
+  do {						\
+    if ((tst) == NULL)				\
+      {						\
+	Pl_Os_Error(errno);			\
+	return FALSE;				\
+      }						\
+  } while(0)
 
 
-
-#define Os_Test_Error(tst)  \
-      do { if (tst) { Os_Error(); return FALSE; } } while(0)
+#define Os_Test_Error(tst)			\
+  do {						\
+    int _tst = (tst);				\
+    if (_tst < 0)				\
+      {						\
+	Pl_Os_Error(errno);			\
+	return FALSE;				\
+      }						\
+  } while(0)

@@ -1,25 +1,25 @@
-% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
+% compiler: GNU Prolog 1.5.1
 % file    : pretty.pl
-% date    : 6 12 2002
-% time    : 13:44:58
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/pretty.pl').
+file_name('/home/diaz/GP/src/BipsPl/pretty.pl').
 
 
-predicate('$use_pretty'/0,29,static,private,built_in,[
+predicate('$use_pretty'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(portray_clause/1,32,static,private,built_in,[
+predicate(portray_clause/1,44,static,private,monofile,built_in,[
     try_me_else(1),
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
     put_value(y(0),0),
     put_integer(1,1),
-    call('$portray_clause'/2),
+    put_variable(y(1),2),
+    call('$portray_clause'/3),
     put_value(y(0),0),
-    call_c('Portray_Clause_1',[],[x(0)]),
+    put_unsafe_value(y(1),1),
+    call_c('Pl_Portray_Clause_2',[],[x(0),x(1)]),
     fail,
 
 label(1),
@@ -27,17 +27,19 @@ label(1),
     proceed]).
 
 
-predicate(portray_clause/2,42,static,private,built_in,[
+predicate(portray_clause/2,54,static,private,monofile,built_in,[
     try_me_else(1),
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_value(y(1),0),
     put_integer(2,1),
-    call('$portray_clause'/2),
+    put_variable(y(2),2),
+    call('$portray_clause'/3),
     put_value(y(0),0),
     put_value(y(1),1),
-    call_c('Portray_Clause_2',[],[x(0),x(1)]),
+    put_unsafe_value(y(2),2),
+    call_c('Pl_Portray_Clause_3',[],[x(0),x(1),x(2)]),
     fail,
 
 label(1),
@@ -45,17 +47,20 @@ label(1),
     proceed]).
 
 
-predicate('$portray_clause'/2,52,static,private,built_in,[
+predicate('$portray_clause'/3,64,static,private,monofile,built_in,[
+    try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    put_value(x(2),0),
+    call('$get_current_B'/1),
     put_atom(portray_clause,0),
     put_value(y(1),1),
-    call(set_bip_name/2),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
     put_value(y(0),0),
-    call('$$portray_clause/2_$aux1'/1),
+    call('$$portray_clause/3_$aux1'/1),
     put_value(y(0),0),
-    call('$$portray_clause/2_$aux2'/1),
+    call('$$portray_clause/3_$aux2'/1),
     put_value(y(0),0),
     call(name_singleton_vars/1),
     put_value(y(0),0),
@@ -70,13 +75,19 @@ predicate('$portray_clause'/2,52,static,private,built_in,[
     put_atom(portray_clause,0),
     put_value(y(1),1),
     deallocate,
-    execute(set_bip_name/2)]).
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    fail]).
 
 
-predicate('$$portray_clause/2_$aux2'/1,52,static,private,built_in,[
-    load_cut_level(1),
+predicate('$$portray_clause/3_$aux2'/1,64,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
-    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     proceed,
 
@@ -87,10 +98,11 @@ label(1),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$$portray_clause/2_$aux1'/1,52,static,private,built_in,[
-    load_cut_level(1),
+predicate('$$portray_clause/3_$aux1'/1,64,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -99,29 +111,23 @@ label(1),
     proceed]).
 
 
-predicate(name_singleton_vars/1,69,static,private,built_in,[
-    put_atom(name_singleton_vars,1),
-    put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Name_Singleton_Vars_1',[],[x(0)]),
+predicate(name_singleton_vars/1,84,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_singleton_vars,1]),
+    call_c('Pl_Name_Singleton_Vars_1',[],[x(0)]),
     proceed]).
 
 
-predicate(name_query_vars/2,76,static,private,built_in,[
-    put_atom(name_query_vars,2),
-    put_integer(2,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Name_Query_Vars_2',[boolean],[x(0),x(1)]),
+predicate(name_query_vars/2,91,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_query_vars,2]),
+    call_c('Pl_Name_Query_Vars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(bind_variables/2,85,static,private,built_in,[
+predicate(bind_variables/2,100,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    put_atom(bind_variables,0),
-    put_integer(2,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[bind_variables,2]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(1),0),
     put_variable(y(2),1),
@@ -136,18 +142,18 @@ predicate(bind_variables/2,85,static,private,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate('$bind_variables'/4,92,static,private,built_in,[
-    call_c('Bind_Variables_4',[boolean],[x(0),x(1),x(2),x(3)]),
+predicate('$bind_variables'/4,107,static,private,monofile,built_in,[
+    call_c('Pl_Bind_Variables_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$set_bind_variables_defaults'/0,98,static,private,built_in,[
+predicate('$set_bind_variables_defaults'/0,113,static,private,monofile,built_in,[
     put_integer(0,0),
     put_integer(0,1),
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_bind_variables_options'/4,104,static,private,built_in,[
+predicate('$get_bind_variables_options'/4,119,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -157,30 +163,31 @@ predicate('$get_bind_variables_options'/4,104,static,private,built_in,[
     call('$check_list'/1),
     put_atom('$bind_exclude',0),
     put_nil(1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$bind_from',0),
     put_integer(0,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$bind_next',0),
     put_void(1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     call('$get_bind_variables_options1'/1),
     put_atom('$bind_exclude',0),
     put_value(y(1),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_from',0),
     put_value(y(2),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$bind_next',0),
     put_value(y(3),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
 
-predicate('$get_bind_variables_options1'/1,115,static,private,built_in,[
-    load_cut_level(1),
+predicate('$get_bind_variables_options1'/1,130,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -206,9 +213,9 @@ label(4),
     execute('$get_bind_variables_options1'/1)]).
 
 
-predicate('$get_bind_variables_options2'/1,122,static,private,built_in,[
+predicate('$get_bind_variables_options2'/1,137,static,private,monofile,built_in,[
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
 
 label(1),
@@ -228,27 +235,41 @@ label(5),
     get_structure(exclude/1,0),
     unify_variable(x(1)),
     put_atom('$bind_exclude',0),
-    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(6),
     retry_me_else(8),
 
 label(7),
+    allocate(1),
     get_structure(from/1,0),
-    unify_variable(x(1)),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_atom('$bind_from',0),
-    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
+    put_value(y(0),1),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
     proceed,
 
 label(8),
     retry_me_else(10),
 
 label(9),
+    allocate(1),
     get_structure(next/1,0),
-    unify_variable(x(1)),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_atom('$bind_next',0),
-    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
+    put_value(y(0),1),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
     proceed,
 
 label(10),
@@ -276,12 +297,10 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate(numbervars/1,147,static,private,built_in,[
+predicate(numbervars/1,164,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    put_atom(numbervars,0),
-    put_integer(1,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,1]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),
@@ -291,14 +310,12 @@ predicate(numbervars/1,147,static,private,built_in,[
     execute('$bind_variables'/4)]).
 
 
-predicate(numbervars/3,153,static,private,built_in,[
+predicate(numbervars/3,170,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    put_atom(numbervars,0),
-    put_integer(3,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,3]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),

@@ -6,23 +6,35 @@
  * Descr.: atom table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,14 +61,11 @@
  * Constants                       *
  *---------------------------------*/
 
-#define ERR_ATOM_TBL_FULL          "Atom table full"
 #define ERR_ATOM_NIL_INVALID       "atom: invalid ATOM_NIL (should be %d)"
 
+#define ERR_TABLE_FULL_ENV         "Atom table full (max atom: %d, environment variable used: %s)"
 
-
-
-#define RADIX                      67
-#define INV_RADIX_MOD_MAX_ATOM     19563	/* see prog. euclide.c */
+#define ERR_TABLE_FULL_NO_ENV      "Atom table full (max atom: %d - fixed size)"
 
 
 
@@ -69,45 +78,42 @@
  * Global Variables                *
  *---------------------------------*/
 
-int char_type[256] = {
+    /* this variable can be overwritten by top_comp.c (similarl to stacks) */
 
-/*  nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
-  LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
+int pl_char_type[256] = {
 
-/*  dle dc1 dc2 dc3 dc4 nak syn etb can em sub esc  fs  gs  rs  us  */
-  LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
+/* nul soh stx etx eot enq ack bel bs  ht  nl  vt  np  cr  so  si  */
+   LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
 
-/*  spc !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   */
-  LA, SC, DQ, GR, GR, CM, GR, QT, PC, PC, GR, GR, SC, GR, GR, GR,
+/* dle dc1 dc2 dc3 dc4 nak syn etb can em sub esc  fs  gs  rs  us  */
+   LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA, LA,
 
-/*  0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?   */
-  DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, GR, SC, GR, GR, GR, GR,
+/* spc !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   */
+   LA, SC, DQ, GR, GR, CM, GR, QT, PC, PC, GR, GR, SC, GR, GR, GR,
 
-/*  @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   */
-  GR, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL,
+/* 0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?   */
+   DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, GR, SC, GR, GR, GR, GR,
 
-/*  P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _   */
-  CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, PC, GR, PC, GR, UL,
+/* @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   */
+   GR, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL,
 
-/*  `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o    */
-  BQ, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL,
+/* P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _   */
+   CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, PC, GR, PC, GR, UL,
 
-/*  p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   del  */
-  SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, PC, PC, PC, GR, LA
+/* `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o    */
+   BQ, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL,
+
+/* p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~   del  */
+   SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, SL, PC, PC, PC, GR, LA
 /*  0x80 ... 0xff = EX (set by Init_Atom)"                           */
 };
 
 
-char escape_symbol[] = "abfnrtv";
-char escape_char[] = "\a\b\f\n\r\t\v";
+char pl_escape_symbol[] = "abfnrtv";
+char pl_escape_char[] = "\a\b\f\n\r\t\v";
 
 
 static char str_char[256][2];
-
-static int hash_weight_tbl[256];
-static int hash_inv_tbl[RADIX];
-
-static char gen_sym_buff[1024];
 
 
 
@@ -116,84 +122,49 @@ static char gen_sym_buff[1024];
  * Function Prototypes             *
  *---------------------------------*/
 
-static AtomInf *Locate_Atom(char *name);
+static int Add_Atom(char *name, int len, unsigned hash, 
+		    AtomInf *patom, Bool allocate);
 
-static int Hash_String(char *str);
 
-static char *Gen_Sym(unsigned char *prefix, int gen_sym_hash);
+static AtomInf *Locate_Atom(char *name, unsigned hash);
+
+static unsigned Hash_String(char *str, int len);
+
+static void Error_Table_Full(void);
 
 
 
 
 /*-------------------------------------------------------------------------*
- * INIT_ATOM                                                               *
+ * PL_INIT_ATOM                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Atom(void)
+Pl_Init_Atom(void)
 {
   int i, c;
+  
+  if (pl_max_atom < 256)
+    pl_max_atom = 256;
 
-  for (i = 0; i < 256; i++)
-    hash_weight_tbl[i] = i % RADIX;
+  if (pl_max_atom <= ATOM_NIL)
+    pl_max_atom = ATOM_NIL + 1;	/* to be sure h([]) % pl_max_atom == ATOM_NIL */
 
-  for (i = 0; i < 10; i++)
+  if (pl_max_atom > ((PlULong) 1 << ATOM_MAX_BITS)) /* be sure f/n words can be encoded (see wam_inst.h) */
+    pl_max_atom = ((PlULong) 1 << ATOM_MAX_BITS);
+
+  pl_atom_tbl = (AtomInf *) Calloc(pl_max_atom, sizeof(AtomInf));
+  pl_nb_atom = 0;
+    
+
+  for (c = 128; c < 256; c++) 
     {
-      hash_weight_tbl[i + '0'] = i;
-      hash_inv_tbl[i] = i + '0';
+      pl_char_type[c] = islower(c) ? SL : (isupper(c)) ? CL : EX;
     }
-
-  for (i = 0; i < 26; i++)
-    {
-      hash_weight_tbl[i + 'A'] = i + 10;
-      hash_inv_tbl[i + 10] = i + 'A';
-    }
-
-
-  for (i = 0; i < 26; i++)
-    {
-      hash_weight_tbl[i + 'a'] = i + 10 + 26;
-      hash_inv_tbl[i + 10 + 26] = i + 'a';
-    }
-
-  i = 10 + 26 + 26;
-  hash_weight_tbl['#'] = i;
-  hash_inv_tbl[i] = '#';
-
-  i++;
-  hash_weight_tbl['$'] = i;
-  hash_inv_tbl[i] = '$';
-
-  i++;
-  hash_weight_tbl['&'] = i;
-  hash_inv_tbl[i] = '&';
-
-  i++;
-  hash_weight_tbl['_'] = i;
-  hash_inv_tbl[i] = '_';
-
-  i++;
-  hash_weight_tbl['@'] = i;
-  hash_inv_tbl[i] = '@';
-
-  for (c = 128; c < 256; c++) {
-    if (isalpha (c)) {
-      i++;
-      char_type[c] = islower(c)? SL: CL;
-      hash_weight_tbl[c] = i;
-      hash_inv_tbl[i] = c;
-    }
-    else {
-      char_type[c] = EX;	/* extended char set */
-    }
-  }
 
   for (i = 0; i < 256; i++)	/* initial conv mapping = identity */
-    char_conv[i] = i;
+    pl_char_conv[i] = i;
 
-
-
-  nb_atom = 0;
 
   for (i = 0; i < 256; i++)
     {
@@ -202,87 +173,96 @@ Init_Atom(void)
 #ifndef OPTIM_1_CHAR_ATOM
       atom_char[i] =
 #endif
-	Create_Atom(str_char[i]);
+	Pl_Create_Atom(str_char[i]);
     }
 
-  i = Create_Atom("[]");
+  i = Pl_Create_Atom("[]");
   if (i != ATOM_NIL)
-    Fatal_Error(ERR_ATOM_NIL_INVALID, i);
+    Pl_Fatal_Error(ERR_ATOM_NIL_INVALID, i);
 
-  atom_void = Create_Atom("");
-  atom_curly_brackets = Create_Atom("{}");
+  pl_atom_void = Pl_Create_Atom("");
+  pl_atom_curly_brackets = Pl_Create_Atom("{}");
 
-  atom_false = Create_Atom("false");
-  atom_true = Create_Atom("true");
+  pl_atom_false = Pl_Create_Atom("false");
+  pl_atom_true = Pl_Create_Atom("true");
 
-  atom_end_of_file = Create_Atom("end_of_file");
+  pl_atom_end_of_file = Pl_Create_Atom("end_of_file");
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ALLOCATE_ATOM                                                    *
+ * PL_CREATE_ALLOCATE_ATOM                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int FC
-Create_Allocate_Atom(char *name)
+int
+Pl_Create_Allocate_Atom(char *name)
 {
-  AtomInf *patom;
-  char *name1;
+  int len = strlen(name);
+  unsigned hash = Hash_String(name, len);
+  AtomInf *patom = Locate_Atom(name, hash);
 
-  patom = Locate_Atom(name);
-
-  if (patom == NULL)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
-
-  if (patom->name != NULL)
-    return patom - atom_tbl;	/* already exists */
-
-  name1 = Strdup(name);
-
-  return Create_Atom(name1);
+  return Add_Atom(name, len, hash, patom, TRUE);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ATOM                                                             *
+ * PL_CREATE_ATOM                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
-int FC
-Create_Atom(char *name)
+int
+Pl_Create_Atom(char *name)
 {
-  AtomInf *patom;
+  int len = strlen(name);
+  unsigned hash = Hash_String(name, len);
+
+  AtomInf *patom = Locate_Atom(name, hash);
+
+  return Add_Atom(name, len, hash, patom, FALSE);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * ADD_ATOM                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Add_Atom(char *name, int len, unsigned hash, AtomInf *patom, Bool allocate)
+{
   AtomProp prop;
   char *p;
   int c_type;
-  int lg;
   Bool identifier;
   Bool graphic;
 
-
-  patom = Locate_Atom(name);
-
   if (patom == NULL)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
+    Error_Table_Full();
 
   if (patom->name != NULL)
-    return patom - atom_tbl;	/* already exists */
+    return patom - pl_atom_tbl;	/* already exists */
 
-  nb_atom++;
+  if (allocate)
+    name = Strdup(name);
+
+  pl_nb_atom++;
 
   patom->name = name;
   patom->modules = NULL;	/* first time around it's got no units */
+  patom->hash = hash;
+
   prop.needs_scan = FALSE;
 
   identifier = graphic = (*name != '\0');
 
   for (p = name; *p; p++)
     {
-      c_type = char_type[(unsigned char) *p];
+      c_type = pl_char_type[(unsigned char) *p];
 
       if ((c_type & (UL | CL | SL | DI)) == 0)
 	identifier = FALSE;
@@ -294,14 +274,14 @@ Create_Atom(char *name)
 	prop.needs_scan = TRUE;
     }
 
-  prop.length = lg = p - name;
+  prop.length = len;
 
 #ifndef NO_USE_LINEDIT
-  if (lg > 1 && identifier)
-    LE_Compl_Add_Word(name, lg);
+  if (len > 1 && identifier)
+    Pl_LE_Compl_Add_Word(name, len);
 #endif
 
-  if (char_type[(unsigned char) *name] != SL)	/* small letter */
+  if (pl_char_type[(unsigned char) *name] != SL)	/* small letter */
     identifier = FALSE;
 
 
@@ -315,11 +295,18 @@ Create_Atom(char *name)
   if (graphic)
     {
       prop.type = GRAPHIC_ATOM;
-      prop.needs_quote = (lg == 1 && *name == '.');
+      prop.needs_quote =
+	(len == 1 && *name == '.') ||
+	(len == 1 && *name == '%') ||
+	(len >= 2 && name[0] == '/' && name[1] == '*')
+#if 0				/* this one does not need quotes it seems */
+	|| (len == 2 && name[0] == '*' && name[1] == '/')
+#endif
+	;
       goto finish;
     }
 
-  if (lg == 1 && char_type[(unsigned char) *name] == SC)
+  if (len == 1 && pl_char_type[(unsigned char) *name] == SC)
     {
       prop.type = SOLO_ATOM;
       prop.needs_quote = (*name == ',');
@@ -328,46 +315,48 @@ Create_Atom(char *name)
 
   prop.type = OTHER_ATOM;
   prop.needs_quote = prop.needs_scan ||
-    !(lg == 2 && ((name[0] == '[' && name[1] == ']') ||
-		  (name[0] == '{' && name[1] == '}')));
+    !(len == 2 && ((name[0] == '[' && name[1] == ']') ||
+		   (name[0] == '{' && name[1] == '}')));
 
 
 finish:
   prop.op_mask = 0;
   patom->prop = prop;
 
-  return patom - atom_tbl;
+  return patom - pl_atom_tbl;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * CREATE_ATOM                                                             *
+ * PL_CREATE_ATOM_TAGGED                                                   *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 WamWord FC
-Create_Atom_Tagged(char *name)
+Pl_Create_Atom_Tagged(char *name)
 {
-  return Tag_ATM(Create_Atom(name));
+  return Tag_ATM(Pl_Create_Atom(name));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FIND_ATOM                                                               *
+ * PL_FIND_ATOM                                                            *
  *                                                                         *
  * return the atom key or -1 if not exist.                                 *
  *-------------------------------------------------------------------------*/
-int FC
-Find_Atom(char *name)
+int
+Pl_Find_Atom(char *name)
 {
+  int len = strlen(name);
+  unsigned hash = Hash_String(name, len);
   AtomInf *patom;
 
-  patom = Locate_Atom(name);
-  return (patom == NULL || patom->name == NULL) ? -1 : patom - atom_tbl;
+  patom = Locate_Atom(name, hash);
+  return (patom == NULL || patom->name == NULL) ? -1 : patom - pl_atom_tbl;
 }
 
 
@@ -377,34 +366,58 @@ Find_Atom(char *name)
  * LOCATE_ATOM                                                             *
  *                                                                         *
  * We use a specific hash table for atoms that cannot be extended but which*
- * provides a unique integer (in 0..MAX_ATOM-1) that could be used in the  *
+ * provides a unique integer (0..pl_max_atom-1) that could be used in the  *
  * future for tagged ATM words (and for structures).                       *
+ *                                                                         *
+ * index (in the table) = hash code % pl_max_atom                          *
  *                                                                         *
  * return the address of the found atom (if exists)                        *
  *        the address of the corresponding free cell (if not exist)        *
  *        NULL if the table is full                                        *
  *-------------------------------------------------------------------------*/
 static AtomInf *
-Locate_Atom(char *name)
+Locate_Atom(char *name, unsigned hash)
 {
-  int n;
-  AtomInf *patom, *endt;
+  int index;
+  AtomInf *patom0, *patom, *endt;
 
-  if (nb_atom == MAX_ATOM)
-    return NULL;
+  index = hash % pl_max_atom;
+  patom = patom0 = pl_atom_tbl + index;
+  endt = pl_atom_tbl + pl_max_atom;
 
-  n = Hash_String(name);
-  /* here either the atom is in the table */
-  /* or there is at least one free cell.  */
-  patom = atom_tbl + n;
-  endt = atom_tbl + MAX_ATOM;
-
-  while (patom->name && strcmp(patom->name, name) != 0)
+  while (patom->name && (patom->hash != hash || strcmp(patom->name, name) != 0))
     {
       patom++;
       if (patom == endt)
-	patom = atom_tbl;
+	patom = pl_atom_tbl;
+      if (patom == patom0)	/* one complete round: the table is full */
+	return NULL;
     }
+
+#if 0
+  if (patom->name == NULL)
+    {
+      if (patom != patom0)
+	{
+	  printf("atom: (%s) collision ixd: %ld -> %ld\n", name, patom0 - pl_atom_tbl, patom - pl_atom_tbl);
+	}
+
+      if (hash !=  patom - pl_atom_tbl)
+	{
+	  printf("atom: (%s)   hash: %u   idx: %ld\n", name, hash, patom - pl_atom_tbl);
+	}
+    }
+#endif
+
+#if 0
+  if (patom->name == NULL)
+    {
+      if (hash != index)
+	{
+	  printf("atom: (%s)   hash: %u   initial idx: %d\n", name, hash, index);
+	}
+    }
+#endif
 
   return patom;
 }
@@ -416,131 +429,180 @@ Locate_Atom(char *name)
 /*-------------------------------------------------------------------------*
  * HASH_STRING                                                             *
  *                                                                         *
- * This function computes a hash key from a string. If you modify MAX_ATOM *
- * or RADIX modify INV_RADIX_MOD_MAX_ATOM (see prog. euclide.c). MAX_ATOM  *
- * must be > 255. RADIX must be a prime number <256, the current value (67)*
- * does not need to be modified (or else update hash_weight_tbl and        *
- * hash_inv_tbl to control characters produced by Gen_Sym()).              *
+ * This function computes a hash key from a string.                        *
  *-------------------------------------------------------------------------*/
-static int
-Hash_String(char *str)
+static unsigned
+Hash_String(char *str, int len)
 {
-  int l = strlen(str);
-  char *p = str + l;
-  unsigned n = 0;
+  if (len == 0)			/* for 1 char string whose code is '\0' */
+    return 0;
 
 #ifdef OPTIM_1_CHAR_ATOM
-  if (l == 1)			/* for 1 char strings: key = char */
-    return (int) ((unsigned char) (*str));
+  if (len == 1)			/* for 1 char strings: key = char */
+    return (unsigned) ((unsigned char) (*str));
 #endif
 
-  while (--p >= str)
-    n = n * RADIX + hash_weight_tbl[(unsigned char) *p];
+#if 1 /* uncomment to force a given ATOM_NIL (e.g. 256 ?) */
+  if (len == 2 && str[0] == '[' && str[1] == ']')
+    return ATOM_NIL;
+#endif
 
-  n %= MAX_ATOM;
+#if 0
+  if (len == 2 && str[0] == '[' && str[1] == ']')
+    printf("Hash([]) = %d\n", Pl_Hash_Buffer(str, len));
+#endif
 
-  return n;
+  return Pl_Hash_Buffer(str, len);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * GEN_NEW_ATOM                                                            *
+ * PL_GEN_NEW_ATOM                                                         *
  *                                                                         *
  * Find a new atom (gensym) beginning by a given prefix.                   *
- * hash<0 for any input or the index of the free atom to produce.          *
  *-------------------------------------------------------------------------*/
-int FC
-Gen_New_Atom(unsigned char *prefix, int hash)
+int
+Pl_Gen_New_Atom(char *prefix)
 {
-  AtomInf *patom;
+#define GEN_SYM_CHARS "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-  if (nb_atom == MAX_ATOM)
-    Fatal_Error(ERR_ATOM_TBL_FULL);
+  static char gen_sym_chars[] = GEN_SYM_CHARS;
+  static char gen_sym_buff[1024];
 
-  if (hash < 0)
-    {
-      patom = atom_tbl;
-      while (patom->name)
-	patom++;
-      hash = patom - atom_tbl;
-    }
+#define Gen_Sym_Rand()  (gen_sym_rand_next = gen_sym_rand_next * 1103515245 + 12345, (gen_sym_rand_next / 65536 % 32768))
 
-  return Create_Allocate_Atom(Gen_Sym(prefix, hash));
-}
+  static unsigned gen_sym_rand_next = 1; /* a simple RNG independent from the main one */
 
+#define TRY_MAX 1		/* 1 seems better than anything else on average ! */
 
+#ifdef DEBUG
+  static int nb = 0;
+  static unsigned long sum_len = 0;
+  static unsigned max_len = 0;
+  static unsigned long sum_try = 0;
+  static unsigned max_try = 0;
+  int try_count = 0;
+  static double time0 = 0;
+  double time, tsec = 0.0;
+#endif
 
-
-/*-------------------------------------------------------------------------*
- * GEN_SYM                                                                 *
- *                                                                         *
- * returns a string beginning by a prefix st. its hash code is gen_sym_hash*
- *-------------------------------------------------------------------------*/
-static char *
-Gen_Sym(unsigned char *prefix, int gen_sym_hash)
-{
-  unsigned pl = strlen((char *) prefix);
-  unsigned hp = Hash_String((char *) prefix);
-  unsigned x, i;
-  unsigned radix_p;
+  int try_no = 0;
+  int len;
+  unsigned hash;
   char *str;
+  int c;
+  AtomInf *patom;
+  int atom;
 
-  strcpy(gen_sym_buff, (char *) prefix);
-  str = gen_sym_buff + pl;
-
-  x = (gen_sym_hash - hp) % MAX_ATOM;
-
-  radix_p = 1;			/* compute 1/RADIX**pl = (1/RADIX)**pl */
-  for (i = 0; i < pl; i++)
-    radix_p *= INV_RADIX_MOD_MAX_ATOM;
-  radix_p %= MAX_ATOM;
-
-
-  x *= radix_p;			/* x = x/(RADIX**pl) */
-  x %= MAX_ATOM;
-  /* decompose x wrt radix RADIX */
-  do
-    {
-      *str++ = hash_inv_tbl[x % RADIX];
-      x /= RADIX;
-    }
-  while (x);
-
-  *str = '\0';
+  if (pl_nb_atom >= pl_max_atom)
+    Error_Table_Full();
 
 
 #ifdef DEBUG
-  if (Hash_String(gen_sym_buff) != gen_sym_hash)
-    {
-      DBGPRINTF("Gensym prefix: (%s) wanted hash: %d\n", prefix,
-		gen_sym_hash);
-      DBGPRINTF("   new string: (%s)    new hash: %d\n", gen_sym_buff,
-		Hash_String(gen_sym_buff));
-    }
-
+  nb++;
+  /* printf("GEN_SYM PREFIX : %s\n", prefix); */
 #endif
 
-  return gen_sym_buff;
+  strcpy(gen_sym_buff, prefix);
+  str = gen_sym_buff + strlen(prefix);
+
+  for(;;)
+    {
+      c = Gen_Sym_Rand() % (sizeof(gen_sym_chars) - 1); /* NB: -1 for '\0' */
+      *str = gen_sym_chars[c];
+      str[1] = '\0';
+
+      len =  str - gen_sym_buff + 1;
+
+      hash = Hash_String(gen_sym_buff, len);
+
+#if 1
+      patom = Locate_Atom(gen_sym_buff, hash);
+#else
+      patom = pl_atom_tbl + (hash % pl_max_atom);
+#endif
+
+#ifdef DEBUG
+      try_count++;
+      /*      printf("GEN_SYM TRY %3d: %s   len: %d\n", try_count, gen_sym_buff, len); */
+#endif
+
+      if (patom->name == NULL)
+	break;
+
+      if (++try_no == TRY_MAX)
+	{
+#if 0
+	  c = Gen_Sym_Rand() % (sizeof(gen_sym_chars) - 1); /* NB: -1 for '\0' */
+	  *str++ = gen_sym_chars[c];
+#else
+	  str++;
+#endif
+	  try_no = 0;
+	}
+    }
+
+
+  atom = Add_Atom(gen_sym_buff, len, hash, patom, TRUE);
+
+#ifdef DEBUG
+  sum_try += try_count;
+  if (try_count > max_try)
+    max_try = try_count;
+  c = len - strlen(prefix);
+  sum_len += c;
+  if (c > max_len)
+    max_len = c;
+  if (nb % 1000 == 0)
+    {
+      time = (double) Pl_M_User_Time(); /* time needed for the last 1000 gensym */
+      tsec = (time - time0) / 1000.0;
+      time0 = time;
+      printf("GENSYM #%5d: %s len:%d  len add:%d  (avg:%d  max:%d)  try:%d (avg:%d max:%d) time:%.3f\n", 
+	     nb, gen_sym_buff, (int) strlen(gen_sym_buff), c, 
+	     (int) (sum_len / nb), max_len,
+	     try_count, (int) (sum_try / nb), max_try,
+	     tsec);
+    }
+#endif
+
+
+  return atom;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FIND_NEXT_ATOM                                                          *
+ * PL_FIND_NEXT_ATOM                                                       *
  *                                                                         *
  * returns the atom next after 'last_atom' (-1 to start) or -1 at the end  *
  *-------------------------------------------------------------------------*/
-int FC
-Find_Next_Atom(int last_atom)
+int
+Pl_Find_Next_Atom(int last_atom)
 {
-  while (++last_atom < MAX_ATOM)
+  while ((PlULong) ++last_atom < pl_max_atom)
     {
-      if (atom_tbl[last_atom].name)
+      if (pl_atom_tbl[last_atom].name)
 	return last_atom;
     }
 
   return -1;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * ERROR_TABLE_FULL                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Error_Table_Full(void)
+{
+  if (pl_fixed_sizes)
+    Pl_Fatal_Error(ERR_TABLE_FULL_NO_ENV, pl_max_atom);
+  else
+    Pl_Fatal_Error(ERR_TABLE_FULL_ENV, pl_max_atom, ENV_VAR_MAX_ATOM);
 }

@@ -1,5 +1,6 @@
-#include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
 
 typedef long WamWord;
 
@@ -10,7 +11,7 @@ SIGSEGV_Handler(int sig, siginfo_t * sip)
 {
   WamWord *addr = (WamWord *) sip->si_addr;
 
-  printf("Segmentation Violation at: %lx\n", addr);
+  printf("Segmentation Violation at: %p\n", addr);
   exit(1);
 }
 

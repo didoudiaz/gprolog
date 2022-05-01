@@ -1,14 +1,11 @@
 GPLC      = @GPLC@
 GPLCFLAGS = --fast-math
-OBJS      = pl2wam@OBJ_SUFFIX@ read_file@OBJ_SUFFIX@ bip_list@OBJ_SUFFIX@ \
-            context@OBJ_SUFFIX@ \
-            syn_sugar@OBJ_SUFFIX@ internal@OBJ_SUFFIX@ code_gen@OBJ_SUFFIX@ \
-            reg_alloc@OBJ_SUFFIX@ inst_codif@OBJ_SUFFIX@ \
-            first_arg@OBJ_SUFFIX@ indexing@OBJ_SUFFIX@ wam_emit@OBJ_SUFFIX@
-PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
-            context.pl \
+CFLAGS = @CFLAGS@
+PLS       = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
             code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
             indexing.pl wam_emit.pl
+OBJS      = $(PLS:.pl=@OBJ_SUFFIX@)
+WAMS      = $(PLS:.pl=.wam)
 
 
 .SUFFIXES:
@@ -23,12 +20,19 @@ PLS       = pl2wam.pl read_file.pl bip_list.pl syn_sugar.pl internal.pl \
 
 pl2wam@EXE_SUFFIX@: $(OBJS)
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib --min-bips $(OBJS)
+	$(GPLC) -o pl2wam@EXE_SUFFIX@ --no-fd-lib-warn --no-top-level $(OBJS)
+
+# in stage 2 we simply re-link pl2wam since now the FD lib should be present
+# (needed to test FD built-in redefinitions via predicate_property)
+stage2:
+	[ ! -f  pl2wam@EXE_SUFFIX@ ] || cp pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
+	rm -rf  pl2wam@EXE_SUFFIX@
+	$(MAKE)
 
 
 clean:
 	[ ! -f  pl2wam@EXE_SUFFIX@ ] || mv pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
-	rm -f *@OBJ_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp
 
 
 clean-wam:
@@ -39,7 +43,7 @@ clean-full: clean-wam clean
 
 
 distclean: clean
-	rm -f pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@ make_bip_list@EXE_SUFFIX@
+	rm -f pl2wam@EXE_SUFFIX@ pl2wam0@EXE_SUFFIX@
 
 
 
@@ -58,16 +62,12 @@ indexing.wam:   indexing.pl
 wam_emit.wam:   wam_emit.pl
 
 
-
-
-make_bip_list@EXE_SUFFIX@: make_bip_list.pl ../Bips??/[a-z]??*.pl
-	$(GPLC) -o make_bip_list@EXE_SUFFIX@ make_bip_list.pl
-	./make_bip_list@EXE_SUFFIX@ >bip_list.pl
-	make
+check:
+	@./check_boot -a [a-z][a-z_-]*.wam  && echo Bootstrap Prolog Compiler OK
 
 
 swi_pl2wam: swilib.pl $(PLS)
-	pl -o swi_pl2wam_main -c swilib.pl $(PLS) 
+	pl -o swi_pl2wam_main -c swilib.pl $(PLS)
 	echo "#!/bin/sh" >swi_pl2wam
 	echo 'swi_pl2wam_main -g go -t halt -- $$*' >>swi_pl2wam
 	chmod a+x swi_pl2wam

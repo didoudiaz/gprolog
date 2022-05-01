@@ -6,30 +6,44 @@
  * Descr.: pass 2: internal format transformation                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * predicate internal format: (I(t)=internal format of t)                  *
  *                                                                         *
- * I(p(Arg1, ..., ArgN))= p(NoPred, Pred/N, [I(Arg1), ..., I(ArgN)])       *
+ * I(p(Arg1,..., ArgN)): p(NoPred, Module, Pred/N, [I(Arg1), ..., I(ArgN)])*
  *                                                                         *
  * NoPred : predicate number = corresponding chunk number                  *
+ *                                                                         *
+ * Module: module qualification or module owned if export (a variable else)*
  *                                                                         *
  * Pred/N : predicate/arity                                                *
  *                                                                         *
@@ -39,7 +53,7 @@
  *          VarName = x(NoX) temporary                                     *
  *                    (here NoX is unbound or = void if var is singleton)  *
  *                    y(NoY) permanent (NoY is assigned here)              *
- *          Info    = in_heap: the variable is stored in the heap          *
+ *          Info    = in_heap       : the var is stored in the heap        *
  *                    unsafe        : the var refers current environment   *
  *                    not_in_cur_env: the var does not reside in the       *
  *                                    current environment                  *
@@ -65,7 +79,8 @@ internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
 
 
 format_head(Head, DicoVar, Head1) :-
-	format_pred(Head, 0, DicoVar, Head1, _).
+	g_read(module, Module),	% not really necessary since Module info in p(...) is never used
+	format_pred(Module:Head, 0, DicoVar, Head1, _).
 
 
 
@@ -95,13 +110,18 @@ format_body1(Pred, NoPred, DicoVar, StartChunk, LNext, [Pred1|LNext], NoPred1, S
 
 
           % NB: a dangerous '$call_c' (e.g. with jump) is not considered as
-          % inlined to enforce the end of its chunk. If something comes 
+          % inlined to enforce the end of its chunk. If something comes
           % after this '$call_c' an environment will be created (allocate)
           % to save CP (and X regs in Y regs if needed).
           % Other '$call_c' are considered as inlined.
 
-format_pred(Pred, NoPred, DicoVar, p(NoPred, F / N, ArgLst1), InlinePred) :-
+format_pred(Module:Pred, NoPred, DicoVar, p(NoPred, Module, FN, ArgLst), InlinePred) :-
+	!,
+	format_pred(Pred, NoPred, DicoVar, p(NoPred, _, FN, ArgLst), InlinePred).
+
+format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F / N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
+	get_owner_module(F, N, Module),
 	Pred =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1),
 	(   (   inline_predicate(F, N)
@@ -156,7 +176,7 @@ format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
           % creates a term T1 equivalent to T which will not be transformed
           % in the internal format. This can only by used for arguments of
           % inlined predicates and requires T is ground.
-          %          
+          %
           % NB: do not use T1 = '$no_internal_transf$'(T) for bootstrapping.
 
 no_internal_transf(T, T1) :-
@@ -225,7 +245,12 @@ inline_predicate(Pred, Arity) :-
 
 
 inline_predicate('$get_cut_level', 1, _).
+
+inline_predicate('$get_current_choice', 1, _).
+
 inline_predicate('$cut', 1, _).
+
+inline_predicate('$soft_cut', 1, _).
 
 
 
@@ -252,6 +277,10 @@ inline_predicate(atomic, 1, t).
 inline_predicate(compound, 1, t).
 
 inline_predicate(callable, 1, t).
+
+inline_predicate(ground, 1, t).
+
+inline_predicate(is_list, 1, t).
 
 inline_predicate(list, 1, t).
 

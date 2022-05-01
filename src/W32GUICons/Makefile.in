@@ -1,43 +1,41 @@
-DLL_W32GUICONS = @DLL_W32GUICONS@
-CC             = @CC@
-CFLAGS         = @CFLAGS_MACHINE@ @CFLAGS@
-RC             = @RC@
-LD             = @LD@
+DLL_W32GUICONS       = @DLL_W32GUICONS@
+CC                   = @CC@ @CFLAGS_MACHINE@
+CFLAGS               = @CFLAGS@
+CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
+RC                   = @RC@
+RCFLAGS              = @RCFLAGS@
+LD                   = @LD@
+LDFLAGS              = @LDFLAGS@
+LDGUILIBS            = @LDGUILIBS@
 
-# RCFLAGS        = /l 0x409
-RCFLAGS        =
 
 DLLNAME = $(DLL_W32GUICONS)
-OBJDLL  = w32_console.obj
+OBJDLL  = w32_console@OBJ_SUFFIX@
 RESDLL  = w32_console.res
-
-WIN32LIBS = kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib \
-            comctl32.lib shell32.lib ole32.lib htmlhelp.lib
-
-# others:
-# winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
 
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .cpp .c .res .rc $(SUFFIXES)
 
 .cpp@OBJ_SUFFIX@:
-	$(CC) -c $(CFLAGS) $*.cpp
+	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.cpp
 
 .c@OBJ_SUFFIX@:
-	$(CC) -c $(CFLAGS) $*.c
+	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.c
 
 .rc.res:
-	$(RC) $(RCFLAGS) $*.rc
+	$(RC) $(RCFLAGS) @RC_OUT_NAME_OPT@$*.res $*.rc
 
-all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@
+all: $(DLLNAME) w32gc_interf@OBJ_SUFFIX@ win_exe_icon.res
 
 $(DLLNAME): $(OBJDLL) $(RESDLL)
-	$(LD) /dll @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(WIN32LIBS)
+	$(LD) $(LDFLAGS) @LD_OUT_NAME_OPT@$(DLLNAME) $(OBJDLL) $(RESDLL) $(LDGUILIBS) @LD_DLL_OPT@
+
+w32gc_interf@OBJ_SUFFIX@: w32gc_interf.h
 
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ *.res *.RES $(DLLNAME) *.lib *.exp *.EXP *.idb *.pdb
+	rm -f *@OBJ_SUFFIX@ *.res *.RES $(DLLNAME) *.lib *.exp *.EXP *.idb *.pdb *.ilk
 
 distclean: clean

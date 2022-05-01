@@ -6,23 +6,35 @@
  * Descr.: FD instruction implementation - header file                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -30,36 +42,44 @@
 
 	  /* FD Variable Frame */
 
-#define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE+RANGE_SIZE+CHAINS_SIZE)
-#define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE+RANGE_SIZE)
+#define FD_VARIABLE_FRAME_SIZE     (OFFSET_RANGE + RANGE_SIZE + CHAINS_SIZE)
+#define FD_INT_VARIABLE_FRAME_SIZE (OFFSET_RANGE + RANGE_SIZE)
 
-#define OFFSET_RANGE               5
-#define RANGE_SIZE                 (2+(sizeof(Range)/sizeof(WamWord)))
+#define OFFSET_RANGE               4
+#define RANGE_SIZE                 (2 + (sizeof(Range) / sizeof(WamWord)))
 
-#define OFFSET_CHAINS              (OFFSET_RANGE+RANGE_SIZE)
+#define OFFSET_CHAINS              (OFFSET_RANGE + RANGE_SIZE)
 #define CHAINS_SIZE                8
 
 
 
-#define FD_Tag_Value(fdv_adr)      (((WamWord *) fdv_adr)[0])
-#define FD_INT_Date(fdv_adr)       (((WamWord *) fdv_adr)[1])
+#define FD_Tag_Value(fdv_adr)      (((WamWord *)  fdv_adr)[0])
+#define FD_INT_Date(fdv_adr)       (((PlULong *)  fdv_adr)[1])
 
-#define Queue_Date_At_Push(fdv_adr)(((WamWord *) fdv_adr)[2])
-#define Queue_Propag_Mask(fdv_adr) (((WamWord *) fdv_adr)[3])
-#define Queue_Next_Fdv_Adr(fdv_adr)(((WamWord *) fdv_adr)[4])
+#define Queue_Propag_Mask(fdv_adr) (((WamWord *)  fdv_adr)[2])
+#define Queue_Next_Fdv_Adr(fdv_adr)(((WamWord **) fdv_adr)[3])
 
-#define Range_Stamp(fdv_adr)       (((WamWord *) fdv_adr)[OFFSET_RANGE])
-#define Nb_Elem(fdv_adr)           (((WamWord *) fdv_adr)[OFFSET_RANGE+1])
-#define Range(fdv_adr)             ((Range *) ((WamWord *) fdv_adr+OFFSET_RANGE+2))
+#define Range_Stamp(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_RANGE])
+#define Nb_Elem(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_RANGE + 1])
+#define Range(fdv_adr)             ((Range *) ((WamWord *) fdv_adr+OFFSET_RANGE + 2))
 
-#define Chains_Stamp(fdv_adr)      (((WamWord *) fdv_adr)[OFFSET_CHAINS])
-#define Nb_Cstr(fdv_adr)           (((WamWord *) fdv_adr)[OFFSET_CHAINS+1])
-#define Chains_Mask(fdv_adr)       (((WamWord *) fdv_adr)[OFFSET_CHAINS+2])
-#define Chain_Min(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+3])
-#define Chain_Max(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+4])
-#define Chain_Min_Max(fdv_adr)     (((WamWord *) fdv_adr)[OFFSET_CHAINS+5])
-#define Chain_Dom(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+6])
-#define Chain_Val(fdv_adr)         (((WamWord *) fdv_adr)[OFFSET_CHAINS+7])
+#define Chains_Stamp(fdv_adr)      (((WamWord *)  fdv_adr)[OFFSET_CHAINS])
+#define Nb_Cstr(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 1])
+#define Chains_Mask(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 2])
+#define Chain_Min(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 3])
+#define Chain_Max(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 4])
+#define Chain_Min_Max(fdv_adr)     (((WamWord **) fdv_adr)[OFFSET_CHAINS + 5])
+#define Chain_Dom(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 6])
+#define Chain_Val(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 7])
+
+
+
+	  /* Shorthands for Queue management */
+
+#define MASK_TO_KEEP_IN_QUEUE      (1 << 8) /* only 5 chains */
+
+#define Is_Var_In_Queue(fdv_adr)   (Queue_Propag_Mask(fdv_adr) != 0) /* mask = 0 <=> not in the queue */
+#define Del_Var_From_Queue(fdv_adr)(Queue_Propag_Mask(fdv_adr) = 0)
 
 
 
@@ -121,7 +141,7 @@
 
 #define CONSTRAINT_FRAME_SIZE      3
 
-#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must corresponds to */
+#define OFFSET_OF_OPTIM_POINTER    1	/* this offset must correspond to >>> */
 
 #define AF_Pointer(cf)             (*(WamWord **)  &(cf[0]))
 #define Optim_Pointer(cf)          (*(WamWord **)  &(cf[1]))	/* this cell */
@@ -134,9 +154,10 @@
 
 #define ENV_VAR_VECTOR_MAX         "VECTORMAX"
 #define DEFAULT_VECTOR_MAX         127
+#define VECTOR_MAX_LIMIT           1000000
 
 
-#define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr))==INT)
+#define Fd_Variable_Is_Ground(fdv_adr) (Tag_Of(FD_Tag_Value(fdv_adr)) == INT)
 
 
 
@@ -157,17 +178,13 @@
 
 #ifdef FD_INST_FILE
 
-WamWord DATE;
-WamWord *TP;
-WamWord vec_size;
-WamWord vec_max_integer;
+WamWord pl_vec_size;
+WamWord pl_vec_max_integer;
 
 #else
 
-extern WamWord DATE;
-extern WamWord *TP;
-extern WamWord vec_size;
-extern WamWord vec_max_integer;
+extern WamWord pl_vec_size;
+extern WamWord pl_vec_max_integer;
 
 #endif
 
@@ -178,78 +195,93 @@ extern WamWord vec_max_integer;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord *Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok);
+WamWord *Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok);
 
-Range *Fd_Prolog_To_Range(WamWord list_word);
+Range *Pl_Fd_Prolog_To_Range(WamWord list_word);
 
-int Fd_Prolog_To_Value(WamWord arg_word);
+int Pl_Fd_Prolog_To_Value(WamWord arg_word);
 
-WamWord *Fd_Prolog_To_Array_Int(WamWord list_word);
+WamWord *Pl_Fd_Prolog_To_Array_Int(WamWord list_word);
 
-WamWord *Fd_Prolog_To_Array_Any(WamWord list_word);
+WamWord *Pl_Fd_Prolog_To_Array_Any(WamWord list_word);
 
-WamWord *Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok);
+WamWord *Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok);
 
-void Fd_List_Int_To_Range(Range *range, WamWord list_word);
+void Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word);
 
-WamWord *Fd_New_Variable(void);
+WamWord *Pl_Fd_New_Variable_Interval(int min, int max);
 
-WamWord *Fd_New_Bool_Variable(void);
+WamWord *Pl_Fd_New_Variable(void);
 
-WamWord *Fd_New_Int_Variable(int n);
+WamWord *Pl_Fd_New_Variable_Range(Range *r);
 
-WamWord *Fd_Create_C_Frame(long (*cstr_fct) (), WamWord *AF,
-			   WamWord *fdv_adr, Bool optim2);
+WamWord *Pl_Fd_New_Int_Variable(int n);
 
-void Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
+WamWord *Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF,
+			      WamWord *fdv_adr, Bool optim2);
 
-void Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF);
+void Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
 
-
-
-void Fd_Before_Add_Cstr(void);
-
-Bool Fd_After_Add_Cstr(void);
-
-void Fd_Stop_Constraint(WamWord *CF);
+void Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF);
 
 
 
-Bool Fd_Tell_Value(WamWord *fdv_adr, int n);
+void Pl_Fd_Before_Add_Cstr(void);
 
-Bool Fd_Tell_Not_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_After_Add_Cstr(Bool result_of_tell);
 
-Bool Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range);
-
-Bool Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
-
-Bool Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
-
-void Fd_Display_Extra_Cstr(WamWord *fdv_adr);
+void Pl_Fd_Stop_Constraint(WamWord *CF);
 
 
 
-void Fd_Init_Solver0(void);
+Bool Pl_Fd_Tell_Value(WamWord *fdv_adr, int n);
 
-void Fd_Reset_Solver0(void);
+Bool Pl_Fd_Tell_Not_Value(WamWord *fdv_adr, int n);
 
-Bool Fd_Assign_Value(WamWord *fdv_adr, int n);
+Bool Pl_Fd_Tell_Int_Range(WamWord *fdv_adr, Range *range);
 
-Bool Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
+Bool Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max);
 
-Bool Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+Bool Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range);
 
-Bool Fd_Use_Vector(WamWord *fdv_adr);
+Bool Pl_Fd_Tell_Interval(WamWord *fdv_adr, int min, int max);
 
-Bool Fd_Check_For_Bool_Var(WamWord x_word);
+Bool Pl_Fd_Tell_Range(WamWord *fdv_adr, Range *range);
 
-int Fd_Variable_Size0(WamWord *fdv_adr);
-
-int Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
-
-char *Fd_Variable_To_String0(WamWord *fdv_adr);
+void Pl_Fd_Display_Extra_Cstr(WamWord *fdv_adr);
 
 
+
+void Pl_Fd_Init_Solver0(void);
+
+void Pl_Fd_Reset_Solver0(void);
+
+Bool Pl_Fd_In_Interval(WamWord *fdv_adr, int min, int max);
+
+Bool Pl_Fd_In_Range(WamWord *fdv_adr, Range *range);
+
+Bool Pl_Fd_Assign_Value_Fast(WamWord *fdv_adr, int n);
+
+#define Pl_Fd_Assign_Value(fdv, n) Pl_Fd_Unify_With_Integer0(fdv, n)
+
+Bool Pl_Fd_Unify_With_Integer0(WamWord *fdv_adr, int n);
+
+Bool Pl_Fd_Unify_With_Fd_Var0(WamWord *fdv_adr1, WamWord *fdv_adr2);
+
+Bool Pl_Fd_Remove_Value(WamWord *fdv_adr, int n);
+
+Bool Pl_Fd_Use_Vector(WamWord *fdv_adr);
+
+Bool Pl_Fd_Check_For_Bool_Var(WamWord x_word);
+
+int Pl_Fd_Variable_Size0(WamWord *fdv_adr);
+
+int Pl_Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr);
+
+char *Pl_Fd_Variable_To_String0(WamWord *fdv_adr);
+
+
+#define Pl_Fd_New_Bool_Variable()  Pl_Fd_New_Variable_Interval(0, 1)
 
 
 #define Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask)         \
@@ -258,4 +290,4 @@ char *Fd_Variable_To_String0(WamWord *fdv_adr);
     Pl_Err_Instantiation();                                     \
                                                                 \
   if (tag_mask != TAG_INT_MASK && tag_mask != TAG_FDV_MASK)     \
-    Pl_Err_Type(type_fd_variable, word)
+    Pl_Err_Type(pl_type_fd_variable, word)

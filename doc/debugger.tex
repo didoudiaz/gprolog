@@ -1,0 +1,464 @@
+\newpage
+\section{Debugging}
+\label{Debugging}
+%HEVEA\cutdef[1]{subsection}
+\subsection{Introduction}
+The GNU Prolog debugger provides information concerning the control flow of
+the program. The debugger can be fully used on consulted predicates (i.e.
+byte-code). For native compiled code only the calls/exits are traced, no
+internal behavior is shown. Under the debugger it is possible to exhaustively
+trace the execution or to set spy-points to only debug a specific part of the
+program. Spy-points allow the user to indicate on which predicates the
+debugger has to stop to allow the user to interact with it. The debugger uses
+the ``procedure box control flow model'', also called the Byrd Box model
+since it is due to Lawrence Byrd.
+
+\subsection{The procedure box model}
+The procedure box model of Prolog execution provides a simple way to show
+the control flow. This model is very popular and has been adopted in many
+Prolog systems (e.g. SICStus Prolog, Quintus Prolog,\ldots). A good
+introduction is the chapter 8 of ``Programming in Prolog'' of Clocksin \&
+Mellish~\cite{Clock}. The debugger executes a program step by step tracing an
+invocation to a predicate (\texttt{call}) and the return from this predicate
+due to either a success (\texttt{exit}) or a failure (\texttt{fail}). When a
+failure occurs the execution backtracks to the last predicate with an
+alternative clause. The predicate is then re-invoked (\texttt{redo}).
+Another source of change of the control flow is due to exceptions. When an
+exception is raised from a predicate (\texttt{exception}) by
+\IdxPB{throw/1} \RefSP{catch/3} the control is given back to the most
+recent predicate that has defined a handler to recover this exception using
+\IdxPB{catch/3} \RefSP{catch/3}. The procedure box model shows these
+different changes in the control flow, as illustrated here:
+
+\InsertImage{debug-box}
+
+Each arrow corresponds to a \emph{port}. An arrow to the box indicates
+that the control is given to this predicate while an arrow from the box
+indicates that the control is given back from the procedure. This model
+visualizes the control flow through these five ports and the connections
+between the boxes associated with subgoals. Finally, it should be clear that a
+box is associated with one invocation of a given predicate. In particular, a
+recursive predicate will give raise to a box for each invocation of the
+predicate with different entries/exits in the control flow. Since this might
+get confusing for the user, the debugger associates with each box a unique
+identifier (i.e. the invocation number).
+
+\subsection{Debugging predicates}
+
+\subsubsection{\AddDBD{trace/0}%
+\AddDBD{debug/0}%
+\AddDBD{debugging/0}%
+\AddDBD{notrace/0}%
+\AddDBD{nodebug/0}%
+\AddDBD{wam\_debug/0}%
+Running and stopping the debugger \label{Running-and-stopping-the-debugger}}
+
+\texttt{trace/0} activates the debugger. The next invocation of a predicate
+will be traced.
+
+\texttt{debug/0} activates the debugger. The next invocation of a predicate
+on which a spy-point has been set will be traced.
+
+It is important to understand that the information associated with the control
+flow is only available when the debugger is on. For efficiency reasons, when
+the debugger is off the information concerning the control flow (i.e. the
+boxes) is not retained. So, if the debugger is activated in the middle of a
+computation (by a call to \texttt{debug/0} or \texttt{trace/0} in the
+program or after the interrupt key sequence (\texttt{Ctl-C}) by choosing
+\texttt{trace} or \texttt{debug}), information prior to this point is not
+available.
+
+\texttt{debugging/0}: prints onto the terminal information about the current
+debugging state (whether the debugger is switched on, what are the leashed
+ports, spy-points defined,\ldots).
+
+\texttt{notrace/0} or \texttt{nodebug/0} switches the debugger off.
+
+\texttt{wam\_debug/0} invokes the sub-debugger devoted to the WAM data
+structures \RefSP{The-WAM-debugger}. It can be also invoked using the
+\texttt{W} debugger command \RefSP{Debugger-commands}.
+
+\subsubsection{\AddDBD{leash/1}%
+Leashing ports \label{Leashing-ports}}
+   
+
+\texttt{leash(Ports)} requests the debugger to prompt the user, as
+he creeps through the program, for every port defined in the \texttt{Ports}
+list. Each element of \texttt{Ports} is an atom in \texttt{call},
+\texttt{exit}, \texttt{redo}, \texttt{fail}, \texttt{exception}.
+\texttt{Ports} can also be an atom defining a shorthand:
+
+\begin{itemize}
+
+\item \IdxDKD{full}: equivalent to \texttt{[call, exit, redo, fail,
+exception]}
+
+\item \IdxDKD{half}: equivalent to \texttt{[call, redo]}
+
+\item \IdxDKD{loose}: equivalent to \texttt{[call]}
+
+\item \IdxDKD{none}: equivalent to \texttt{[]}
+
+\item \IdxDKD{tight}: equivalent to \texttt{[call, redo, fail,
+exception]}
+
+\end{itemize}
+
+When an unleashed port is encountered the debugger continues to show the
+associated goal but does not stop the execution to prompt the user.
+
+\subsubsection{%
+\AddDBD{spy/1}%
+\AddDBD{nospy/1}%
+\AddDBD{nospyall/0}%
+\AddDBD{spypoint\_condition/3}%
+Spy-points \label{Spy-points}}
+
+When dealing with big sources it is not very practical to creep through the
+entire program. It is preferable to define a set of spy-points on
+interesting predicates to be prompted when the debugger reaches one of these
+predicates. Spy-points can be added either using \texttt{spy/1} (or
+\texttt{spypoint\_condition/3}) or dynamically when prompted by the debugger
+using the \texttt{+} (or \texttt{*}) debugger command
+\RefSP{Debugger-commands}. The current mode of leashing does not
+affect spy-points in the sense that user interaction is requested on
+every port.
+
+\texttt{spy(PredSpec)} sets a spy-point on all the predicates given by
+\texttt{PredSpec}. \texttt{PredSpec} defines one or several predicates and
+has one of the following forms:
+
+\begin{itemize}
+
+\item \texttt{[PredSpec1, PredSpec2,\ldots]}: set a spy-point for each
+element of the list.
+
+\item \texttt{Name}: set a spy-point for any predicate whose name is
+\texttt{Name} (whatever the arity).
+
+\item \texttt{Name/Arity}: set a spy-point for the predicate whose name is
+\texttt{Name} and arity is \texttt{Arity}.
+
+\item \texttt{Name/A1-A2}: set a spy-point for the each predicate whose name
+is \texttt{Name} and arity is between \texttt{A1} and \texttt{A2}.
+
+\end{itemize}
+
+It is not possible to set a spy-point on an undefined predicate.
+
+The following predicate is used to remove one or several spy-points:
+
+\texttt{nospy(PredSpec)} removes the spy-points from the specified
+predicates.
+
+\texttt{nospyall/0} removes all spy-points:
+
+It is also possible to define conditional spy-points.
+
+\texttt{spypoint\_condition(Goal, Port, Test)} sets a
+conditional spy-point on the predicate for \texttt{Goal}. When the debugger
+reaches a conditional spy-point it only shows the associated goal if the
+following conditions are verified:
+
+\begin{itemize}
+
+\item the actual goal unifies with \texttt{Goal}.
+
+\item the actual port unifies with \texttt{Port}.
+
+\item the Prolog goal \texttt{Test} succeeds.
+
+\end{itemize}
+
+\subsection{Debugging messages}
+We here described which information is displayed by the debugger when it
+shows a goal. The basic format is as follows:
+
+\OneLine{\Param{S N M Port}:~\Param{Goal} ?}
+
+\Param{S} is a spy-point indicator: if there is a spy-point on the
+current goal the \texttt{+} symbol is displayed else a space is displayed.
+\Param{N} is the invocation number. This unique number can be used
+to correlate the trace messages for the various ports, since it is unique
+for every invocation. \Param{M} is an index number which
+represents the number of direct ancestors of the goal (i.e. the current
+depth of the goal). \Param{Port} specifies the particular port
+(\texttt{call}, \texttt{exit}, \texttt{fail}, \texttt{redo},
+\texttt{exception}). \Param{Goal} is the current goal (it is then
+possible to inspect its current instantiation) which is displayed using
+\IdxPB{write\_term/3} with \texttt{quoted(true)} and
+\texttt{max\_depth(\Param{D})} options \RefSP{write-term/3}. Initially
+\Param{D} (the print depth) is set to 10 but can be redefined
+using the \texttt{{\lt}} debugger command \RefSP{Debugger-commands}. The
+\texttt{?} symbol is displayed when the debugger is waiting a command from
+the user. (i.e. \texttt{Port} is a leashed port). If the port is unleashed,
+this symbol is not displayed and the debugger continues the execution
+displaying the next goal.
+
+\subsection{Debugger commands}
+\label{Debugger-commands}
+When the debugger reaches a leashed port it shows the current goal followed
+by the \texttt{?} symbol. At this point there are many commands available.
+Typing \texttt{RETURN} will creep into the program. Continuing to creep will
+show all the control flow. The debugger shows every port for every predicate
+encountered during the execution. It is possible to select the ports at
+which the debugger will prompt the user using the built-in predicate
+\IdxDB{leash/1} \RefSP{Leashing-ports}. Each command is only one
+character long:
+
+\begin{tabular}{|c|c|p{10.4cm}|}
+\hline
+
+Command & Name & Description \\
+
+\hline\hline
+
+\texttt{RET} or \texttt{c} & creep & single-step to the next port \\
+
+\hline
+
+\texttt{l} & leap & continue the execution only stopping when a goal with a
+spy-point is reached \\
+
+\hline
+
+\texttt{s} & skip & skip over the entire execution of the current goal. No
+message will be shown until control returns \\
+
+\hline
+
+\texttt{G} & go to & ask for an invocation number and continue the execution
+until a port is reached for that invocation number \\
+
+\hline
+
+\texttt{r} & retry & try to restart the invocation of the current goal by
+failing until reaching the invocation of the goal. The state of
+execution is the same as when the goal was initially invoked (except when
+using side-effect predicates) \\
+
+\hline
+
+\texttt{f} & fail & force the current goal to fail immediately \\
+
+\hline
+
+\texttt{w} & write & show the current goal using \texttt{write/2}
+\RefSP{write-term/3}
+\\
+
+\hline
+
+\texttt{d} & display & show the current goal using \texttt{display/2}
+\RefSP{write-term/3} \\
+
+\hline
+
+\texttt{p} & print & show the current goal using \texttt{print/2}
+\RefSP{write-term/3}
+\\
+
+\hline
+
+\texttt{e} & exception & show the pending exception. Only applicable to an
+\texttt{exception} port \\
+
+\hline
+
+\texttt{g} & ancestors & show the list of ancestors of the current goal \\
+
+\hline
+
+\texttt{A} & alternatives & show the list of ancestors of the current goal
+combined with choice-points \\
+
+\hline
+
+\texttt{u} & unify & ask for a term and unify the current goal with this
+term. This is convenient for getting a specific solution. Only available at
+a \texttt{call} port \\
+
+\hline
+
+\texttt{.} & father file & show the Prolog file name and the line number
+where the current predicate is defined \\
+
+\hline
+
+\texttt{n} & no debug & switch the debugger off. Same as \IdxDB{nodebug/0}
+\RefSP{Running-and-stopping-the-debugger} \\
+
+\hline
+
+\texttt{=} & debugging & show debugger information. Same as
+\IdxDB{debugging/0} \RefSP{Running-and-stopping-the-debugger} \\
+
+\hline
+
+\texttt{+} & spy this & set a spy-point on the current goal. Uses
+\IdxDB{spy/1} \RefSP{Spy-points} \\
+
+\hline
+
+\texttt{-} & nospy this & remove a spy-point on the current goal. Uses
+\IdxDB{nospy/1} \RefSP{Spy-points} \\
+
+\hline
+
+\texttt{*} & spy conditionally & ask for a term \texttt{Goal, Port, Test}
+(terminated by a dot) and set a conditional spy-point on the current
+predicate. \texttt{Goal} and the current goal must have the same predicate
+indicator. Uses \IdxDB{spypoint\_condition/3} \RefSP{Spy-points} \\
+
+\hline
+
+\texttt{L} & listing & list all the clauses associated with the current
+predicate. Uses \IdxPB{listing/1} \RefSP{listing/1} \\
+
+\hline
+
+\texttt{a} & abort & abort the current execution. Same as \IdxPB{abort/0}
+\RefSP{abort/0} \\
+
+\hline
+
+\texttt{b} & break & invoke a recursive top-level. Same as \IdxPB{break/0}
+\RefSP{abort/0} \\
+
+\hline
+
+\texttt{@} & execute goal & ask for a goal and execute it \\
+
+\hline
+
+\texttt{{\lt}} & set print depth & ask for an integer and set the print
+depth to this value (\texttt{-1} for no depth limit) \\
+
+\hline
+
+\texttt{h} or \texttt{?} & help & display a summary of available commands \\
+
+\hline
+
+\texttt{W} & WAM debugger & invoke the low-level WAM debugger
+\RefSP{The-WAM-debugger} \\
+
+\hline
+\end{tabular}
+
+\subsection{The WAM debugger}
+\label{The-WAM-debugger}
+In some cases it is interesting to have access to the \Idx{WAM} data
+structures.  This sub-debugger allows the user to inspect/modify the contents
+of any stack or register of the WAM. The WAM debugger is invoked
+using the built-in predicate \IdxDB{wam\_debug/0} \RefSP{Running-and-stopping-the-debugger} or the \texttt{W} debugger command \RefSP{Debugger-commands}. The following table presents the specific commands of the WAM
+debugger:
+
+\begin{tabular}{|l|l|}
+\hline
+
+Command & Description \\
+
+\hline\hline
+
+\texttt{write} \Param{A} [\Param{N}] & write
+\Param{N} terms starting at the address \Param{A} using \texttt{write/1}
+\RefSP{write-term/3} \\
+
+\hline
+
+\texttt{data} \Param{A} [\Param{N}] & display \Param{N} words starting at
+the address \Param{A} \\
+
+\hline
+
+\texttt{modify} \Param{A} [\Param{N}] & display and modify \Param{N} words
+starting at the address \Param{A} \\
+
+\hline
+
+\texttt{where} \Param{A} & display the real address corresponding to
+\Param{A} \\
+
+\hline
+
+\texttt{what} \Param{RA} & display what corresponds to the real address
+\Param{RA} \\
+
+\hline
+
+\texttt{deref} \Param{A} & display the dereferenced word starting at the
+address \Param{A} \\
+
+\hline
+
+\texttt{envir} [\Param{SA}] & display the contents of the environment
+located at \Param{SA} (or the current one) \\
+
+\hline
+
+\texttt{backtrack} [\Param{SA}] & display the contents of the choice-point
+located at \Param{SA} (or the current one) \\
+
+\hline
+
+\texttt{backtrack all} & display all choice-points \\
+
+\hline
+
+\texttt{quit} & quit the WAM debugger \\
+
+\hline
+
+\texttt{help} & display a summary of available commands \\
+
+\hline
+\end{tabular}
+
+In the above table the following conventions apply:
+
+\begin{itemize}
+
+\item elements between [ and ] are optional.
+
+\item \Param{N} is an optional integer (defaults to 1).
+
+\item \Param{A} is a WAM address, its syntax is:
+\Param{BANK\_NAME} [ \texttt{[ \Param{N} ]} ], i.e. a bank name
+possibly followed by an index (defaults to 0). \Param{BANK\_NAME}
+is either:
+
+\begin{itemize}
+
+\item \texttt{reg}: WAM general register (stack pointers, continuation,
+...).
+
+\item \texttt{x}: WAM X register (temporary variables, i.e. arguments).
+
+\item \texttt{y}: WAM Y register (permanent variables).
+
+\item \texttt{ab}: WAM X register saved in the current choice-point.
+
+\item \Param{STACK\_NAME}: WAM stack
+(\Param{STACK\_NAME} in \texttt{local}, \texttt{global}, \texttt{trail},
+\texttt{cstr}).
+
+\end{itemize}
+
+\item \Param{SA} is a WAM stack address, i.e.
+\texttt{\Param{STACK\_NAME}} [ \texttt{[ \Param{N} ]} ] (special case of
+WAM addresses).
+
+\item \Param{RA} is a real address, its syntax is the syntax of C
+integers (in particular the notation \texttt{0x\ldots} is recognized).
+
+\end{itemize}
+
+It is possible to only use the first letters of a commands and bank names
+when there is no ambiguity. Also the square brackets \texttt{[} \texttt{]}
+enclosing the index of a bank name can be omitted. For instance the
+following command (showing the contents of 25 consecutive words of the
+global stack from the index 3): \texttt{data global[3] 25} can be
+abbreviated as: \texttt{d g 3 25}.
+
+%HEVEA\cutend

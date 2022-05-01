@@ -6,7 +6,9 @@
 See file README for a list of currently available ports:
 
 The file PROBLEMS contains a list of known problems/limitations depending on 
-the architecure. Please consult it before reporting a problem.
+the architecture. Please consult it before reporting a problem.
+
+See files WINDOWS or MACOS for information on these architectures.
 
 
 
@@ -16,12 +18,8 @@ Installing the source distribution
 1) Introduction
 ---------------
 
-** Win32 preamble **
-	To compile GNU-Prolog under win32 (either with cygwin or MSVC++) you
-	must properly install cygwin development tools (see file src/CYGWIN).
-	TO use MSVC++ you should correctly define MSVC++ environment vars
-        (normally MSVC++ creates a .bat file containing needed definitions,
-        for instance c:\vcvars32.bat).
+** Windows preamble **
+	To compile GNU-Prolog under Windows see file src/WINDOWS.
 
 The following tools are required to compile and install the source package:
    gcc, as, ranlib (if needed), sh, mkdir, cp, rm, sed, test,...
@@ -30,12 +28,17 @@ The installation process is as follows:
 
    cd src				go to source directory
    ./configure [OPTIONS]		configure the system
-   make					compile locally the package
-   make install or (make install-strip)	install the package
+   make					compile locally
+   make doc				compile locally the documentation (maybe not needed)
+   make install or (make install-strip)	install the package (maybe needs root privileges)
+
+you can check the result of the local compilation using:
+
+   make check
 
 
-2) Intallation directories
---------------------------
+2) Installation directories
+---------------------------
 
 Directories used for the installation are as follows:
 
@@ -54,26 +57,27 @@ These other directories are optional:
 
    EXAMPLES_DIR the directory for the examples, contains:
       EXAMPLES_DIR/ExamplsPl  some classical Prolog examples
-      EXAMPLES_DIR/ExamplesFD some examples using FD constraint solving
+      EXAMPLES_DIR/ExamplesFD≈ some examples using FD constraint solving
 
 Default directory values and associated configuration options are as follows:
 
    The value of INSTALL_DIR is as follows:
 
       - PREFIX/gprolog-VERSION_NUMBER (this is the default)
-	the default value of PREFIX is /usr/local but can be explicitely
+	the default value of PREFIX is /usr/local but can be explicitly
         specified using --prefix=PREFIX
 
       - another location can be specified using --with-install-dir=INSTALL_DIR
 
       - the source distribution directory (i.e. where reside this INSTALL file)
-        This in-place installation can be specified using --prefix=in-place or
-        --with-install-dir=in-place
+        This "in-place" installation is obtained using --with-install-dir=in-place
+	or --prefix=/in-place
+	(NB: recent autoconf needs an absolut path for --prefix, hence the /in-place)
 
    The value of LINKS_DIR is as follows:
 
       - EPREFIX/bin. The value of EPREFIX is the same as PREFIX but can be
-        explicitely specified using --exec-prefix=EPREFIX
+        explicitly specified using --exec-prefix=EPREFIX
 
       - another location can be specified --with-links-dir=LINKS_DIR
 
@@ -140,7 +144,7 @@ Options to control the location of other components:
   --without-doc-dir                do not install the documentation
 
   --with-html-dir=HTML_DIR         specify HTML_DIR
-  --without-thml-dir               do not install the HTML documentation
+  --without-html-dir               do not install the HTML documentation
 
   --with-examples-dir=EXAMPLES_DIR specify EXAMPLESS_DIR
   --without-examples-dir           do not install the examples
@@ -151,25 +155,28 @@ Options to control the location of other components:
 
 Options to control C compiler optimization flags:
 
-   --with-msvc             use MSVC++ compiler under Win32 (else use gcc)
+   --with-msvc                use MSVC++ compiler under Win32 (else use gcc)
 
-   --without-c-flags       do not use any optimization flag
-   --with-c-flags          use default C optimization flags
-   --with-c-flags=CFLAGS   use CFLAGS (instead of default optimization flags)
-   --with-c-flags=debug    use C debug flags (e.g. '-g -Wall' for gcc)
+   --without-c-flags          do not use any optimization flag
+   --with-c-flags             use default C optimization flags
+   --with-c-flags=CFLAGS      use CFLAGS (instead of default optimization flags)
+   --with-c-flags=debug       use C debug flags (e.g. '-g -Wall' for gcc)
 
    Default: --with-c-flags
 
 Options to control GNU features to include/exclude:
 
-   --disable-regs          do not use machine registers to optimize speed
-   --disable-ebp           do not use the ebp register on ix86 machines
-   --disable-fast-call     do not use fast call mechanism for ix86 processors
-   --disable-linedit       do not include line editor facility
-   --disable-piped-consult do not pipe stdin of pl2wam when consult/1
-   --disable-sockets       do not include sockets facility
-   --disable-fd-solver     do not include the finite domain constraint solver
-   --disable-gui-console   do not use a GUI console (only with MSVC++)
+   --disable-regs             do not use machine registers to optimize speed
+   --enable-ebp               use the ebp register on ix86 machines
+   --disable-fast-call        do not use fast call mechanism for ix86 processors
+   --disable-linedit          do not include line editor facility
+   --disable-piped-consult    do not pipe stdin of pl2wam when consult/1
+   --disable-sockets          do not include sockets facility
+   --disable-fd-solver        do not include the finite domain constraint solver
+   --disable-gui-console      do not use a GUI console (only with MSVC++ or MinGW)
+   --disable-htmlhelp         do not use HtmlHelp in the GUI Console
+   --enable-htmlhelp[=static] use HtmlHelp statically  linked (default)
+   --enable-htmlhelp=dynamic  use HtmlHelp dynamically linked
 
    Default: all features are included.
 
@@ -189,6 +196,32 @@ linked files in ~/bin/i586 use
 To configure the package for an in-place installation:
 
    ./configure --prefix=in-place
+
+
+To specify another C compiler:
+
+   1) if the binary is called gcc, you can simply set the PATH so that the
+      desired version be selected when your run gcc
+      (use gcc --version or gcc --version -v for more info)
+
+   2) define the CC variable before invoking ./configure.
+      For instance to use the original gcc instead of clang on mac:
+      CC=gcc-10 ./configure
+      or
+      CC=/opt/homebrew/bin/gcc-10 ./configure
+      (see also file src/MACOS)
+
+   3) to use a complete toolchain with prefixed binaries with PREFIX
+      use ./configure --host PREFIX
+      E.g. a mingw64 toolchain with binaries prefixed with x86_64-w64-mingw32
+      ./configure --host=x86_64-w64-mingw32
+      this will look for x86_64-w64-mingw32-gcc.exe and  x86_64-w64-mingw32-ar.exe,...
+
+To specify another assembler, do similarly replacing CC by AS:
+
+   e.g. AS=gas ./configure
+   or   AS='gcc -c'
+
 
 
 4) Compiling the package locally
@@ -232,30 +265,13 @@ To fully clean up the local compilation:
    make distclean
 
 
-7) Rebuilding a source distribution
------------------------------------
-
-To rebuild a source distribution file:
-
-   make dist
-
-this will create a file gprolog-xxx.tgz (in the src directory).
-
-
-
-8) Building a RPM distribution
--------------------------------
-
-Refer to the file src/RPM/README for more information
-
-
 
 Setting up environment variables
 ********************************
 
 To be able to execute GNU Prolog from anywhere the directory LINKS_DIR should
 be a part of your PATH environment variable (generally this directory is
-already in the PATH variable). However, if no links have been creeated
+already in the PATH variable). However, if no links have been created
 (either --without-links-dir has been specified or in case of default in-place
 installation) you should add the directory INSTALL_DIR/bin to your PATH
 variable. This can be done as follows (let us suppose INSTALL_DIR is
@@ -273,7 +289,7 @@ PL_PATH environment variable. If it is defined GNU Prolog uses this path. If
 you want to define it, simply set it to the value of INSTALL_DIR as follows:
 
 under sh/bash:  PL_PATH=/usr/local/gprolog-xxx; export PL_PATH
-under csh/tcsh:	setenv PL_PATH /usr/local/gprolog-xxx
+under csh/tcsh: setenv PL_PATH /usr/local/gprolog-xxx
 
 To summarize, by default you can avoid to define PATH and PL_PATH. If you 
 need to defines these variables it is a good idea to put them in your shell
@@ -290,6 +306,11 @@ problems.
 If your installation does not work (compilation is ok but when running the
 system fails) you can try to recompile the whole system with --disable-regs
 (after make distclean).
+
+If this fails, try to recompile the whole system with --with-c-flags=debug and --disable-regs
+
+If this installation works with -O and not -O2 (or higher) it can be due to
+strict-aliasing. Try compiling with --with-c-flags='-O2 -fno-strict-aliasing'.
 
 Finally you can use the GNU Prolog mailing lists to ask for help or to report
 a bug/problem.

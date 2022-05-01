@@ -6,23 +6,35 @@
  * Descr.: exception management (throw) - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -42,8 +54,8 @@
  * Global Variables                *
  *---------------------------------*/
 
-WamWord *query_top_b;		/* overwritten by foreign_supp if present */
-WamWord query_exception;	/* overwritten by foreign_supp if present */
+WamWord *pl_query_top_b;		/* overwritten by foreign_supp if present */
+WamWord pl_query_exception;	/* overwritten by foreign_supp if present */
 
 
 
@@ -56,11 +68,11 @@ WamWord query_exception;	/* overwritten by foreign_supp if present */
 
 
 /*-------------------------------------------------------------------------*
- * THROW_2                                                                 *
+ * PL_THROW_2                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Throw_2(WamWord ball_word, WamWord b_word)
+Pl_Throw_2(WamWord ball_word, WamWord b_word)
 {
   WamWord word, tag_mask;
   WamWord *b;
@@ -69,24 +81,24 @@ Throw_2(WamWord ball_word, WamWord b_word)
   DEREF(b_word, word, tag_mask);
   b = From_WamWord_To_B(word);
 
-  if (b <= query_top_b && query_top_b != NULL)
+  if (b <= pl_query_top_b && pl_query_top_b != NULL)
     {
-      Assign_B(query_top_b);
-      query_exception = ball_word;
-      Exit_With_Exception();
+      Assign_B(pl_query_top_b);
+      pl_query_exception = ball_word;
+      Pl_Exit_With_Exception();
     }
 
   if (b == LSSA)
     {
-      pstm = stm_tbl[stm_top_level_output];
+      pstm = pl_stm_tbl[pl_stm_top_level_output];
 
-      Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
-      Write_Term(pstm, -1, MAX_PREC,
-		 WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED,
-		 ball_word);
-      Stream_Printf(pstm, "))\n");
+      Pl_Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
+      Pl_Write_Term(pstm, -1, MAX_PREC,
+		    WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED, NULL,
+		    ball_word);
+      Pl_Stream_Printf(pstm, "))\n");
       return;
     }
 
-  Cut(b_word);
+  Pl_Cut(b_word);
 }

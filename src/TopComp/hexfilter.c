@@ -6,23 +6,35 @@
  * Descr.: Prolog hexadecimal decoding filter                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +55,7 @@
 
 #define MAX_ARGS                   1024
 
-#define HEXGPLC_VERSION            "1.0"
+#define HEXGPLC_VERSION            "1.1"
 
 
 
@@ -56,8 +68,10 @@
  * Global Variables                *
  *---------------------------------*/
 
+
 int encode = 0;
 int strict = 1;
+int quote = 1;
 int enclose = 1;
 int decode_aux = 0;
 int cmd_line = 0;
@@ -76,7 +90,7 @@ void One_File(FILE *f);
 
 void One_Line(char *str);
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -104,7 +118,7 @@ main(int argc, char *argv[])
   if (nb_arg == 0)
     {
       if (cmd_line)
-	Fatal_Error("command-line is empty");
+	Pl_Fatal_Error("command-line is empty");
 
       One_File(stdin);
       return 0;
@@ -120,7 +134,7 @@ main(int argc, char *argv[])
 	}
 
       if ((f = fopen(arg[i], "rt")) == NULL)
-	Fatal_Error("cannot open %s", arg[i]);
+	Pl_Fatal_Error("cannot open %s", arg[i]);
 
       One_File(f);
       fclose(f);
@@ -160,42 +174,11 @@ One_File(FILE *f)
 void
 One_Line(char *str)
 {
-  int n;
-  char *p;
-
-#define Is_Sep(c) (c == '\0' || isspace(c) || strchr("'\"", c))
 
   if (encode)
-    {
-      while (*str)
-	{
-	  if (Is_Sep(*str))
-	    {
-	      putchar(*str++);
-	      continue;
-	    }
-
-	  putchar('X');
-	  while (*str && !Is_Sep(*str))
-	    {
-	      if (*str == '/')
-		{
-		  n = strtol(str + 1, &p, 10);
-		  if (n >= 0 && n < 1024 && Is_Sep(*p))
-		    {
-		      str = p;
-		      printf("_%d", n);
-		      break;
-		    }
-		}
-	      printf("%2X", (unsigned) (unsigned char) *str);
-	      str++;
-	    }
-	}
-      return;
-    }
-
-  fputs(Decode_Hexa(str, format, strict, decode_aux), stdout);
+    fputs(Encode_Hexa_Line(str, format, strict), stdout);
+  else
+    fputs(Decode_Hexa_Line(str, format, strict, quote, decode_aux), stdout);
 }
 
 
@@ -214,9 +197,15 @@ Parse_Arguments(int argc, char *argv[])
     {
       if (*argv[i] == '-' && argv[i][1] != '\0')
 	{
-	  if (Check_Arg(i, "--encode"))
+	  if (Check_Arg(i, "--encode") || Check_Arg(i, "--mangling"))
 	    {
 	      encode = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--decode") || Check_Arg(i, "--demangling"))
+	    {
+	      encode = 0;
 	      continue;
 	    }
 
@@ -226,10 +215,28 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--strict"))
+	    {
+	      strict = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--quote"))
+	    {
+	      quote = 1;
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--no-quote"))
+	    {
+	      quote = 0;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "--printf"))
 	    {
 	      if (++i >= argc)
-		Fatal_Error("format missing after -printf option");
+		Pl_Fatal_Error("format missing after -printf option");
 
 	      format = argv[i];
 	      continue;
@@ -253,7 +260,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-H"))
+	  if (Check_Arg(i, "-E") || Check_Arg(i, "-M"))
 	    {
 	      encode = 1;
 	      cmd_line = 1;
@@ -261,7 +268,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-P"))
+	  if (Check_Arg(i, "-P") || Check_Arg(i, "-D"))
 	    {
 	      encode = 0;
 	      cmd_line = 1;
@@ -272,8 +279,7 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--version"))
 	    {
-	      fprintf(stderr, "Prolog/Hexa Filter                    ");
-	      fprintf(stderr, "                    Daniel Diaz - 1998\n");
+	      fprintf(stderr, "Prolog/Hexa Filter");
 	      fprintf(stderr, "%s version %s\n", HEXGPLC, HEXGPLC_VERSION);
 	      exit(0);
 	    }
@@ -284,8 +290,8 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  Fatal_Error("unknown option %s - try %s --help", argv[i],
-		      HEXGPLC);
+	  Pl_Fatal_Error("unknown option %s - try %s --help", argv[i],
+			 HEXGPLC);
 	}
 
       arg[nb_arg++] = argv[i];
@@ -296,11 +302,11 @@ Parse_Arguments(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
- * FATAL_ERROR                                                             *
+ * PL_FATAL_ERROR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Fatal_Error(char *format, ...)
+Pl_Fatal_Error(char *format, ...)
 {
   va_list arg_ptr;
 
@@ -326,14 +332,20 @@ Display_Help(void)
   fprintf(stderr, "Usage: %s [OPTION]... [FILE...]", HEXGPLC);
   L(" ");
   L("Options:");
-  L("  --encode                    encoding mode (default is decoding)");
-  L("  --relax                     decode also predicate names (not only predicate indicators)");
-  L("  --printf FORMAT             pass encoded/decoded string to printf with FORMAT");
+  L("  --mangling                  demangling mode (default)");
+  L("  --decode                    same as --demangling");
+  L("  --mangling                  mangling mode");
+  L("  --encode                    same as --mangling");
+  L("  --relax                     encode/decode also predicate names (not only predicate indicators)");
+  L("  --strict                    encode/decode only predicate indicators (default)");
+  L("  --quote                     quote decoded predicate names (as done by writeq)");
+  L("  --no-quote                  do not quote decoded predicate names");
+  L("  --printf FORMAT             pass encoded/decoded strings to printf with FORMAT");
   L("  --aux-father                decode auxiliary predicate as its father");
   L("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
   L("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");
-  L("  -H                          shortcut for --cmd-line --encode");
-  L("  -P                          shortcut for --cmd-line --relax");
+  L("  -M or -H                    shortcut for --cmd-line --encode --relax");
+  L("  -D or -P                    shortcut for --cmd-line --decode --relax --quote");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
 }

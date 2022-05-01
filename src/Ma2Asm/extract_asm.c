@@ -6,23 +6,35 @@
  * Descr.: utility to write inline assembly code for mappers               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,19 +153,19 @@ main(int argc, char *argv[])
 	  out_file = argv[++i];
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-d") == 0)
 	{
 	  disassemble = 1;
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-c") == 0)
 	{
 	  disassemble = 0;
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-f") == 0)
 	{
 	  if ((f = fopen(argv[++i], "r")) == NULL)
@@ -165,19 +177,19 @@ main(int argc, char *argv[])
 	    fct[nb_fct++] = strdup(buff);
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-i") == 0)
 	{
 	  sprintf(buff1 + strlen(buff1), " -e 's!^.*%s.*$!IGN!'", argv[++i]);
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-e") == 0)
 	{
 	  sprintf(buff1 + strlen(buff1), " -e 's!^.*%s.*$!END!'", argv[++i]);
 	  continue;
 	}
-      
+
       if (strcmp(argv[i], "-h") == 0)
 	{
 	  printf("Usage: extract_asm [OPTION | FCT_NAME...]\n");
@@ -199,7 +211,7 @@ main(int argc, char *argv[])
 	  fprintf(stderr, "unrecognized option %s\n", argv[i]);
 	  goto error;
 	}
-      
+
       fct[nb_fct++] = argv[i];
     }
 
@@ -219,7 +231,7 @@ main(int argc, char *argv[])
     {
       if (asm_file)
 	printf("generate asm file %s from C file %s\n", asm_file, c_file);
-      
+
       if (asm_file == NULL)
 	{
 	  if ((asm_file = tmpnam(NULL)) == NULL)
@@ -232,7 +244,7 @@ main(int argc, char *argv[])
 	}
 
       sprintf(buff, "gplc -c -C '%s -S' -o %s %s", flags, asm_file, c_file);
-      
+
       r = system(buff);
       if (r == -1 || r == 127)
 	{
@@ -254,7 +266,7 @@ main(int argc, char *argv[])
     }
   else
     f_in = fopen(asm_file, "r");
-		   
+
   if (f_in == NULL)
     {
       perror(asm_file);
@@ -278,7 +290,7 @@ main(int argc, char *argv[])
     else
       fprintf(f_out, " %s", argv[i]);
   fprintf(f_out, " */\n\n");
-  
+
 
   Gen_Inline(f_in, f_out, nb_fct, fct);
 
@@ -369,17 +381,17 @@ Gen_Inline(FILE *f_in, FILE *f_out, int nb_fct, char *fct[])
       printf("start line: %s -- fct name (%s)\n", buff, fct_name);
 #endif
       for(i = 0; i < nb_fct; i++)
-	if (strcmp(fct_name, fct[i]) == 0 || 
+	if (strcmp(fct_name, fct[i]) == 0 ||
 	    (*fct_name == '_' && strcmp(fct_name + 1, fct[i]) == 0))
 	    break;
-      
+
       if (i == nb_fct || found[i])
 	continue;
 
 #if 0
       printf("corresponds to fct %d\n",i);
 #endif
-      
+
       Emit_Fct(fct_no++, fct[i], f_in, f_out);
       found[i] = 1;
       if (fct_no == nb_fct)
@@ -450,7 +462,7 @@ Emit_Fct(int fct_no, char *fct_name, FILE *f_in, FILE *f_out)
 
 	  strncpy(line[nb_line].code_op, start, end - start);
 	  line[nb_line].code_op[end - start] = '\0';
-	  
+
 	  while(isspace(*p))
 	    p++;
 
@@ -472,7 +484,7 @@ Emit_Fct(int fct_no, char *fct_name, FILE *f_in, FILE *f_out)
 	fprintf(f_out, "char *inline_asm_data[] = {\n");
       else
 	fprintf(f_out, "\n");
-      
+
       inline_level = 1;
       inline_info = 1;
       fprintf(f_out, "  \"%s\", INL_NEXT, INL_LEVEL(%d), INL_INFO(%d),\n",
@@ -567,7 +579,7 @@ Detect_End_Of_Fct(char *buff)
 
   if (strncmp(buff, "\trestore", 8) == 0)
     return 2;
-  
+
 #else
   {
     static int i=0;

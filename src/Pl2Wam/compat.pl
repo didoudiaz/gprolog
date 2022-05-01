@@ -1,4 +1,3 @@
-/* $Id$ */
 
 :-	op(0, fx, dynamic).
 :-	op(0, fx, discontiguous).

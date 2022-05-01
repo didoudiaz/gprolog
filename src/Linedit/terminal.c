@@ -6,23 +6,34 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-
-/* $Id$ */
 
 
 #include <stdio.h>
@@ -30,6 +41,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <errno.h>
 
 #include "../EnginePl/gp_config.h"
 
@@ -39,7 +53,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-
+#include <sys/stat.h>
 
 #if defined(HAVE_SYS_IOCTL_COMPAT_H)
 #include <sys/ioctl_compat.h>
@@ -76,6 +90,10 @@ typedef struct termio TermIO;
 #include "linedit.h"
 
 
+/* Interesting infos: The Open Group Base Specifications Issue 7
+ * Chapter 11. General Terminal Interface
+ * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap11.html#tag_11
+ */
 
 
 /*---------------------------------*
@@ -90,28 +108,37 @@ typedef struct termio TermIO;
  * Global Variables                *
  *---------------------------------*/
 
-static int use_gui = 1;
-static int use_ansi = 1;
-static int fd_in = 0;		/* not changed */
+static int use_linedit;
+static int use_gui;
+static int use_ansi;
+#if defined(__unix__) || defined(__CYGWIN__)
+static int fd_in = 0;           /* not changed */
+#endif
 static int fd_out = -1;
+static FILE *file_dbg = NULL;	/* activate DEBUG and set LINEDIT env var dbg=/dev/ttyxxx */
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
 static int is_tty_in;
 static int is_tty_out;
+static int same_tty;
 static TermIO old_stty_in;
 static TermIO new_stty_in;
 static TermIO old_stty_out;
 static TermIO new_stty_out;
 
 static int nb_rows, nb_cols;
-static int pos;
+static int term_pos;
 
 #elif defined(_WIN32)
 
 static HANDLE h_stdin;
 static HANDLE h_stdout;
 static DWORD im;
+
+static int code_page = 0;
+static int oem_put = 1;
+static int oem_get = 1;
 
 #endif
 
@@ -128,9 +155,15 @@ static void Parse_Env_Var(void);
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
+static int Same_File(int fd1, int fd2);
+
 static void Choose_Fd_Out(void);
 
 static void Set_TTY_Mode(TermIO *old, TermIO *new);
+
+static void Install_Resize_Handler();
+
+static void Resize_Handler();
 
 #endif
 
@@ -150,73 +183,79 @@ static void Erase(int n);
 
 
 /*-------------------------------------------------------------------------*
- * LE_INITIALIZE                                                           *
+ * PL_LE_INITIALIZE                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Initialize(void)
+Pl_LE_Initialize(void)
 {
   static int initialized = 0;
-  static int le_hook_present = 0; /* ie. gui is present */
+  static int le_mode;
 
   if (initialized)
-    return le_hook_present;
+    return le_mode;
 
   initialized = 1;
-
+  
   Parse_Env_Var();
+
+  if (!use_linedit)
+    return (le_mode = LE_MODE_DEACTIVATED);
+
+   le_mode = LE_MODE_TTY;	/* default */
+
 
 #if defined(__unix__) || defined(__CYGWIN__)
   Choose_Fd_Out();
 #endif
 
-  if (le_hook_start && use_gui == 1)
-    (*le_hook_start) ();
+  if (pl_le_hook_start && use_gui)
+    (*pl_le_hook_start) (use_gui == 2);
 
-  if (le_hook_put_char != NULL && le_hook_get_char0 != NULL
-      && le_hook_kbd_is_not_empty != NULL && le_hook_screen_size != NULL)
-    le_hook_present = 1;
+  if (pl_le_hook_put_char != NULL && pl_le_hook_get_char0 != NULL
+      && pl_le_hook_kbd_is_not_empty != NULL && pl_le_hook_screen_size != NULL)
+    le_mode = LE_MODE_HOOK;
   else
     {
-      le_hook_put_char = NULL;
-      le_hook_get_char0 = NULL;
-      le_hook_kbd_is_not_empty = NULL;
-      le_hook_screen_size = NULL;
+      pl_le_hook_put_char = NULL;
+      pl_le_hook_get_char0 = NULL;
+      pl_le_hook_kbd_is_not_empty = NULL;
+      pl_le_hook_screen_size = NULL;
     }
 
 #define INIT_FCT(hook, def) if (hook == NULL) hook = def
 
   /* inside terminal.c */
-  INIT_FCT(le_hook_screen_size, LE_Screen_Size);
-  INIT_FCT(le_hook_kbd_is_not_empty, LE_Kbd_Is_Not_Empty);
-  INIT_FCT(le_hook_put_char, LE_Put_Char);
-  INIT_FCT(le_hook_get_char0, LE_Get_Char0);
-  INIT_FCT(le_hook_ins_mode, LE_Ins_Mode);
-  INIT_FCT(le_hook_emit_beep, LE_Emit_Beep);
+  INIT_FCT(pl_le_hook_screen_size, Pl_LE_Screen_Size);
+  INIT_FCT(pl_le_hook_kbd_is_not_empty, Pl_LE_Kbd_Is_Not_Empty);
+  INIT_FCT(pl_le_hook_put_char, Pl_LE_Put_Char);
+  INIT_FCT(pl_le_hook_get_char0, LE_Get_Char0);
+  INIT_FCT(pl_le_hook_ins_mode, Pl_LE_Ins_Mode);
+  INIT_FCT(pl_le_hook_emit_beep, Pl_LE_Emit_Beep);
 
   /* inside linedit.c */
-  INIT_FCT(le_hook_backd, Backd);
-  INIT_FCT(le_hook_forwd, Forwd);
-  INIT_FCT(le_hook_displ, Displ);
-  INIT_FCT(le_hook_erase, Erase);
-  INIT_FCT(le_hook_displ_str, Displ_Str);
+  INIT_FCT(pl_le_hook_backd, Backd);
+  INIT_FCT(pl_le_hook_forwd, Forwd);
+  INIT_FCT(pl_le_hook_displ, Displ);
+  INIT_FCT(pl_le_hook_erase, Erase);
+  INIT_FCT(pl_le_hook_displ_str, Displ_Str);
 
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-  interrupt_key = KEY_CTRL('C');	/* WIN32: interrupt = CTRL+C */
+  interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
 
 #endif
 
-  return le_hook_present;
+  return le_mode;
 }
 
 
@@ -229,85 +268,133 @@ LE_Initialize(void)
 static void
 Parse_Env_Var(void)
 {
-  char *p = getenv("LINEDIT");
+  char *p, *q, *r;
+  char buff[1024];
 
+  use_linedit = use_gui = use_ansi = 1; /* default */
+
+  p = getenv("LINEDIT");
   if (p == NULL)
     return;
 
-  if (strstr(p, "gui=no") != NULL)
+  if (strncmp(p, "no", 2) == 0)	/* deactivate linedit */
+    {
+      use_linedit = 0;
+      return;
+    }
+
+  if (strstr(p, "gui=n") != NULL)
     use_gui = 0;
-      
-  if (strstr(p, "ansi=no") != NULL)
+
+  if (strstr(p, "gui=s") != NULL) /* silent */
+    use_gui = 2;
+
+  if (strstr(p, "ansi=n") != NULL)
     use_ansi = 0;
 
-  if ((p = strstr(p, "out=")) != NULL)
+#ifdef _WIN32
+  if ((q = strstr(p, "cp=")) != NULL && isdigit(q[3]))
+    code_page = strtol(q + 3, NULL, 10);
+
+  if (strstr(p, "oem_put=n") != NULL)
+    oem_put = 0;
+
+  if (strstr(p, "oem_put=y") != NULL)
+    oem_put = 1;
+
+  if (strstr(p, "oem_get=n") != NULL)
+    oem_get = 0;
+
+  if (strstr(p, "oem_get=y") != NULL)
+    oem_get = 1;
+#endif
+
+  if ((q = strstr(p, "out=")) != NULL)
     {
-      p += 4;
+      q += 4;
 
       if (isdigit(*p))
-	fd_out = strtol(p, NULL, 10);
+        fd_out = strtol(p, NULL, 10);
       else
-	{
-	  char buff[1024];
-	  char *q = buff;
+        {
+	  r = buff;
+          while(*q && isprint(*q) && !isspace(*q))
+            *q++ = *r++;
 
-	  while(*p && isprint(*p) && !isspace(*p))
-	    *q++ = *p++;
-
-	  *q = '\0';
-	  fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
-	}
+          *r = '\0';
+          fd_out = open(buff, O_WRONLY); /* on error fd_out = -1 */
+        }
     }
+
+  if ((q = strstr(p, "dbg=")) != NULL)
+    {
+      q += 4;
+
+      r = buff;
+      while(*q && isprint(*q) && !isspace(*q))
+	*r++ = *q++;
+
+      *r = '\0';
+      file_dbg = fopen(buff, "wt");
+    }
+
+  return;
 }
 
 
 
 
-#if defined(__unix__) || defined(__CYGWIN__)
-
+#ifdef DEBUG
 /*-------------------------------------------------------------------------*
- * CHOOSE_FD_OUT                                                           *
+ * DEBUG_PRINTF                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Choose_Fd_Out(void)
+void
+Debug_Printf(char *fmt, ...)
 {
-  int fd[3] = { 1, 0, 2 };	/* order fd list to try to find a tty */
-  int i, try;
-  int mask;
-  char *p;
+  va_list arg_ptr;
 
-  for(i = 0; i < 3 && fd_out < 0; i++)
-    {
-      try = fd[i];
+  if (file_dbg == NULL)
+    return;
 
-      if (!isatty(try))
-	continue;
+  va_start(arg_ptr, fmt);
 
-      mask = fcntl(try, F_GETFL);
-      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
-	{
-	  fd_out = try;
-	  break;
-	}
+  vfprintf(file_dbg, fmt, arg_ptr);
 
-      if ((p = ttyname(try)) != NULL)
-	fd_out = open(p, O_WRONLY);
-    }
+  va_end(arg_ptr);
+  fputc('\n', file_dbg);
+  fflush(file_dbg);
+}
 
-  if (fd_out < 0)
-    fd_out = 1;
 
+
+
+/*-------------------------------------------------------------------------*
+ * DEBUG_CHECK_POSITIONS                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void Debug_Check_Positions(int lin_pos)
+{
+#if defined(__unix__) || defined(__CYGWIN__)
+
+  int l = Pl_LE_Get_Prompt_Length();
+  if ((lin_pos + l) % nb_cols != term_pos)
+    Debug_Printf("********* ERROR lin_pos %d  + prompt_len %d) %% nb_cols %d = %d != term_pos %d\n",
+		 lin_pos, l, nb_cols, (lin_pos + l) % nb_cols, term_pos);
+
+#endif
 }
 #endif
 
 
+
+
 /*-------------------------------------------------------------------------*
- * LE_OPEN_TERMINAL                                                        *
+ * PL_LE_OPEN_TERMINAL                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Open_Terminal(void)
+Pl_LE_Open_Terminal(void)
 {
   fflush(stdout);
   fflush(stderr);
@@ -332,21 +419,30 @@ LE_Open_Terminal(void)
       Stty(fd_out, &new_stty_out);
     }
 
-  LE_Screen_Size(&nb_rows, &nb_cols);
+  Pl_LE_Screen_Size(&nb_rows, &nb_cols);
 
-  pos = 0;
+  same_tty = Same_File(fd_in, fd_out);
+
+  Debug_Printf("Initial size: %dx%d\n", nb_cols, nb_rows);
+  Debug_Printf("Same TTY: %d\n", same_tty);
+
+  Install_Resize_Handler();
+
+  term_pos = 0;
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     {
       h_stdin = GetStdHandle(STD_INPUT_HANDLE);
       h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
       GetConsoleMode(h_stdin, &im);
       SetConsoleMode(h_stdin, im & ~ENABLE_PROCESSED_INPUT);
+      if (code_page && (!SetConsoleCP(code_page) || !SetConsoleOutputCP(code_page)))
+	printf("warning: Setting console code page to %d failed (error: %d)\n", code_page, (int) GetLastError());
     }
 
-  interrupt_key = KEY_CTRL('C');	/* WIN32: interrupt = CTRL+C */
+  interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
 
 #endif
 }
@@ -355,11 +451,11 @@ LE_Open_Terminal(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_CLOSE_TERMINAL                                                       *
+ * PL_LE_CLOSE_TERMINAL                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Close_Terminal(void)
+Pl_LE_Close_Terminal(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__) /* Initial mode (cooked mode) */
 
@@ -371,7 +467,7 @@ LE_Close_Terminal(void)
 
 #elif defined(_WIN32)
 
-  if (le_hook_put_char == LE_Put_Char)	/* DOS console mode */
+  if (pl_le_hook_put_char == Pl_LE_Put_Char)    /* DOS console mode */
     SetConsoleMode(h_stdin, im);
 
 #endif
@@ -381,6 +477,63 @@ LE_Close_Terminal(void)
 
 
 #if defined(__unix__) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * CHOOSE_FD_OUT                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Choose_Fd_Out(void)
+{
+  int fd[3] = { 1, 0, 2 };      /* order fd list to try to find a tty */
+  int i, try;
+  int mask;
+  char *p;
+
+  for(i = 0; i < 3 && fd_out < 0; i++)
+    {
+      try = fd[i];
+
+      if (!isatty(try))
+        continue;
+
+      mask = fcntl(try, F_GETFL);
+      if ((mask & O_WRONLY) == O_WRONLY || (mask & O_RDWR) == O_RDWR)
+        {
+          fd_out = try;
+          break;
+        }
+
+      if ((p = ttyname(try)) != NULL)
+	{
+	  fd_out = open(p, O_WRONLY); /* could be O_RDWR to read ansi seq answer from terminal, e.g. read cursor position */
+	  Debug_Printf("found a tty %d name: %s  fd: %d\n", try, p, fd_out);
+	  break;
+	}
+    }
+
+  if (fd_out < 0)
+    fd_out = 1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SAME_FILE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Same_File(int fd1, int fd2)
+{
+  struct stat stat1, stat2;
+
+  return (fstat(fd1, &stat1) != -1 && fstat(fd2, &stat2) != -1 &&
+    stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino);
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * SET_TTY_MODE                                                            *
@@ -396,36 +549,99 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
   new->c_oflag = OPOST | ONLCR;
   new->c_lflag &= ~(ICANON | ECHO | ECHONL);
 
-  new->c_cc[VMIN] = 1;		/* MIN # of chars */
-  new->c_cc[VTIME] = 1;		/* TIME */
+  new->c_cc[VMIN] = 1;          /* MIN # of chars */
+  new->c_cc[VTIME] = 1;         /* TIME */
 
-  new->c_cc[VINTR] = -1;	/* deactivate SIGINT signal */
-}
+  new->c_cc[VINTR] = -1;        /* deactivate SIGINT signal */
 
+#if 0 /* TODO compare our settings with BSD raw mode */
+  new->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+  new->c_oflag &= ~OPOST;
+  new->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+  new->c_cflag &= ~(CSIZE | PARENB);
+  new->c_cflag |= CS8;
 #endif
+}
 
 
 
 
 /*-------------------------------------------------------------------------*
- * LE_SCREEN_SIZE                                                          *
+ * INSTALL_RESIZE_HANDLER                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Install_Resize_Handler()
+{
+#if defined(HAVE_WORKING_SIGACTION) || defined(M_solaris) || defined(M_sco)
+
+  struct sigaction act;
+  act.sa_sigaction = (void (*)()) Resize_Handler;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_RESTART;
+  sigaction(SIGWINCH, &act, NULL);
+
+#else
+
+  signal(SIGWINCH, (void (*)()) Resize_Handler);
+
+#endif
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RESIZE_HANDLER                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Resize_Handler()
+{
+  int r, c;
+  Pl_LE_Screen_Size(&r, &c);
+  if (c > 0 && r > 0 && (r != nb_rows || c != nb_cols))
+    {
+      Debug_Printf("Resize: %dx%d\n", c, r);
+      nb_rows = r;
+      nb_cols = c;
+      term_pos = (Pl_LE_Get_Current_Position() + Pl_LE_Get_Prompt_Length()) % nb_cols;
+    }
+}
+
+#endif /* defined(__unix__) || defined(__CYGWIN__) */
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_LE_SCREEN_SIZE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Screen_Size(int *row, int *col)
+Pl_LE_Screen_Size(int *row, int *col)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
   struct winsize ws;
 
   if (!is_tty_out)
     {
-      row = col = 0;
+      *row = *col = 0;
       return;
     }
-
-  ioctl(fd_out, TIOCGWINSZ, &ws);
-  nb_rows = *row = ws.ws_row;
-  nb_cols = *col = ws.ws_col;
+  
+  ws.ws_row = ws.ws_col = 0;	/* default (error) values */
+  if (ioctl(fd_out, TIOCGWINSZ, &ws) == -1 || ws.ws_row == 0 || ws.ws_col == 0)
+    {				/* under lldb ioctl fails (workaround use: process launch -tty) but here we ask /dev/tty */
+      int fd = open("/dev/tty", O_RDONLY);
+      if (fd != -1)
+	{
+	  ioctl(fd, TIOCGWINSZ, &ws);
+	  close (fd);
+	}
+    }
+  *row = ws.ws_row;
+  *col = ws.ws_col;
 
 #elif defined(_WIN32)
 
@@ -435,6 +651,7 @@ LE_Screen_Size(int *row, int *col)
     {
       *row = csbi.dwSize.Y;
       *col = csbi.dwSize.X;
+      /* alternative: *col = csbi.srWindow.Bottom - csbi.srWindow.Top + 1; */
     }
   else
     {
@@ -449,11 +666,11 @@ LE_Screen_Size(int *row, int *col)
 
 
 /*-------------------------------------------------------------------------*
- * LE_IS_INTERRUPT_KEY                                                     *
+ * PL_LE_IS_INTERRUPT_KEY                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Is_Interrupt_Key(int c)
+Pl_LE_Is_Interrupt_Key(int c)
 {
   return (c == interrupt_key);
 }
@@ -462,11 +679,11 @@ LE_Is_Interrupt_Key(int c)
 
 
 /*-------------------------------------------------------------------------*
- * LE_KBD_IS_NOT_EMPTY                                                     *
+ * PL_LE_KBD_IS_NOT_EMPTY                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Kbd_Is_Not_Empty(void)
+Pl_LE_Kbd_Is_Not_Empty(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -490,11 +707,11 @@ LE_Kbd_Is_Not_Empty(void)
 
 
 /*-------------------------------------------------------------------------*
- * LE_INS_MODE                                                             *
+ * PL_LE_INS_MODE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Ins_Mode(int ins_mode)
+Pl_LE_Ins_Mode(int ins_mode)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
@@ -514,15 +731,15 @@ LE_Ins_Mode(int ins_mode)
 
 
 /*-------------------------------------------------------------------------*
- * LE_EMIT_BEEP                                                            *
+ * PL_LE_EMIT_BEEP                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Emit_Beep(void)
+Pl_LE_Emit_Beep(void)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
 
-  LE_Put_Char('\a');
+  Pl_LE_Put_Char('\a');
 
 #else
 
@@ -539,48 +756,87 @@ LE_Emit_Beep(void)
  */
 
 
+
 /*-------------------------------------------------------------------------*
- * LE_PUT_CHAR                                                             *
+ * PL_LE_PUT_CHAR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-LE_Put_Char(int c)
+Pl_LE_Put_Char(int c)
 {
 #if defined(__unix__) || defined(__CYGWIN__)
-  char c0 = c;
+  static char buf[20];
+  int n;
+
+  /* recognize \a \n \b and normal characters
+   * \b sends a \b to the terminal. But it cannot wrap around backward
+   * we thus use a term_pos to know if we need to go up one line "by hand"
+   * NB: term_pos is incremented on each char, so it counts the prompt length
+   *
+   * We also use it at the end of a line to force the cursor on the beginning
+   * of the next line (see remark below).
+   *
+   * In any case, term_pos is not stricly necessary and can be computed from
+   * the current pos in linedit. This is what is done in Resize_Handler.
+   */
+
+  
+  buf[0] = c;
+  buf[1] = '\0';
 
   if (use_ansi)
     {
-      char buf[20];
+      /* If stdin/stdout use different tty, SIGWINCH only catch the main tty resizes.
+       * In that case, we here systematically check if size changed.
+       */
+      if (!same_tty)
+	Resize_Handler();
 
       switch(c)
-	{
-	case '\b':
-	  if (pos == 0)
-	    {
-	      pos = nb_cols - 1;
-	      sprintf(buf, "\033[A\033[%dC", pos);
-	      write(fd_out, buf, strlen(buf));
-	      return;
+        {
+        case '\b':
+          if (term_pos == 0)
+            {
+	      Debug_Printf("\n++++++ UP\n");
+              term_pos = nb_cols - 1;
+              sprintf(buf, "\033[A\033[%dC", term_pos); /* cursor at end of previous line */
+            }
+	  else 
+	    term_pos--;
+          break;
+
+        case '\a':
+          break;
+
+        case '\n':
+          term_pos = 0;
+          break;
+
+        default:
+	  /* On some terminals, when displaying the last character of a line, 
+	   * the cursor remains on the last column (instead of advancing to 
+	   * beginning of next line) and only does a nl on the next character.
+	   * So, add a space + \b if on last column to force newline
+	   * (we do not add \n since when resizing the screen the newlines stay there)
+	   */
+	  if (++term_pos >= nb_cols && nb_cols > 0)
+	    { 
+	      Debug_Printf("\n====== ADD SPACE TO FORCE NEWLINE after char:%c  pos:%d\n", c, term_pos);
+	      buf[1] = ' ';
+	      buf[2] = '\b';
+	      buf[3] = '\0';
+	      term_pos = 0;	/* like a \n */
 	    }
-	  pos--;
-	  break;
-
-	case '\a':
-	  break;
-
-	case '\n':
-	  pos = 0;
-	  break;
-
-	default:
-	  if (++pos > nb_cols)
-	    pos = 1;
-	}
+        }
     }
-
-  c0 = c;
-  write(fd_out, &c0, 1);
+ 
+  
+  n = strlen(buf);
+  if (write(fd_out, buf, strlen(buf)) != n)
+    {
+      /* loop if errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ? */
+      Debug_Printf("ERROR trying to write on fd: %d, errno: %d\n", fd_out, errno);
+    }
 
 #elif defined(_WIN32)
 
@@ -588,15 +844,26 @@ LE_Put_Char(int c)
 
   if (c != '\b')
     {
-#ifdef WIN32_CONVERT_OEM_ASCII
-      unsigned char buff[2];
+      if (oem_put)
+	{
+	  char buff[2];
 
-      buff[0] = c;
-      buff[1] = '\0';
-      CharToOem(buff, buff);
-      c = buff[0];
-#endif
+	  buff[0] = c;
+	  buff[1] = '\0';
+	  CharToOem(buff, buff);
+	  c = buff[0];
+	}
+
+#if 0
       putch(c);
+#else  /* replacement of putch() same but a bit faster */
+      {
+	DWORD nb;
+	char c0 = (char) c;
+
+	WriteConsole(h_stdout, &c0, 1, &nb, NULL);
+      }
+#endif
       return;
     }
 
@@ -619,41 +886,88 @@ LE_Put_Char(int c)
 
 
 /*-------------------------------------------------------------------------*
- * LE_GET_CHAR                                                             *
+ * PL_LE_GET_CHAR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-LE_Get_Char(void)
+Pl_LE_Get_Char(void)
 {
-  int c;
-
-  c = GET_CHAR0;
+  int c = GET_CHAR0;
 
   if (c == 0x1b)
     {
-      int esc_c;
+      int esc_c = GET_CHAR0;
 
-      esc_c = GET_CHAR0;
 #if defined(__unix__) || defined(__CYGWIN__)
-      if (esc_c == '[' || esc_c == 'O')	/* keyboard ANSI ESC sequence */
+      int modif = 0;
+      int double_bracket = 0;
+      int number[2] = {0, 0};
+      int idx_number = 0;
+
+      if (esc_c == 0x1b)		/* CYGWIN ESC CSI ... = ALT modif + CSI ... */
 	{
-	  if ((c = GET_CHAR0) == '[')
-	    c = GET_CHAR0;
-          if (isdigit(c))
-	    {
-	      esc_c = c;
-	      c = 0;
-	      while (esc_c != '~')
-		{
-		  c = c * 10 + esc_c - '0';
-		  esc_c = GET_CHAR0;
-		}
-	    }
-	  c = (1 << 8) | c;
+	  modif = 2;		/* ALT */
+	  esc_c = GET_CHAR0;
 	}
+
+      if (esc_c == '[' || esc_c == 'O') /* keyboard ANSI ESC sequence (CSI or SS3) */
+        {
+          if ((esc_c = GET_CHAR0) == '[') /* CYGWIN ESC [ [ A = F1 ... ESC [ [ E= F5 */
+	    {
+	      esc_c = GET_CHAR0;
+	      double_bracket = 1;
+	    }
+          while(isdigit(esc_c) || esc_c == ';')
+            {
+	      if (esc_c == ';')
+		idx_number = 1 - idx_number;
+	      else
+		number[idx_number] = number[idx_number] * 10 + esc_c - '0';
+
+	      esc_c = GET_CHAR0;
+            }
+
+	  c = number[0];
+	  if (number[1])
+	    modif |= (number[1] - 1);
+
+	  if (isupper(esc_c))
+	    {
+	      if (double_bracket)
+		c = esc_c - 'A' + 11;	/* CYGWIN F1 ..F5 = CSI [ A .. CSI [ E map to 11-15 */
+	      else if (esc_c >= 'P') 	/* ANSY F1 .. F4 SS3 P .. SS3 Q map to 11-15*/
+		c = esc_c - 'P' + 11;
+	      else
+		c = esc_c;
+	    }
+	  else if (esc_c == '^')   	/* CYGWIN CTRL + F1 .. F12 = CSI 11 ^ .. CSI 24 ^ */
+	    {
+	      modif |= KEY_MODIF_CTRL;		/* CTRL */
+	    }
+	  else if (esc_c == '$') 	/* CYGWIN: shift+F11 = CSI 23 $  shift+F12 = CSI 24 $ */
+	    {
+	      modif |= KEY_MODIF_SHIFT;
+	    }
+
+	  if (c == 1) 	/* CYGWIN: Home = CSI 1 ~  End = CSI 4 ~ */
+	    c = 'H';
+	  else if (c == 4)
+	    c = 'F';
+	  else if (c >= 25 && c <= 36) /* CYGWIN: shift+F1 = F11, shift+F2=F12 shift+F3=25 */
+	    {
+	      c = c - ((c <= 26 || c == 29) ? 12 : 13);
+	      modif |= KEY_MODIF_SHIFT;
+	    }
+
+
+          c = KEY_ID2(modif, c);
+#if 0
+	  Debug_Printf("\n++++ key id: %d (%x)  modif: %d  end char: %c n[0]=%d  n[1]=%d\n", c, c, modif, esc_c, number[0], number[1]);
+#endif
+        }
       else
 #endif
-	c = KEY_ESC(esc_c);
+        c = KEY_ESC(esc_c);
     }
 
   return c;
@@ -674,46 +988,63 @@ LE_Get_Char0(void)
 
   if (read(fd_in, &c, 1) != 1)
     return KEY_CTRL('D');
+
+#if 0
+  {
+    char s[32];
+    if (isprint(c))
+      s[0] = c, s[1] = '\0';
+    else if (c == 27)
+      strcpy(s, (c == 27) ? "ESC": "???");
+      
+    Debug_Printf("char0: %d %s\n", c, s);
+  }
+#endif
   return (int) c;
 
 #elif defined(_WIN32)
 
   INPUT_RECORD ir;
   DWORD nb;
+  int modif = 0;
   int c;
 
-read_char:
-  if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb))
+ read_char:
+  if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb) || nb != 1)
     return -1;
 
   switch (ir.EventType)
     {
     case KEY_EVENT:
       if (!ir.Event.KeyEvent.bKeyDown)
-	goto read_char;
+        goto read_char;
       c = ir.Event.KeyEvent.uChar.AsciiChar & 0xff;
       if (c == 0 || c == 0xe0)
-	{
-	  c = ir.Event.KeyEvent.wVirtualKeyCode;
-	  if (c < 0x15 || c > 0x87)	/* e.g. CTRL key alone */
-	    goto read_char;
-	  if (ir.Event.KeyEvent.dwControlKeyState &
-	      (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
-	    c = (2 << 8) | c;
-	  else
-	    c = (1 << 8) | c;
-	}
-#ifdef WIN32_CONVERT_OEM_ASCII
-      else
-	{
-	  unsigned char buff[2];
+        {
+          c = ir.Event.KeyEvent.wVirtualKeyCode;
+          if (c < 0x15 || c > 0x87)     /* e.g. CTRL key alone */
+            goto read_char;
 
-	  buff[0] = c;
-	  buff[1] = '\0';
-	  OemToChar(buff, buff);
-	  c = buff[0];
-	}
-#endif
+          if (ir.Event.KeyEvent.dwControlKeyState & (SHIFT_PRESSED))
+            modif |= KEY_MODIF_SHIFT;
+
+          if (ir.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
+            modif |= KEY_MODIF_ALT;
+
+          if (ir.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+            modif |= KEY_MODIF_CTRL;
+
+	  c = KEY_ID2(modif, c);
+        }
+      else if (oem_get)
+        {
+	  char buff[2];
+	  
+          buff[0] = c;
+          buff[1] = '\0';
+          OemToChar(buff, buff);
+          c = buff[0];
+        }
       break;
 
     case MOUSE_EVENT:

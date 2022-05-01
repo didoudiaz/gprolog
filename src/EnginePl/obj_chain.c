@@ -6,29 +6,41 @@
  * Descr.: object chaining management                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 
-#include "obj_chain.h"
 #include "pl_params.h"
 #include "gp_config.h"
+#include "obj_chain.h"
 
 #define DBGPRINTF printf
 
@@ -37,7 +49,7 @@
 #endif
 
 
-void Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...);
 
 
 
@@ -52,6 +64,7 @@ void Fatal_Error(char *format, ...);
 
 typedef struct
 {
+  void (*fct_obj_init) ();
   void (*fct_exec_system) ();
   void (*fct_exec_user) ();
 }
@@ -64,21 +77,8 @@ ObjInf;
  * Global Variables                *
  *---------------------------------*/
 
-#ifndef _MSC_VER
-
-extern ObjChain obj_chain_begin;
-extern ObjChain *obj_chain_end;
-
-#else
-
-extern long obj_chain_begin;
-extern long obj_chain_end;
-
-#endif
-
 static ObjInf obj_tbl[MAX_OBJECT];
-static int nb_obj;
-
+static int nb_obj = 0;
 
 
 
@@ -88,12 +88,11 @@ static int nb_obj;
 
 
 
-
 /*-------------------------------------------------------------------------*
  * Under WIN32 with MSVC++ 6.0                                             *
  *                                                                         *
  * We use the possibility to define user sections in objects. We group the *
- * address of each initialization function in a same section (named .INIT).*
+ * address of each initialization function in a same section (named .GPLC).*
  * We use 2 markers: obj_chain_begin and obj_chain_end whose address (&)   *
  * delimit the start and the end of the initializer function address table.*
  * To know the start and end address in this section we cannot assume the  *
@@ -103,171 +102,134 @@ static int nb_obj;
  * strips down the name, it combines the sections with names that match up *
  * to the $. The name portion after the $ is used in arranging the OBJ     *
  * sections in the executable. These sections are sorted alphabetically,   *
- * based on the portion of the name after the $. For example, 4 sections   *
- * called .INIT$m, .INIT$a, .INIT$z and .INIT$b will be combined into a    *
- * single section called .INIT in the executable. The data in this section *
- * will start with .INIT$a’s data, continue with .INIT$b’s, with .INIT$m   *
- * and end with .INIT$z’s. Inside a same (sub)section the order is unknown.*
- * We use $a for obj_chain_begin, $z for obj_chain_end, $b for initializers*
- * defined in C code and $m for initializers issued from Prolog code.      *
- * This ensures C initializers are executed before Prolog initializers.    *
- * The order of Prolog initializations is unknown, butall systems inits are*
- * before user inits (generated by :- initialization).                     *
+ * based on the portion of the name after the $. For example, 3 sections   *
+ * called .GPLC$m, .GPLC$a and .GPLC$z will be combined into a single      *
+ * section called .GPLC in the executable. The data in this section will   *
+ * start with .GPLC$a's data, continue with .GPLC$m's data and end with    *
+ * .GPLC$z's data. Inside a same (sub)section the order is unknown.        *
+ * We use $a for obj_chain_begin, $z for obj_chain_end, $m for initializers*
  * WARNING: when linking do not use any superflous flag (e.g. debugging),  *
- * I have spent a lot of time to find that /ZI causes troubles (the .INIT  *
+ * I have spent a lot of time to find that /ZI causes troubles (the .GPLC  *
  * section contains much more information and then it is not correct to use*
- * its whole content between &obj_chain_begin and &obj_begin_stop.         *
+ * its whole content between &obj_chain_begin and &obj_begin_stop).        *
  *-------------------------------------------------------------------------*/
 
-#if 0
-/*-------------------------------------------------------------------------*
- * The following code is used by gcc itself. It should be interesting to   *
- * see it it is possible to reuse it (on any/most architectures) to do a   *
- * similar job to what we do under Win32 (cf. above).                      *
- *-------------------------------------------------------------------------*/
+#ifdef _MSC_VER
 
-/*
- * The following macros are used to declare global sets of objects, which
- * are collected by the linker into a `struct linker_set' as defined below.
- *
- * NB: the constants defined below must match those defined in
- * ld/ld.h.  Since their calculation requires arithmetic, we
- * can't name them symbolically (e.g., 23 is N_SETT | N_EXT).
- */
-#define MAKE_SET(set, sym, type) \
-        asm(".stabs \"_" #set "\", " #type ", 0, 0, _" #sym)
-#define TEXT_SET(set, sym) MAKE_SET(set, sym, 23)
-#define DATA_SET(set, sym) MAKE_SET(set, sym, 25)
-#define BSS_SET(set, sym)  MAKE_SET(set, sym, 27)
-#define ABS_SET(set, sym)  MAKE_SET(set, sym, 21)
+#pragma data_seg(".GPLC$a")
 
+static PlLong obj_chain_begin = 1;
+
+#pragma data_seg(".GPLC$z")
+
+static PlLong obj_chain_end = 1;
+
+#pragma data_seg()
+
+static void Accumulate_Objects(void);
 #endif
 
-
-
+#ifndef OBJ_CHAIN_REVERSE_ORDER
+#define FOR_EACH_OBJ_FROM_LAST_TO_FIRST   for(i = 0; i < nb_obj; i++)
+#define FOR_EACH_OBJ_FROM_FIRST_TO_LAST   for(i = nb_obj; --i >= 0; )
+#else
+#define FOR_EACH_OBJ_FROM_LAST_TO_FIRST   for(i = nb_obj; --i >= 0; )
+#define FOR_EACH_OBJ_FROM_FIRST_TO_LAST   for(i = 0; i < nb_obj; i++)
+#endif
 
 /*-------------------------------------------------------------------------*
- * FIND_LINKED_OBJECTS                                                     *
+ * PL_FIND_LINKED_OBJECTS                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Find_Linked_Objects(void)
+Pl_Find_Linked_Objects(void)
 {
-#ifndef _MSC_VER
-  ObjChain *p, **q;
-#else
-  long *p;
-  void (*q) ();
-#endif
   int i;
 
-  nb_obj = 0;
-
-#ifdef DEBUG
-  DBGPRINTF("ObjChain: chain begin: %#x\n", (unsigned) &obj_chain_begin);
-  DBGPRINTF("ObjChain: chain end  : %#x\n", (unsigned) &obj_chain_end);
+#ifdef _MSC_VER
+  Accumulate_Objects();
 #endif
 
-#ifndef _MSC_VER
-  if (obj_chain_begin.next != &obj_chain_end
-      || obj_chain_end != &obj_chain_begin)
-    Fatal_Error("obj_chain: executable file corrupted");
-#endif
-
-
-#ifndef _MSC_VER
-  p = &obj_chain_begin + 1;
-  while (p < (ObjChain *) &obj_chain_end)
+  FOR_EACH_OBJ_FROM_LAST_TO_FIRST			/* call Obj Init functions */
     {
-      if (p->magic1 != OBJ_CHAIN_MAGIC_1 || p->magic2 != OBJ_CHAIN_MAGIC_2
-	  || (q = p->next) < (ObjChain **) &obj_chain_begin
-	  || q > &obj_chain_end || *q != p)
-	{
+      if (obj_tbl[i].fct_obj_init != NULL) {
 #ifdef DEBUG
-#if 0
-	  DBGPRINTF("failing at %#x\n", p);
-#else
-	  DBGPRINTF(".");
+	DBGPRINTF("\n+++ Executing Obj Init Function at: %p\n",
+		  (obj_tbl[i].fct_obj_init));
 #endif
-#endif
-
-
-#if MSDOS
-	  p = (ObjChain *) ((char *) p + 1);
-#else
-	  p = (ObjChain *) ((long *) p + 1);
-#endif
-
-	  continue;
-	}
-
-#ifdef DEBUG
-      DBGPRINTF("\n*** Obj Found  start: %#x  end: %#x  Initializer: %#x\n",
-		(unsigned) p, (unsigned) q, (unsigned) (p->fct_init));
-#endif
-      (*p->fct_init) ();
-
-#if defined(M_powerpc_linux) || defined(M_alpha_linux) || \
-    defined(M_mips_irix)
-      p = (ObjChain *) ((long *) p + 1);
-#elif 0
-      p = (ObjChain *) ((char *) p + 1);
-#else
-      p = (ObjChain *) (q + 1);
-#endif
+	(*(obj_tbl[i].fct_obj_init)) ();
+      }
     }
-
-#else /* _MSC_VER */
-  p = &obj_chain_begin;
-  while (++p < &obj_chain_end)
+  FOR_EACH_OBJ_FROM_FIRST_TO_LAST			/* call Exec System functions */
     {
-      q = (void (*)()) *p;
+      if (obj_tbl[i].fct_exec_system != NULL) {
 #ifdef DEBUG
-      DBGPRINTF("\n*** Obj Found  addr: %#x  Initializer: %#x\n",
-		(unsigned) p, (unsigned) q);
+	DBGPRINTF("\n+++ Executing Exec System Function at: %p\n",
+		  (obj_tbl[i].fct_exec_system));
 #endif
-      (*q) ();
-    }
-#endif /* !MSC_VER */
-
-
-
-#if 1
-  i = nb_obj;			/* call Exec System functions from last to first */
-  while (--i >= 0)
-    {
-#ifdef DEBUG
-      DBGPRINTF("\n+++ Executing Exec System Function at: %#lx\n",
-		(long) (obj_tbl[i].fct_exec_system));
-#endif
-      if (obj_tbl[i].fct_exec_system != NULL)
 	(*(obj_tbl[i].fct_exec_system)) ();
+      }
     }
 
-  i = nb_obj;			/* call Exec User functions from last to first */
-  while (--i >= 0)
+  FOR_EACH_OBJ_FROM_LAST_TO_FIRST			/* call Exec User functions */
     {
+      if (obj_tbl[i].fct_exec_user != NULL) {
 #ifdef DEBUG
-      DBGPRINTF("\n+++ Executing Exec User Function at: %#lx\n",
-		(long) (obj_tbl[i].fct_exec_user));
+	DBGPRINTF("\n+++ Executing Exec User Function at: %p\n",
+		  (obj_tbl[i].fct_exec_user));
 #endif
-      if (obj_tbl[i].fct_exec_user != NULL)
 	(*(obj_tbl[i].fct_exec_user)) ();
+      }
     }
-#endif
 }
 
 
 
+/*-------------------------------------------------------------------------*
+ * ACCUMULATE_OBJECTS                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+#ifdef _MSC_VER
+static void
+Accumulate_Objects(void) {
+  PlLong *p;
+  void (*q) ();
+
+#ifdef DEBUG
+  DBGPRINTF("ObjChain: chain begin: %p\n", &obj_chain_begin);
+  DBGPRINTF("ObjChain: chain end  : %p\n", &obj_chain_end);
+#endif
+
+  p = &obj_chain_begin;
+  while (++p < &obj_chain_end)
+    {
+      q = (void (*)()) *p;
+      if (q) {
+#ifdef DEBUG
+	DBGPRINTF("\n*** Obj Found  addr: %p  Initializer: %p\n", p, q);
+#endif
+	(*q) ();
+      }
+    }
+}
+#endif /* MSC_VER */
+
+
+
 
 /*-------------------------------------------------------------------------*
- * NEW_OBJECT                                                              *
+ * PL_NEW_OBJECT                                                           *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void
-New_Object(void (*fct_exec_system) (), void (*fct_exec_user) ())
+Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fct_exec_user) ())
 {
+#ifdef DEBUG
+  DBGPRINTF("\n--> Pl_New_Object  obj_init:%p  exec_sys:%p   exec_user:%p\n",
+            fct_obj_init, fct_exec_system, fct_exec_user);
+#endif
+  obj_tbl[nb_obj].fct_obj_init = fct_obj_init;
   obj_tbl[nb_obj].fct_exec_system = fct_exec_system;
   obj_tbl[nb_obj].fct_exec_user = fct_exec_user;
   nb_obj++;

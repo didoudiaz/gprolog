@@ -1,0 +1,586 @@
+\newpage
+\section{Prolog directives and control constructs}
+%HEVEA\cutdef[1]{subsection}
+\subsection{Prolog directives}
+
+\subsubsection{Introduction}
+Prolog directives are annotations inserted in Prolog source files for the
+compiler. A Prolog directive is used to specify:
+
+\begin{itemize}
+
+\item the properties of some procedures defined in the source file.
+
+\item the format and the syntax for read-terms in the source file (using
+changeable Prolog flags).
+
+\item included source files.
+
+\item a goal to be executed at run-time.
+
+\end{itemize}
+
+\subsubsection{\IdxDiD{dynamic/1} \label{dynamic/1}}
+
+\begin{TemplatesOneCol}
+dynamic(+predicate\_indicator)\\
+dynamic(+predicate\_indicator\_list)\\
+dynamic(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{dynamic(Pred)} specifies that the procedure whose
+predicate indicator is \texttt{Pred} is a dynamic procedure. This directive
+makes it possible to alter the definition of \texttt{Pred} by adding or
+removing clauses. For more information refer to the section about dynamic
+clause management \RefSP{Introduction:(Dynamic-clause-management)}.
+
+This directive shall precede the definition of \texttt{Pred} in the source
+file.
+
+If there is no clause for \texttt{Pred} in the source file, \texttt{Pred}
+exists however as an empty predicate (this means that
+\texttt{current\_predicate(Pred)} succeeds).
+
+In order to allow multiple definitions, \texttt{Pred} can also be a list of
+predicate indicators or a sequence of predicate indicators using
+\texttt{','/2} as separator.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{public/1} \label{public/1}}
+
+\begin{TemplatesOneCol}
+public(+predicate\_indicator)\\
+public(+predicate\_indicator\_list)\\
+public(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{public(Pred)} specifies that the procedure whose predicate indicator
+is \texttt{Pred} is a public procedure. This directive makes it possible to
+inspect the clauses of \texttt{Pred}. For more information refer to the
+section about dynamic clause management \RefSP{Introduction:(Dynamic-clause-management)}.
+
+This directive shall precede the definition of \texttt{Pred} in the source
+file. Since a dynamic procedure is also public. It is useless (but correct)
+to define a public directive for a predicate already declared as dynamic.
+
+In order to allow multiple definitions, \texttt{Pred} can also be a list of
+predicate indicators or a sequence of predicate indicators using
+\texttt{','/2} as separator.
+
+\Portability
+
+GNU Prolog directive. The ISO reference does not define any directive to
+declare a predicate public but it does distinguish public predicates. It is
+worth noting that in most Prolog systems the \texttt{public/1} directive is
+as a visibility declaration. Indeed, declaring a predicate as public makes
+it visible from any predicate defined in any other file (otherwise the
+predicate is only visible from predicates defined in the same source file as
+itself). When a module system is incorporated in GNU Prolog a more general
+visibility declaration shall be provided conforming to the ISO reference.
+
+\subsubsection{\IdxDiD{multifile/1}}
+
+\begin{TemplatesOneCol}
+multifile(+predicate\_indicator)\\
+multifile(+predicate\_indicator\_list)\\
+multifile(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{multifile(Pred)} specifies that the procedure whose predicate
+indicator is \texttt{Pred} is a multifle procedure (the clauses of
+\texttt{Pred} can reside in several source files). This directive is only
+supported by GNU Prolog since version 1.4.0.
+
+The native compilation scheme of GNU Prolog requires that each Prolog source
+file refering to a multifile predicate \texttt{Pred} must include a
+\texttt{multifile(Pred)} directive even if no clause are defined in this file
+for \texttt{Pred} (i.e. \texttt{Pred} is only called by other predicates in
+this source file).
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{discontiguous/1}}
+
+\begin{TemplatesOneCol}
+discontiguous(+predicate\_indicator)\\
+discontiguous(+predicate\_indicator\_list)\\
+discontiguous(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{discontiguous(Pred)} specifies that the procedure whose predicate
+indicator is \texttt{Pred} is a discontiguous procedure. Namely, the clauses
+defining \texttt{Pred} are not restricted to be consecutive but can appear
+anywhere in the source file.
+
+This directive shall precede the definition of \texttt{Pred} in the source
+file.
+
+In order to allow multiple definitions, \texttt{Pred} can also be a list of
+predicate indicators or a sequence of predicate indicators using
+\texttt{','/2} as separator.
+
+A multifile predicate (declared with a \IdxDi{multifile/1} directive) cannot
+be directly called from a file where it is not declared as multifile (the
+native compiler must know the called predicate is multifile). Workarounds:
+either call it via a meta-call (e.g. using \texttt{call/1}) or declare it as
+multifile in the calling source file). A good habit is to encapsulate a
+multifile predicate in a monofile predicate which invokes it (external call
+only invoke the monofile wrapper predicate).
+
+\Portability
+
+ISO directive. 
+
+\subsubsection{\IdxDiD{ensure\_linked/1}}
+
+\begin{TemplatesOneCol}
+ensure\_linked(+predicate\_indicator)\\
+ensure\_linked(+predicate\_indicator\_list)\\
+ensure\_linked(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{ensure\_linked(Pred)} specifies that the procedure
+whose predicate indicator is \texttt{Pred} must be included by the linker.
+This directive is useful when compiling to native code to force the linker to
+include the code of a given predicate. Indeed, if the \texttt{gplc} is
+invoked with an option to reduce the size of the executable
+\RefSP{Using-the-compiler}, the linker only includes the code of predicates
+that are statically referenced. However, the linker cannot detect dynamically
+referenced predicates (used as data passed to a meta-call predicate). The use
+of this directive prevents it to exclude the code of such predicates.
+
+In order to allow multiple definitions, \texttt{Pred} can also be a list of
+predicate indicators or a sequence of predicate indicators using
+\texttt{','/2} as separator.
+
+\Portability
+
+GNU Prolog directive.
+
+\subsubsection{\IdxDiD{built\_in/0},
+               \IdxDiD{built\_in/1},
+               \IdxDiD{built\_in\_fd/0},
+               \IdxDiD{built\_in\_fd/1}}
+
+\begin{TemplatesOneCol}
+built\_in\\
+built\_in(+predicate\_indicator)\\
+built\_in(+predicate\_indicator\_list)\\
+built\_in(+predicate\_indicator\_sequence)\\
+built\_in\_fd\\
+built\_in\_fd(+predicate\_indicator)\\
+built\_in\_fd(+predicate\_indicator\_list)\\
+built\_in\_fd(+predicate\_indicator\_sequence)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{built\_in} specifies that the procedures defined from
+now have the \IdxPP{built\_in} property \RefSP{predicate-property/2}.
+
+\texttt{built\_in(Pred)} is similar to \texttt{built\_in/0} but
+only affects the procedure whose predicate indicator is \texttt{Pred}.
+
+This directive shall precede the definition of \texttt{Pred} in the source
+file.
+
+In order to allow multiple definitions, \texttt{Pred} can also be a list of
+predicate indicators or a sequence of predicate indicators using
+\texttt{','/2} as separator.
+
+\texttt{built\_in\_fd} (resp.
+\texttt{built\_in\_fd(Pred)}) is similar to
+\texttt{built\_in} (resp. \texttt{built\_in(Pred)}) but sets the
+\IdxPP{built\_in\_fd} predicate property \RefSP{predicate-property/2}.
+
+\Portability
+
+GNU Prolog directives.
+
+\subsubsection{\IdxDiD{include/1}}
+
+\begin{TemplatesOneCol}
+include(+atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{include(File)} specifies that the content of the Prolog source
+\texttt{File} shall be inserted. The resulting Prolog text is identical to
+the Prolog text obtained by replacing the directive by the content of the
+Prolog source \texttt{File}.
+
+In case of \texttt{File} is a relative file name, it is searched in the
+current directory. If it is not found it is then searched in each directory
+of parent includers.
+
+
+See \IdxPB{absolute\_file\_name/2} for information about the syntax of
+\texttt{File} \RefSP{absolute-file-name/2}.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{if/1}, \IdxDiD{else/0}, \IdxDiD{endif/0}, \IdxDiD{elif/1} }
+
+\begin{TemplatesOneCol}
+if(+callable\_term) \\
+else\\
+endif\\
+elif(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+These directives are for conditional compilation.
+
+\texttt{if(Goal)} compile subsequent code only if \texttt{Goal}
+succeeds. \texttt{Goal} is first processed by \texttt{expand\_term/2}
+\RefSP{expand-term/2}.  If \texttt{Goal} raises an exception it is printed
+and \texttt{Goal} fails.
+
+\texttt{else} introduces the \textit{else} part.
+
+\texttt{endif} terminates a conditional compilation part.
+
+\texttt{elif(Goal)} is a shorthand for \texttt{:- else. :- if(Goal). $\ldots$ :- endif}.
+
+\Portability
+
+GNU Prolog directive. Also in SWI and YAP.
+
+
+\subsubsection{\IdxDiD{ensure\_loaded/1}}
+
+\begin{TemplatesOneCol}
+ensure\_loaded(+atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{ensure\_loaded(File)} is not supported by GNU Prolog. When such a
+directive is encountered it is simply ignored.
+
+\Portability
+
+ISO directive. Not supported.
+
+\subsubsection{\IdxDiD{op/3} \label{op/3}}
+
+\begin{TemplatesOneCol}
+op(+integer, +operator\_specifier, +atom\_or\_atom\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{op(Priority, OpSpecifier, Operator)} alters the operator table. This
+directive is executed as soon as it is encountered by calling the built-in
+predicate \IdxPB{op/3} \RefSP{op/3:(Term-input/output)}. A system
+directive is also generated to reflect the effect of this directive at
+run-time \RefSP{Running-an-executable}.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{char\_conversion/2}}
+
+\begin{TemplatesOneCol}
+char\_conversion(+character, +character)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{char\_conversion(InChar, OutChar)} alters the character-conversion
+mapping. This directive is executed as soon as it is encountered by a call
+to the built-in predicate \IdxPB{char\_conversion/2}
+\RefSP{char-conversion/2}. A system directive is also generated to reflect
+the effect of this directive at run-time \RefSP{Running-an-executable}.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{set\_prolog\_flag/2}}
+
+\begin{TemplatesOneCol}
+set\_prolog\_flag(+flag, +term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{set\_prolog\_flag(Flag, Value)} sets the value of the
+\Idx{Prolog flag} \texttt{Flag} to \texttt{Value}. This directive is
+executed as soon as it is encountered by a call to the built-in predicate
+\IdxPB{set\_prolog\_flag/2} \RefSP{set-prolog-flag/2}. A system directive
+is also generated to reflect the effect of this directive at run-time
+\RefSP{Running-an-executable}.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{initialization/1} \label{initialization/1}}
+
+\begin{TemplatesOneCol}
+initialization(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{initialization(Goal)} adds \texttt{Goal} to the set of goal which
+shall be executed at run-time. A user directive is generated to execute
+\texttt{Goal} at run-time. If several initialization directives appear in
+the same file they are executed in the order of appearance
+\RefSP{Running-an-executable}.
+
+\Portability
+
+ISO directive.
+
+\subsubsection{\IdxDiD{foreign/2},
+               \IdxDiD{foreign/1} \label{foreign/2}}
+
+\begin{TemplatesOneCol}
+foreign(+callable\_term, +foreign\_option\_list)\\
+foreign(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{foreign(Template, Options)} defines an interface predicate whose
+prototype is \texttt{Template} according to the options given by
+\texttt{Options}. Refer to the foreign code interface for more information
+\RefSP{Calling-C-from-Prolog}.
+
+\texttt{foreign(Template)} is equivalent to \texttt{foreign(Template, [])}.
+
+\Portability
+
+GNU Prolog directive.
+
+\subsection{Prolog control constructs}
+\label{control-construct}
+
+GNU Prolog follows the ISO notion of \Idx{control constructs}. 
+
+\subsubsection{\IdxCCD{true/0},
+               \IdxCCD{fail/0},
+               \AddCCD{"!/0}\texttt{!/0} \label{true/0}} % Pb with ! in \index with HeVeA
+
+\begin{TemplatesOneCol}
+true\\
+fail\\
+!
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{true} always succeeds.
+
+\texttt{fail} always fails (enforces backtracking).
+
+\texttt{!} always succeeds and the for side-effect of removing all
+choice-points created since the invocation of the predicate activating it.
+
+\PlErrorsNone
+
+\Portability
+
+ISO control constructs.
+
+\subsubsection{\IdxCCD{(',')/2} - conjunction,
+               \IdxCCD{(;)/2} - disjunction,
+               \IdxCCD{(-{\gt})/2} - if-then, 
+               \IdxCCD{(*-{\gt})/2} - soft-cut (soft if-then)}
+
+\begin{TemplatesOneCol}
+','(+callable\_term, +callable\_term)\\
+;(+callable\_term, +callable\_term)\\
+-{\gt}(+callable\_term, +callable\_term)\\
+{*-{\gt}}(+callable\_term, +callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{Goal1 , Goal2} executes \texttt{Goal1} and, in case of
+success, executes \texttt{Goal2}.
+
+\texttt{Goal1 ; Goal2} first creates a choice-point and executes
+\texttt{Goal1}. On backtracking \texttt{Goal2} is executed.
+
+\texttt{Goal1 -{\gt} Goal2} first executes \texttt{Goal1} and,
+in case of success, removes all choice-points created by \texttt{Goal1} and
+executes \texttt{Goal2}. This control construct acts like an if-then
+(\texttt{Goal1} is the test part and \texttt{Goal2} the then part). Note that
+if \texttt{Goal1} fails \texttt{-{\gt}/2} fails also. \texttt{-{\gt}/2} is
+often combined with \texttt{;/2} to define an if-then-else as follows:
+\texttt{Goal1 -{\gt} Goal2 ; Goal3}. Note that \texttt{Goal1 -{\gt} Goal2}
+is the first argument of the \texttt{(;)/2} and \texttt{Goal3} (the else
+part) is the second argument. Such an if-then-else control construct first
+creates a choice-point for the else-part (intuitively associated with
+\texttt{;/2}) and then executes \texttt{Goal1}. In case of success, all
+choice-points created by \texttt{Goal1} together with the choice-point for
+the else-part are removed and \texttt{Goal2} is executed. If \texttt{Goal1}
+fails then \texttt{Goal3} is executed.
+
+\texttt{Goal1 *-{\gt} Goal2 ; Goal3} implements the so-called
+\Idx{soft-cut}. It acts as the above if-then-else except that if
+\texttt{Goal1} succeeds only \texttt{Goal3} is cut (the alternative solutions
+of \texttt{Goal1} are preserved and can be found by backtracking). Note that
+\texttt{Goal1 *-{\gt} Goal2} alone (i.e. without an else branch
+\texttt{Goal3}) is equivalent to \texttt{(Goal1 , Goal2)}.
+
+
+\texttt{','}, \texttt{;}, \texttt{-{\gt}} and \texttt{*-{\gt}} are predefined
+infix operators \RefSP{op/3:(Term-input/output)}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Goal1} or \texttt{Goal2} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Goal1} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Goal1)}
+
+\ErrCond{\texttt{Goal2} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Goal2)}
+
+\ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal1} or
+\texttt{Goal2} does not correspond to an existing procedure and the value of
+the \texttt{unknown} Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
+\ErrTerm{existence\_error(procedure, Pred)}
+
+\end{PlErrors}
+
+\Portability
+
+ISO control constructs except \texttt{(*-{\gt})/2} which is GNU Prolog specific.
+
+\subsubsection{\IdxCCD{call/1} \label{call/1}}
+
+\begin{TemplatesOneCol}
+call(+callable\_term)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{call(Goal)} executes \texttt{Goal}. \texttt{call/1} succeeds if
+\texttt{Goal} represents a goal which is true. When \texttt{Goal} contains a
+cut symbol \AddCC{"!/0}\texttt{!} \RefSP{true/0} as a subgoal, the effect of
+\texttt{!} does not extend outside \texttt{Goal}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Goal} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Goal} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Goal)}
+
+\ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal} does not
+correspond to an existing procedure and the value of the \texttt{unknown}
+Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
+\ErrTerm{existence\_error(procedure, Pred)}
+
+\end{PlErrors}
+
+\Portability
+
+ISO control construct.
+
+\subsubsection{\IdxCCD{catch/3},
+               \IdxCCD{throw/1} \label{catch/3}}
+
+\begin{TemplatesOneCol}
+catch(?callable\_term, ?term, ?term)\\
+throw(+nonvar)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{catch(Goal, Catcher, Recovery)} is similar to \texttt{call(Goal)}
+\RefSP{call/1}. If this succeeds or fails, so does the call to
+\texttt{catch/3}. If however, during the execution of \texttt{Goal}, there
+is a call to \texttt{throw(Ball)}, the current flow of control is
+interrupted, and control returns to a call of \texttt{catch/3} that is being
+executed. This can happen in one of two ways:
+
+\begin{itemize}
+
+\item implicitly, when an error condition for a built-in predicate is
+satisfied.
+
+\item explicitly, when the program executes a call of \texttt{throw/1}
+because the program wishes to abandon the current processing, and instead to
+take an alternative action.
+
+\end{itemize}
+
+\texttt{throw(Ball)} causes the normal flow of control to be transferred
+back to an existing call of \texttt{catch/3}. When a call to
+\texttt{throw(Ball)} happens, \texttt{Ball} is copied and the stack is
+unwound back to the call to \texttt{catch/3}, whereupon the copy of
+\texttt{Ball} is unified with \texttt{Catcher}. If this unification
+succeeds, then \texttt{catch/3} executes the goal \texttt{Recovery} using
+\texttt{call/1} \RefSP{call/1} in order to determine the success or
+failure of \texttt{catch/3}. Otherwise, in case the unification fails,
+the stack keeps unwinding, looking for an earlier invocation of
+\texttt{catch/3}. \texttt{Ball} may be any non-variable term.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Ball} is a variable}
+\ErrTerm{instantiation\_error}
+
+\end{PlErrors}
+
+If \texttt{Ball} does not unify with the \texttt{Catcher} argument of
+any call of \texttt{catch/3}, a system error message is displayed and
+\texttt{throw/1} fails.
+
+When \texttt{catch/3} calls \texttt{Goal} or \texttt{Recovery} it uses \texttt{call/1}
+\RefSP{call/1}, an \texttt{instantiation\_error}, a \texttt{type\_error}
+or an \texttt{existence\_error} can then occur depending on
+\texttt{Goal} or \texttt{Recovery}.
+
+\Portability
+
+ISO control constructs.
+
+%HEVEA\cutend
+

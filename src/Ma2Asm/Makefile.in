@@ -1,9 +1,16 @@
-GPLC   = @GPLC@
-CC     = @CC@
-CFLAGS = @CFLAGS@
+GPLC    = @GPLC@
+CC      = @CC@ @CFLAGS_MACHINE@
+CFLAGS  = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LDLIBS  = @LDLIBS@
 
+# set by mappers.sh
+FORCE_MAP =
 
 all: ma2asm@EXE_SUFFIX@
+
+force-mapper:
+	$(MAKE) FORCE_MAP=-DFORCE_MAP=2
 
 ma_parser@OBJ_SUFFIX@: ma_parser.c ma_parser.h ma_protos.h
 	$(CC) $(CFLAGS) -c ma_parser.c
@@ -13,20 +20,20 @@ ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
 	$(CC) $(CFLAGS) -c ma2asm.c
 
 ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
-               ix86_any.c ix86_win32.c powerpc_any.c sparc_any.c \
-               mips_irix.c alpha_any.c x86_64_any.c
-	$(CC) $(CFLAGS) -c ma2asm_inst.c
+               ix86_any.c ppc32_any.c sparc32_any.c sparc64_any.c \
+               mips32_any.c alpha_any.c x86_64_any.c arm32_any.c arm64_any.c riscv64_any.c
+	$(CC) $(CFLAGS) $(FORCE_MAP) -c ma2asm_inst.c
 
 ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
                     ma2asm_inst@OBJ_SUFFIX@ ma2asm_inst.c
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ ma2asm@EXE_SUFFIX@
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp ma2asm@EXE_SUFFIX@
 
 
-distclean: clean clean-check clean-extract_asm
+distclean: clean clean-chkma clean-extract_asm
 
 
 
@@ -38,30 +45,35 @@ extract_asm@EXE_SUFFIX@: extract_asm.c
 clean-extract_asm:
 	rm -f extract_asm@EXE_SUFFIX@
 
-# for check
-CHECK_OBJS=check@OBJ_SUFFIX@ check_ma@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
 
-# use make FC=Y check to generate an fc check
+check: chkma@EXE_SUFFIX@
+	@./chkma@EXE_SUFFIX@
 
-FC=-DFAST
+clean-check: clean-chkma
 
-check@OBJ_SUFFIX@: check.c
+
+
+# for chkma
+CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+
+# use make FC=Y chkma to generate an fc check
+ 
+chkma@OBJ_SUFFIX@: chkma.c ../EnginePl/engine.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
-	$(GPLC) -C "$(CFLAGS) $$FCFLAGS" -c check.c
+	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c chkma.c
 
-check_ma@ASM_SUFFIX@: check_ma.ma ma2asm@EXE_SUFFIX@
-	if [ "$$FC" = "Y" ]; then cp check_ma.ma tmp.ma; \
-	else sed -e 's/ fast / /' check_ma.ma >tmp.ma; fi; \
-	$(GPLC) -S --comment tmp.ma -o check_ma@ASM_SUFFIX@
+chkma_ma@ASM_SUFFIX@: chkma_ma.ma ma2asm@EXE_SUFFIX@
+	if [ "$$FC" != "Y" ]; then MAFLAGS='--ignore-fast'; fi; \
+	./ma2asm --comment $$MAFLAGS chkma_ma.ma
 
-check_ma@OBJ_SUFFIX@: check_ma@ASM_SUFFIX@
-	$(GPLC) -c check_ma@ASM_SUFFIX@
+chkma_ma@OBJ_SUFFIX@: chkma_ma@ASM_SUFFIX@
+	$(GPLC) -c chkma_ma@ASM_SUFFIX@
 
-check@EXE_SUFFIX@: $(CHECK_OBJS)
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@check@EXE_SUFFIX@ $(CHECK_OBJS)
+chkma@EXE_SUFFIX@: $(CHKMA_OBJS)
+	$(GPLC) -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) --no-pl-lib
 
-clean-check:
-	rm -f check@OBJ_SUFFIX@ check_ma@ASM_SUFFIX@ check_ma@OBJ_SUFFIX@ check@EXE_SUFFIX@
+clean-chkma:
+	rm -f chkma@OBJ_SUFFIX@ chkma_ma@ASM_SUFFIX@ chkma_ma@OBJ_SUFFIX@ chkma@EXE_SUFFIX@
 
 
 

@@ -1,0 +1,22 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=gprolog.chm
+Contents file=hh-gprolog.hhc
+Default Window=mainwindow
+Default topic=index.html
+Display compile progress=No
+Enhanced decompilation=Yes
+Full-text search=Yes
+Index file=hh-gprolog.hhk
+Language=0x409 Anglais (États-Unis)
+Title=GNU Prolog Manual
+
+[WINDOWS]
+mainwindow=,"hh-gprolog.hhc","hh-gprolog.hhk","index.html",,,,,,0x22520,,0x387e,,,,,,,,0
+
+
+[FILES]
+index.html
+
+[INFOTYPES]
+

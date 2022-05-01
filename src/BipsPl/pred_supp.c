@@ -6,23 +6,35 @@
  * Descr.: predicate management support                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +54,6 @@
 
 
 
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -59,15 +70,15 @@
 
 
 /*-------------------------------------------------------------------------*
- * DETECT_IF_AUX_NAME                                                      *
+ * PL_DETECT_IF_AUX_NAME                                                   *
  *                                                                         *
  * returns NULL if not an aux name or a pointer to / before the arity of   *
  * the father.                                                             *
  *-------------------------------------------------------------------------*/
 char *
-Detect_If_Aux_Name(int func)
+Pl_Detect_If_Aux_Name(int func)
 {
-  char *str = atom_tbl[func].name;
+  char *str = pl_atom_tbl[func].name;
   char *p, *q;
 
 
@@ -97,42 +108,42 @@ Detect_If_Aux_Name(int func)
 
 
 /*-------------------------------------------------------------------------*
- * FATHER_PRED_OF_AUX                                                      *
+ * PL_FATHER_PRED_OF_AUX                                                   *
  *                                                                         *
  * returns -1 if it is not an aux predicate name.                          *
  *-------------------------------------------------------------------------*/
 int
-Father_Pred_Of_Aux(int func, int *father_arity)
+Pl_Father_Pred_Of_Aux(int func, int *father_arity)
 {
   char *p;
   int l;
 
-  p = Detect_If_Aux_Name(func);
+  p = Pl_Detect_If_Aux_Name(func);
   if (p == NULL)
     return -1;
 
-  l = p - atom_tbl[func].name;
+  l = p - pl_atom_tbl[func].name;
 
   *father_arity = strtol(p + 1, NULL, 10);
-  strcpy(glob_buff, atom_tbl[func].name + 1);	/* skip 1st $ */
-  glob_buff[l - 1] = '\0';
+  strcpy(pl_glob_buff, pl_atom_tbl[func].name + 1);	/* skip 1st $ */
+  pl_glob_buff[l - 1] = '\0';
 
-  return Create_Allocate_Atom(glob_buff);
+  return Pl_Create_Allocate_Atom(pl_glob_buff);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PRED_WITHOUT_AUX                                                        *
+ * PL_PRED_WITHOUT_AUX                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pred_Without_Aux(int func, int arity, int *arity1)
+Pl_Pred_Without_Aux(int func, int arity, int *arity1)
 {
   int func1;
 
-  func1 = Father_Pred_Of_Aux(func, arity1);
+  func1 = Pl_Father_Pred_Of_Aux(func, arity1);
   if (func1 < 0)
     {
       *arity1 = arity;
@@ -146,15 +157,30 @@ Pred_Without_Aux(int func, int arity, int *arity1)
 
 
 /*-------------------------------------------------------------------------*
- * MAKE_AUX_NAME                                                           *
+ * PL_MAKE_AUX_NAME                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Make_Aux_Name(int func, int arity, int aux_nb)
+Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 {
-  func = Pred_Without_Aux(func, arity, &arity);
+  func = Pl_Pred_Without_Aux(func, arity, &arity);
 
-  sprintf(glob_buff, "$%s/%d%s%d", atom_tbl[func].name, arity, AUX_STR,
-	  aux_nb);
-  return Create_Allocate_Atom(glob_buff);
+  sprintf(pl_glob_buff, "$%s/%d%s%d", pl_atom_tbl[func].name, arity, AUX_STR, aux_nb);
+  return Pl_Create_Allocate_Atom(pl_glob_buff);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
+ *                                                                         *
+ * (e.g. called by pl2wam for each clause of a dynamic or multifile pred)  *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
+{
+  Pl_BC_Start_Emit_0();
+  Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);
+  Pl_BC_Stop_Emit_0();
 }

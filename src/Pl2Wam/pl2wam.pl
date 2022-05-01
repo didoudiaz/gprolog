@@ -6,23 +6,40 @@
  * Descr.: main file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
+
+pl2wam(Arg) :-
+	atom(Arg),
+	Arg \== [], !,			% to call easily inder top-level
+	pl2wam([Arg]).
 
 pl2wam(LArg) :-
 	catch(pl2wam1(LArg), Err, exception(Err)).
@@ -33,18 +50,18 @@ pl2wam(LArg) :-
 pl2wam1(LArg) :-
 	cmd_line_args(LArg, PlFile, WamFile),
 	prolog_file_name(PlFile, PlFile1),
-	read_file_init(PlFile),
-	emit_code_init(WamFile, PlFile),
 	g_read(native_code, NativeCode),
 	compile_msg_start(PlFile1, NativeCode),
+	read_file_init(PlFile),
+	emit_code_init(WamFile, PlFile),
 	init_counters,
 	repeat,
 	read_predicate(Pred, N, LSrcCl),
 	add_counter(user_read_file, real_read_file),
-	(   LSrcCl = []                                   % [] at end of file
-	                ->
+	(   LSrcCl = [] ->	% [] at end of file
 	    !
-	;   read_file_error_nb(0),
+	;
+	    read_file_error_nb(0),
 	    compile_and_emit_pred(NativeCode, Pred, N, LSrcCl),
 	    fail
 	),
@@ -82,9 +99,9 @@ compile_and_emit_pred(f, Pred, N, LSrcCl) :-
 compile_emit_inits(Pred, N, LSrcCl, PlFile1, PlLine) :-
 	g_assign(cur_func, Pred),
 	g_assign(cur_arity, N),
-	syntactic_sugar_init_pred(Pred, N),
 	LSrcCl = [[PlFile * _|_] + (PlLine - _) + _|_],
-	absolute_file_name(PlFile, PlFile1).
+	absolute_file_name(PlFile, PlFile1),
+	syntactic_sugar_init_pred(Pred, N, PlFile1).
 
 
 
@@ -131,7 +148,8 @@ compile_msg_start(PlFile, NativeCode) :-
 	    Type = 'native code'
 	;   Type = 'byte code'
 	),
-	format('compiling ~a for ~a...~n', [PlFile, Type]).
+	format('compiling ~a for ~a...~n', [PlFile, Type]),
+	flush_output.
 
 
 
@@ -252,12 +270,14 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
 	g_assign(native_code, t),
+	g_assign(wam_comment, ''),
 	g_assign(susp_warn, t),
 	g_assign(singl_warn, t),
 	g_assign(redef_error, t),
 	g_assign(foreign_only, f),
 	g_assign(call_c, t),
 	g_assign(inline, t),
+	g_assign(optim_fail, t), % does not correspond to a command-line option (TODO ?)
 	g_assign(reorder, t),
 	g_assign(reg_opt, 2),
 	g_assign(opt_last_subterm, t),
@@ -322,6 +342,9 @@ cmd_line_arg1('--wam-for-byte-code', LArg, LArg) :-
 	g_assign(native_code, f),
 	g_assign(inline, f),                              % force --no-inline
 	g_assign(call_c, f).                              % force --no-call-c
+
+cmd_line_arg1('--wam-comment', [Cmt|LArg], LArg) :-
+	g_assign(wam_comment, Cmt).
 
 cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
 	g_assign(susp_warn, f).
@@ -407,12 +430,12 @@ display_copying :-
 	prolog_version(Version),
 	prolog_copyright(Copyright),
 	format('Prolog to Wam Compiler (~a) ~a~n', [Name, Version]),
-	format('By Daniel Diaz~n', []),
 	write(Copyright),
-	nl,
+	nl, nl,
 	format('~a comes with ABSOLUTELY NO WARRANTY.~n', [Name]),
 	format('You may redistribute copies of ~a~n', [Name]),
-	format('under the terms of the GNU General Public License.~n', []),
+	format('under the terms of the GNU Lesser General Public License~n', []),
+	format('or of the terms of the GNU General Public License (or both in parallel)~n', []),
 	format('For more information about these matters, see the files named COPYING.~n', []).
 
 
@@ -442,6 +465,7 @@ h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
 h('  --pl-state FILE             read FILE to set the initial Prolog state').
+h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').
 h('  --no-redef-error            do not show errors for built-in redefinitions').

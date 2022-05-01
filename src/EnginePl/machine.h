@@ -6,26 +6,40 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
+
+#ifndef _MACHINE_H
+#define _MACHINE_H
 
 #include "bool.h"
-
 
 
 /*---------------------------------*
@@ -44,49 +58,57 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Machine(void);
+void Pl_Init_Machine(void);
 
-void M_Allocate_Stacks(void);
+char *Pl_M_Sys_Err_String(int err_no);
 
-char *M_Sys_Err_String(int err_no);
+PlLong Pl_M_User_Time(void);
 
-long M_User_Time(void);
+PlLong Pl_M_System_Time(void);
 
-long M_System_Time(void);
+PlLong Pl_M_Real_Time(void);
 
-long M_Real_Time(void);
+void Pl_M_Randomize(void);
 
-void M_Randomize(void);
+void Pl_M_Set_Seed(int n);
 
-void M_Set_Seed(int n);
+int Pl_M_Get_Seed(void);
 
-int M_Get_Seed(void);
+int Pl_M_Random_Integer(int n);
 
-int M_Random_Integer(int n);
-
-double M_Random_Float(double n);
+double Pl_M_Random_Float(double n);
 
 
 
-char *M_Host_Name_From_Name(char *host_name);
+char *Pl_M_Host_Name_From_Name(char *host_name);
 
-char *M_Host_Name_From_Adr(char *host_address);
+char *Pl_M_Host_Name_From_Adr(char *host_address);
 
-char *M_Get_Working_Dir(void);
+char *Pl_M_Get_Working_Dir(void);
 
-Bool M_Set_Working_Dir(char *path);
+Bool Pl_M_Set_Working_Dir(char *path);
 
-char *M_Absolute_Path_Name(char *src);
+char *Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash);
 
-#ifdef M_ix86_win32
+char *Pl_M_Absolute_Path_Name(char *src);
+
+Bool Pl_M_Is_Absolute_File_Name(char *path);
+
+char *Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, 
+			       char **base, char **suffix);
+
+Bool Pl_M_Path_Ends_With_Dir(char *path);
+
+int Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error);
+
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
 
 int getpagesize(void);
 
-int Is_Win32_SEGV(void *exp);
-
-void SIGSEGV_Handler(void);
-
 #endif
+
+void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 
 
@@ -95,29 +117,21 @@ void SIGSEGV_Handler(void);
  * Register Definitions            *
  *---------------------------------*/
 
-#if defined(M_sparc_sunos)
+#if defined(M_sparc32)
 
 #    define M_USED_REGS            {"g6", "g7", 0}
 
-#elif defined(M_sparc_solaris)
-
-#    define M_USED_REGS            {"g6", "g7", 0}
-
-#elif defined(M_mips_irix)
+#elif defined(M_mips32)
 
 #define M_USED_REGS                {"$16", "$17", "$18", "$19", "$20", \
                                     "$21", "$22", "$23", 0}
 
-#elif defined(M_alpha_linux)
+#elif defined(M_alpha)
 
 #    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
 
-#elif defined(M_alpha_osf)
-
-#    define M_USED_REGS            {"$9", "$10", "$11", "$12", "$13", "$14", 0}
-
-#elif defined(M_ix86_linux)   || defined(M_ix86_sco) || \
-      defined(M_ix86_solaris) || defined(M_ix86_cygwin)
+/* on M_ix86_darwin : %ebx is used by gcc for pic base */
+#elif defined(M_ix86) && !defined(_MSC_VER) && !defined(M_ix86_darwin)
 
 #ifdef NO_USE_EBP
 #    define M_USED_REGS            {"ebx", 0}
@@ -125,13 +139,29 @@ void SIGSEGV_Handler(void);
 #    define M_USED_REGS            {"ebx", "ebp", 0}
 #endif
 
-#elif defined(M_powerpc_linux)
+#elif defined(M_ppc32)
 
 #    define M_USED_REGS            {"15", "20", 0}
 
-#elif defined(M_powerpc_darwin)
+#elif defined(M_arm32)
 
-#    define M_USED_REGS            {"15", "20", 0}
+	/* do not use r7 (frame pointer in Thumb code) */
+#    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
+
+#elif defined(M_arm64) && !defined(__clang__) /* clang/llvm do not yet handle Global Register Variables */
+
+	/* do not use x29 (frame pointer) */
+#    define M_USED_REGS            {"x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
+
+
+#elif defined(M_riscv64)
+
+	/* using s1-s5 causes problem with CTRL+C with -O3 */
+#    define M_USED_REGS            {/*"s1", "s2", "s3", "s4", "s5",*/ "s6", "s7", "s8", "s9", "s10", "s11", 0}
+
+#elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
+
+#    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
 #elif defined(M_x86_64_linux)
 
@@ -144,7 +174,35 @@ void SIGSEGV_Handler(void);
 #endif
 
 
-#if defined(M_ix86) && !defined(M_ix86_win32) && !defined(NO_USE_REGS)
+/* for some archs, we prefer to not aalloc pl_reg_bank in a reg
+ * saving it for a WAM register
+ */
+#if defined(M_ix86) // && !defined(_WIN32) // && !defined(NO_USE_REGS)
+#define NO_MACHINE_REG_FOR_REG_BANK
+#endif
+
+
+/* In no regs are used (--disable-regs => NO_USE_REGS), we normally also
+ * define NO_MACHINE_REG_FOR_REG_BANK to avoid pl_reg_bank to be in a reg.
+ * 
+ * Some archs need pl_reg_bank in a register. For instance x86_64/darwin 
+ * needs a reg for pl_reg_bank (default is r12) else Ma2Asm produces code 
+ * ending with the following error:
+ * '32-bit absolute addressing is not supported for x86-64'
+ *
+ * To force a machine reg for a given arch add it as !defined(M_arch) below
+ * and initialize this register in engine1.c
+ * E.g. to force a reg (def is r12) for x86_64/linux replace in the next line
+ * by !defined(M_x86_64)
+ */
+#if defined(NO_USE_REGS) && !defined(NO_MACHINE_REG_FOR_REG_BANK) && \
+  !defined(M_x86_64) && !defined(M_x86_64_darwin) && !defined(M_arm32) && !defined(M_arm64)
+#define NO_MACHINE_REG_FOR_REG_BANK
+#endif
+
+
+/* To really force NO_MACHINE_REG_FOR_REG_BANK (testing) */
+#if 0 /* or e.g. defined(M_arm64) */
 #define NO_MACHINE_REG_FOR_REG_BANK
 #endif
 
@@ -155,33 +213,19 @@ void SIGSEGV_Handler(void);
  * Stacks Management               *
  *---------------------------------*/
 
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris)  || \
-    defined(M_ix86_linux)  || defined(M_powerpc_linux)  || \
-    defined(M_ix86_sco)    || defined(M_ix86_solaris)   || \
-    defined(M_mips_irix)   || defined(M_powerpc_darwin) || \
-    defined(M_ix86_win32)
+#if WORD_SIZE == 32
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x0ffffff0
-#   define M_MMAP_HIGH_ADR_ALT     0x3ffffff0
-#   define M_Check_Stacks()
+#   define M_MMAP_HIGH_ADR1        0x0ffffff0
+#   define M_MMAP_HIGH_ADR2        0x3ffffff0
+#   define M_MMAP_HIGH_ADR3        0x7ffffff0
 
 #elif defined(M_alpha_osf) || defined(M_alpha_linux)
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x3f800000000ULL
-#   define M_Check_Stacks()
+#   define M_MMAP_HIGH_ADR1        0x3f800000000ULL
 
-#elif defined(M_x86_64_linux)
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
 
-#   define M_USE_MMAP
-#   define M_MMAP_HIGH_ADR         0x4000000000ULL
-#   define M_Check_Stacks()
-
-#else
-
-#   define M_USE_MALLOC
-#   define M_Check_Stacks()        M_Check_Magic_Words()
+#   define M_MMAP_HIGH_ADR1        0x4000000000ULL
 
 #endif
 
@@ -191,9 +235,13 @@ void SIGSEGV_Handler(void);
 
 
 
-#if defined(M_USE_MALLOC) || defined(M_powerpc_darwin)
+/*---------------------------------*
+ * Malloc Management               *
+ *---------------------------------*/
 
-#define M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-void M_Check_Magic_Words(void);
+#if defined(__OpenBSD__) || defined(M_bsd)
+#define USE_DL_MALLOC
+#endif
+
 
 #endif

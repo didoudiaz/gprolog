@@ -1,0 +1,30 @@
+Used tools
+
+ResEdit (http://www.resedit.net/)
+---------------------------------
+
+Configure to add it include PATH, e.g.: 
+C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include
+(must contain windows.h)
+
+modify the name of the header file (default: resource.h)
+set it to w32_resource.h)
+
+
+
+Icon:
+-----
+
+Done with gimp. Sizes 16x16, 24x24, 32x32, 64x64
+
+Saved in the resource (and then in the w32guicons.dll).
+The w32_console uses LoadIcon to set it under the GUI.
+
+To also be included in the gprolog.exe file, the same resource
+file is linked with gprolog.exe.
+
+
+IconExplorer
+------------
+
+To visualize icons (also inside exe, dll).

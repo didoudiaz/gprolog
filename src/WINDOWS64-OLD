@@ -1,0 +1,142 @@
+	Windows 64 compilation/installation instructions
+	------------------------------------------------
+
+
+NB: Please read the src/WINDOWS file first !
+
+This file only documents the 64 bits specific part.
+
+The preliminar port to Win64 has been done in Jan 2011 by
+Jasper Taylor <jasper@simulistics.com>. Many thanks to him !
+I have then added some finishing touches.
+
+1) Compiling with mingw64
+-------------------------
+
+I have tested it under x86-64/Windows 7, 8 and 10. I use Cygwin or MSYS as compilation
+environment (see file WINDOWS). I used mingw-w64 which delivers a complete
+toolchain (runtime, headers, and libs) for developing 64 bit (x64), as well
+as 32 bit (x86), windows applications using gcc. It possible to get mingw-w64
+from http://mingw-w64.sourceforge.net/ or, under cygwin64, with the cygwin setup-x86_64.exe 
+utility selecting the packages: mingw64-i686-gcc-core and/or mingw64-x86_64-gcc-core
+which both add other needed packages like binutils, headers, ...
+
+Tested with mingw64/mingw32 gcc version 4.5.3, 4.6.3, 4.7.0 and 10.2.0
+
+With the cygwin package things are installed in:
+
+   /usr/x86_64-w64-mingw32/  and in  /usr/i686-w64-mingw32/
+      bin <- some binutils non-prefixed binaries
+      lib
+      lib64
+      sys-root
+      sys-root/mingw
+      sys-root/mingw/bin
+      sys-root/mingw/include
+      sys-root/mingw/lib
+
+The toolchain executables in /usr/bin are all prefixed with:
+
+   x86_64-w64-mingw32 (e.g. x86_64-w64-mingw32-gcc.exe) 
+   to produce 64 bits objs/execs/libs/...
+
+and with 
+
+   i686-w64-mingw32   (e.g. i686-w64-mingw32-gcc.exe)
+   to produce 32 bits objs/execs/libs/...
+
+Strictly speaking i686-... are not needed here (since we are interested in 64 bits)
+
+
+Using original mingw64 packages
+
+If you are under MSYS or if you prefer a more recent version under Cygwin,
+you can download mingw64 from the official site: http://mingw-w64.sourceforge.net/
+From the left menu:
+- "What do I download ?", read it to know what you download
+- "WIN64 Downloads" (to run under a 64 bits Windows)
+- "WIN32 Downloads" (to run under a 32 or 64 bits Windows)
+NB: on each arch (32 or 64) you can produce 32 bits (prefix i686) or 64 bits (prefix x86_64) code.
+ 
+You can either chose Automated Builds or Personal Builds (in this one I use
+rubenvb builds which also include gdb).
+
+
+HTML Help
+---------
+
+To use HtmlHelp the C compiler needs a header file and a library.
+NB: under cygwin they should be provided by both mingw64-i686 and/or mingw64-x86_64 toolchains
+If not present, install the microsoft SDK (see also WINDOWS). Files should be in
+C:\Program Files (x86)\Windows Kits or in C:/Program Files (x86)/Microsoft SDKs/Windows
+
+The header file is HtmlHelp.h and the libs (32 and 64 bits) are named Htmlhelp.lib.
+
+Example of locations:
+   C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\HtmlHelp.h
+   C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64\Htmlhelp.lib
+   C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x86\Htmlhelp.lib
+
+Under cygwin/mingw, if you don't have these files, copy them in the toolchain
+from Windows Kits (NB: libs must be renamed as .a) :
+
+   copy htmlHelp.h   in /usr/x86_64-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+   copy HtmlHelp.h   in /usr/i686-w64-mingw32/sys-root/mingw/include/htmlhelp.h
+
+   copy Htmlhelp.lib in /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
+   copy Htmlhelp.lib in /usr/i686-w64-mingw32/sys-root/mingw/lib/libhtmlhelp.a
+
+
+Configuration
+-------------
+
+Open a Cygwin shell and go to GNU Prolog source directory:
+
+type 
+    ./configure --host=x86_64-w64-mingw32
+
+(or ./configure --host=i686-w64-mingw32 to build a 32 bits version)
+
+
+NB: with this configuration all needed tools (gcc, ar, ...) are first searched 
+prefixed with x86_64-w64-mingw32 (or i686-w64-mingw32) as provided by the cygwin package.
+
+then
+    make
+    make check
+    make install
+
+
+
+2) Compiling GNU Prolog using MSVC++
+------------------------------------
+
+See the same section in file WINDOWS (it is basically the same process). Be sure
+you run a cygwin which invokes the 64 bits version of the MSVC++ compiler
+to check run 'cl' and see if  you obtain something with a x64 like:
+   Microsoft (R) C/C++ Optimizing Compiler Version 17.00.50727.1 for x64
+
+Basically you have to set PATH and other variables invoking the MSVS .bat
+   call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x64
+
+
+Finally, you need the YASM assembler (called yasm.exe). Copy it under a
+directory inside your PATH (for instance in /bin) under the name yasm-win64.exe.
+A version can be found at:
+
+http://gprolog.org/yasm-win64.exe
+
+
+
+3) Limitations
+--------------
+
+Currently hardware detection of stack overflows does not work 
+(SEH is not yet implemented in mingw64).
+
+
+
+
+LocalWords:  mingw64 mingw-w64 cygwin cygwin mingw objs rubenvb htmlhtlp.h
+LocalWords:  x86_64-w64-mingw32-gcc.exe Optimizing vcvarsall.bat yasm.exe
+LocalWords:  yasm-win64.exe

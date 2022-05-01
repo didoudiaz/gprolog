@@ -27,7 +27,11 @@ stop::=		'stop' c_ident
 bloc_lst::=	bloc...
 	|	empty
 
-bloc::=		'start' bloc_name elem... forall last_elem trig always
+bloc::= 	foreach 'start' bloc_name elem... forall last_elem trig always
+
+
+foreach::=	'foreach' var 'in' var 'do'
+	|	empty
 
 bloc_name::=	'(' c_ident ')'
 	|	empty
@@ -40,7 +44,7 @@ elem::=		type var			type = int / range
 	|	empty
 
 
-forall::=	'forall' var 'of' var 'do'
+forall::=	'forall' var 'in' var 'do'
 	|	empty
 
 

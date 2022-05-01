@@ -6,23 +6,35 @@
  * Descr.: top Level - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 
 #include "gp_config.h"
@@ -62,30 +74,47 @@
  * Global Variables                *
  *---------------------------------*/
 
+
+#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
+static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
+#endif
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
-#define ABORT                      X61626F7274
+#define ABORT                      X0_abort
 
-#define BREAK                      X627265616B
+#define BREAK                      X0_break
 
 Prolog_Prototype(ABORT, 0);
 Prolog_Prototype(BREAK, 0);
 
-static long Ctrl_C_Manager(int from_callback);
+static PlLong Ctrl_C_Manager(int from_callback);
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SET_CTRL_C_HANDLER_0                                                    *
+ * PL_SET_CTRL_C_HANDLER_0                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Set_Ctrl_C_Handler_0(void)
+Pl_Set_Ctrl_C_Handler_0(void)
 {
-  Install_Ctrl_C_Handler(Ctrl_C_Manager);
+  Pl_Install_Ctrl_C_Handler(Ctrl_C_Manager);
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * CTRL_C_MANAGER                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Save_Regs_For_Signal(void)
+{
+  Save_Machine_Regs(buff_save_machine_regs);
 }
 
 
@@ -95,34 +124,35 @@ Set_Ctrl_C_Handler_0(void)
  * CTRL_C_MANAGER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Ctrl_C_Manager(int from_callback)
 {
-  StmInf *pstm = stm_tbl[stm_top_level_output];
+  StmInf *pstm = pl_stm_tbl[pl_stm_top_level_output];
   PredInf *pred;
   int c;
   CodePtr to_execute;
 
-  Reset_Prolog_In_Signal();
+  //  Pl_Reset_Prolog_In_Signal();
+  Restore_Machine_Regs(buff_save_machine_regs);
 
 start:
-  Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
-  Stream_Flush(pstm);
+  Pl_Stream_Printf(pstm, "\nProlog interruption (h for help) ? ");
+  Pl_Stream_Flush(pstm);
 
-  c = Stream_Get_Key(stm_tbl[stm_top_level_input], TRUE, FALSE);
-  Stream_Putc('\n', pstm);
+  c = Pl_Stream_Get_Key(pl_stm_tbl[pl_stm_top_level_input], TRUE, FALSE);
+  Pl_Stream_Putc('\n', pstm);
 
   switch (c)
     {
     case 'a':			/* abort */
       to_execute = Prolog_Predicate(ABORT, 0);
       if (from_callback)
-	return (long) to_execute;
-      Execute_A_Continuation(to_execute);
+	return (PlLong) to_execute;
+      Pl_Execute_A_Continuation(to_execute);
       break;
 
     case 'b':			/* break */
-      Call_Prolog(Prolog_Predicate(BREAK, 0));
+      Pl_Call_Prolog(Prolog_Predicate(BREAK, 0));
       goto start;
       break;
 
@@ -130,27 +160,26 @@ start:
       break;
 
     case 'e':			/* exit */
-      Exit_With_Value(0);
+      Pl_Exit_With_Value(0);
 
     case 't':			/* trace */
     case 'd':			/* debug */
       if (SYS_VAR_DEBUGGER)
 	{
-	  pred =
-	    Lookup_Pred(Create_Atom((c == 't') ? "trace" : "debug"), 0);
+	  pred = Pl_Lookup_Pred(Pl_Create_Atom((c == 't') ? "trace" : "debug"), 0);
 	  if (pred == NULL)
-	    Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
+	    Pl_Fatal_Error(ERR_DEBUGGER_NOT_FOUND);	/* should not occur */
 
-	  Call_Prolog((CodePtr) pred->codep);
+	  Pl_Call_Prolog((CodePtr) pred->codep);
 	  break;
 	}
 
     default:			/* help */
-      Stream_Printf(pstm, "   a  abort        b  break\n");
-      Stream_Printf(pstm, "   c  continue     e  exit\n");
+      Pl_Stream_Printf(pstm, "   a  abort        b  break\n");
+      Pl_Stream_Printf(pstm, "   c  continue     e  exit\n");
       if (SYS_VAR_DEBUGGER)
-	Stream_Printf(pstm, "   d  debug        t  trace\n");
-      Stream_Printf(pstm, "  h/? help\n");
+	Pl_Stream_Printf(pstm, "   d  debug        t  trace\n");
+      Pl_Stream_Printf(pstm, "  h/? help\n");
       goto start;
     }
   return 0;

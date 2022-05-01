@@ -6,23 +6,35 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <string.h>
@@ -44,11 +56,11 @@
  * INTERVAL_MAX_INTEGER: an integer constant corresponding to the greatest *
  *                       value for intervals (i.e. 0..INTERVAL_MAX_INTEGER)*
  *                                                                         *
- * vec_max_integer     : an integer variable corresponding to the greatest *
- *                       value for vectors   (i.e. 0..vec_max_integer).    *
- * vec_size            : an integer variable corresponding to the size of a*
- *                       vector in words (i.e. vec_max_integer/WORD_SIZE)  *
- *                       (see Define_Vector_Size() function).              *
+ * pl_vec_max_integer  : an integer variable corresponding to the greatest *
+ *                       value for vectors   (i.e. 0..pl_vec_max_integer). *
+ * pl_vec_size         : an integer variable corresponding to the size of a*
+ *                       vector in words(i.e. pl_vec_max_integer/WORD_SIZE)*
+ *                       (see Pl_Define_Vector_Size() function).           *
  *                                                                         *
  * RANGE_TOP_STACK     : a long * variable corresponding to the top of the *
  *                       stack where are allocated the bit-vectors.        *
@@ -60,7 +72,7 @@
  *                                                                         *
  * The following macros can be redefined:                                  *
  *                                                                         *
- * WORD_SIZE           : a constant defining sizeof(long) in bits (32/64). *
+ * WORD_SIZE           : a constant defining sizeof(void*) in bits (32/64).*
  *-------------------------------------------------------------------------*/
 
 
@@ -107,91 +119,29 @@
 
 
 /*-------------------------------------------------------------------------*
- * LEAST_SIGNIFICANT_BIT                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Least_Significant_Bit(VecWord x)
-{
-  int bit = 0;
-
-#if WORD_SIZE == 64
-  if (x << 32 == 0)
-    bit += 32, x >>= 32;
-#endif
-
-  if (x << (WORD_SIZE - 32 + 16) == 0)
-    bit += 16, x >>= 16;
-  if (x << (WORD_SIZE - 32 + 16 + 8) == 0)
-    bit += 8, x >>= 8;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4) == 0)
-    bit += 4, x >>= 4;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4 + 2) == 0)
-    bit += 2, x >>= 2;
-  if (x << (WORD_SIZE - 32 + 16 + 8 + 4 + 2 + 1) == 0)
-    bit += 1;
-
-  return bit;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * MOST_SIGNIFICANT_BIT                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Most_Significant_Bit(VecWord x)
-{
-  int bit = WORD_SIZE - 1;
-
-#if WORD_SIZE == 64
-  if (x >> 32 == 0)
-    bit -= 32, x <<= 32;
-#endif
-
-  if (x >> (WORD_SIZE - 32 + 16) == 0)
-    bit -= 16, x <<= 16;
-  if (x >> (WORD_SIZE - 32 + 16 + 8) == 0)
-    bit -= 8, x <<= 8;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4) == 0)
-    bit -= 4, x <<= 4;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4 + 2) == 0)
-    bit -= 2, x <<= 2;
-  if (x >> (WORD_SIZE - 32 + 16 + 8 + 4 + 2 + 1) == 0)
-    bit -= 1;
-
-  return bit;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * DEFINE_VECTOR_SIZE                                                      *
+ * PL_DEFINE_VECTOR_SIZE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Define_Vector_Size(int max_val)
+Pl_Define_Vector_Size(int max_val)
 {
-  vec_size = max_val / WORD_SIZE + 1;
-  vec_max_integer = vec_size * WORD_SIZE - 1;
+  pl_vec_size = max_val / WORD_SIZE + 1;
+  pl_vec_max_integer = pl_vec_size * WORD_SIZE - 1;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_FROM_INTERVAL                                                    *
+ * PL_VECTOR_FROM_INTERVAL                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_From_Interval(Vector vec, int min, int max)
+Pl_Vector_From_Interval(Vector vec, int min, int max)
 {
   Vector w_min = vec + Word_No(min);
   Vector w_max = vec + Word_No(max);
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   for (;;)
     if (vec == w_min)
@@ -219,47 +169,18 @@ Vector_From_Interval(Vector vec, int min, int max)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_NB_ELEM                                                          *
+ * PL_VECTOR_NB_ELEM                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Vector_Nb_Elem(Vector vec)
+Pl_Vector_Nb_Elem(Vector vec)
 {
-  static int nb_bits_in_byte[256] =
-    { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3,
-    4, 2, 3, 3, 4, 3, 4, 4, 5,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5,
-    3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-    4, 5, 5, 6, 5, 6, 6, 7,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7,
-    5, 6, 6, 7, 6, 7, 7, 8
-  };
-  register Vector end = vec + vec_size;
-  register VecWord vec_word;
+  register Vector end = vec + pl_vec_size;
   register int nb_elem = 0;
 
   do
     {
-      vec_word = *vec;
-      nb_elem += nb_bits_in_byte[vec_word & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 8) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 16) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 24) & 0xFF];
-#if WORD_SIZE == 64
-      nb_elem += nb_bits_in_byte[(vec_word >> 32) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 40) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 48) & 0xFF];
-      nb_elem += nb_bits_in_byte[(vec_word >> 56) & 0xFF];
-#endif
+      nb_elem += Pl_Count_Set_Bits(*vec);
       vec++;
     }
   while (vec < end);
@@ -271,11 +192,11 @@ Vector_Nb_Elem(Vector vec)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_ITH_ELEM                                                         *
+ * PL_VECTOR_ITH_ELEM                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Vector_Ith_Elem(Vector vec, int i)
+Pl_Vector_Ith_Elem(Vector vec, int i)
 {
   int vec_elem;
 
@@ -296,11 +217,11 @@ Vector_Ith_Elem(Vector vec, int i)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_NEXT_AFTER                                                       *
+ * PL_VECTOR_NEXT_AFTER                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Vector_Next_After(Vector vec, int n)
+Pl_Vector_Next_After(Vector vec, int n)
 {
   int word_no;
   int bit_no;
@@ -311,7 +232,7 @@ Vector_Next_After(Vector vec, int n)
 
   if (n >= 0)			/* n >= 0 find next */
     {
-      if (n > vec_max_integer)
+      if (n > pl_vec_max_integer)
 	return -1;
 
       word_no = Word_No(n);
@@ -319,7 +240,7 @@ Vector_Next_After(Vector vec, int n)
 
       start = vec + word_no;
 
-      word = (bit_no == WORD_SIZE) ? 0 : *start & ~((1 << bit_no) - 1);
+      word = (bit_no == WORD_SIZE) ? 0 : *start & ~(((PlLong)1 << bit_no) - 1);
     }
   else				/* n < 0 find first */
     {
@@ -328,7 +249,7 @@ Vector_Next_After(Vector vec, int n)
     }
 
 
-  end = vec + vec_size;
+  end = vec + pl_vec_size;
 
   while (word == 0)
     {
@@ -338,7 +259,7 @@ Vector_Next_After(Vector vec, int n)
       word = *start;
     }
 
-  bit = Least_Significant_Bit(word);
+  bit = Pl_Least_Significant_Bit(word);
   n = Word_No_And_Bit_No(start - vec, bit);
 
   return n;
@@ -348,11 +269,11 @@ Vector_Next_After(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_NEXT_BEFORE                                                      *
+ * PL_VECTOR_NEXT_BEFORE                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Vector_Next_Before(Vector vec, int n)
+Pl_Vector_Next_Before(Vector vec, int n)
 {
   int word_no;
   int bit_no;
@@ -361,7 +282,7 @@ Vector_Next_Before(Vector vec, int n)
   VecWord word;
   int bit;
 
-  if (n <= vec_max_integer)	/* n <= vec_max_integer find previous */
+  if (n <= pl_vec_max_integer)	/* n <= pl_vec_max_integer find previous */
     {
       if (n < 0)
 	return -1;
@@ -371,11 +292,11 @@ Vector_Next_Before(Vector vec, int n)
 
       end = vec + word_no;
 
-      word = *end & ((1 << bit_no) - 1);
+      word = *end & (((PlLong)1 << bit_no) - 1);
     }
-  else				/* n > vec_max_integer find last */
+  else				/* n > pl_vec_max_integer find last */
     {
-      end = vec + vec_size - 1;
+      end = vec + pl_vec_size - 1;
       word = *end;
     }
 
@@ -390,7 +311,7 @@ Vector_Next_Before(Vector vec, int n)
       word = *end;
     }
 
-  bit = Most_Significant_Bit(word);
+  bit = Pl_Most_Significant_Bit(word);
   n = Word_No_And_Bit_No(end - vec, bit);
 
   return n;
@@ -400,13 +321,13 @@ Vector_Next_Before(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_EMPTY                                                            *
+ * PL_VECTOR_EMPTY                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Empty(Vector vec)
+Pl_Vector_Empty(Vector vec)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec++ = 0;
@@ -417,13 +338,13 @@ Vector_Empty(Vector vec)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_FULL                                                             *
+ * PL_VECTOR_FULL                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Full(Vector vec)
+Pl_Vector_Full(Vector vec)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec++ = ALL_1;
@@ -434,13 +355,13 @@ Vector_Full(Vector vec)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_TEST_NULL_INTER                                                  *
+ * PL_VECTOR_TEST_NULL_INTER                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Vector_Test_Null_Inter(Vector vec, Vector vec1)
+Pl_Vector_Test_Null_Inter(Vector vec, Vector vec1)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     if (*vec++ & *vec1++)
@@ -453,13 +374,13 @@ Vector_Test_Null_Inter(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_COPY                                                             *
+ * PL_VECTOR_COPY                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Copy(Vector vec, Vector vec1)
+Pl_Vector_Copy(Vector vec, Vector vec1)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec++ = *vec1++;
@@ -470,13 +391,13 @@ Vector_Copy(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_UNION                                                            *
+ * PL_VECTOR_UNION                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Union(Vector vec, Vector vec1)
+Pl_Vector_Union(Vector vec, Vector vec1)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec++ |= *vec1++;
@@ -487,13 +408,13 @@ Vector_Union(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_INTER                                                            *
+ * PL_VECTOR_INTER                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Inter(Vector vec, Vector vec1)
+Pl_Vector_Inter(Vector vec, Vector vec1)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec++ &= *vec1++;
@@ -504,13 +425,13 @@ Vector_Inter(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_COMPL                                                            *
+ * PL_VECTOR_COMPL                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Compl(Vector vec)
+Pl_Vector_Compl(Vector vec)
 {
-  Vector end = vec + vec_size;
+  Vector end = vec + pl_vec_size;
 
   do
     *vec = ~(*vec), vec++;
@@ -521,19 +442,19 @@ Vector_Compl(Vector vec)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_ADD_VECTOR                                                       *
+ * PL_VECTOR_ADD_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Add_Vector(Vector vec, Vector vec1)
+Pl_Vector_Add_Vector(Vector vec, Vector vec1)
 {
   Vector aux_vec;
   int vec_elem, vec_elem1;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
@@ -541,7 +462,7 @@ Vector_Add_Vector(Vector vec, Vector vec1)
 
   x = vec_elem + vec_elem1;
 
-  if (x > vec_max_integer)
+  if (x > pl_vec_max_integer)
     goto loop1;
 
   Vector_Set_Value(vec, x);
@@ -557,19 +478,19 @@ loop1:;
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_SUB_VECTOR                                                       *
+ * PL_VECTOR_SUB_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Sub_Vector(Vector vec, Vector vec1)
+Pl_Vector_Sub_Vector(Vector vec, Vector vec1)
 {
   Vector aux_vec;
   int vec_elem, vec_elem1;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
@@ -592,19 +513,19 @@ loop1:;
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_MUL_VECTOR                                                       *
+ * PL_VECTOR_MUL_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Mul_Vector(Vector vec, Vector vec1)
+Pl_Vector_Mul_Vector(Vector vec, Vector vec1)
 {
   Vector aux_vec;
   int vec_elem, vec_elem1;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
@@ -612,7 +533,7 @@ Vector_Mul_Vector(Vector vec, Vector vec1)
 
   x = vec_elem * vec_elem1;
 
-  if (x > vec_max_integer)
+  if (x > pl_vec_max_integer)
     goto loop1;
 
   Vector_Set_Value(vec, x);
@@ -628,20 +549,20 @@ loop1:;
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_DIV_VECTOR                                                       *
+ * PL_VECTOR_DIV_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Div_Vector(Vector vec, Vector vec1)
+Pl_Vector_Div_Vector(Vector vec, Vector vec1)
 {
   Vector aux_vec;
   int vec_elem, vec_elem1;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
+  Pl_Vector_Copy(aux_vec, vec);
 
-  Vector_Empty(vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
@@ -667,19 +588,19 @@ Vector_Div_Vector(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_MOD_VECTOR                                                       *
+ * PL_VECTOR_MOD_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Mod_Vector(Vector vec, Vector vec1)
+Pl_Vector_Mod_Vector(Vector vec, Vector vec1)
 {
   Vector aux_vec;
   int vec_elem, vec_elem1;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
@@ -700,11 +621,11 @@ Vector_Mod_Vector(Vector vec, Vector vec1)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_ADD_VALUE                                                        *
+ * PL_VECTOR_ADD_VALUE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Add_Value(Vector vec, int n)
+Pl_Vector_Add_Value(Vector vec, int n)
 {
   int word_no;
   int bit_no;
@@ -718,8 +639,8 @@ Vector_Add_Value(Vector vec, int n)
 
       if (word_no)
 	{
-	  i = vec_size - 1;
-	  j = vec_size - 1 - word_no;
+	  i = pl_vec_size - 1;
+	  j = pl_vec_size - 1 - word_no;
 
 	  while (j >= 0)
 	    vec[i--] = vec[j--];
@@ -731,7 +652,7 @@ Vector_Add_Value(Vector vec, int n)
       if (bit_no)
 	{
 	  rem = 0;
-	  for (i = word_no; i < vec_size; i++)
+	  for (i = word_no; i < pl_vec_size; i++)
 	    {
 	      rem1 = vec[i] >> (WORD_SIZE - bit_no);
 	      vec[i] = (vec[i] << bit_no) | rem;
@@ -749,17 +670,17 @@ Vector_Add_Value(Vector vec, int n)
 	  i = 0;
 	  j = word_no;
 
-	  while (j < vec_size)
+	  while (j < pl_vec_size)
 	    vec[i++] = vec[j++];
 
-	  while (i < vec_size)
+	  while (i < pl_vec_size)
 	    vec[i++] = 0;
 	}
 
       if (bit_no)
 	{
 	  rem = 0;
-	  for (i = vec_size - 1 - word_no; i >= 0; i--)
+	  for (i = pl_vec_size - 1 - word_no; i >= 0; i--)
 	    {
 	      rem1 = vec[i] << (WORD_SIZE - bit_no);
 	      vec[i] = (vec[i] >> bit_no) | rem;
@@ -773,25 +694,25 @@ Vector_Add_Value(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_MUL_VALUE                                                        *
+ * PL_VECTOR_MUL_VALUE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Mul_Value(Vector vec, int n)
+Pl_Vector_Mul_Value(Vector vec, int n)
 {
   Vector aux_vec;
   int vec_elem;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
   x = vec_elem * n;
 
-  if ((unsigned) x > (unsigned) vec_max_integer)
+  if ((unsigned) x > (unsigned) pl_vec_max_integer)
     return;
 
   Vector_Set_Value(vec, x);
@@ -803,19 +724,19 @@ Vector_Mul_Value(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_DIV_VALUE                                                        *
+ * PL_VECTOR_DIV_VALUE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Div_Value(Vector vec, int n)
+Pl_Vector_Div_Value(Vector vec, int n)
 {
   Vector aux_vec;
   int vec_elem;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   if (n == 0)
     return;
@@ -835,19 +756,19 @@ Vector_Div_Value(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * VECTOR_MOD_VALUE                                                        *
+ * PL_VECTOR_MOD_VALUE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Vector_Mod_Value(Vector vec, int n)
+Pl_Vector_Mod_Value(Vector vec, int n)
 {
   Vector aux_vec;
   int vec_elem;
   int x;
 
   Vector_Allocate(aux_vec);
-  Vector_Copy(aux_vec, vec);
-  Vector_Empty(vec);
+  Pl_Vector_Copy(aux_vec, vec);
+  Pl_Vector_Empty(vec);
 
   if (n == 0)
     return;
@@ -855,7 +776,7 @@ Vector_Mod_Value(Vector vec, int n)
   VECTOR_BEGIN_ENUM(aux_vec, vec_elem);
 
   x = vec_elem % n;
-  if ((unsigned) x <= (unsigned) vec_max_integer)
+  if ((unsigned) x <= (unsigned) pl_vec_max_integer)
     Vector_Set_Value(vec, x);
 
   VECTOR_END_ENUM;
@@ -865,11 +786,11 @@ Vector_Mod_Value(Vector vec, int n)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_TEST_VALUE                                                        *
+ * PL_RANGE_TEST_VALUE                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Range_Test_Value(Range *range, int n)
+Pl_Range_Test_Value(Range *range, int n)
 {
   int min = range->min;
   int max = range->max;
@@ -887,11 +808,11 @@ Range_Test_Value(Range *range, int n)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_TEST_NULL_INTER                                                   *
+ * PL_RANGE_TEST_NULL_INTER                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Range_Test_Null_Inter(Range *range, Range *range1)
+Pl_Range_Test_Null_Inter(Range *range, Range *range1)
 {
   int swt, i;
 
@@ -905,7 +826,7 @@ Range_Test_Null_Inter(Range *range, Range *range1)
   swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
 
   if (swt == 3)			/* Sparse with Sparse */
-    return Vector_Test_Null_Inter(range1->vec, range->vec);
+    return Pl_Vector_Test_Null_Inter(range1->vec, range->vec);
 
 
   if ((range->min >= range1->min && range->max >= range1->max) ||
@@ -916,7 +837,7 @@ Range_Test_Null_Inter(Range *range, Range *range1)
     return FALSE;
 
   if (swt == 2)			/* Sparse with Interval */
-    return Range_Test_Null_Inter(range1, range);
+    return Pl_Range_Test_Null_Inter(range1, range);
 
 
   /* Interval with Sparse */
@@ -934,11 +855,11 @@ Range_Test_Null_Inter(Range *range, Range *range1)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_COPY                                                              *
+ * PL_RANGE_COPY                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Copy(Range *range, Range *range1)
+Pl_Range_Copy(Range *range, Range *range1)
 {
   range->extra_cstr = range1->extra_cstr;
   range->min = range1->min;
@@ -949,7 +870,7 @@ Range_Copy(Range *range, Range *range1)
   else
     {
       Vector_Allocate_If_Necessary(range->vec);
-      Vector_Copy(range->vec, range1->vec);
+      Pl_Vector_Copy(range->vec, range1->vec);
     }
 }
 
@@ -957,28 +878,28 @@ Range_Copy(Range *range, Range *range1)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_NB_ELEM                                                           *
+ * PL_RANGE_NB_ELEM                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Range_Nb_Elem(Range *range)
+Pl_Range_Nb_Elem(Range *range)
 {
   if (Is_Interval(range))	/* here range is not empty */
     return range->max - range->min + 1;
 
 
-  return Vector_Nb_Elem(range->vec);
+  return Pl_Vector_Nb_Elem(range->vec);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_ITH_ELEM                                                          *
+ * PL_RANGE_ITH_ELEM                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Range_Ith_Elem(Range *range, int i)
+Pl_Range_Ith_Elem(Range *range, int i)
 {
   int n;
 
@@ -993,18 +914,18 @@ Range_Ith_Elem(Range *range, int i)
     }
 
 
-  return Vector_Ith_Elem(range->vec, i);
+  return Pl_Vector_Ith_Elem(range->vec, i);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_NEXT_AFTER                                                        *
+ * PL_RANGE_NEXT_AFTER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Range_Next_After(Range *range, int n)
+Pl_Range_Next_After(Range *range, int n)
 {
   if (Is_Empty(range))
     return -1;
@@ -1022,18 +943,18 @@ Range_Next_After(Range *range, int n)
     }
 
 
-  return Vector_Next_After(range->vec, n);
+  return Pl_Vector_Next_After(range->vec, n);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_NEXT_BEFORE                                                       *
+ * PL_RANGE_NEXT_BEFORE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Range_Next_Before(Range *range, int n)
+Pl_Range_Next_Before(Range *range, int n)
 {
   if (Is_Empty(range))
     return -1;
@@ -1051,47 +972,47 @@ Range_Next_Before(Range *range, int n)
     }
 
 
-  return Vector_Next_Before(range->vec, n);
+  return Pl_Vector_Next_Before(range->vec, n);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_BECOMES_SPARSE                                                    *
+ * PL_RANGE_BECOMES_SPARSE                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Becomes_Sparse(Range *range)
+Pl_Range_Becomes_Sparse(Range *range)
 {
   Vector_Allocate_If_Necessary(range->vec);
 
   if (range->min < 0)
     range->min = 0;
 
-  if ((range->extra_cstr = (range->max > vec_max_integer)))
-    range->max = vec_max_integer;
+  if ((range->extra_cstr = (range->max > pl_vec_max_integer)))
+    range->max = pl_vec_max_integer;
 
   if (Is_Not_Empty(range))
-    Vector_From_Interval(range->vec, range->min, range->max);
+    Pl_Vector_From_Interval(range->vec, range->min, range->max);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_FROM_VECTOR                                                       *
+ * PL_RANGE_FROM_VECTOR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_From_Vector(Range *range)
+Pl_Range_From_Vector(Range *range)
 {
   Vector start;
   Vector end;
   int bit;
 
   start = range->vec - 1;
-  end = range->vec + vec_size;
+  end = range->vec + pl_vec_size;
 
   for (;;)
     if (*++start)
@@ -1106,10 +1027,10 @@ Range_From_Vector(Range *range)
     if (*--end)
       break;
 
-  bit = Least_Significant_Bit(*start);
+  bit = Pl_Least_Significant_Bit(*start);
   range->min = Word_No_And_Bit_No(start - range->vec, bit);
 
-  bit = Most_Significant_Bit(*end);
+  bit = Pl_Most_Significant_Bit(*end);
   range->max = Word_No_And_Bit_No(end - range->vec, bit);
 }
 
@@ -1117,11 +1038,11 @@ Range_From_Vector(Range *range)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_SET_VALUE                                                         *
+ * PL_RANGE_SET_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Set_Value(Range *range, int n)
+Pl_Range_Set_Value(Range *range, int n)
 {
   if (Is_Empty(range))
     {
@@ -1136,7 +1057,7 @@ Range_Set_Value(Range *range, int n)
 
       if (n == range->min - 1)
 	{
-	  range->min++;
+	  range->min--;
 	  return;
 	}
 
@@ -1146,11 +1067,11 @@ Range_Set_Value(Range *range, int n)
 	  return;
 	}
 
-      Range_Becomes_Sparse(range);
-      if ((unsigned) n <= (unsigned) vec_max_integer)
+      Pl_Range_Becomes_Sparse(range);
+      if ((unsigned) n <= (unsigned) pl_vec_max_integer)
 	{
 	  Vector_Set_Value(range->vec, n);
-	  Range_From_Vector(range);
+	  Pl_Range_From_Vector(range);
 	}
       else
 	range->extra_cstr = TRUE;
@@ -1158,7 +1079,7 @@ Range_Set_Value(Range *range, int n)
       return;
     }
 
-  if ((unsigned) n > (unsigned) vec_max_integer)
+  if ((unsigned) n > (unsigned) pl_vec_max_integer)
     {
       range->extra_cstr = TRUE;
       return;
@@ -1166,18 +1087,18 @@ Range_Set_Value(Range *range, int n)
 
   Vector_Set_Value(range->vec, n);
   if (n < range->min || n > range->max)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_RESET_VALUE                                                       *
+ * PL_RANGE_RESET_VALUE                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Reset_Value(Range *range, int n)
+Pl_Range_Reset_Value(Range *range, int n)
 {
   if (Is_Empty(range) || n < range->min || n > range->max)
     return;
@@ -1202,37 +1123,37 @@ Range_Reset_Value(Range *range, int n)
 	  return;
 	}
 
-      Range_Becomes_Sparse(range);
-      if ((unsigned) n <= (unsigned) vec_max_integer)
+      Pl_Range_Becomes_Sparse(range);
+      if ((unsigned) n <= (unsigned) pl_vec_max_integer)
 	Vector_Reset_Value(range->vec, n);
 
       return;
     }
 
 
-  if ((unsigned) n > (unsigned) vec_max_integer)
+  if ((unsigned) n > (unsigned) pl_vec_max_integer)
     return;
 
 
   Vector_Reset_Value(range->vec, n);
   if (n == range->min || n == range->max)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_UNION                                                             *
+ * PL_RANGE_UNION                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Union(Range *range, Range *range1)
+Pl_Range_Union(Range *range, Range *range1)
 {
   int swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
   Range r;
   Bool extra_cstr;
-
+  
   if (swt == 0)			/* Interval with Interval */
     {
       if (Is_Not_Empty(range) && Is_Not_Empty(range1) &&
@@ -1244,18 +1165,20 @@ Range_Union(Range *range, Range *range1)
 	  return;
 	}
 
-      Range_Becomes_Sparse(range);
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      Pl_Range_Becomes_Sparse(range);
+      r.vec = NULL;
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
   else if (swt == 1)		/* Interval with Sparse */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      r.vec = NULL;
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
 
   /* Sparse with Sparse */
@@ -1264,7 +1187,7 @@ Range_Union(Range *range, Range *range1)
 
   if (Is_Empty(range))
     {
-      Range_Copy(range, range1);
+      Pl_Range_Copy(range, range1);
       range->extra_cstr = extra_cstr;
       return;
     }
@@ -1276,18 +1199,18 @@ Range_Union(Range *range, Range *range1)
 
   range->min = math_min(range->min, range1->min);
   range->max = math_max(range->max, range1->max);
-  Vector_Union(range->vec, range1->vec);
+  Pl_Vector_Union(range->vec, range1->vec);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_INTER                                                             *
+ * PL_RANGE_INTER                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Inter(Range *range, Range *range1)
+Pl_Range_Inter(Range *range, Range *range1)
 {
   int swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
   Range r;
@@ -1301,12 +1224,13 @@ Range_Inter(Range *range, Range *range1)
     }
 
   if (swt == 1)			/* Interval with Sparse */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      r.vec = NULL;
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
   /* Sparse with Sparse */
 
@@ -1322,19 +1246,19 @@ Range_Inter(Range *range, Range *range1)
       return;
     }
 
-  Vector_Inter(range->vec, range1->vec);
-  Range_From_Vector(range);	/* adjust min and max */
+  Pl_Vector_Inter(range->vec, range1->vec);
+  Pl_Range_From_Vector(range);	/* adjust min and max */
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_COMPL                                                             *
+ * PL_RANGE_COMPL                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Compl(Range *range)
+Pl_Range_Compl(Range *range)
 {
   if (Is_Interval(range))	/* Interval */
     {
@@ -1366,7 +1290,7 @@ Range_Compl(Range *range)
 	  return;
 	}
 
-      Range_Becomes_Sparse(range);
+      Pl_Range_Becomes_Sparse(range);
     }
   /* Sparse */
   range->extra_cstr = TRUE;
@@ -1374,13 +1298,13 @@ Range_Compl(Range *range)
   if (Is_Empty(range))
     {
       range->min = 0;
-      range->max = vec_max_integer;
-      Vector_Full(range->vec);
+      range->max = pl_vec_max_integer;
+      Pl_Vector_Full(range->vec);
     }
   else
     {
-      Vector_Compl(range->vec);
-      Range_From_Vector(range);
+      Pl_Vector_Compl(range->vec);
+      Pl_Range_From_Vector(range);
     }
 }
 
@@ -1388,11 +1312,11 @@ Range_Compl(Range *range)
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_ADD_RANGE                                                         *
+ * PL_RANGE_ADD_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Add_Range(Range *range, Range *range1)
+Pl_Range_Add_Range(Range *range, Range *range1)
 {
   int swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
   Range r;
@@ -1414,35 +1338,36 @@ Range_Add_Range(Range *range, Range *range1)
       return;
     }
   else if (swt == 1)		/* Interval with Sparse */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      r.vec = NULL;
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
 
   /* Sparse with Sparse */
-  Vector_Add_Vector(range->vec, range1->vec);
+  Pl_Vector_Add_Vector(range->vec, range1->vec);
 
   range->min += range1->min;
   range->max += range1->max;
   range->extra_cstr |=
-    (range1->extra_cstr | (range->max > vec_max_integer));
+    (range1->extra_cstr | (range->max > pl_vec_max_integer));
 
   if (range->extra_cstr || range->min < 0)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_SUB_RANGE                                                         *
+ * PL_RANGE_SUB_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Sub_Range(Range *range, Range *range1)
+Pl_Range_Sub_Range(Range *range, Range *range1)
 {
   int swt = (Is_Sparse(range) << 1) + Is_Sparse(range1);
   Range r;
@@ -1464,34 +1389,35 @@ Range_Sub_Range(Range *range, Range *range1)
       return;
     }
   else if (swt == 1)		/* Interval with Sparse */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   else if (swt == 2)		/* Sparse with Interval */
     {
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      r.vec = NULL;
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
 
   /* Sparse with Sparse */
-  Vector_Sub_Vector(range->vec, range1->vec);
+  Pl_Vector_Sub_Vector(range->vec, range1->vec);
 
   range->min -= range1->max;
   range->max -= range1->min;
   range->extra_cstr |= range1->extra_cstr;
 
   if (range->extra_cstr || range->min < 0)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_MUL_RANGE                                                         *
+ * PL_RANGE_MUL_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Mul_Range(Range *range, Range *range1)
+Pl_Range_Mul_Range(Range *range, Range *range1)
 {
   Range r;
 
@@ -1505,31 +1431,31 @@ Range_Mul_Range(Range *range, Range *range1)
     }
 
   if (Is_Interval(range))
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
 
   if (Is_Interval(range1))
     {
       r.vec = NULL;
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
   /* Sparse with Sparse */
-  Vector_Mul_Vector(range->vec, range1->vec);
+  Pl_Vector_Mul_Vector(range->vec, range1->vec);
 
   range->extra_cstr |= range1->extra_cstr;
-  Range_From_Vector(range);
+  Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_DIV_RANGE                                                         *
+ * PL_RANGE_DIV_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Div_Range(Range *range, Range *range1)
+Pl_Range_Div_Range(Range *range, Range *range1)
 {
   Range r;
 
@@ -1543,31 +1469,31 @@ Range_Div_Range(Range *range, Range *range1)
     }
 
   if (Is_Interval(range))
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
 
   if (Is_Interval(range1))
     {
       r.vec = NULL;
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
   /* Sparse with Sparse */
-  Vector_Div_Vector(range->vec, range1->vec);
+  Pl_Vector_Div_Vector(range->vec, range1->vec);
 
   range->extra_cstr |= range1->extra_cstr;
-  Range_From_Vector(range);
+  Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_MOD_RANGE                                                         *
+ * PL_RANGE_MOD_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Mod_Range(Range *range, Range *range1)
+Pl_Range_Mod_Range(Range *range, Range *range1)
 {
   Range r;
 
@@ -1581,32 +1507,32 @@ Range_Mod_Range(Range *range, Range *range1)
     }
 
   if (Is_Interval(range))
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
 
   if (Is_Interval(range1))
     {
       r.vec = NULL;
-      Range_Copy(&r, range1);	/* we cannot modify range1 */
+      Pl_Range_Copy(&r, range1);	/* we cannot modify range1 */
       range1 = &r;
-      Range_Becomes_Sparse(range1);
+      Pl_Range_Becomes_Sparse(range1);
     }
 
   /* Sparse with Sparse */
-  Vector_Mod_Vector(range->vec, range1->vec);
+  Pl_Vector_Mod_Vector(range->vec, range1->vec);
 
   range->extra_cstr |= range1->extra_cstr;
-  Range_From_Vector(range);
+  Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_ADD_VALUE                                                         *
+ * PL_RANGE_ADD_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Add_Value(Range *range, int n)
+Pl_Range_Add_Value(Range *range, int n)
 {
   if (n == 0 || Is_Empty(range))
     return;
@@ -1619,76 +1545,76 @@ Range_Add_Value(Range *range, int n)
       return;
     }
   /* Sparse */
-  Vector_Add_Value(range->vec, n);
+  Pl_Vector_Add_Value(range->vec, n);
 
   range->min += n;
   range->max += n;
 
-  range->extra_cstr |= (range->max > vec_max_integer);
+  range->extra_cstr |= (range->max > pl_vec_max_integer);
   if (range->extra_cstr || range->min < 0)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_MUL_VALUE                                                         *
+ * PL_RANGE_MUL_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Mul_Value(Range *range, int n)
+Pl_Range_Mul_Value(Range *range, int n)
 {
   if (n == 1 || Is_Empty(range))
     return;
 
   if (Is_Interval(range))	/* Interval */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   /* Sparse */
-  Vector_Mul_Value(range->vec, n);
+  Pl_Vector_Mul_Value(range->vec, n);
 
   range->min = range->min * n;
   range->max = range->max * n;
 
-  range->extra_cstr |= (range->max > vec_max_integer);
+  range->extra_cstr |= (range->max > pl_vec_max_integer);
   if (range->extra_cstr)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_DIV_VALUE                                                         *
+ * PL_RANGE_DIV_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Div_Value(Range *range, int n)
+Pl_Range_Div_Value(Range *range, int n)
 {
   if (n == 1 || Is_Empty(range))
     return;
 
   if (Is_Interval(range))	/* Interval */
-    Range_Becomes_Sparse(range);
+    Pl_Range_Becomes_Sparse(range);
   /* Sparse */
-  Vector_Div_Value(range->vec, n);
+  Pl_Vector_Div_Value(range->vec, n);
 
   range->min = (range->min + n - 1) / n;
   range->max = range->max / n;
 
-  range->extra_cstr |= (range->max > vec_max_integer);
+  range->extra_cstr |= (range->max > pl_vec_max_integer);
   if (range->extra_cstr)
-    Range_From_Vector(range);
+    Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_MOD_VALUE                                                         *
+ * PL_RANGE_MOD_VALUE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Range_Mod_Value(Range *range, int n)
+Pl_Range_Mod_Value(Range *range, int n)
 {
   Range aux;
 
@@ -1718,7 +1644,7 @@ Range_Mod_Value(Range *range, int n)
 	      Range_Init_Interval(&aux, 0, range->max);
 	      range->max = n - 1;
 
-	      Range_Union(range, &aux);
+	      Pl_Range_Union(range, &aux);
 	    }
 
 	  return;
@@ -1743,7 +1669,7 @@ Range_Mod_Value(Range *range, int n)
 	      Range_Init_Interval(&aux, -(n - 1), range->max);
 	      range->max = 0;
 
-	      Range_Union(range, &aux);
+	      Pl_Range_Union(range, &aux);
 	    }
 
 	  return;
@@ -1755,25 +1681,25 @@ Range_Mod_Value(Range *range, int n)
       return;
     }
   /* Sparse */
-  Vector_Mod_Value(range->vec, n);
+  Pl_Vector_Mod_Value(range->vec, n);
 
-  Range_From_Vector(range);
+  Pl_Range_From_Vector(range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * RANGE_TO_STRING                                                         *
+ * PL_RANGE_TO_STRING                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Range_To_String(Range *range)
+Pl_Range_To_String(Range *range)
 {
   int vec_elem;
   int limit1 = -1;
   int limit2;
-  static char buff[4096];
+  static char buff[100 * 1024];
 
 
   if (Is_Empty(range))
@@ -1797,7 +1723,7 @@ Range_To_String(Range *range)
       return buff;
     }
 
-  sprintf(buff, "%s", WRITE_BEGIN_RANGE);
+  strcpy(buff, WRITE_BEGIN_RANGE);
 
   VECTOR_BEGIN_ENUM(range->vec, vec_elem);
   if (limit1 == -1)

@@ -1,0 +1,211 @@
+		Windows compilation/installation instructions
+		---------------------------------------------
+
+This file describes how to compile GNU Prolog on recent Windows OS (64 bits).
+
+NB: previsouly, this information was split into 2 files which are yet present but
+renamed (consult them if needed) :
+
+   WINDOWS -> WINDOWS-OLD (32 bits)
+   WINDOWS64 -> WINDOWS64-OLD (64 bits)
+
+We use here the msys/mingw64 environment to provide the unix tools (autoconf,
+make, ...) required to compile GNU Prolog. This can be easily adapted to other
+environments like cygwin, cygwin64 or WSL (Windows Subsytem Linux).
+
+Under windows, 2 main compilers are available: gcc (using the mingw64 port) or
+Microsoft Visual C++ (aka MSVC++). For both systems, we describe how to produce
+a 32 or 64 bits version of GNU Prolog.
+
+NB: this version of GNU Prolog DOES NOT accept spaces in pathnames.
+Do not uncompress your source distribution under a pathname containing spaces.
+Do not install it under a pathname containing spaces.
+
+
+Installing and configuring MSYS2
+--------------------------------
+
+MSYS (www.msys2.org) provides a unix-like environment. It consists of 3 subsystems:
+msys2, mingw32 and mingw64. msys2 (aka msys) is an POSIX emulation layer (thus a
+bit slow) provided by a DLL. mingw32/64 provide native windows binaries (unix
+calls are replaced by equivalent windows OS calls).
+
+From a practical point of view, binaries installed in /usr/bin;/bin are expected
+to be msys (using the POSIX emulation DLL, e.g. /usr/bin/msys-2.0.dll). Those
+installed in /mingw32/bin and in /mingw64/bin are expected to be windows native
+32/64 bit binaries. Setting PATH correctly can give priority to some binaries.
+
+Get MSYS2 (https://www.msys2.org) and install it (in C:\msys64 which will be the
+root / of the msys filesystem).
+
+From the Windows Start Menu, the sub-menu MSYS2 64 bit provides 3 launchers
+(which differ on how they initialize PATH variable): MSYS2 MinGW 32-bit (adding
+/mingw32/bin before /usr/local/bin:/usr/bin:/bin), MSYS2 MinGW 64-bit (adding
+/mingw64/bin before) and MSYS2 MSYS.
+More info on launchers: https://www.msys2.org/wiki/Launchers/
+
+Launch one et then update MSYS packages:
+
+pacman -Syu
+
+Install the following packages:
+
+pacman -S base-devel
+pacman -S gcc
+pacman -S mingw-w64-i686-toolchain
+pacman -S mingw-w64-i686-yasm
+pacman -S mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-x86_64-yasm
+cp /mingw64/bin/yasm.exe /mingw64/bin/yasm-win64.exe
+
+The i686 toolchain installs binaries in /mingw32/bin and provide gcc compiled
+with -march=i686. The x86_64 toolchain installs binaries in /mingw64/bin and
+provide gcc compiled with -march=x86_64. You can check gcc's configuration with
+gcc -v --version
+
+The 3 entries in the Windows Start Menu correspond to shortcuts created in the
+user'start menu directory, e.g. in the Windows user's home in
+AppData\Roaming\Microsoft\Windows\Start Menu\Programs\MSYS2 64bit. The shortcuts
+execute C:\msys64\msys2_shell.cmd with the option -msys, -mingw32 or -mingw64.
+
+The msys2_shell.cmd script launches a terminal which executes a shell. The
+default terminal is mintty and the default shell is bash.
+
+The PATH variable is passed to bash which cleans it to only keep some important
+Windows paths. Other windows variable are passed to bash (e.g. HOME). Msys bash
+is controlled via some important env. variables:
+
+   MSYSTEM=MSYS or MINGW32 or MINGW64 (the 3 subsytems). E.g. with MINGW64
+           bash adds /mingw64/bin before usr/local/bin:/usr/bin:/bin.
+
+   MSYS2_PATH_TYPE=inherit to keep the full Windows PATH inside bash.
+
+   CHERE_INVOKING=1 define to stay in current directory (do not change to HOME
+          directory).
+
+NB: the default terminal emulation (mintty) is designed for POSIX and does not
+work well to run native Windows console applications. Compiling GNU Prolog under
+mintty is OK but the execution of gprolog.exe has some troubles (this is not
+specific to gprolog and also occurs with gdb, the problem comes when launching a
+win32 console application under mintty, see github.com/mintty/mintty/issues/56).
+Here are alternatives (I personnaly use ConEmu - see alternative 3)
+
+alternative 1: use msys2_shell.cmd with another terminal (see --help), e.g.
+   msys2_shell.cmd -mingw64 -defterm
+   msys2_shell.cmd -mingw64 -conemu (needs ConEmu installed - see below)
+   It is possible to modify the shortcuts in user' start menu directly.
+   Use -mingw32 or -msys to run other sub-systems.
+
+alternative 2: execute the following commande from a Windows cmd terminal:
+   set MSYSTEM=MINGW64& C:\msys64\usr\bin\bash.exe --login -i
+   NB: do not put a space before the & (else a trailing space will be added to
+   the MSYSTEM environment variable).
+   Use MSYS or MINGW32 for other sub-systems.
+
+alternative 3: install and use ConEmu (conemu.github.io)
+   define 3 new tasks to start conEmu+bash with path on msys/mingw32/mingw64, e.g.:
+   
+   task {DD::msys}
+   set MSYSTEM=MSYS    & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw64.ico"
+   
+   task {DD::mingw32}
+   set MSYSTEM=MINGW32 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw32.ico"   
+
+   task {DD::mingw64}
+   set MSYSTEM=MINGW64 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw64.ico"
+
+
+
+Compiling GNU Prolog with gcc
+-----------------------------
+
+Launch a MSYS2 bash and follow the classical installation procedure (see
+../INSTALL file), i.e.:
+
+	./configure
+	make
+	make install
+
+The default gcc will be used.
+
+
+Install Inno Setup
+------------------
+
+https://jrsoftware.org/isinfo.php
+
+Current version installs in C:\Program Files (x86)\Inno Setup 6.
+
+add this to your .bashrc file
+PATH=$PATH:'/c/Program\ Files (x86)/Inno Setup 6/'
+
+See README in Win32 to create a windows installer using Inno Setup
+
+
+Compiling GNU Prolog with MSVC
+------------------------------
+
+You need MSVC++. GNU Prolog has been tested with Microsoft Visual Studio 2019 Community
+(version 19.28.29335) and the Microsoft SDK (including Htmlhelp workshop).
+
+Once installed, you have to launch msys with the correct PATH, INCLUDE, LIB
+environment variables. There are 2 .bat file provided with the MS compiler
+e.g. vcvars32.bat and vcvars64.bat. Launch the appropriate .bat before lauching msys bash.
+Under ConEmu you can modify the 2 tasks (described above) to include the call to
+vcvars32/64.bat as follows (NB: <Tomorrow> is a theme - can be omitted):
+
+task {DD::mingw32}
+set MSYSTEM=MINGW32 & set MSYS2_PATH_TYPE=inherit & call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat" & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw32.ico" "-new_console:P:^<Tomorrow^>"
+
+task {DD::mingw64}
+set MSYSTEM=MINGW64 & set MSYS2_PATH_TYPE=inherit & call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw64.ico" "-new_console:P:^<Tomorrow^>"
+
+You can also create a third task to only compile wyth msys (POSIX emulation with gcc in /usr/bin/gcc):
+
+task {DD::msys}
+set MSYSTEM=MSYS & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\msys2.ico" "-new_console:P:^<Tomorrow^>"
+
+NB: msys provides a /bin/link.exe command which can shadow the Microsoft
+linker (also called link.exe). If you encounter problem the simplest way to
+solve it is to rename /bin/link.exe of cygwin.
+
+Finally, you need the MinGW assembler (called as.exe). Copy it under a
+directory inside your PATH (for instance in /bin) under the name mingw-as.exe.
+A version can be found at: http://gprolog.org/mingw-as.exe
+For the 64 bit version you need the YASM assembler (called yasm.exe). Copy it under a
+directory inside your PATH (for instance in /bin) under the name yasm-win64.exe.
+A version can be found at: http://gprolog.org/yasm-win64.exe
+
+Once MSVC++ and the SDK are well installed use --with-msvc at configure time:
+
+	./configure --with-msvc
+	make
+	make install
+
+By default, the GUI console is compiled (sources in W32GUICons) unless you
+use ./configure --disable-gui-console. See the ../INSTALL file for further
+information. Even if compiled with the GUI it is possible to avoid it (and
+run in console mode) a Prolog program setting the environment variable
+LINEDIT to a string containing gui=no, e.g. 
+
+bash:
+   export LINEDIT='gui=no', 
+windows:
+   SET LINEDIT=gui=no.
+
+
+
+
+Using Microsoft HTML Help
+-------------------------
+
+With recent environments, nothing is normally needed to compile with Html Help,
+(you can skip this section). This is the case with recent MS Visual Studio and
+with recent Msys (e.g. htmlhelp.h provided by mingw-w64-i686-headers-git and
+installed in /mingw32/i686-w64-mingw32/include/htmlhelp.h and the library by
+mingw-w64-i686-crt-git in /mingw32/i686-w64-mingw32/lib/libhtmlhelp.a ; and
+similarly for the 64 bit version in /mingw64/x86_64-w64-mingw32/...).
+
+
+For more info, see the file WINDOWS-OLD
+

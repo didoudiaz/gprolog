@@ -1,0 +1,8 @@
+In this directory everything can be removed except some files needed to build a .chm :
+
+   hh_do_hhc_hhk    a script to create hh-gprolog.hhc (toc) hh-gprolog.hhk (index)
+   hh-mkind.tex     used by the script to create .hhc
+   hh-mktoc.tex     used by the script to create .hhk
+
+   hh-gprolog.hhp   a HTMLHelp project to build the .chm
+

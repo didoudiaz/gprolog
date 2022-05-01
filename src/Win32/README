@@ -1,8 +1,14 @@
 			Building GNU-Prolog Win32 Setup
 			-------------------------------
 
-Auto-extract installation files are created with Inno Setup. Refer to
-http://www.jrsoftware.org/ for more information. 
+Auto-extract installation files are created with Inno Setup (version > 5.0). 
+Refer to http://www.jrsoftware.org/ for more information. 
+
+Note: this works under cygwin or MSYS. Under MSYS it is necessary to first
+create the distrib under cygwin using make dist (because mingw does not
+support links). Then simply do (under mingw) make setup (setup-link will NOT
+work).
+
 
 
 1) Building a setup classically
@@ -19,7 +25,7 @@ The stages executed are:
 
    2- copy it under the /tmp
 
-   3- uncompressing it
+   3- uncompres it
 
    4- configure
 

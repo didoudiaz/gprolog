@@ -1,43 +1,58 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : pl_error.pl                                                     * 
- * Descr.: Prolog error management                                         * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : pl_error.pl                                                     *
+ * Descr.: Prolog error management                                         *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
 
-set_bip_name(Name, Arity) :-
-	'$call_c'('Set_Bip_Name_2'(Name, Arity)).
+set_bip_name(Name, Arity) :-  % it is an inline predicate
+	set_bip_name(Name, Arity).
 
 current_bip_name(Name, Arity) :-
-	'$call_c_test'('Current_Bip_Name_2'(Name, Arity)).
+	'$call_c_test'('Pl_Current_Bip_Name_2'(Name, Arity)).
 
 
 
 
 '$pl_err_instantiation' :-
 	'$pl_error'(instantiation_error).
+
+'$pl_err_uninstantiation'(T) :-
+	'$pl_error'(uninstantiation_error(T)).
 
 '$pl_err_type'(Type, T) :-
 	'$pl_error'(type_error(Type, T)).
@@ -71,7 +86,7 @@ current_bip_name(Name, Arity) :-
 
 
 '$pl_error'(Msg) :-
-	'$call_c'('Context_Error_1'(ContextAtom)),
+	'$call_c'('Pl_Context_Error_1'(ContextAtom)),
 	throw(error(Msg, ContextAtom)).
 
 
@@ -79,4 +94,4 @@ current_bip_name(Name, Arity) :-
 
 syntax_error_info(FileName, Line, Char, Msg) :-
 	set_bip_name(syntax_error_info, 4),
-	'$call_c_test'('Syntax_Error_Info_4'(FileName, Line, Char, Msg)).
+	'$call_c_test'('Pl_Syntax_Error_Info_4'(FileName, Line, Char, Msg)).

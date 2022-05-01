@@ -6,23 +6,35 @@
  * Descr.: formatted output management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <string.h>
 #include <stdio.h>
@@ -56,7 +68,7 @@ static WamWord Read_Arg(WamWord **lst_adr);
 
 static char *Arg_Atom(WamWord **lst_adr);
 
-static long Arg_Integer(WamWord **lst_adr);
+static PlLong Arg_Integer(WamWord **lst_adr);
 
 static double Arg_Float(WamWord **lst_adr);
 
@@ -64,11 +76,11 @@ static double Arg_Float(WamWord **lst_adr);
 
 
 /*-------------------------------------------------------------------------*
- * FORMAT_3                                                                *
+ * PL_FORMAT_3                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
+Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 {
   WamWord word, tag_mask;
   int stm;
@@ -78,37 +90,37 @@ Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? stm_output : Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
-  pstm = stm_tbl[stm];
+    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+  pstm = pl_stm_tbl[stm];
 
-  last_output_sora = sora_word;
-  Check_Stream_Type(stm, TRUE, FALSE);
+  pl_last_output_sora = sora_word;
+  Pl_Check_Stream_Type(stm, TRUE, FALSE);
 
   DEREF(format_word, word, tag_mask);
 
   if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
-    str = atom_tbl[UnTag_ATM(word)].name;
+    str = pl_atom_tbl[UnTag_ATM(word)].name;
   else
     {
-      buff = alloca (1+strlen (Rd_Codes_Check (format_word)));
-      strcpy(buff, Rd_Codes_Check(format_word));
+      char *origbuf = Pl_Rd_Chars_Or_Codes_Check (format_word);
+      buff = alloca (1+strlen (origbuf));
+      strcpy(buff, origbuf);
       str = buff;
     }
-
-  Format(stm_tbl[stm], str, &args_word);
+  Format(pstm, str, &args_word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * FORMAT_2                                                                *
+ * PL_FORMAT_2                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Format_2(WamWord format_word, WamWord args_word)
+Pl_Format_2(WamWord format_word, WamWord args_word)
 {
-  Format_3(NOT_A_WAM_WORD, format_word, args_word);
+  Pl_Format_3(NOT_A_WAM_WORD, format_word, args_word);
 }
 
 
@@ -126,19 +138,19 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
 {
   WamWord word;
   Bool has_n;
-  long generic;
-  long n, n1;
+  PlLong generic;
+  PlLong n, n1;
   char *p;
-  long x;
+  PlLong x;
   double d;
   int lg, stop;
   int i, k;
   char *format_stack[256];
-  char **top_stack = format_stack;
-  char *buff;
-  int nbytes = 32*2048;		/* increased from 2K */
+  char **top_stack;
+  char buff[2048];
 
-  buff = alloca (nbytes);
+  //  printf("d: %p\n", &d);
+  top_stack = format_stack;
 
   *top_stack++ = format;
   do
@@ -146,260 +158,262 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
       format = *--top_stack;
 
       while (*format)
-	{
-	  if (*format == '%')	/* C printf format */
-	    {
-	      if (format[1] == '%')
-		{
-		  Stream_Putc('%', pstm);
-		  format += 2;
-		  continue;
-		}
+        {
+          if (*format == '%')   /* C printf format */
+            {
+              if (format[1] == '%')
+                {
+                  Pl_Stream_Putc('%', pstm);
+                  format += 2;
+                  continue;
+                }
 
-	      p = buff;
-	      n = n1 = IMPOSS;
+              p = buff;
+              n = n1 = IMPOSS;
 
-	      do
-		if ((*p++ = *format++) == '*')
-		  {
-		    if (n == IMPOSS)
-		      n = Arg_Integer(&lst_adr);
-		    else
-		      n1 = Arg_Integer(&lst_adr);
-		  }
-	      while ((char *) strchr("diouxXpnceEfgGs", p[-1]) == NULL);
+              do
+                if ((*p++ = *format++) == '*')
+                  {
+                    if (n == IMPOSS)
+                      n = Arg_Integer(&lst_adr);
+                    else
+                      n1 = Arg_Integer(&lst_adr);
+                  }
+              while ((char *) strchr("diouxXpnceEfgGs", p[-1]) == NULL);
 
-	      *p = '\0';
-	      if (strchr("eEfgG", p[-1]) == NULL)
-		{
-		  generic = (p[-1] == 's') ? (long) Arg_Atom(&lst_adr)
-		    : Arg_Integer(&lst_adr);
-		  if (n != IMPOSS)
-		    {
-		      if (n1 != IMPOSS)
-			Stream_Printf(pstm, buff, n, n1, generic);
-		      else
-			Stream_Printf(pstm, buff, n, generic);
-		    }
-		  else
-		    Stream_Printf(pstm, buff, generic);
-		}
-	      else
-		{
-		  d = Arg_Float(&lst_adr);
-		  if (n != IMPOSS)
-		    {
-		      if (n1 != IMPOSS)
-			Stream_Printf(pstm, buff, n, n1, d);
-		      else
-			Stream_Printf(pstm, buff, n, d);
-		    }
-		  else
-		    Stream_Printf(pstm, buff, d);
-		}
-	      continue;
-	    }
+              *p = '\0';
+              if (strchr("eEfgG", p[-1]) == NULL)
+                {
+                  generic = (p[-1] == 's') ? (PlLong) Arg_Atom(&lst_adr)
+                    : Arg_Integer(&lst_adr);
+                  if (n != IMPOSS)
+                    {
+                      if (n1 != IMPOSS)
+                        Pl_Stream_Printf(pstm, buff, n, n1, generic);
+                      else
+                        Pl_Stream_Printf(pstm, buff, n, generic);
+                    }
+                  else
+                    Pl_Stream_Printf(pstm, buff, generic);
+                }
+              else
+                {
+                  d = Arg_Float(&lst_adr);
+                  if (n != IMPOSS)
+                    {
+                      if (n1 != IMPOSS)
+                        Pl_Stream_Printf(pstm, buff, n, n1, d);
+                      else
+                        Pl_Stream_Printf(pstm, buff, n, d);
+                    }
+                  else
+                    Pl_Stream_Printf(pstm, buff, d);
+                }
+              continue;
+            }
 
-	  if (*format != '~')
-	    {
-	      Stream_Putc(*format, pstm);
-	      format++;
-	      continue;
-	    }
+          if (*format != '~')
+            {
+              Pl_Stream_Putc(*format, pstm);
+              format++;
+              continue;
+            }
 
-	  if (*++format == '*')
-	    {
-	      n = Arg_Integer(&lst_adr);
-	      format++;
-	      has_n = TRUE;
-	    }
-	  else
-	    {
-	      p = format;
-	      n = strtol(format, &format, 10);
-	      has_n = (format != p);
-	    }
-
-
-
-	  switch (*format)
-	    {
-	    case 'a':
-	      p = Arg_Atom(&lst_adr);
-	      if (has_n)
-		Stream_Printf(pstm, "%*s", -n, p);
-	      else
-		Stream_Puts(p, pstm);
-	      break;
-
-	    case 'c':
-	      x = Arg_Integer(&lst_adr);
-	      if (!Is_Valid_Code(x))
-		Pl_Err_Representation(representation_character_code);
-
-	      do
-		Stream_Putc(x, pstm);
-	      while (--n > 0);
-	      break;
-
-	    case 'e':
-	    case 'E':
-	    case 'f':
-	    case 'g':
-	    case 'G':
-	      x = *format;
-	      d = Arg_Float(&lst_adr);
-
-	      if (has_n)
-		sprintf(buff, "%%.%ld%c", n, (char) x);
-	      else
-		sprintf(buff, "%%%c", (char) x);
-
-	      Stream_Printf(pstm, buff, d);
-	      break;
-
-	    case 'd':
-	    case 'D':
-	      x = Arg_Integer(&lst_adr);
-
-	      if (n == 0 && *format == 'd')
-		{
-		  Stream_Printf(pstm, "%ld", x);
-		  break;
-		}
-
-	      if (x < 0)
-		{
-		  Stream_Putc('-', pstm);
-		  x = -x;
-		}
-
-	      sprintf(buff, "%ld", x);
-	      lg = strlen(buff) - n;
-	      if (lg <= 0)
-		{
-		  Stream_Puts("0.", pstm);
-		  for (i = 0; i < -lg; i++)
-		    Stream_Putc('0', pstm);
-		  Stream_Printf(pstm, "%ld", x);
-		  break;
-		}
+          if (*++format == '*')
+            {
+              n = Arg_Integer(&lst_adr);
+              format++;
+              has_n = TRUE;
+            }
+          else
+            {
+              p = format;
+              n = strtol(format, &format, 10);
+              has_n = (format != p);
+            }
 
 
-	      stop = (*format == 'D') ? lg % 3 : -1;
 
-	      if (stop == 0)
-		stop = 3;
+          switch (*format)
+            {
+            case 'a':
+              p = Arg_Atom(&lst_adr);
+              if (has_n)
+                Pl_Stream_Printf(pstm, "%*s", -n, p);
+              else
+                Pl_Stream_Puts(p, pstm);
+              break;
 
-	      for (p = buff, i = 0; *p; p++, i++)
-		{
-		  if (i == lg)
-		    Stream_Putc('.', pstm), stop = -1;
+            case 'c':
+              x = Arg_Integer(&lst_adr);
+              if (!Is_Valid_Code(x))
+                Pl_Err_Representation(pl_representation_character_code);
 
-		  if (i == stop)
-		    Stream_Putc(',', pstm), stop += 3;
-		  Stream_Putc(*p, pstm);
-		}
-	      break;
+              do
+                Pl_Stream_Putc(x, pstm);
+              while (--n > 0);
+              break;
 
-	    case 'r':
-	    case 'R':
-	      x = Arg_Integer(&lst_adr);
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'g':
+            case 'G':
+              x = *format;
+              d = Arg_Float(&lst_adr);
 
-	      if (!has_n || n < 2 || n > 36)
-		n = 8;
+              if (has_n)
+                sprintf(buff, "%%.%" PL_FMT_d "%c", n, (char) x);
+              else
+                sprintf(buff, "%%%c", (char) x);
 
-	      k = ((*format == 'r') ? 'a' : 'A') - 10;
+              Pl_Stream_Printf(pstm, buff, d);
+              break;
 
-	      if (x < 0)
-		{
-		  Stream_Putc('-', pstm);
-		  x = -x;
-		}
+            case 'd':
+            case 'D':
+              x = Arg_Integer(&lst_adr);
 
-	      p = buff + sizeof(buff) - 1;
-	      *p = '\0';
-	      do
-		{
-		  i = x % n;
-		  x = x / n;
-		  --p;
-		  *p = (i < 10) ? i + '0' : i + k;
-		}
-	      while (x);
-	      Stream_Puts(p, pstm);
-	      break;
+              if (n == 0 && *format == 'd')
+                {
+                  Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
+                  break;
+                }
 
-	    case 's':
-	    case 'S':
-	      word = Read_Arg(&lst_adr);
-	      if (*format == 's')
-		p = Rd_Codes_Check(word);
-	      else
-		p = Rd_Chars_Check(word);
+              if (x < 0)
+                {
+                  Pl_Stream_Putc('-', pstm);
+                  x = -x;
+                }
 
-	      if (has_n)
-		Stream_Printf(pstm, "%-*.*s", n, n, p);
-	      else
-		Stream_Printf(pstm, "%s", p);
-	      break;
+              sprintf(buff, "%" PL_FMT_d, x);
+              lg = strlen(buff) - n;
+              if (lg <= 0)
+                {
+                  Pl_Stream_Puts("0.", pstm);
+                  for (i = 0; i < -lg; i++)
+                    Pl_Stream_Putc('0', pstm);
+                  Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
+                  break;
+                }
 
-	    case 'i':
-	      do
-		Read_Arg(&lst_adr);
-	      while (--n > 0);
-	      break;
 
-	    case 'k':
-	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC,
-			 WRITE_IGNORE_OP | WRITE_QUOTED, word);
-	      break;
+              stop = (*format == 'D') ? lg % 3 : -1;
 
-	    case 'q':
-	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-			 WRITE_NAME_VARS | WRITE_QUOTED, word);
-	      break;
+              if (stop == 0)
+                stop = 3;
 
-	    case 'p':		/* only work if print.pl is linked */
-	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-			 WRITE_NAME_VARS | WRITE_PORTRAYED, word);
-	      break;
+              for (p = buff, i = 0; *p; p++, i++)
+                {
+                  if (i == lg)
+                    Pl_Stream_Putc('.', pstm), stop = -1;
 
-	    case 'w':
-	      word = Read_Arg(&lst_adr);
-	      Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-			 WRITE_NAME_VARS, word);
-	      break;
+                  if (i == stop)
+                    Pl_Stream_Putc(',', pstm), stop += 3;
+                  Pl_Stream_Putc(*p, pstm);
+                }
+              break;
 
-	    case '~':
-	      Stream_Putc('~', pstm);
-	      break;
+            case 'r':
+            case 'R':
+              x = Arg_Integer(&lst_adr);
 
-	    case 'N':
-	      if (pstm->line_pos == 0)
-		break;
-	    case 'n':
-	      do
-		Stream_Putc('\n', pstm);
-	      while (--n > 0);
-	      break;
+              if (!has_n)
+                  n = 8;
+              else if (n < 2 || n > 36)
+                  Pl_Err_Domain(pl_domain_radix, Tag_INT(n));
 
-	    case '?':
-	      if (format[1])
-		*top_stack++ = format + 1;
+              k = ((*format == 'r') ? 'a' : 'A') - 10;
 
-	      format = Arg_Atom(&lst_adr);
-	      continue;
+              if (x < 0)
+                {
+                  Pl_Stream_Putc('-', pstm);
+                  x = -x;
+                }
 
-	    default:
-	      Pl_Err_Domain(domain_format_control_sequence,
-			    Tag_ATM(ATOM_CHAR(*format)));
-	    }
-	  format++;
-	}
+              p = buff + sizeof(buff) - 1;
+              *p = '\0';
+              do
+                {
+                  i = x % n;
+                  x = x / n;
+                  --p;
+                  *p = (i < 10) ? i + '0' : i + k;
+                }
+              while (x);
+              Pl_Stream_Puts(p, pstm);
+              break;
+
+            case 's':
+            case 'S':
+              word = Read_Arg(&lst_adr);
+              if (*format == 's')
+                p = Pl_Rd_Codes_Check(word);
+              else
+                p = Pl_Rd_Chars_Check(word);
+
+              if (has_n)
+                Pl_Stream_Printf(pstm, "%-*.*s", n, n, p);
+              else
+                Pl_Stream_Printf(pstm, "%s", p);
+              break;
+
+            case 'i':
+              do
+                Read_Arg(&lst_adr);
+              while (--n > 0);
+              break;
+
+            case 'k':
+              word = Read_Arg(&lst_adr);
+              Pl_Write_Term(pstm, -1, MAX_PREC,
+                            WRITE_IGNORE_OP | WRITE_QUOTED, NULL, word);
+              break;
+
+            case 'q':
+              word = Read_Arg(&lst_adr);
+              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+                WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
+              break;
+
+            case 'p':           /* only work if print.pl is linked */
+              word = Read_Arg(&lst_adr);
+              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+                            WRITE_NAME_VARS | WRITE_PORTRAYED, NULL, word);
+              break;
+
+            case 'w':
+              word = Read_Arg(&lst_adr);
+              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+                            WRITE_NAME_VARS, NULL, word);
+              break;
+
+            case '~':
+              Pl_Stream_Putc('~', pstm);
+              break;
+
+            case 'N':
+              if (pstm->line_pos == 0)
+                break;
+            case 'n':
+              do
+                Pl_Stream_Putc('\n', pstm);
+              while (--n > 0);
+              break;
+
+            case '?':
+              if (format[1])
+                *top_stack++ = format + 1;
+
+              format = Arg_Atom(&lst_adr);
+              continue;
+
+            default:
+              Pl_Err_Domain(pl_domain_format_control_sequence,
+                            Tag_ATM(ATOM_CHAR(*format)));
+            }
+          format++;
+        }
     }
   while (top_stack > format_stack);
 }
@@ -424,14 +438,14 @@ Read_Arg(WamWord **lst_adr)
   if (tag_mask != TAG_LST_MASK)
     {
       if (tag_mask == TAG_REF_MASK)
-	Pl_Err_Instantiation();
+        Pl_Err_Instantiation();
 
       if (word == NIL_WORD)
-	Pl_Err_Domain(domain_non_empty_list, word);
+        Pl_Err_Domain(pl_domain_non_empty_list, word);
 
-      Pl_Err_Type(type_list, word);
+      Pl_Err_Type(pl_type_list, word);
     }
-  
+
   adr = UnTag_LST(word);
   car_word = Car(adr);
   *lst_adr = &Cdr(adr);
@@ -454,7 +468,7 @@ Arg_Atom(WamWord **lst_adr)
 
   word = Read_Arg(lst_adr);
 
-  return atom_tbl[Rd_Atom_Check(word)].name;
+  return pl_atom_tbl[Pl_Rd_Atom_Check(word)].name;
 }
 
 
@@ -464,15 +478,15 @@ Arg_Atom(WamWord **lst_adr)
  * ARG_INTEGER                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Arg_Integer(WamWord **lst_adr)
 {
   WamWord word;
 
   word = Read_Arg(lst_adr);
 
-  Math_Load_Value(word, &word);
-  return Rd_Integer_Check(word);
+  Pl_Math_Load_Value(word, &word);
+  return Pl_Rd_Integer_Check(word);
 }
 
 
@@ -489,6 +503,6 @@ Arg_Float(WamWord **lst_adr)
 
   word = Read_Arg(lst_adr);
 
-  Math_Load_Value(word, &word);
-  return Rd_Number_Check(word);
+  Pl_Math_Load_Value(word, &word);
+  return Pl_Rd_Number_Check(word);
 }

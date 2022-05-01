@@ -6,23 +6,35 @@
  * Descr.: prime constraint management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 
@@ -64,32 +76,32 @@ static void Compute_Prime_Range(void);
 
 
 /*-------------------------------------------------------------------------*
- * PRIME_RANGE                                                             *
+ * PL_PRIME_RANGE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Prime_Range(Range *r)
+Pl_Prime_Range(Range *r)
 {
-  if (prime_vec_size != vec_size)
+  if (prime_vec_size != pl_vec_size)
     Compute_Prime_Range();
 
-  Range_Copy(r, &prime_range);
+  Pl_Range_Copy(r, &prime_range);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * NOT_PRIME_RANGE                                                         *
+ * PL_NOT_PRIME_RANGE                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Not_Prime_Range(Range *r)
+Pl_Not_Prime_Range(Range *r)
 {
-  if (prime_vec_size != vec_size)
+  if (prime_vec_size != pl_vec_size)
     Compute_Prime_Range();
 
-  Range_Copy(r, &not_prime_range);
+  Pl_Range_Copy(r, &not_prime_range);
 }
 
 
@@ -111,10 +123,10 @@ Compute_Prime_Range(void)
       Free(not_prime_range.vec);
     }
 
-  prime_range.vec = vec = (Vector) Malloc(vec_size * sizeof(VecWord));
-  not_prime_range.vec = nvec = (Vector) Malloc(vec_size * sizeof(VecWord));
+  prime_range.vec = vec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
+  not_prime_range.vec = nvec = (Vector) Malloc(pl_vec_size * sizeof(VecWord));
 
-  Vector_Full(vec);
+  Pl_Vector_Full(vec);
   Vector_Reset_Value(vec, 0);
   Vector_Reset_Value(vec, 1);
 
@@ -122,11 +134,11 @@ Compute_Prime_Range(void)
   do
     {
       j = i;
-      while ((j += i) <= vec_max_integer)
+      while ((j += i) <= pl_vec_max_integer)
 	Vector_Reset_Value(vec, j);
 
       j = i;
-      i = Vector_Next_After(vec, i);
+      i = Pl_Vector_Next_After(vec, i);
     }
   while (i > 0);
 
@@ -136,11 +148,11 @@ Compute_Prime_Range(void)
 
   not_prime_range.extra_cstr = TRUE;
   not_prime_range.min = 0;
-  not_prime_range.max = (j < vec_max_integer) ? vec_max_integer
-    : vec_max_integer - 1;
+  not_prime_range.max = (j < pl_vec_max_integer) ? pl_vec_max_integer
+    : pl_vec_max_integer - 1;
 
 
-  end = vec + vec_size;
+  end = vec + pl_vec_size;
 
   do
     {
@@ -150,5 +162,5 @@ Compute_Prime_Range(void)
     }
   while (vec < end);
 
-  prime_vec_size = vec_size;
+  prime_vec_size = pl_vec_size;
 }

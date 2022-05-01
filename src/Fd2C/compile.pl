@@ -1,28 +1,40 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : FD constraint definition file to C code compiler                * 
- * File  : compile.pl                                                      * 
- * Descr.: final compilation and emission                                  * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint definition file to C code compiler                *
+ * File  : compile.pl                                                      *
+ * Descr.: final compilation and emission                                  *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
         % to correctly write C expressions
 
@@ -58,8 +70,8 @@ emit_user_cstr(uc(Name, AFSize, LHVar, Body)) :-
 	nl(stream_c),
 	format(stream_c, '   fd_before_add_constraint~n', []),
 	e_call_fct_lst(LFctName),
-	format(stream_c, '   fd_after_add_constraint~n', []),
 	format(stream_c, ' fd_exit_point~n', []),
+	format(stream_c, '   fd_after_add_constraint~n', []),
 	format(stream_c, '   fd_return~n', []),
 	format(stream_c, '~nfd_end_user_constraint~n~n', []).
 
@@ -273,9 +285,8 @@ e_bloc_load_use([m(V, T, I, Mark)|LUse], LCVarUsed, LWNext, LWInst) :-
 
 
 e_bloc_load_one(fdv, V, I, Mark, LCVarUsed, LWNext, LWInst) :-
-	!,
 	Mark = i(Min, Max, Dom, Val),
-	e_compute_dep_chain(Min, Max, Dom, Val, Chain),
+	e_compute_dep_chain(Min, Max, Dom, Val, Chain), !,
 	e_bloc_load_fdv(Chain, Min, Max, Dom, Val, V, I, LCVarUsed, LWNext, LWInst).
 
 e_bloc_load_one(range, _, I, range(R), _, LWNext, LWInst) :-
@@ -353,26 +364,22 @@ e_bloc_load_fdv(max, _, _, _, _, V, I, LCVarUsed, LWNext, LWInst) :-
 
 
 e_compute_dep_chain(_, _, _, Val, val) :-
-	nonvar(Val),                                               % val used
-	             !.
+	nonvar(Val), !.                                            % val used
 
 e_compute_dep_chain(_, _, Dom, _, dom) :-
-	nonvar(Dom),                                               % dom used
-	             !.
+	nonvar(Dom), !.                                            % dom used
 
 e_compute_dep_chain(Min, Max, _, _, min) :-
 	nonvar(Min),
-	var(Max),                                             % only min used
-	          !.
+	var(Max), !.                                          % only min used
 
 e_compute_dep_chain(Min, Max, _, _, max) :-
 	var(Min),
-	nonvar(Max),                                          % only max used
-	             !.
+	nonvar(Max), !.                                       % only max used
 
-e_compute_dep_chain(Min, Max, _, _, min_max) :-            % min and max used
+e_compute_dep_chain(Min, Max, _, _, min_max) :-
 	nonvar(Min),
-	nonvar(Max).
+	nonvar(Max).                                       % min and max used
 
 
 
@@ -501,7 +508,7 @@ emit_inst_lst([], Alloc) :-
 emit_inst_lst([WInst|LWInst], Alloc) :-
 	dummy_instruction(WInst), !,
 	emit_inst_lst(LWInst, Alloc).
-    
+
 emit_inst_lst([WInst|LWInst], t) :-
 	functor(WInst, F, _),
 	(   sub_atom(F, 0, _, _, fd_tell_)

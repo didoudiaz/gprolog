@@ -1,14 +1,49 @@
 #!/bin/sh
 do_diff() {
-    diff --ignore-space-change -I '% date' -I '% compiler' -I '% time' $1 $2
+    diff --ignore-space-change -I '^%' -I '^file_name[(]' $1 $2 || \
+	( echo "difference encountered: $1 <> $2"; exit 1 )
 }
 
-pl_files='pl2wam read_file bip_list context syn_sugar internal code_gen reg_alloc inst_codif first_arg indexing wam_emit'
 
-
-files=${*:-$pl_files}
-for i in $files; do
-	do_diff $i.wam $i.wam1
+copy_files() {
+    for i in $*; do
+	\cp $i ${i}1
     done
+}
+
+rm_make() {
+    rm -f $*
+    make >/tmp/make.log 2>&1 || (echo /tmp/make.log ; exit 1)
+}
 
 
+verify_files() {
+    for i in $*; do
+#	echo checking file $i
+	do_diff $i ${i}1 || exit 1
+    done
+}
+
+do_all_bootstrap() {
+    copy_files $* || exit 1
+    rm_make $* || exit 1
+    verify_files $* || exit 1
+}
+
+usage() {
+    echo 'usage check_boot -c [FILES]  save FILES (.wam) to .wam1)'
+    echo '      check_boot -m [FILES]  rm FILES (.wam) and make (rebuild)'
+    echo '      check_boot -v [FILES]  verify FILES (.wam) vs .wam1'
+    echo '      check_boot -a [FILES]  do all (copy, make, verify)'
+}
+
+case $1 in
+    -c) shift; files=${*:-*.wam}; copy_files $files || exit 1;;
+    -m) shift; files=${*:-*.wam}; rm_make $files || exit 1;;
+    -v) shift; files=${*:-*.wam}; verify_files $files || exit 1;;
+    -a) shift; files=${*:-*.wam}; do_all_bootstrap $files || exit 1;;
+    *) usage; exit 1;;
+esac
+
+
+exit 0

@@ -6,23 +6,35 @@
  * Descr.: Prolog source file reader                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -30,7 +42,8 @@
 
 /* API
 
-set_prolog_flag(strict_iso, off), setof(Y:X,(predicate_property(X, prolog_file(F)), decompose_file_name(F, _, src_rdr, '.pl'), predicate_property(X, prolog_line(Y))), L), member(_:A, L), write(A), nl, fail.
+setof(Y:X,(predicate_property(X, prolog_file(F)), decompose_file_name(F, _, src_rdr, '.pl'), predicate_property(X, prolog_line(Y))), L), member(_:A, L), functor(A,Func,Arity), write(Func/Arity), nl, fail.
+
 
 sr_open/3
 sr_change_options/2
@@ -63,9 +76,9 @@ sr_open(FileOrStream, D, Options) :-
 	    true
 	;   '$pl_err_type'(variable, D)
 	),
-	'$call_c'('SR_Init_Open_2'(D, OutSorA)),
+	'$call_c'('Pl_SR_Init_Open_2'(D, OutSorA)),
 	(   nonvar(FileOrStream), FileOrStream = '$stream'(_) ->
-	    '$call_c'('SR_Open_File_2'(FileOrStream, true))
+	    '$call_c'('Pl_SR_Open_File_2'(FileOrStream, true))
 	;
 	    '$sr_open_new_prolog_file'(FileOrStream)
 	).
@@ -74,11 +87,11 @@ sr_open(FileOrStream, D, Options) :-
 
 
           % option mask in sys_var[0]:
-          %   
-          % include         in b1/b0        treat/pass        
-          % op              in b3/b2          0 / 0 = kill   
-          % set_prolog_flag in b5/b4  code:   0 / 1 = ignore 
-          % char_conversion in b7/b6          1 / 0 = hide   
+          %
+          % include         in b1/b0        treat/pass
+          % op              in b3/b2          0 / 0 = kill
+          % set_prolog_flag in b5/b4  code:   0 / 1 = ignore
+          % char_conversion in b7/b6          1 / 0 = hide
           % module          in b9/b8          1 / 1 = reflect
 	  %
           % restart         in b16 (0/1)
@@ -115,7 +128,7 @@ sr_open(FileOrStream, D, Options) :-
 '$get_sr_options2'(T) :-
 	functor(T, F, 1),
 	arg(1, T, A),
-	nonvar(A),
+	'$check_nonvar'(A),
 	'$sr_treat_pass_no'(F, _, SubMaskPos),
 	BitPass is SubMaskPos * 2,
 	BitTreat is BitPass + 1,
@@ -123,7 +136,7 @@ sr_open(FileOrStream, D, Options) :-
 	'$sr_set_treat_pass_bits'(A, BitPass, BitTreat).
 
 '$get_sr_options2'(restart(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 16)
         ;   X = true,
@@ -131,7 +144,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(reflect_eof(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 17)
         ;   X = true,
@@ -139,7 +152,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(undo_directives(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 18)
         ;   X = true,
@@ -147,7 +160,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(write_error(X)) :-
-        nonvar(X),
+	'$check_nonvar'(X),
         (   X = false,
             '$sys_var_reset_bit'(0, 19)
         ;   X = true,
@@ -155,6 +168,7 @@ sr_open(FileOrStream, D, Options) :-
         ).
 
 '$get_sr_options2'(output_stream(SorA)) :-
+	'$check_nonvar'(SorA),
 	g_link('$sr_output_stream', SorA),
         '$sys_var_write'(1, 1).
 
@@ -165,7 +179,7 @@ sr_open(FileOrStream, D, Options) :-
 
 
 	  % '$sr_treat_pass_no'(Name, Arity, SubMaskPos)
-	
+
 '$sr_treat_pass_no'(include, 1, 0).
 '$sr_treat_pass_no'(op, 3, 1).
 '$sr_treat_pass_no'(set_prolog_flag, 2, 2).
@@ -195,38 +209,38 @@ sr_open(FileOrStream, D, Options) :-
 	 '$sys_var_set_bit'(0, BitTreat).
 
 
-	
+
 
 '$sr_open_new_prolog_file'(File) :-
-	'$call_c'('Prolog_File_Name_2'(File, File1)),
-	'$call_c'('SR_Open_File_2'(File1, false)).
+	'$call_c'('Pl_Prolog_File_Name_2'(File, File1)),
+	'$call_c'('Pl_SR_Open_File_2'(File1, false)).
 /*
-	(   '$call_c_test'('File_Permission_2'(File, [read])) ->
+	(   '$call_c_test'('Pl_File_Permission_2'(File, [read])) ->
 	    File1 = File
 	;
-	    '$call_c'('Prolog_File_Name_2'(File, File1))
+	    '$call_c'('Pl_Prolog_File_Name_2'(File, File1))
 	  ),
 */
 
 
 sr_change_options(D, Options) :-
 	set_bip_name(sr_change_options, 2),
-	'$call_c'('SR_Check_Descriptor_1'(D)), % also init sys_var[0]
+	'$call_c'('Pl_SR_Check_Descriptor_1'(D)), % also init sys_var[0]
         '$get_sr_options1'(Options),
-	'$call_c'('SR_Change_Options_0').
+	'$call_c'('Pl_SR_Change_Options_0').
 
 
 
 
 sr_close(D) :-
 	set_bip_name(sr_close, 1),
-	'$call_c'('SR_Close_1'(D)).
+	'$call_c'('Pl_SR_Close_1'(D)).
 
 
 
 sr_new_pass(D) :-
 	set_bip_name(sr_new_pass, 1),
-	(   '$call_c_test'('SR_New_Pass_1'(D)) ->
+	(   '$call_c_test'('Pl_SR_New_Pass_1'(D)) ->
 	    true
 	;   '$pl_err_permission'(new_pass, one_pass_reader, D)
 	).
@@ -235,21 +249,21 @@ sr_new_pass(D) :-
 
 
 sr_read_term(D, Term, Options, SRError) :-
-	'$call_c'('SR_Check_Descriptor_1'(D)),
+	'$call_c'('Pl_SR_Check_Descriptor_1'(D)),
 	repeat,
-	'$call_c'('SR_Get_Stm_For_Read_Term_1'(Stm)),
+	'$call_c'('Pl_SR_Get_Stm_For_Read_Term_1'(Stm)),
 	Stream = '$stream'(Stm),
 	set_bip_name(sr_read_term, 3),
 	'$catch'('$read_term'(Stream, Term, Options), Excep, true,
 		 sr_read_term, 3, false),
-	'$call_c'('SR_Update_Position_0'),
+	'$call_c'('Pl_SR_Update_Position_0'),
 	(   var(Excep) ->
 	    '$sr_treat_term'(Term, SRError)
 	;   Term = '$sr_read_term_error',
 	    '$sr_error_from_exception'(Excep, SRError)
 	),
 	(   SRError = sr_error(_, _),
-	    '$call_c_test'('SR_Is_Bit_Set_1'(19)) ->
+	    '$call_c_test'('Pl_SR_Is_Bit_Set_1'(19)) ->
 	    sr_write_error(D, SRError)
 	;   true
 	), !.			% cut to remove repeat choice-point
@@ -260,11 +274,11 @@ sr_read_term(D, Term, Options, SRError) :-
 	%% '$sr_treat_term'(Term, SRError) handles a read term
 	%% It can fail to enforce backtracking and next term reading.
 	%% Warning: Term can be a variable - should not be altered.
-	
+
 '$sr_treat_term'(Term, SRError) :-
 	Term == end_of_file,
 	!,			% cut to backtrack to repeat
-	'$call_c_test'('SR_EOF_Reached_1'(Err)), % this one can fail
+	'$call_c_test'('Pl_SR_EOF_Reached_1'(Err)), % this one can fail
 	(   var(Err) ->
 	    SRError = sr_ok
 	;   SRError = sr_error(warning, Err)).
@@ -278,7 +292,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	!,			% cut to backtrack to repeat
 	BitPass is SubMaskPos * 2,
 	BitTreat is BitPass + 1,
-	(   '$call_c_test'('SR_Is_Bit_Set_1'(BitTreat)) ->
+	(   '$call_c_test'('Pl_SR_Is_Bit_Set_1'(BitTreat)) ->
 	    '$catch'('$sr_exec_directive'(Directive, SRError),
 		     Excep,
 		     '$sr_error_from_exception'(Excep, SRError),
@@ -286,7 +300,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	;
 	    true),
 	(   var(Excep) ->
-	    '$call_c_test'('SR_Is_Bit_Set_1'(BitPass)) % can fail
+	    '$call_c_test'('Pl_SR_Is_Bit_Set_1'(BitPass)) % can fail
 	;   true).
 
 '$sr_treat_term'(_, sr_ok).
@@ -317,7 +331,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	;   OldPrec = 0,
 	    OldSpecif = Specif
 	),
-	'$call_c'('SR_Add_Directive_7'(0,
+	'$call_c'('Pl_SR_Add_Directive_7'(0,
 				       Prec, Specif, Oper,
 				       OldPrec, OldSpecif, Oper)).
 
@@ -326,7 +340,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	    true
 	;   true
 	),
-	'$call_c'('SR_Add_Directive_7'(1,
+	'$call_c'('Pl_SR_Add_Directive_7'(1,
 				       Flag, Value, 0,
 				       Flag, OldValue, 0)).
 
@@ -335,7 +349,7 @@ sr_read_term(D, Term, Options, SRError) :-
 	    true
 	;   OldOutChar = InChar
 	),
-	'$call_c'('SR_Add_Directive_7'(2,
+	'$call_c'('Pl_SR_Add_Directive_7'(2,
 				       InChar, OutChar, 0,
 				       InChar, OldOutChar, 0)).
 
@@ -362,11 +376,11 @@ sr_read_term(D, Term, Options, SRError) :-
 '$sr_op_type'(xf, postfix).
 '$sr_op_type'(yf, postfix).
 
-	
+
 
 
 '$sr_start_module'(ModuleName, ModulePart, SRError) :-
-	'$call_c'('SR_Start_Module_3'(ModuleName, ModulePart, Err)),
+	'$call_c'('Pl_SR_Start_Module_3'(ModuleName, ModulePart, Err)),
 	(   var(Err) ->
 	    SRError = sr_ok
 	;   SRError = sr_error(warning, Err)).
@@ -375,7 +389,7 @@ sr_read_term(D, Term, Options, SRError) :-
 
 
 '$sr_stop_module'(ModuleName, ModulePart, SRError) :-
-	'$call_c'('SR_Stop_Module_3'(ModuleName, ModulePart, Err)),
+	'$call_c'('Pl_SR_Stop_Module_3'(ModuleName, ModulePart, Err)),
 	(   var(Err) ->
 	    SRError = sr_ok
 	;   SRError = sr_error(warning, Err)).
@@ -385,13 +399,13 @@ sr_read_term(D, Term, Options, SRError) :-
 
 sr_current_descriptor(D) :-
 	set_bip_name(sr_current_descriptor, 1),
-	'$call_c_test'('SR_Current_Descriptor_1'(D)).
+	'$call_c_test'('Pl_SR_Current_Descriptor_1'(D)).
 
 
 
 
 '$sr_current_descriptor_alt' :-	% used by C code to create a choice-point
-	'$call_c_test'('SR_Current_Descriptor_Alt_0').
+	'$call_c_test'('Pl_SR_Current_Descriptor_Alt_0').
 
 
 
@@ -399,84 +413,84 @@ sr_current_descriptor(D) :-
 sr_get_stream(D, Stream) :-
 	set_bip_name(sr_get_stream, 2),
 	'$check_stream_or_var'(Stream, Stm),
-	'$call_c_test'('SR_Get_Stm_2'(D, Stm)).
+	'$call_c_test'('Pl_SR_Get_Stm_2'(D, Stm)).
 
 
 
 
 sr_get_module(D, ModuleName, ModulePart) :-
 	set_bip_name(sr_get_module, 3),
-	'$call_c_test'('SR_Get_Module_3'(D, ModuleName, ModulePart)).
+	'$call_c_test'('Pl_SR_Get_Module_3'(D, ModuleName, ModulePart)).
 
 
 
 
 sr_get_file_name(D, File) :-
 	set_bip_name(sr_get_file_name, 2),
-	'$call_c_test'('SR_Get_File_Name_2'(D, File)).
+	'$call_c_test'('Pl_SR_Get_File_Name_2'(D, File)).
 
 
 
 
 sr_get_position(D, L1, L2) :-
 	set_bip_name(sr_get_position, 3),
-	'$call_c_test'('SR_Get_Position_3'(D, L1, L2)).
+	'$call_c_test'('Pl_SR_Get_Position_3'(D, L1, L2)).
 
 
 
 
 sr_get_include_list(D, IncList) :-
 	set_bip_name(sr_get_include_list, 2),
-	'$call_c_test'('SR_Get_Include_List_2'(D, IncList)).
+	'$call_c_test'('Pl_SR_Get_Include_List_2'(D, IncList)).
 
 
 
 
 sr_get_include_stream_list(D, IncStreamList) :-
 	set_bip_name(sr_get_include_stream_list, 2),
-	'$call_c_test'('SR_Get_Include_Stream_List_2'(D, IncStreamList)).
+	'$call_c_test'('Pl_SR_Get_Include_Stream_List_2'(D, IncStreamList)).
 
 
 
 
 sr_get_size_counters(D, Chars,  Lines) :-
 	set_bip_name(sr_get_size_counters, 3),
-	'$call_c_test'('SR_Get_Size_Counters_3'(D, Chars, Lines)).
+	'$call_c_test'('Pl_SR_Get_Size_Counters_3'(D, Chars, Lines)).
 
 
 
 
 sr_get_error_counters(D, Errors,  Warnings) :-
 	set_bip_name(sr_get_error_counters, 3),
-	'$call_c_test'('SR_Get_Error_Counters_3'(D, Errors, Warnings)).
+	'$call_c_test'('Pl_SR_Get_Error_Counters_3'(D, Errors, Warnings)).
 
 
 
 
 sr_set_error_counters(D, Errors,  Warnings) :-
 	set_bip_name(sr_set_error_counters, 3),
-	'$call_c'('SR_Set_Error_Counters_3'(D, Errors, Warnings)).
+	'$call_c'('Pl_SR_Set_Error_Counters_3'(D, Errors, Warnings)).
 
 
 
 
 sr_write_message(D, Type, Format, Args) :-
 	set_bip_name(sr_write_message, 4),
-	'$call_c'('SR_Write_Message_4'(D, Type, Format, Args)).
+	'$call_c'('Pl_SR_Write_Message_4'(D, Type, Format, Args)).
 
 
 
 
 sr_write_message(D, L1, L2C, Type, Format, Args) :-
 	set_bip_name(sr_write_message, 6),
-	'$call_c'('SR_Write_Message_6'(D, L1, L2C, Type, Format, Args)).
+	'$call_c'('Pl_SR_Write_Message_6'(D, L1, L2C, Type, Format, Args)).
 
 
 
 
 sr_write_message(D, IncList, File, L1, L2C, Type, Format, Args) :-
 	set_bip_name(sr_write_message, 8),
-	'$call_c'('SR_Write_Message_8'(D, IncList, File, L1, L2C,
+	'$call_c'('Pl_SR_Write_Message_8'(D, IncList, File, L1, L2C,
 				       Type, Format, Args)).
 
 
@@ -485,9 +499,9 @@ sr_write_error(D, SRError) :-
 	set_bip_name(sr_write_error, 2),
 	'$sr_get_format_args_error'(SRError, L1, L2C, Type, Format, Args),
 	(   var(L1),
-	    '$call_c'('SR_Write_Message_4'(D, Type, Format, Args))
+	    '$call_c'('Pl_SR_Write_Message_4'(D, Type, Format, Args))
 	;
-	    '$call_c'('SR_Write_Message_6'(D, L1, L2C, Type, Format, Args))
+	    '$call_c'('Pl_SR_Write_Message_6'(D, L1, L2C, Type, Format, Args))
 	), !.
 
 sr_write_error(_, _).		% succes - nothing written for sr_ok
@@ -499,7 +513,7 @@ sr_write_error(D, L1, L2C, SRError) :-
 	set_bip_name(sr_write_error, 4),
 	'$sr_get_format_args_error'(SRError, EL1, EL2C, Type, Format, Args),
 	(   L1 = EL1, L2C = EL2C  ; true ),
-	'$call_c'('SR_Write_Message_6'(D, EL1, EL2C, Type, Format, Args)), !.
+	'$call_c'('Pl_SR_Write_Message_6'(D, EL1, EL2C, Type, Format, Args)), !.
 
 sr_write_error(_, _, _, _).	% succes - nothing written for sr_ok
 
@@ -510,7 +524,7 @@ sr_write_error(D, IncList, File, L1, L2C, SRError) :-
 	set_bip_name(sr_write_error, 6),
 	'$sr_get_format_args_error'(SRError, EL1, EL2C, Type, Format, Args),
 	(   L1 = EL1, L2C = EL2C  ; true ),
-	'$call_c'('SR_Write_Message_8'(D, IncList, File, EL1, EL2C,
+	'$call_c'('Pl_SR_Write_Message_8'(D, IncList, File, EL1, EL2C,
 				       Type, Format, Args)), !.
 
 sr_write_error(_, _, _, _, _, _). % succes - nothing written for sr_ok

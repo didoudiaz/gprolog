@@ -1,0 +1,13 @@
+Makefile
+USEFUL
+lcczip
+lccmake
+makefile.lcc
+msvcmake
+makefile.msvc
+mingwmake
+makefile.mingw
+*.dll
+*.exp
+*.res
+

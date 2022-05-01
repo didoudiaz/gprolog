@@ -6,25 +6,38 @@
  * Descr.: FD Range Implementation - header file                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include "bool.h"
+#include "pl_long.h"
 
 /*---------------------------------*
  * Constants                       *
@@ -34,7 +47,7 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef unsigned long VecWord;
+typedef PlULong VecWord;
 
 typedef VecWord *Vector;
 
@@ -81,101 +94,97 @@ Range;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Least_Significant_Bit(VecWord x);
+void Pl_Define_Vector_Size(int max_val);
 
-int Most_Significant_Bit(VecWord x);
+void Pl_Vector_From_Interval(Vector vec, int min, int max);
 
-void Define_Vector_Size(int max_val);
+int Pl_Vector_Nb_Elem(Vector vec);
 
-void Vector_From_Interval(Vector vec, int min, int max);
+int Pl_Vector_Ith_Elem(Vector vec, int n);
 
-int Vector_Nb_Elem(Vector vec);
+int Pl_Vector_Next_After(Vector vec, int n);
 
-int Vector_Ith_Elem(Vector vec, int n);
+int Pl_Vector_Next_Before(Vector vec, int n);
 
-int Vector_Next_After(Vector vec, int n);
+void Pl_Vector_Empty(Vector vec);
 
-int Vector_Next_Before(Vector vec, int n);
+void Pl_Vector_Full(Vector vec);
 
-void Vector_Empty(Vector vec);
+Bool Pl_Vector_Test_Null_Inter(Vector vec, Vector vec1);
 
-void Vector_Full(Vector vec);
+void Pl_Vector_Copy(Vector vec, Vector vec1);
 
-Bool Vector_Test_Null_Inter(Vector vec, Vector vec1);
+void Pl_Vector_Union(Vector vec, Vector vec1);
 
-void Vector_Copy(Vector vec, Vector vec1);
+void Pl_Vector_Inter(Vector vec, Vector vec1);
 
-void Vector_Union(Vector vec, Vector vec1);
+void Pl_Vector_Compl(Vector vec);
 
-void Vector_Inter(Vector vec, Vector vec1);
+void Pl_Vector_Add_Vector(Vector vec, Vector vec1);
 
-void Vector_Compl(Vector vec);
+void Pl_Vector_Sub_Vector(Vector vec, Vector vec1);
 
-void Vector_Add_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Mul_Vector(Vector vec, Vector vec1);
 
-void Vector_Sub_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Div_Vector(Vector vec, Vector vec1);
 
-void Vector_Mul_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Mod_Vector(Vector vec, Vector vec1);
 
-void Vector_Div_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Add_Value(Vector vec, int n);
 
-void Vector_Mod_Vector(Vector vec, Vector vec1);
+void Pl_Vector_Mul_Value(Vector vec, int n);
 
-void Vector_Add_Value(Vector vec, int n);
+void Pl_Vector_Div_Value(Vector vec, int n);
 
-void Vector_Mul_Value(Vector vec, int n);
+void Pl_Vector_Mod_Value(Vector vec, int n);
 
-void Vector_Div_Value(Vector vec, int n);
+Bool Pl_Range_Test_Value(Range *range, int n);
 
-void Vector_Mod_Value(Vector vec, int n);
+Bool Pl_Range_Test_Null_Inter(Range *range, Range *range1);
 
-Bool Range_Test_Value(Range *range, int n);
+void Pl_Range_Copy(Range *range, Range *range1);
 
-Bool Range_Test_Null_Inter(Range *range, Range *range1);
+int Pl_Range_Nb_Elem(Range *range);
 
-void Range_Copy(Range *range, Range *range1);
+int Pl_Range_Ith_Elem(Range *range, int n);
 
-int Range_Nb_Elem(Range *range);
+int Pl_Range_Next_After(Range *range, int n);
 
-int Range_Ith_Elem(Range *range, int n);
+int Pl_Range_Next_Before(Range *range, int n);
 
-int Range_Next_After(Range *range, int n);
+void Pl_Range_Set_Value(Range *range, int n);
 
-int Range_Next_Before(Range *range, int n);
+void Pl_Range_Reset_Value(Range *range, int n);
 
-void Range_Set_Value(Range *range, int n);
+void Pl_Range_Becomes_Sparse(Range *range);
 
-void Range_Reset_Value(Range *range, int n);
+void Pl_Range_From_Vector(Range *range);
 
-void Range_Becomes_Sparse(Range *range);
+void Pl_Range_Union(Range *range, Range *range1);
 
-void Range_From_Vector(Range *range);
+void Pl_Range_Inter(Range *range, Range *range1);
 
-void Range_Union(Range *range, Range *range1);
+void Pl_Range_Compl(Range *range);
 
-void Range_Inter(Range *range, Range *range1);
+void Pl_Range_Add_Range(Range *range, Range *range1);
 
-void Range_Compl(Range *range);
+void Pl_Range_Sub_Range(Range *range, Range *range1);
 
-void Range_Add_Range(Range *range, Range *range1);
+void Pl_Range_Mul_Range(Range *range, Range *range1);
 
-void Range_Sub_Range(Range *range, Range *range1);
+void Pl_Range_Div_Range(Range *range, Range *range1);
 
-void Range_Mul_Range(Range *range, Range *range1);
+void Pl_Range_Mod_Range(Range *range, Range *range1);
 
-void Range_Div_Range(Range *range, Range *range1);
+void Pl_Range_Add_Value(Range *range, int n);
 
-void Range_Mod_Range(Range *range, Range *range1);
+void Pl_Range_Mul_Value(Range *range, int n);
 
-void Range_Add_Value(Range *range, int n);
+void Pl_Range_Div_Value(Range *range, int n);
 
-void Range_Mul_Value(Range *range, int n);
+void Pl_Range_Mod_Value(Range *range, int n);
 
-void Range_Div_Value(Range *range, int n);
-
-void Range_Mod_Value(Range *range, int n);
-
-char *Range_To_String(Range *range);
+char *Pl_Range_To_String(Range *range);
 
 
 
@@ -221,7 +230,7 @@ char *Range_To_String(Range *range);
   do						\
     {						\
       vec = (Vector) RANGE_TOP_STACK;		\
-      RANGE_TOP_STACK += vec_size;		\
+      RANGE_TOP_STACK += pl_vec_size;		\
     }						\
   while (0)
 
@@ -237,7 +246,7 @@ char *Range_To_String(Range *range);
 
 #define VECTOR_BEGIN_ENUM(vec, vec_elem)                              	  \
 {									  \
-  Vector enum_end = vec + vec_size, enum_i = vec;			  \
+  Vector enum_end = vec + pl_vec_size, enum_i = vec;			  \
   int enum_j;								  \
   VecWord enum_word;							  \
 									  \

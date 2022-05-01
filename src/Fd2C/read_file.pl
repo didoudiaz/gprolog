@@ -1,28 +1,40 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : FD constraint definition file to C code compiler                * 
- * File  : read_file.pl                                                    * 
- * Descr.: source file reading                                             * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint definition file to C code compiler                *
+ * File  : read_file.pl                                                    *
+ * Descr.: source file reading                                             *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 file_to_token_lst(LToken) :-
 	get_code(stream_fd, C),
@@ -89,7 +101,8 @@ skip1(C, Next, C1, Next, Echo) :-
 	(   Echo = t ->
 	    put_code(stream_c, C1),
 	    put_code(stream_c, C)
-	;   true
+	;
+	    true
 	),
 	g_assign(next, C1),
 	fail.
@@ -97,7 +110,8 @@ skip1(C, Next, C1, Next, Echo) :-
 skip1(C, _, _, _, Echo) :-
 	(   Echo = t ->
 	    put_code(stream_c, C)
-	;   true
+	;
+	    true
 	),
 	fail.
 
@@ -108,10 +122,12 @@ one_token(C, Token, C2) :-
 	(   C >= 97,
 	    C =< 122,
 	    C1 = C
-	;   C >= 65,
+	;
+	    C >= 65,
 	    C =< 90,
 	    C1 is C + 97 - 65
-	;   C = 39,
+	;
+	    C = 39,
 	    C1 = C
 	), !,
 	unget_code(stream_fd, C1),
@@ -121,11 +137,13 @@ one_token(C, Token, C2) :-
 	    sub_atom(Token1, 1, _, 0, A),
 	    char_code(AC, C),
 	    atom_concat(AC, A, Token2)
-	;   Token2 = Token1
+	;
+	    Token2 = Token1
 	),
 	(   keyword(Token2) ->
 	    Token = Token2
-	;   Token = ident(Token2)
+	;
+	    Token = ident(Token2)
 	),
 	get_code(stream_fd, C2).
 
@@ -177,8 +195,7 @@ keyword(if).
 keyword(stop).
 
 keyword(forall).
-keyword(of).
+keyword(foreach).
 keyword(do).
-
 keyword(in).
 keyword(max_integer).

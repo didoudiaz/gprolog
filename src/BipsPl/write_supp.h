@@ -6,23 +6,35 @@
  * Descr.: term writing support - header file                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -48,11 +60,11 @@
 
 #ifdef WRITE_SUPP_FILE
 
-int last_writing;
+int pl_last_writing;
 
 #else
 
-extern int last_writing;
+extern int pl_last_writing;
 
 #endif
 
@@ -63,13 +75,15 @@ extern int last_writing;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Write_Term(StmInf *pstm, int depth, int prec, int mask,
-		WamWord term_word);
+void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
+		   WamWord term_word);
 
-void Write_Simple(WamWord term_word);
+void Pl_Write(WamWord term_word);
 
-void Write_A_Char(StmInf *pstm, int c);
+void Pl_Write_A_Full_Stop(StmInf *pstm);
 
-char *Float_To_String(double d, char *buffer);
+void Pl_Write_A_Char(StmInf *pstm, int c);
+
+char *Pl_Float_To_String(double d);
 
 int Get_Print_Stm(void);

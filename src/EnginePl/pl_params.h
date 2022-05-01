@@ -6,23 +6,35 @@
  * Descr.: parameter header file                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id: pl_params.h,v 1.4 2006/07/17 18:19:20 spa Exp $ */
 
 #define MAX_OBJECT                 10240
 
@@ -32,8 +44,8 @@
 
 #define START_OPER_TBL_SIZE        1024
 
-#define ATOM_SIZE                  24
-#define MAX_ATOM                   (1 << ATOM_SIZE) /* number of elements */
+#define ENV_VAR_MAX_ATOM           "MAX_ATOM"
+#define DEFAULT_MAX_ATOM           32768
 
 #define NB_OF_X_REGS               256
 #define MAX_ARITY                  (NB_OF_X_REGS - 1)
@@ -41,3 +53,5 @@
 /* NB: if NB_OF_X_REGS is changed it is necessary to modify ma2asm but
    also the byte code management */
 
+#define PROLOG_FILE_SUFFIX         ".pl"
+#define PROLOG_FILE_SUFFIXES_ALT   "|.pro|.prolog|"

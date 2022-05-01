@@ -6,38 +6,74 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifdef HAVE_FLOAT_H
+#include <float.h>
+#endif
 
 #define OBJ_INIT Arith_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifdef M_ix86_win32
-#define rint(x)  (floor((x)+(double) 0.5))
+#ifdef _MSC_VER
+#define rint(x)  (floor((x) + (double) 0.5))
 #endif
 
 
+/* PI and E */
+
+#ifndef M_PI
+#define M_PI 3.1415926535897932384
+#endif
+
+
+#ifndef M_E
+#define M_E  2.7182818284590452354
+#endif
+
+/* Difference between 1.0 and the minimum double greater than 1.0 */
+#ifndef DBL_EPSILON
+
+#ifdef __DBL_EPSILON__
+#define DBL_EPSILON __DBL_EPSILON__
+#else
+#define DBL_EPSILON 2.2204460492503131e-16  /* C double (64 bits IEEE encoding) */
+#endif
+
+#endif
 
 
 /*---------------------------------*
@@ -56,7 +92,7 @@
 typedef struct
 {
   WamWord f_n;
-  WamWord (*fct) () FC;
+  WamWord (FC *fct) ();
 }
 ArithInf;
 
@@ -69,6 +105,9 @@ ArithInf;
 
 static char *arith_tbl;
 
+static int atom_pi;
+static int atom_e;
+static int atom_epsilon;
 
 
 
@@ -82,12 +121,14 @@ static double To_Double(WamWord x);
 
 static WamWord Load_Math_Expression(WamWord exp);
 
+static double Integ_Pow(double x, double y);
 
 
-#define ADD_ARITH_OPER(atom_str, arity, f)                      \
-  arith_info.f_n = Functor_Arity(Create_Atom(atom_str), arity); \
-  arith_info.fct = f;                                           \
-  Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
+
+#define ADD_ARITH_OPER(atom_str, arity, f)                         \
+  arith_info.f_n = Functor_Arity(Pl_Create_Atom(atom_str), arity); \
+  arith_info.fct = f;                                              \
+  Pl_Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
 
 
 
@@ -101,79 +142,217 @@ Arith_Initializer(void)
 {
   ArithInf arith_info;
 
-  arith_tbl = Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
+  arith_tbl = Pl_Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
 
-  ADD_ARITH_OPER("+", 1, Fct_Identity);
+  ADD_ARITH_OPER("+", 1, Pl_Fct_Identity);
 
-  ADD_ARITH_OPER("-", 1, Fct_Neg);
-  ADD_ARITH_OPER("inc", 1, Fct_Inc);
-  ADD_ARITH_OPER("dec", 1, Fct_Dec);
-  ADD_ARITH_OPER("+", 2, Fct_Add);
-  ADD_ARITH_OPER("-", 2, Fct_Sub);
-  ADD_ARITH_OPER("*", 2, Fct_Mul);
-  ADD_ARITH_OPER("//", 2, Fct_Div);
-  ADD_ARITH_OPER("/", 2, Fct_Float_Div);
-  ADD_ARITH_OPER("mod", 2, Fct_Mod);
-  ADD_ARITH_OPER("/\\", 2, Fct_And);
-  ADD_ARITH_OPER("\\/", 2, Fct_Or);
-  ADD_ARITH_OPER("^", 2, Fct_Xor);
-  ADD_ARITH_OPER("\\", 1, Fct_Not);
-  ADD_ARITH_OPER("<<", 2, Fct_Shl);
-  ADD_ARITH_OPER(">>", 2, Fct_Shr);
-  ADD_ARITH_OPER("abs", 1, Fct_Abs);
-  ADD_ARITH_OPER("sign", 1, Fct_Sign);
+  ADD_ARITH_OPER("-", 1, Pl_Fct_Neg);
+  ADD_ARITH_OPER("inc", 1, Pl_Fct_Inc);
+  ADD_ARITH_OPER("dec", 1, Pl_Fct_Dec);
+  ADD_ARITH_OPER("+", 2, Pl_Fct_Add);
+  ADD_ARITH_OPER("-", 2, Pl_Fct_Sub);
+  ADD_ARITH_OPER("*", 2, Pl_Fct_Mul);
+  ADD_ARITH_OPER("//", 2, Pl_Fct_Div);
+  ADD_ARITH_OPER("/", 2, Pl_Fct_Float_Div);
+  ADD_ARITH_OPER("rem", 2, Pl_Fct_Rem);
+  ADD_ARITH_OPER("mod", 2, Pl_Fct_Mod);
+  ADD_ARITH_OPER("div", 2, Pl_Fct_Div2);
+  ADD_ARITH_OPER("/\\", 2, Pl_Fct_And);
+  ADD_ARITH_OPER("\\/", 2, Pl_Fct_Or);
+  ADD_ARITH_OPER("xor", 2, Pl_Fct_Xor);
+  ADD_ARITH_OPER("\\", 1, Pl_Fct_Not);
+  ADD_ARITH_OPER("<<", 2, Pl_Fct_Shl);
+  ADD_ARITH_OPER(">>", 2, Pl_Fct_Shr);
+  ADD_ARITH_OPER("lsb", 1, Pl_Fct_LSB);
+  ADD_ARITH_OPER("msb", 1, Pl_Fct_MSB);
+  ADD_ARITH_OPER("popcount", 1, Pl_Fct_Popcount);
+  ADD_ARITH_OPER("abs", 1, Pl_Fct_Abs);
+  ADD_ARITH_OPER("sign", 1, Pl_Fct_Sign);
 
-  ADD_ARITH_OPER("min", 2, Fct_Min);
-  ADD_ARITH_OPER("max", 2, Fct_Max);
-  ADD_ARITH_OPER("**", 2, Fct_Pow);
-  ADD_ARITH_OPER("sqrt", 1, Fct_Sqrt);
-  ADD_ARITH_OPER("atan", 1, Fct_Atan);
-  ADD_ARITH_OPER("cos", 1, Fct_Cos);
-  ADD_ARITH_OPER("acos", 1, Fct_Acos);
-  ADD_ARITH_OPER("sin", 1, Fct_Sin);
-  ADD_ARITH_OPER("asin", 1, Fct_Asin);
-  ADD_ARITH_OPER("exp", 1, Fct_Exp);
-  ADD_ARITH_OPER("log", 1, Fct_Log);
-  ADD_ARITH_OPER("float", 1, Fct_Float);
-  ADD_ARITH_OPER("ceiling", 1, Fct_Ceiling);
-  ADD_ARITH_OPER("floor", 1, Fct_Floor);
-  ADD_ARITH_OPER("round", 1, Fct_Round);
-  ADD_ARITH_OPER("truncate", 1, Fct_Truncate);
-  ADD_ARITH_OPER("float_fractional_part", 1, Fct_Float_Fract_Part);
-  ADD_ARITH_OPER("float_integer_part", 1, Fct_Float_Integ_Part);
+  ADD_ARITH_OPER("gcd", 2, Pl_Fct_GCD);
+  ADD_ARITH_OPER("min", 2, Pl_Fct_Min);
+  ADD_ARITH_OPER("max", 2, Pl_Fct_Max);
+  ADD_ARITH_OPER("^", 2, Pl_Fct_Integer_Pow);
+  ADD_ARITH_OPER("**", 2, Pl_Fct_Pow);
+  ADD_ARITH_OPER("sqrt", 1, Pl_Fct_Sqrt);
+  ADD_ARITH_OPER("tan", 1, Pl_Fct_Tan);
+  ADD_ARITH_OPER("atan", 1, Pl_Fct_Atan);
+  ADD_ARITH_OPER("atan2", 2, Pl_Fct_Atan2);
+  ADD_ARITH_OPER("cos", 1, Pl_Fct_Cos);
+  ADD_ARITH_OPER("acos", 1, Pl_Fct_Acos);
+  ADD_ARITH_OPER("sin", 1, Pl_Fct_Sin);
+  ADD_ARITH_OPER("asin", 1, Pl_Fct_Asin);
+  ADD_ARITH_OPER("tanh", 1, Pl_Fct_Tanh);
+  ADD_ARITH_OPER("atanh", 1, Pl_Fct_Atanh);
+  ADD_ARITH_OPER("cosh", 1, Pl_Fct_Cosh);
+  ADD_ARITH_OPER("acosh", 1, Pl_Fct_Acosh);
+  ADD_ARITH_OPER("sinh", 1, Pl_Fct_Sinh);
+  ADD_ARITH_OPER("asinh", 1, Pl_Fct_Asinh);
+  ADD_ARITH_OPER("exp", 1, Pl_Fct_Exp);
+  ADD_ARITH_OPER("log", 1, Pl_Fct_Log);
+  ADD_ARITH_OPER("log10", 1, Pl_Fct_Log10);
+  ADD_ARITH_OPER("log", 2, Pl_Fct_Log_Radix);
+  ADD_ARITH_OPER("float", 1, Pl_Fct_Float);
+  ADD_ARITH_OPER("ceiling", 1, Pl_Fct_Ceiling);
+  ADD_ARITH_OPER("floor", 1, Pl_Fct_Floor);
+  ADD_ARITH_OPER("round", 1, Pl_Fct_Round);
+  ADD_ARITH_OPER("truncate", 1, Pl_Fct_Truncate);
+  ADD_ARITH_OPER("float_fractional_part", 1, Pl_Fct_Float_Fract_Part);
+  ADD_ARITH_OPER("float_integer_part", 1, Pl_Fct_Float_Integ_Part);
 
-  ADD_ARITH_OPER("rem", 2, Fct_Rem);
+  atom_pi = Pl_Create_Atom("pi");
+  atom_e = Pl_Create_Atom("e");
+  atom_epsilon = Pl_Create_Atom("epsilon");
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * DEFINE_MATH_BIP_2                                                       *
+ * PL_DEFINE_MATH_BIP_2                                                    *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void
-Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
+Pl_Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
 {
   char *cur_bip_func;
   int cur_bip_arity;
 
-  cur_bip_func = Rd_String_Check(func_word);
-  cur_bip_arity = Rd_Integer_Check(arity_word);
-  Set_C_Bip_Name(cur_bip_func, cur_bip_arity);
+  cur_bip_func = Pl_Rd_String_Check(func_word);
+  cur_bip_arity = Pl_Rd_Integer_Check(arity_word);
+  Pl_Set_C_Bip_Name(cur_bip_func, cur_bip_arity);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * MATH_LOAD_VALUE                                                         *
+ * PL_CLASSIFY_DOUBLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Classify_Double(double x)
+{
+#ifdef fpclassify 
+  switch(fpclassify(x))
+    {
+    case FP_NAN:
+      return PL_FP_NAN;
+    case FP_INFINITE:
+      return PL_FP_INFINITE;
+    case FP_SUBNORMAL:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE_FPCLASS)
+  switch(fpclass(x))
+    {
+    case FP_SNAN:
+    case FP_QNAN:
+      return PL_FP_NAN;
+    case FP_NINF:
+    case FP_PINF:
+      return PL_FP_INFINITE;
+    case FP_NDENORM:
+    case FP_PDENORM:
+      return PL_FP_SUBNORMAL;
+    }
+#elif defined(HAVE__FPCLASS)
+  switch(_fpclass(x))
+    {
+    case _FPCLASS_SNAN:
+    case _FPCLASS_QNAN:
+      return PL_FP_NAN;
+    case _FPCLASS_NINF:
+    case _FPCLASS_PINF:
+      return PL_FP_INFINITE;
+    case _FPCLASS_ND:
+    case _FPCLASS_PD:
+      return PL_FP_SUBNORMAL;
+    }
+#else
+#ifdef HAVE_ISNAN
+  if (isnan(x))
+    return PL_FP_NAN;
+#endif
+#ifdef HAVE_ISINF
+  if (isinf(x))
+    return PL_FP_INFINITE;
+#endif
+#endif
+  return PL_FP_NORMAL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * CHECK_DOUBLE_ERRORS                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Check_Double_Errors(double x, Bool for_int)
+{
+  switch(Pl_Classify_Double(x))
+    {
+    case PL_FP_NAN:
+      Pl_Err_Evaluation(pl_evaluation_undefined);
+
+    case PL_FP_INFINITE:
+      if (for_int)
+	Pl_Err_Evaluation(pl_evaluation_int_overflow);
+      else
+	Pl_Err_Evaluation(pl_evaluation_float_overflow);
+      
+#if 0  /* ignored for the moment, maybe add prolog_flags to control this, see swi */
+    case PL_FP_SUBNORMAL:
+      Pl_Err_Evaluation(pl_evaluation_underflow);
+#endif
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_NAN                                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+double
+Pl_NaN(void)
+{
+#ifdef NAN
+  return NAN;
+#else
+  return 0.0 / 0.0;
+#endif
+}
+
+
+
+static PlLong
+Double_To_PlLong(double d)
+{
+  Check_Double_Errors(d, TRUE);
+
+  PlLong x = (PlLong) d;
+  if ((double) x != d || x < INT_LOWEST_VALUE || x > INT_GREATEST_VALUE)
+      Pl_Err_Evaluation(pl_evaluation_int_overflow);
+    
+  return x;
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_MATH_LOAD_VALUE                                                      *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Math_Load_Value(WamWord start_word, WamWord *word_adr)
+Pl_Math_Load_Value(WamWord start_word, WamWord *word_adr)
 {
   WamWord word, tag_mask;
 
@@ -189,12 +368,12 @@ Math_Load_Value(WamWord start_word, WamWord *word_adr)
 
 
 /*-------------------------------------------------------------------------*
- * MATH_FAST_LOAD_VALUE                                                    *
+ * PL_MATH_FAST_LOAD_VALUE                                                 *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
+Pl_Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 {
   WamWord word, tag_mask;
 
@@ -212,15 +391,19 @@ Math_Fast_Load_Value(WamWord start_word, WamWord *word_adr)
 static WamWord
 Make_Tagged_Float(double d)
 {
-  WamWord x = Tag_FLT(H);
+  WamWord x;
 
-  Global_Push_Float(d);
+  Check_Double_Errors(d, FALSE);
+
+  x = Tag_FLT(H);
+
+  Pl_Global_Push_Float(d);
 
   return x;
 }
 
 
-
+  
 
 /*-------------------------------------------------------------------------*
  * TO_DOUBLE                                                               *
@@ -229,8 +412,8 @@ Make_Tagged_Float(double d)
 static double
 To_Double(WamWord x)
 {
-  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) : 
-    Obtain_Float(UnTag_FLT(x));
+  return (Tag_Is_INT(x)) ? (double) (UnTag_INT(x)) :
+    Pl_Obtain_Float(UnTag_FLT(x));
 }
 
 
@@ -247,6 +430,7 @@ Load_Math_Expression(WamWord exp)
   WamWord *adr;
   WamWord *lst_adr;
   ArithInf *arith;
+  int atom;
 
   DEREF(exp, word, tag_mask);
 
@@ -259,27 +443,35 @@ Load_Math_Expression(WamWord exp)
       DEREF(Cdr(lst_adr), word, tag_mask);
       if (word != NIL_WORD)
 	{
-	  word = Put_Structure(ATOM_CHAR('/'), 2);
-	  Unify_Atom(ATOM_CHAR('.'));
-	  Unify_Integer(2);
-	  Pl_Err_Type(type_evaluable, word);
+	  word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+	  Pl_Unify_Atom(ATOM_CHAR('.'));
+	  Pl_Unify_Integer(2);
+	  Pl_Err_Type(pl_type_evaluable, word);
 	}
-      return Load_Math_Expression(Car(lst_adr));
+      DEREF(Car(lst_adr), word, tag_mask);
+      if (tag_mask == TAG_REF_MASK)
+	Pl_Err_Instantiation();
+
+      if (tag_mask != TAG_INT_MASK)
+	{
+	  Pl_Err_Type(pl_type_integer, word);
+	}
+      return word;
     }
 
   if (tag_mask == TAG_STC_MASK)
     {
       adr = UnTag_STC(word);
 
-      arith = (ArithInf *) Hash_Find(arith_tbl, Functor_And_Arity(adr));
+      arith = (ArithInf *) Pl_Hash_Find(arith_tbl, Functor_And_Arity(adr));
       if (arith == NULL)
 	{
-	  word = Put_Structure(ATOM_CHAR('/'), 2);
-	  Unify_Atom(Functor(adr));
-	  Unify_Integer(Arity(adr));
-	  Pl_Err_Type(type_evaluable, word);
+	  word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+	  Pl_Unify_Atom(Functor(adr));
+	  Pl_Unify_Integer(Arity(adr));
+	  Pl_Err_Type(pl_type_evaluable, word);
 	}
-      
+
       if (Arity(adr) == 1)
 	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
 
@@ -292,12 +484,22 @@ Load_Math_Expression(WamWord exp)
 
   if (tag_mask == TAG_ATM_MASK)
     {
-      word = Put_Structure(ATOM_CHAR('/'), 2);
-      Unify_Value(exp);
-      Unify_Integer(0);		/* then type_error */
+      atom = UnTag_ATM(word);
+      if (atom == atom_pi)
+	return Pl_Fct_PI();
+
+      if (atom == atom_e)
+	return Pl_Fct_E();
+
+      if (atom == atom_epsilon)
+	return Pl_Fct_Epsilon();
+
+      word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
+      Pl_Unify_Value(exp);
+      Pl_Unify_Integer(0);		/* then type_error */
     }
 
-  Pl_Err_Type(type_evaluable, word);
+  Pl_Err_Type(pl_type_evaluable, word);
   return word;
 }
 
@@ -305,13 +507,33 @@ Load_Math_Expression(WamWord exp)
 
 
 /*-------------------------------------------------------------------------*
- * ARITH_EVAL_2                                                            *
+ * PL_ARITH_EVAL_2                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Arith_Eval_2(WamWord exp_word, WamWord x_word)
+Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
 {
-  return Unify(Load_Math_Expression(exp_word), x_word);
+  return Pl_Unify(Load_Math_Expression(exp_word), x_word);
+}
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SUCC_2                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Succ_2(WamWord x_word, WamWord y_word)
+{
+  WamWord word, tag_mask;
+  PlLong x;
+
+  DEREF(x_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK)
+    return Pl_Un_Positive_Check(Pl_Rd_Positive_Check(word) + 1, y_word);
+
+  Pl_Check_For_Un_Positive(word);
+  x = Pl_Rd_Positive_Check(y_word) - 1;
+  return x >= 0 && Pl_Get_Integer(x, word);
 }
 
 
@@ -327,7 +549,7 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define C_Mul(x, y)  ((x) * (y))
 
-#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(evluation_zero_divisor), 0))
+#define C_Div(x, y)  ((y) != 0 ? (x) / (y) : (Pl_Err_Evaluation(pl_evaluation_zero_divisor), 0))
 
 #define Identity(x)  (x)
 
@@ -340,6 +562,8 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 #define DInteg(x)    (((x) > 0) ? floor(x) : ceil(x))
 
 #define DFract(x)    ((x) - DInteg(x))
+
+#define Log_Radix(b, x)  (log(x) / log(b))
 
 
 #define X_and_Y_are_INT(x, y)  Tag_Is_INT(x & y)
@@ -359,9 +583,9 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define IxItoI(x, y, fast_op)                    \
   if (Tag_Is_FLT(x))		/* error case */ \
-    Pl_Err_Type(type_integer, x);                \
+    Pl_Err_Type(pl_type_integer, x);             \
   if (Tag_Is_FLT(y))		/* error case */ \
-    Pl_Err_Type(type_integer, y);                \
+    Pl_Err_Type(pl_type_integer, y);             \
   return fast_op(x, y)
 
 
@@ -374,7 +598,7 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 #define ItoI(x, fast_op)                         \
   if (Tag_Is_FLT(x))            /* error case */ \
-    Pl_Err_Type(type_integer, x);                \
+    Pl_Err_Type(pl_type_integer, x);             \
   return fast_op(x)
 
 
@@ -384,22 +608,32 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 
 
 
+       /* FtoI is ONLY used for rounding functions */
 #define FtoI(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(type_float, x);                  \
+    {                                            \
+      if (Flag_Value(strict_iso))                \
+         Pl_Err_Type(pl_type_float, x);          \
+                                                 \
+      return x;                                  \
+    }						 \
   else                                           \
-    d = Obtain_Float(UnTag_FLT(x));              \
-  return Tag_INT((long) c_op(d))
+    d = Pl_Obtain_Float(UnTag_FLT(x));           \
+  return Tag_INT((PlLong) c_op(d))
 
 
 
 #define FtoF(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
-    Pl_Err_Type(type_float, x);                  \
+    {                                            \
+      Pl_Err_Type(pl_type_float, x);             \
+                                                 \
+      return x; /* for clang (avoid d uninit) */ \
+    }						 \
   else                                           \
-    d = Obtain_Float(UnTag_FLT(x));              \
+    d = Pl_Obtain_Float(UnTag_FLT(x));           \
   return Make_Tagged_Float(c_op(d))
 
 
@@ -407,145 +641,225 @@ Arith_Eval_2(WamWord exp_word, WamWord x_word)
 	  /* fast-math version */
 
 WamWord FC
-Fct_Fast_Neg(WamWord x)
+Pl_Fct_Fast_Neg(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(-vx);
 }
 
 WamWord FC
-Fct_Fast_Inc(WamWord x)
+Pl_Fct_Fast_Inc(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(vx + 1);
 }
 
 WamWord FC
-Fct_Fast_Dec(WamWord x)
+Pl_Fct_Fast_Dec(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(vx - 1);
 }
 
 WamWord FC
-Fct_Fast_Add(WamWord x, WamWord y)
+Pl_Fct_Fast_Add(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx + vy);
 }
 
 WamWord FC
-Fct_Fast_Sub(WamWord x, WamWord y)
+Pl_Fct_Fast_Sub(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx - vy);
 }
 
 WamWord FC
-Fct_Fast_Mul(WamWord x, WamWord y)
+Pl_Fct_Fast_Mul(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx * vy);
 }
 
 WamWord FC
-Fct_Fast_Div(WamWord x, WamWord y)
+Pl_Fct_Fast_Div(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx / vy);
 }
 
 WamWord FC
-Fct_Fast_Rem(WamWord x, WamWord y)
+Pl_Fct_Fast_Rem(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
 
   if (vy == 0)
-    Pl_Err_Evaluation(evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx % vy);
 }
 
 WamWord FC
-Fct_Fast_Mod(WamWord x, WamWord y)
+Pl_Fct_Fast_Mod(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
-  long m;
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong m;
 
   if (vy == 0)
-    Pl_Err_Evaluation(evluation_zero_divisor);
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   m = vx % vy;
 
-  if ((m ^ vy) < 0)		/* have m and vy different signs ? */
+  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
     m += vy;
 
   return Tag_INT(m);
 }
 
 WamWord FC
-Fct_Fast_And(WamWord x, WamWord y)
+Pl_Fct_Fast_Div2(WamWord x, WamWord y)
+{
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong m;
+
+  if (vy == 0)
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
+
+  m = vx % vy;
+
+  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
+    m += vy;
+
+  m = (vx - m) / vy;
+
+  return Tag_INT(m);
+}
+
+WamWord FC
+Pl_Fct_Fast_And(WamWord x, WamWord y)
 {
   return x & y;
 }
 
 WamWord FC
-Fct_Fast_Or(WamWord x, WamWord y)
+Pl_Fct_Fast_Or(WamWord x, WamWord y)
 {
   return x | y;
 }
 
 WamWord FC
-Fct_Fast_Xor(WamWord x, WamWord y)
+Pl_Fct_Fast_Xor(WamWord x, WamWord y)
 {
   return (x ^ y) | TAG_INT_MASK;
 }
 
 WamWord FC
-Fct_Fast_Not(WamWord x)
+Pl_Fct_Fast_Not(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return Tag_INT(~vx);
 }
 
+
 WamWord FC
-Fct_Fast_Shl(WamWord x, WamWord y)
+Pl_Fct_Fast_Shl(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx << vy);
 }
 
 WamWord FC
-Fct_Fast_Shr(WamWord x, WamWord y)
+Pl_Fct_Fast_Shr(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return Tag_INT(vx >> vy);
 }
 
 WamWord FC
-Fct_Fast_Abs(WamWord x)
+Pl_Fct_Fast_LSB(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
+  return Tag_INT((vx == 0) ? -1 : Pl_Least_Significant_Bit(vx));
+}
+
+WamWord FC
+Pl_Fct_Fast_MSB(WamWord x)
+{
+  PlLong vx = UnTag_INT(x);
+  return Tag_INT((vx == 0) ? -1 : Pl_Most_Significant_Bit(vx));
+}
+
+WamWord FC
+Pl_Fct_Fast_Popcount(WamWord x)
+{
+  PlLong vx = UnTag_INT(x);
+  return Tag_INT(Pl_Count_Set_Bits(vx));
+}
+
+WamWord FC
+Pl_Fct_Fast_Abs(WamWord x)
+{
+  PlLong vx = UnTag_INT(x);
   return (vx < 0) ? Tag_INT(-vx) : x;
 }
 
 WamWord FC
-Fct_Fast_Sign(WamWord x)
+Pl_Fct_Fast_Sign(WamWord x)
 {
-  long vx = UnTag_INT(x);
+  PlLong vx = UnTag_INT(x);
   return (vx < 0) ? Tag_INT(-1) : (vx == 0) ? Tag_INT(0) : Tag_INT(1);
+}
+
+WamWord FC
+Pl_Fct_Fast_GCD(WamWord x, WamWord y)
+{
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+
+  if (vx < 0)
+    vx = -vx;
+
+  if (vy < 0)
+    vy = -vy;
+
+  while(vy != 0)
+    {
+      PlLong r = vx % vy;
+      vx = vy;
+      vy = r;
+    }
+  return Tag_INT(vx);
+}
+
+
+
+
+WamWord FC
+Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
+{
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  
+  if (vx != 1 && vy <= -1)
+    Pl_Err_Type(pl_type_float, x);
+
+  double r = Integ_Pow(vx, vy);
+  PlLong p = Double_To_PlLong(r);
+  return Tag_INT(p);
 }
 
 
@@ -553,115 +867,148 @@ Fct_Fast_Sign(WamWord x)
 	  /* standard version */
 
 WamWord FC
-Fct_Neg(WamWord x)
+Pl_Fct_Neg(WamWord x)
 {
-  IFtoIF(x, C_Neg, Fct_Fast_Neg);
+  IFtoIF(x, C_Neg, Pl_Fct_Fast_Neg);
 }
 
 WamWord FC
-Fct_Inc(WamWord x)
+Pl_Fct_Inc(WamWord x)
 {
-  IFtoIF(x, DInc, Fct_Fast_Inc);
+  IFtoIF(x, DInc, Pl_Fct_Fast_Inc);
 }
 
 WamWord FC
-Fct_Dec(WamWord x)
+Pl_Fct_Dec(WamWord x)
 {
-  IFtoIF(x, DDec, Fct_Fast_Dec);
+  IFtoIF(x, DDec, Pl_Fct_Fast_Dec);
 }
 
 WamWord FC
-Fct_Add(WamWord x, WamWord y)
+Pl_Fct_Add(WamWord x, WamWord y)
 {
-  IFxIFtoIF(x, y, C_Add, Fct_Fast_Add);
+  IFxIFtoIF(x, y, C_Add, Pl_Fct_Fast_Add);
 }
 
 WamWord FC
-Fct_Sub(WamWord x, WamWord y)
+Pl_Fct_Sub(WamWord x, WamWord y)
 {
-  IFxIFtoIF(x, y, C_Sub, Fct_Fast_Sub);
+  IFxIFtoIF(x, y, C_Sub, Pl_Fct_Fast_Sub);
 }
 
 WamWord FC
-Fct_Mul(WamWord x, WamWord y)
+Pl_Fct_Mul(WamWord x, WamWord y)
 {
-  IFxIFtoIF(x, y, C_Mul, Fct_Fast_Mul);
+  IFxIFtoIF(x, y, C_Mul, Pl_Fct_Fast_Mul);
 }
 
 WamWord FC
-Fct_Div(WamWord x, WamWord y)
+Pl_Fct_Div(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Div);
+  IxItoI(x, y, Pl_Fct_Fast_Div);
 }
 
 WamWord FC
-Fct_Float_Div(WamWord x, WamWord y)
+Pl_Fct_Float_Div(WamWord x, WamWord y)
 {
   IFxIFtoF(x, y, C_Div);
 }
 
 WamWord FC
-Fct_Rem(WamWord x, WamWord y)
+Pl_Fct_Rem(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Rem);
+  IxItoI(x, y, Pl_Fct_Fast_Rem);
 }
 
 WamWord FC
-Fct_Mod(WamWord x, WamWord y)
+Pl_Fct_Mod(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Mod);
+  IxItoI(x, y, Pl_Fct_Fast_Mod);
 }
 
 WamWord FC
-Fct_And(WamWord x, WamWord y)
+Pl_Fct_Div2(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_And);
+  IxItoI(x, y, Pl_Fct_Fast_Div2);
 }
 
 WamWord FC
-Fct_Or(WamWord x, WamWord y)
+Pl_Fct_And(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Or);
+  IxItoI(x, y, Pl_Fct_Fast_And);
 }
 
 WamWord FC
-Fct_Xor(WamWord x, WamWord y)
+Pl_Fct_Or(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Xor);
+  IxItoI(x, y, Pl_Fct_Fast_Or);
 }
 
 WamWord FC
-Fct_Not(WamWord x)
+Pl_Fct_Xor(WamWord x, WamWord y)
 {
-  ItoI(x, Fct_Fast_Not);
+  IxItoI(x, y, Pl_Fct_Fast_Xor);
 }
 
 WamWord FC
-Fct_Shl(WamWord x, WamWord y)
+Pl_Fct_Not(WamWord x)
 {
-  IxItoI(x, y, Fct_Fast_Shl);
+  ItoI(x, Pl_Fct_Fast_Not);
 }
 
 WamWord FC
-Fct_Shr(WamWord x, WamWord y)
+Pl_Fct_Shl(WamWord x, WamWord y)
 {
-  IxItoI(x, y, Fct_Fast_Shr);
+  IxItoI(x, y, Pl_Fct_Fast_Shl);
 }
 
 WamWord FC
-Fct_Abs(WamWord x)
+Pl_Fct_Shr(WamWord x, WamWord y)
 {
-  IFtoIF(x, fabs, Fct_Fast_Abs);
+  IxItoI(x, y, Pl_Fct_Fast_Shr);
 }
 
 WamWord FC
-Fct_Sign(WamWord x)
+Pl_Fct_LSB(WamWord x)
 {
-  IFtoIF(x, DSign, Fct_Fast_Sign);
+  ItoI(x, Pl_Fct_Fast_LSB);
 }
 
 WamWord FC
-Fct_Min(WamWord x, WamWord y)
+Pl_Fct_MSB(WamWord x)
+{
+  ItoI(x, Pl_Fct_Fast_MSB);
+}
+
+WamWord FC
+Pl_Fct_Popcount(WamWord x)
+{
+  ItoI(x, Pl_Fct_Fast_Popcount);
+}
+
+WamWord FC
+Pl_Fct_Abs(WamWord x)
+{
+  IFtoIF(x, fabs, Pl_Fct_Fast_Abs);
+}
+
+WamWord FC
+Pl_Fct_Sign(WamWord x)
+{
+  IFtoIF(x, DSign, Pl_Fct_Fast_Sign);
+}
+
+
+WamWord FC
+Pl_Fct_GCD(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_GCD);
+}
+
+
+
+WamWord FC
+Pl_Fct_Min(WamWord x, WamWord y)
 {
   double dx = To_Double(x);
   double dy = To_Double(y);
@@ -676,7 +1023,7 @@ Fct_Min(WamWord x, WamWord y)
 }
 
 WamWord FC
-Fct_Max(WamWord x, WamWord y)
+Pl_Fct_Max(WamWord x, WamWord y)
 {
   double dx = To_Double(x);
   double dy = To_Double(y);
@@ -691,106 +1038,226 @@ Fct_Max(WamWord x, WamWord y)
 }
 
 WamWord FC
-Fct_Pow(WamWord x, WamWord y)
+Pl_Fct_Integer_Pow(WamWord x, WamWord y)
+{
+  IFxIFtoIF(x, y, Integ_Pow, Pl_Fct_Fast_Integer_Pow);
+}
+
+
+/* ISO Tech Corr. 3 9.3.10 - special error cases for integer power (^)/2 */
+static double
+Integ_Pow(double x, double y)
+{
+  if (x == 0.0 && y < 0)
+    return Pl_NaN();
+
+  if (x == 1.0)
+    return x;
+  
+  return pow(x, y);
+}
+
+
+WamWord FC
+Pl_Fct_Pow(WamWord x, WamWord y)
 {
   IFxIFtoF(x, y, pow);
 }
 
 WamWord FC
-Fct_Sqrt(WamWord x)
+Pl_Fct_Sqrt(WamWord x)
 {
   IFtoF(x, sqrt);
 }
 
 WamWord FC
-Fct_Atan(WamWord x)
+Pl_Fct_Tan(WamWord x)
+{
+  IFtoF(x, tan);
+}
+
+WamWord FC
+Pl_Fct_Atan(WamWord x)
 {
   IFtoF(x, atan);
 }
 
 WamWord FC
-Fct_Cos(WamWord x)
+Pl_Fct_Atan2(WamWord x, WamWord y)
+{
+  IFxIFtoF(x, y, atan2);
+}
+
+WamWord FC
+Pl_Fct_Cos(WamWord x)
 {
   IFtoF(x, cos);
 }
 
 WamWord FC
-Fct_Acos(WamWord x)
+Pl_Fct_Acos(WamWord x)
 {
   IFtoF(x, acos);
 }
 
 WamWord FC
-Fct_Sin(WamWord x)
+Pl_Fct_Sin(WamWord x)
 {
   IFtoF(x, sin);
 }
 
 WamWord FC
-Fct_Asin(WamWord x)
+Pl_Fct_Asin(WamWord x)
 {
   IFtoF(x, asin);
 }
 
 WamWord FC
-Fct_Exp(WamWord x)
+Pl_Fct_Tanh(WamWord x)
+{
+  IFtoF(x, tanh);
+}
+
+WamWord FC
+Pl_Fct_Atanh(WamWord x)
+{
+#ifdef HAVE_ATANH
+  IFtoF(x, atanh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
+}
+
+WamWord FC
+Pl_Fct_Cosh(WamWord x)
+{
+  IFtoF(x, cosh);
+}
+
+WamWord FC
+Pl_Fct_Acosh(WamWord x)
+{
+#ifdef HAVE_ACOSH
+  IFtoF(x, acosh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
+}
+
+WamWord FC
+Pl_Fct_Sinh(WamWord x)
+{
+  IFtoF(x, sinh);
+}
+
+WamWord FC
+Pl_Fct_Asinh(WamWord x)
+{
+#ifdef HAVE_ASINH
+  IFtoF(x, asinh);
+#else
+  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  return 0;			/* anything for the compiler */
+#endif
+}
+
+WamWord FC
+Pl_Fct_Exp(WamWord x)
 {
   IFtoF(x, exp);
 }
 
 WamWord FC
-Fct_Log(WamWord x)
+Pl_Fct_Log(WamWord x)
 {
   IFtoF(x, log);
 }
 
 WamWord FC
-Fct_Float(WamWord x)
+Pl_Fct_Log10(WamWord x)
+{
+  IFtoF(x, log10);
+}
+
+WamWord FC
+Pl_Fct_Log_Radix(WamWord b, WamWord x)
+{
+  IFxIFtoF(b, x, Log_Radix);
+}
+
+WamWord FC
+Pl_Fct_Float(WamWord x)
 {
   IFtoF(x, Identity);
 }
 
 WamWord FC
-Fct_Ceiling(WamWord x)
+Pl_Fct_Ceiling(WamWord x)
 {
   FtoI(x, ceil);
 }
 
 WamWord FC
-Fct_Floor(WamWord x)
+Pl_Fct_Floor(WamWord x)
 {
   FtoI(x, floor);
 }
 
 WamWord FC
-Fct_Round(WamWord x)
+Pl_Fct_Round(WamWord x)
 {
   FtoI(x, rint);
 }
 
 WamWord FC
-Fct_Truncate(WamWord x)
+Pl_Fct_Truncate(WamWord x)
 {
   FtoI(x, Identity);
 }
 
 WamWord FC
-Fct_Float_Fract_Part(WamWord x)
+Pl_Fct_Float_Fract_Part(WamWord x)
 {
   FtoF(x, DFract);
 }
 
 WamWord FC
-Fct_Float_Integ_Part(WamWord x)
+Pl_Fct_Float_Integ_Part(WamWord x)
 {
   FtoF(x, DInteg);
 }
 
 WamWord FC
-Fct_Identity(WamWord x)
+Pl_Fct_PI(void)
+{
+  return Make_Tagged_Float(M_PI);
+}
+
+
+WamWord FC
+Pl_Fct_E(void)
+{
+  return Make_Tagged_Float(M_E);
+}
+
+
+WamWord FC
+Pl_Fct_Epsilon(void)
+{
+  return Make_Tagged_Float(DBL_EPSILON);
+}
+
+
+WamWord FC
+Pl_Fct_Identity(WamWord x)
 {
   return x;
 }				/* for meta-call */
+
+
+
 
 
 	  /* Mathematic Comparisons */
@@ -804,46 +1271,46 @@ Fct_Identity(WamWord x)
 	  /* fast-math version */
 
 Bool FC
-Blt_Fast_Eq(WamWord x, WamWord y)
+Pl_Blt_Fast_Eq(WamWord x, WamWord y)
 {
   return x == y;
 }
 
 Bool FC
-Blt_Fast_Neq(WamWord x, WamWord y)
+Pl_Blt_Fast_Neq(WamWord x, WamWord y)
 {
   return x != y;
 }
 
 Bool FC
-Blt_Fast_Lt(WamWord x, WamWord y)
+Pl_Blt_Fast_Lt(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx < vy;
 }
 
 Bool FC
-Blt_Fast_Lte(WamWord x, WamWord y)
+Pl_Blt_Fast_Lte(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx <= vy;
 }
 
 Bool FC
-Blt_Fast_Gt(WamWord x, WamWord y)
+Pl_Blt_Fast_Gt(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx > vy;
 }
 
 Bool FC
-Blt_Fast_Gte(WamWord x, WamWord y)
+Pl_Blt_Fast_Gte(WamWord x, WamWord y)
 {
-  long vx = UnTag_INT(x);
-  long vy = UnTag_INT(y);
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
   return vx >= vy;
 }
 
@@ -851,32 +1318,32 @@ Blt_Fast_Gte(WamWord x, WamWord y)
 	  /* standard version */
 
 Bool FC
-Blt_Eq(WamWord x, WamWord y)
+Pl_Blt_Eq(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, ==, Blt_Fast_Eq);
+  Cmp_IFxIF(x, y, ==, Pl_Blt_Fast_Eq);
 }
 Bool FC
-Blt_Neq(WamWord x, WamWord y)
+Pl_Blt_Neq(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, !=, Blt_Fast_Neq);
+  Cmp_IFxIF(x, y, !=, Pl_Blt_Fast_Neq);
 }
 Bool FC
-Blt_Lt(WamWord x, WamWord y)
+Pl_Blt_Lt(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, <, Blt_Fast_Lt);
+  Cmp_IFxIF(x, y, <, Pl_Blt_Fast_Lt);
 }
 Bool FC
-Blt_Lte(WamWord x, WamWord y)
+Pl_Blt_Lte(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, <=, Blt_Fast_Lte);
+  Cmp_IFxIF(x, y, <=, Pl_Blt_Fast_Lte);
 }
 Bool FC
-Blt_Gt(WamWord x, WamWord y)
+Pl_Blt_Gt(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, >, Blt_Fast_Gt);
+  Cmp_IFxIF(x, y, >, Pl_Blt_Fast_Gt);
 }
 Bool FC
-Blt_Gte(WamWord x, WamWord y)
+Pl_Blt_Gte(WamWord x, WamWord y)
 {
-  Cmp_IFxIF(x, y, >=, Blt_Fast_Gte);
+  Cmp_IFxIF(x, y, >=, Pl_Blt_Fast_Gte);
 }

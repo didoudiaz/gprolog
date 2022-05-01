@@ -6,23 +6,35 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #if 0
 #define GARBAGE_COLLECTOR
@@ -55,11 +67,11 @@
 
 #define ENVIR_STATIC_SIZE          4
 
-#define CPE(e)                     (*(WamCont *)   &(e[-1]))
-#define BCIE(e)                    ((WamWord)   (e[-2]))
-#define EE(e)                      ((WamWord *) (e[-3]))
-#define NBYE(e)                    ((WamWord)   (e[-4]))
-#define Y(e, y)                    ((WamWord)   (e[-5 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define NBYE(e)                    (*(WamWord *)  &(e[-4]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-5 - (y)]))
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
 
@@ -67,10 +79,10 @@
 
 #define ENVIR_STATIC_SIZE          3
 
-#define CPE(e)                     (*(WamCont *)   &(e[-1]))
-#define BCIE(e)                    (*(WamWord *)   &(e[-2]))
-#define EE(e)                      (*(WamWord **)  &(e[-3]))
-#define Y(e, y)                    (*(WamWord *)   &(e[-4 - (y)]))
+#define CPE(e)                     (*(WamCont *)  &(e[-1]))
+#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
+#define EE(e)                      (*(WamWord **) &(e[-3]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-4 - (y)]))
 
 #define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
 
@@ -81,15 +93,15 @@
 
 #define CHOICE_STATIC_SIZE         8
 
-#define ALTB(b)                    (*(CodePtr *)   &(b[-1]))
-#define CPB(b)                     (*(WamCont *)   &(b[-2]))
-#define BCIB(b)                    (*(WamWord *)   &(b[-3]))
-#define EB(b)                      (*(WamWord **)  &(b[-4]))
-#define BB(b)                      (*(WamWord **)  &(b[-5]))
-#define HB(b)                      (*(WamWord **)  &(b[-6]))
-#define TRB(b)                     (*(WamWord **)  &(b[-7]))
-#define CSB(b)                     (*(WamWord **)  &(b[-8]))
-#define AB(b, a)                   (*(WamWord *)   &(b[-9 - (a)]))
+#define ALTB(b)                    (*(CodePtr *)  &(b[-1]))
+#define CPB(b)                     (*(WamCont *)  &(b[-2]))
+#define BCIB(b)                    (*(WamWord *)  &(b[-3]))
+#define EB(b)                      (*(WamWord **) &(b[-4]))
+#define BB(b)                      (*(WamWord **) &(b[-5]))
+#define HB(b)                      (*(WamWord **) &(b[-6]))
+#define TRB(b)                     (*(WamWord **) &(b[-7]))
+#define CSB(b)                     (*(WamWord **) &(b[-8]))
+#define AB(b, a)                   (*(WamWord *)  &(b[-9 - (a)]))
 
 #define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
                                     "HB", "TRB", "CSB"}
@@ -112,18 +124,21 @@
 #define TRAIL_TAG_NAMES            {"TUV", "TOV", "TMV", "TFC"}
 
 
-#define Trail_Tag_Value(t, v)      ((unsigned long) (v) | (t))
-#define Trail_Tag_Of(w)            ((unsigned long) (w) & 0x3)
-#define Trail_Value_Of(w)          ((unsigned long) (w) & (~0x3))
+#define Trail_Tag_Value(t, v)      ((PlULong) (v) | (t))
+#define Trail_Tag_Of(w)            ((PlULong) (w) & 0x3)
+#define Trail_Value_Of(w)          ((PlULong) (w) & (~0x3))
 
 
 
 
 	  /* Functor/arity */
 
-#define Functor_Arity(f, n)        (((n) << ATOM_SIZE) + (f))
-#define Functor_Of(word)           ((word) & (MAX_ATOM - 1))
-#define Arity_Of(word)             ((word) >> ATOM_SIZE)
+				   /* reserve 10 bits for the arity */
+#define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 10)
+
+#define Functor_Arity(f, n)        (((PlULong) (n) << ATOM_MAX_BITS) | (f))
+#define Functor_Of(word)           ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1))
+#define Arity_Of(word)             ((PlULong) (word) >> ATOM_MAX_BITS)
 
 
 #ifndef NO_USE_FD_SOLVER
@@ -153,8 +168,8 @@
 
 	  /* Integer */
 
-#define INT_GREATEST_VALUE         ((long) ((1L<<(WORD_SIZE-TAG_SIZE-1))-1))
-#define INT_LOWEST_VALUE           ((long) ((-INT_GREATEST_VALUE)-1))
+#define INT_GREATEST_VALUE         (((PlLong)1<<(WORD_SIZE-TAG_SIZE-1))-1)
+#define INT_LOWEST_VALUE           ((-INT_GREATEST_VALUE)-1)
 
 
 
@@ -213,10 +228,10 @@
 
 	  /* CP management */
 
-#ifdef M_sparc
+#if defined(M_sparc32) || defined(M_sparc64)
 
-#define Adjust_CP(cp)              ((WamCont) ((unsigned long) (cp) - 8))
-#define UnAdjust_CP(cp)            ((WamCont) ((unsigned long) (cp) + 8))
+#define Adjust_CP(cp)              ((WamCont) ((PlULong) (cp) - 8))
+#define UnAdjust_CP(cp)            ((WamCont) ((PlULong) (cp) + 8))
 
 #else
 
@@ -234,7 +249,7 @@
 
 typedef struct			/* Switch item information         */
 {				/* ------------------------------- */
-  long key;			/* key: atm, int (if no_opt), f/n  */
+  PlLong key;			/* key: atm, int (if no_opt), f/n  */
   CodePtr codep;		/* compiled code pointer if static */
 }
 SwtInf;
@@ -252,135 +267,147 @@ typedef SwtInf *SwtTbl;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamWord Create_Functor_Arity_Tagged(char *func_str, int arity) FC;
+WamWord FC Pl_Create_Functor_Arity_Tagged(char *func_str, int arity);
 
-SwtTbl Create_Swt_Table(int size) FC;
+SwtTbl FC Pl_Create_Swt_Table(int size);
 
-void Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep) FC;
+void FC Pl_Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep);
 
-void Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-			    CodePtr codep) FC;
+void FC Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
+			    CodePtr codep);
 
-Bool Get_Atom_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Pl_Get_Atom_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Atom(int atom, WamWord start_word) FC;
+Bool FC Pl_Get_Atom(int atom, WamWord start_word);
 
-Bool Get_Integer_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Pl_Get_Integer_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Integer(long n, WamWord start_word) FC;
+Bool FC Pl_Get_Integer(PlLong n, WamWord start_word);
 
-Bool Get_Float(double n, WamWord start_word) FC;
+Bool FC Pl_Get_Float(double n, WamWord start_word);
 
-Bool Get_Nil(WamWord start_word) FC;
+Bool FC Pl_Get_Nil(WamWord start_word);
 
-Bool Get_List(WamWord start_word) FC;
+Bool FC Pl_Get_List(WamWord start_word);
 
-Bool Get_Structure_Tagged(WamWord w, WamWord start_word) FC;
+Bool FC Pl_Get_Structure_Tagged(WamWord w, WamWord start_word);
 
-Bool Get_Structure(int func, int arity, WamWord start_word) FC;
+Bool FC Pl_Get_Structure(int func, int arity, WamWord start_word);
 
-WamWord Put_X_Variable(void) FC;
+WamWord FC Pl_Put_X_Variable(void);
 
-WamWord Put_Y_Variable(WamWord *y_adr) FC;
+WamWord FC Pl_Put_Y_Variable(WamWord *y_adr);
 
-WamWord Put_Unsafe_Value(WamWord start_word) FC;
+WamWord FC Pl_Put_Unsafe_Value(WamWord start_word);
 
-WamWord Put_Atom_Tagged(WamWord w) FC;
+WamWord FC Pl_Put_Atom_Tagged(WamWord w);
 
-WamWord Put_Atom(int atom) FC;
+WamWord FC Pl_Put_Atom(int atom);
 
-WamWord Put_Integer_Tagged(WamWord w) FC;
+WamWord FC Pl_Put_Integer_Tagged(WamWord w);
 
-WamWord Put_Integer(long n) FC;
+WamWord FC Pl_Put_Integer(PlLong n);
 
-WamWord Put_Float(double n) FC;
+WamWord FC Pl_Put_Float(double n);
 
-WamWord Put_Nil(void) FC;
+WamWord FC Pl_Put_Nil(void);
 
-WamWord Put_List(void) FC;
+WamWord FC Pl_Put_List(void);
 
-WamWord Put_Structure_Tagged(WamWord w) FC;
+WamWord FC Pl_Put_Structure_Tagged(WamWord w);
 
-WamWord Put_Structure(int func, int arity) FC;
+WamWord FC Pl_Put_Structure(int func, int arity);
 
-WamWord Unify_Variable(void) FC;
+WamWord FC Pl_Unify_Variable(void);
 
-void Unify_Void(int n) FC;
+void FC Pl_Unify_Void(int n);
 
-Bool Unify_Value(WamWord start_word) FC;
+Bool FC Pl_Unify_Value(WamWord start_word);
 
-Bool Unify_Local_Value(WamWord start_word) FC;
+Bool FC Pl_Unify_Local_Value(WamWord start_word);
 
-Bool Unify_Atom_Tagged(WamWord w) FC;
+Bool FC Pl_Unify_Atom_Tagged(WamWord w);
 
-Bool Unify_Atom(int atom) FC;
+Bool FC Pl_Unify_Atom(int atom);
 
-Bool Unify_Integer_Tagged(WamWord w) FC;
+Bool FC Pl_Unify_Integer_Tagged(WamWord w);
 
-Bool Unify_Integer(long n) FC;
+Bool FC Pl_Unify_Integer(PlLong n);
 
-Bool Unify_Nil(void) FC;
+Bool FC Pl_Unify_Nil(void);
 
-Bool Unify_List(void) FC;
+Bool FC Pl_Unify_List(void);
 
-Bool Unify_Structure_Tagged(WamWord w) FC;
+Bool FC Pl_Unify_Structure_Tagged(WamWord w);
 
-Bool Unify_Structure(int func, int arity) FC;
+Bool FC Pl_Unify_Structure(int func, int arity);
 
-WamWord Globalize_If_In_Local(WamWord start_word) FC;
+WamWord FC Pl_Globalize_If_In_Local(WamWord start_word);
 
-void Allocate(int n) FC;
+void FC Pl_Allocate(int n);
 
-void Deallocate(void) FC;
+void FC Pl_Deallocate(void);
 
-CodePtr Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-		       CodePtr c_lst, CodePtr c_stc) FC;
-CodePtr Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm) FC;
-CodePtr Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc) FC;
-CodePtr Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
-				   CodePtr c_lst) FC;
-CodePtr Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
-				   CodePtr c_stc) FC;
+CodePtr FC Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
+		          CodePtr c_lst, CodePtr c_stc);
+CodePtr FC Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm);
+CodePtr FC Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc);
+CodePtr FC Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
+				      CodePtr c_lst);
+CodePtr FC Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
+				      CodePtr c_stc);
 
-CodePtr Switch_On_Atom(SwtTbl t, int size) FC;
+CodePtr FC Pl_Switch_On_Atom(SwtTbl t, int size);
 
-long Switch_On_Integer(void) FC;
+PlLong FC Pl_Switch_On_Integer(void);
 
-CodePtr Switch_On_Structure(SwtTbl t, int size) FC;
+CodePtr FC Pl_Switch_On_Structure(SwtTbl t, int size);
 
-void Load_Cut_Level(WamWord *word_adr) FC;
+WamWord FC Pl_Get_Current_Choice(void);
 
-void Cut(WamWord b_word) FC;
+void FC Pl_Cut(WamWord b_word);
 
-void Global_Push_Float(double n) FC;
+void FC Pl_Soft_Cut(WamWord b_word);
 
-double Obtain_Float(WamWord *adr) FC;
+void FC Pl_Global_Push_Float(double n);
 
-
-void Create_Choice_Point(CodePtr codep_alt, int arity) FC;
-void Create_Choice_Point1(CodePtr codep_alt) FC;
-void Create_Choice_Point2(CodePtr codep_alt) FC;
-void Create_Choice_Point3(CodePtr codep_alt) FC;
-void Create_Choice_Point4(CodePtr codep_alt) FC;
+double FC Pl_Obtain_Float(WamWord *adr);
 
 
-void Update_Choice_Point(CodePtr codep_alt, int arity) FC;
-void Update_Choice_Point1(CodePtr codep_alt) FC;
-void Update_Choice_Point2(CodePtr codep_alt) FC;
-void Update_Choice_Point3(CodePtr codep_alt) FC;
-void Update_Choice_Point4(CodePtr codep_alt) FC;
+void FC Pl_Create_Choice_Point(CodePtr codep_alt, int arity);
+void FC Pl_Create_Choice_Point0(CodePtr codep_alt);
+void FC Pl_Create_Choice_Point1(CodePtr codep_alt);
+void FC Pl_Create_Choice_Point2(CodePtr codep_alt);
+void FC Pl_Create_Choice_Point3(CodePtr codep_alt);
+void FC Pl_Create_Choice_Point4(CodePtr codep_alt);
 
-void Delete_Choice_Point(int arity) FC;
-void Delete_Choice_Point1(void) FC;
-void Delete_Choice_Point2(void) FC;
-void Delete_Choice_Point3(void) FC;
-void Delete_Choice_Point4(void) FC;
 
-void Untrail(WamWord *low_adr) FC;
+void FC Pl_Update_Choice_Point(CodePtr codep_alt, int arity);
+void FC Pl_Update_Choice_Point0(CodePtr codep_alt);
+void FC Pl_Update_Choice_Point1(CodePtr codep_alt);
+void FC Pl_Update_Choice_Point2(CodePtr codep_alt);
+void FC Pl_Update_Choice_Point3(CodePtr codep_alt);
+void FC Pl_Update_Choice_Point4(CodePtr codep_alt);
 
-Bool Unify(WamWord start_u_word, WamWord start_v_word) FC;
+void FC Pl_Delete_Choice_Point(int arity);
+void FC Pl_Delete_Choice_Point0(void);
+void FC Pl_Delete_Choice_Point1(void);
+void FC Pl_Delete_Choice_Point2(void);
+void FC Pl_Delete_Choice_Point3(void);
+void FC Pl_Delete_Choice_Point4(void);
 
-Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
+
+void Pl_Defeasible_Open();
+void Pl_Defeasible_Undo();
+void Pl_Defeasible_Close(Bool undo_before);
+
+
+
+void FC Pl_Untrail(WamWord *low_adr);
+
+Bool FC Pl_Unify(WamWord start_u_word, WamWord start_v_word);
+
+Bool FC Pl_Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
 
 
 #endif /* FRAME_ONLY */
@@ -401,8 +428,8 @@ Bool Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word) FC;
 #endif
 
 #ifdef DEREF_STATS
-long nb_deref;
-long chain_len;
+PlLong nb_deref;
+PlLong chain_len;
 #define DEREF_COUNT(x)  x++
 #else
 #define DEREF_COUNT(x)
@@ -509,7 +536,8 @@ long chain_len;
       Mem_Word_Cpy(TR, arg, nb);		\
       TR += nb;					\
       Trail_Push(nb);				\
-      Trail_Push(Trail_Tag_Value(TFC, fct));	\
+      Trail_Push(fct);	/*fct adr not aligned*/	\
+      Trail_Push(Trail_Tag_Value(TFC, 0));	\
     }						\
   while (0)
 
@@ -613,8 +641,8 @@ void Update_Water_Mark (void (*fun)(), void *par) FC;
 #define Mem_Word_Cpy(dst, src, nb)		\
   do						\
     {						\
-      register long *s = (long *) (src);	\
-      register long *d = (long *) (dst);	\
+      register PlLong *s = (PlLong *) (src);	\
+      register PlLong *d = (PlLong *) (dst);	\
       register int counter = (nb);		\
 						\
       do					\

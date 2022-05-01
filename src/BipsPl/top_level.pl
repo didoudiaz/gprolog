@@ -1,28 +1,40 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : Prolog buit-in predicates                                       * 
- * File  : top_level.pl                                                    * 
- * Descr.: top Level                                                       * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : Prolog buit-in predicates                                       *
+ * File  : top_level.pl                                                    *
+ * Descr.: top Level                                                       *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 :-	built_in.
 
@@ -33,17 +45,20 @@ top_level :-
 	current_prolog_flag(prolog_name, Name),
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
-	format(top_level_output, '~N~a ~a~n', [Name, Version]),
-	write('By Daniel Diaz'),
-	nl,
+	current_prolog_flag(address_bits, Bits),
+	current_prolog_flag(compiled_at, Date),
+	current_prolog_flag(c_cc, CC),
+	format(top_level_output, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
+	format(top_level_output, 'Compiled ~a with ~a~n', [Date, CC]),
 	format(top_level_output, '~a~n', [Copyright]),
+	nl,
 	break.
 
 
 
 
 break :-
-	'$call_c'('Set_Ctrl_C_Handler_0'),
+	'$call_c'('Pl_Set_Ctrl_C_Handler_0'),
 	'$sys_var_read'(10, Level),
 	'$sys_var_read'(11, B),
 	g_read('$all_solutions', All),
@@ -52,6 +67,8 @@ break :-
 	;   true
 	),
 	'$sys_var_inc'(10),
+	g_read('$cmd_line_consult_file', LFile),
+	'$exec_cmd_line_consult_files'(LFile),
 	g_read('$cmd_line_entry_goal', LGoal),
 	'$exec_cmd_line_entry_goals'(LGoal),
 	g_assign('$cmd_line_entry_goal', []),
@@ -77,10 +94,10 @@ break :-
 '$top_level_abort' :-
 	'$reinit_after_exception',
 	'$sys_var_read'(11, B),
-	format(top_level_output, 'execution aborted~n', []),
+	write(top_level_output, 'execution aborted\n'),
 	'$catch_sync_for_fail_at'(B).
 
-	
+
 
 
 '$top_level_stop' :-
@@ -91,10 +108,19 @@ break :-
 
 
 
+'$top_level_exception'('$post_query_exception'(X)) :-
+	'$reinit_after_exception',
+	!,
+	format(top_level_output, '~Ntop-level exception: ', []),
+	write_term(top_level_output, X, [quoted(true), numbervars(false), namevars(false)]),
+	nl(top_level_output),
+	fail.
+	
+
 '$top_level_exception'(X) :-
 	'$reinit_after_exception',
 	format(top_level_output, '~Nuncaught exception: ', []),
-	write_term(top_level_output, X, [quoted(true), numbervars(false)]),
+	write_term(top_level_output, X, [quoted(true), numbervars(false), namevars(false)]),
 	nl(top_level_output),
 	fail.
 
@@ -114,8 +140,10 @@ break :-
 
 '$top_level2' :-
 	repeat,
-	'$get_current_B'(B),
+	'$get_current_B'(B),   % the current choice-point
+%	'$sys_var_read'(7, B), % the last Handler created by catch/3 (what is better ???)
 	'$sys_var_write'(11, B),
+%write('top-level catcher'(B)), nl,
 	'$write_indicator',
 % current_prolog_flag(char_conversion, CharConv),
 % g_assign('$char_conv', CharConv),
@@ -128,6 +156,7 @@ break :-
 	;   write(top_level_output, Prompt)
 	),
 	flush_output(top_level_output),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$read_query'(X, QueryVars),
 	(   '$sys_var_read'(12, 1) ->
 	    '$set_linedit_prompt'(UserPrompt)
@@ -152,6 +181,7 @@ break :-
 	    format(top_level_output, '~a~n', [Ok]),
 	    fail
 	).
+
 
 
 
@@ -191,14 +221,15 @@ break :-
 	g_assign('$cmd_line_query_goal', LGoal),
 	!,
 	Prompt = '| ?- ',
-	(   '$sys_var_read'(12, 1) -> 
+	(   '$sys_var_read'(12, 1) ->
 	    write(top_level_output, Prompt)
 	;   true),
 	format(top_level_output, '~a.~n', [Goal]),
 	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
 
 '$read_query'(X, QueryVars) :-
-	read_term(top_level_input, X, [variable_names(QueryVars)]).
+	read_term(top_level_input, X, [variable_names(QueryVars)]),
+	'$PB_empty_buffer'(top_level_input).
 
 
 
@@ -208,10 +239,13 @@ break :-
 	g_assign('$debug_next', DebugMode),
 	g_assign('$all_solutions', f),
 	'$get_current_B'(B),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$call'(X, top_level, 0, true),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$get_current_B'(B1),
 	format(top_level_output, '~N', []),
-	'$set_query_vars_names'(QueryVars, ToDispVars),
+	'$catch_internal'('$set_query_vars_names'(QueryVars, ToDispVars), Err, throw('$post_query_exception'(Err)), false),
+%	'$set_query_vars_names'(QueryVars, ToDispVars),
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars = [] ->
 	    true                              % no alt if only anonymous vars
@@ -220,7 +254,7 @@ break :-
 	    (   B1 > B ->
 	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
-	        '$read_return'                        % fail for ';' and  'a'
+	        '$read_return'                        % fail for ';' ' ' and  'a'
 	    ;   true
 	    )
 	).
@@ -245,7 +279,7 @@ break :-
 	    sub_atom(Name1, 0, 1, _, '_')),
 	!,
 	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
-	
+
 '$remove_underscore_vars'([X|ToDispVars], [X|ToDispVars1]) :-
 	'$remove_underscore_vars'(ToDispVars, ToDispVars1).
 
@@ -260,15 +294,21 @@ break :-
 	).
 
 '$write_solution'(ToDispVars, _, _) :-
-	'$write_solution1'(ToDispVars).
+	( current_op(Prior, xfx, =) ; Prior = 700), !,
+	Prior1 is Prior - 1,
+	'$write_solution1'(ToDispVars, Prior1).
 
 
-'$write_solution1'([]).
+'$write_solution1'([], _).
 
-'$write_solution1'([Name = Value|ToDispVars]) :-
-	format(top_level_output, '~n~a = ', [Name]),
-	write_term(top_level_output, Value, [quoted(true), numbervars(false)]),
-	'$write_solution1'(ToDispVars).
+'$write_solution1'([Name = Value|ToDispVars], Prior) :-
+	(   acyclic_term(Value) ->
+	    format(top_level_output, '~n~a = ', [Name]),
+	    write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)])
+	;
+	    format(top_level_output, '~ncannot display cyclic term for ~a', [Name])
+	),
+	'$write_solution1'(ToDispVars, Prior).
 
 
 
@@ -281,16 +321,20 @@ break :-
 
 
 
-'$read_return'(10).
+'$read_return'(10).		% newline
 
-'$read_return'(13).
+'$read_return'(13).		% carriage-return
 
-'$read_return'(97) :-
+'$read_return'(97) :-		% 'a'
 	g_assign('$all_solutions', t), !,
 	fail.
 
-'$read_return'(59) :-
+'$read_return'(59) :-		% ';'
 	format(top_level_output, '~N', []), !,
+	fail.
+
+'$read_return'(32) :-		% ' ' (simulate a ';')
+	format(top_level_output, '\b;~N', []), !,
 	fail.
 
 '$read_return'(_) :-
@@ -298,6 +342,21 @@ break :-
 	write(top_level_output, 'Action (; for next solution, a for all solutions, RET to stop) ? '),
 	'$read_return'.
 
+
+
+/* interface with command-line option consulting files */
+
+'$exec_cmd_line_consult_files'([File|_LFile]) :-
+	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	nonvar(Err),
+	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	fail.
+	
+'$exec_cmd_line_consult_files'([_|LFile]) :-
+	!,
+	'$exec_cmd_line_consult_files'(LFile).
+
+'$exec_cmd_line_consult_files'(_).		% can be another term than []
 
 
 /* interface with command-line options executing goals */
@@ -310,7 +369,7 @@ break :-
 '$exec_cmd_line_entry_goals'(_).		% can be another term than []
 
 
-						
+
 
 '$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
 	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->

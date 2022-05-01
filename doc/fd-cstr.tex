@@ -1,0 +1,1440 @@
+\newpage
+\section{Finite domain solver and built-in predicates}
+%HEVEA\cutdef[1]{subsection}
+\subsection{Introduction}
+\label{Intro-FD}
+The finite domain (FD) constraint solver extends Prolog with constraints over
+FD. This facility is available if the FD part of GNU Prolog has been
+installed.  The solver is an instance of the Constraint Logic Programming
+scheme introduced by Jaffar and Lassez in 1987
+\cite{Jaffar-Lassez87}. Constraints on FD are solved using propagation
+techniques, in particular arc-consistency (AC). The interested reader can
+refer to ``Constraint Satisfaction in Logic Programming'' of P. Van
+Hentenryck (1989) \cite{pvh89}. The solver is based on the \texttt{clp(FD)}
+solver \cite{long-clp-fd}. The GNU Prolog FD solver offers arithmetic
+constraints, boolean constraints, reified constraints and symbolic
+constraints on an new kind of variables: Finite Domain variables.
+
+\subsubsection{Finite Domain variables}
+\label{Finite-Domain-variables}
+A new type of data is introduced: FD variables which can only take values in
+their domains. The initial domain of an FD variable is
+\texttt{0..fd\_max\_integer} where \IdxFKD{fd\_max\_integer} represents the
+greatest value that any FD variable can take. The predicate
+\texttt{fd\_max\_integer/1} returns this value which may be different from
+the \IdxPF{max\_integer} \Idx{Prolog flag}
+\RefSP{set-prolog-flag/2}. The domain of an FD variable \texttt{X} is
+reduced step by step by constraints in a monotonic way: when a value
+has been removed from the domain of \texttt{X} it will never reappear
+in the domain of \texttt{X}. An FD variable is fully compatible with
+both Prolog integers and Prolog variables.  Namely, when an FD
+variable is expected by an FD constraint it is possible to pass a
+Prolog integer (considered as an FD variable whose domain is a
+singleton) or a Prolog variable (immediately bound to an initial range
+\texttt{0..fd\_max\_integer}). This avoids the need for specific type
+declaration. Although it is not necessary to declare the initial domain of an
+FD variable (since it will be bound \texttt{0..fd\_max\_integer} when
+appearing for the fist time in a constraint) it is advantageous to do so and
+thus reduce as soon as possible the size of its domain: particularly because
+GNU Prolog, for efficiency reasons, does not check for overflows. For instance,
+without any preliminary domain definitions for \texttt{X}, \texttt{Y} and
+\texttt{Z}, the non-linear constraint \texttt{X*Y\#=Z} will fail due to an
+overflow when computing the upper bound of the domain of \texttt{Z}:
+\texttt{fd\_max\_integer $\times$ fd\_max\_integer}. This overflow causes a
+negative result for the upper bound and the constraint then fails.
+
+There are two internal representations for an FD variable:
+
+\begin{itemize}
+
+\item \SPart{interval representation}: only the \emph{min} and the
+  \emph{max} of the variable are maintained. In this representation it is
+  possible to store values included in \texttt{0..fd\_max\_integer}.
+
+\item \SPart{sparse representation}: an additional bit-vector is used to
+  store the set of possible values for the variable (i.e. the domain). In
+  this representation it is possible to store values included in
+  \texttt{0..vector\_max}. By default \IdxFKD{vector\_max} is set to 127.
+  This value can be redefined via an environment variable \texttt{VECTORMAX}
+  or via the built-in predicate \IdxFB{fd\_set\_vector\_max/1}
+  \RefSP{fd-set-vector-max/1}.  The predicate \IdxFB{fd\_vector\_max/1}
+  returns the current value of \texttt{vector\_max}
+  \RefSP{fd-max-integer/1}.
+
+\end{itemize}
+
+\index{extra-constrained|see {\texttt{extra\_cstr}}}
+The initial representation for an FD variable \texttt{X} is always an
+interval representation and is switched to a sparse representation when a
+``hole'' appears in the domain (e.g. due to an inequality constraint). Once a
+variable uses a sparse representation it will not switch back to an interval
+representation even if there are no longer holes in its domain. When this
+switching occurs some values in the domain of \texttt{X} can be lost since
+\texttt{vector\_max} is less than \texttt{fd\_max\_integer}. We say that
+``\texttt{X} is extra-constrained'' since
+\texttt{X} is constrained by the solver to the domain
+\texttt{0..vector\_max} (via an imaginary constraint
+\texttt{X \#={\lt} \Param{vector\_max}}). An \IdxFKD{extra\_cstr} is
+associated with each FD variable to indicate that values have been lost due to
+the switch to a sparse representation. This flag is updated on every
+operations. The domain of an extra-constrained FD variable is output followed
+by the \texttt{@} symbol. When a constraint fails on a extra-constrained
+variable a message \texttt{Warning: Vector too small - maybe lost solutions
+  (FD Var:\Param{N})} is displayed (\Param{N} is the address of the involved
+variable).
+
+Example 1 (\texttt{vector\_max} = \texttt{127}):
+
+\begin{tabular}{|l|l|c|l|}
+\hline
+
+Constraint on \texttt{X} & Domain of \texttt{X} & \texttt{extra\_cstr}
+& Lost values \\
+
+\hline\hline
+
+\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\
+
+\hline
+
+\texttt{X \#{\bs}= 10} & \texttt{0..9:11..127} & \texttt{on} &
+\texttt{128..512} \\
+
+\hline
+
+\texttt{X \#={\lt} 100} & \texttt{0..9:11..100} & \texttt{off} & none \\
+
+\hline
+\end{tabular}
+
+In this example, when the constraint \texttt{X \#{\bs}= 10} is posted some
+values are lost, the \texttt{extra\_cstr} is then switched on. However,
+posting the constraint \texttt{X \#={\lt} 100} will turn off the flag (no
+values are lost).
+
+Example 2:
+
+\begin{tabular}{|l|l|c|l|}
+\hline
+
+Constraint on \texttt{X} & Domain of \texttt{X} & \texttt{extra\_cstr}
+& Lost values \\
+
+\hline
+
+\texttt{X \#={\lt} 512} & \texttt{0..512} & \texttt{off} & none \\
+
+\hline
+
+\texttt{X \#{\bs}= 10} & \texttt{0..9:11..127} & \texttt{on} &
+\texttt{128..512} \\
+
+\hline
+
+\texttt{X \#{\gt}= 256} & \texttt{Warning: Vector too small\ldots} &
+\texttt{on} & \texttt{128..512} \\
+
+\hline
+\end{tabular}
+
+In this example, the constraint \texttt{X \#{\gt}= 256} fails due to the lost
+of \texttt{128..512} so a message is displayed onto the terminal. The
+solution would consist in increasing the size of the vector either by setting
+the environment variable \texttt{VECTORMAX} (e.g. to \texttt{512}) or using
+\texttt{fd\_set\_vector\_max(512)}.
+
+Finally, bit-vectors are not dynamic, i.e. all vectors have the same size
+(\texttt{0..vector\_max}). So the use of \texttt{fd\_set\_vector\_max/1} is
+limited to the initial definition of vector sizes and must occur before any
+constraint. As seen before, the solver tries to display a message when a
+failure occurs due to a too short \texttt{vector\_max}. Unfortunately, in
+some cases it cannot detect the lost of values and no message is emitted. So
+the user should always take care to this parameter to be sure that it is
+large to encode any vector.
+
+\subsection{FD variable parameters}
+
+\subsubsection{\IdxFBD{fd\_max\_integer/1}\label{fd-max-integer/1}}
+
+\begin{TemplatesOneCol}
+fd\_max\_integer(?integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_max\_integer(N)} succeeds if \texttt{N} is the current value of
+\IdxFK{fd\_max\_integer} \RefSP{Intro-FD}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_vector\_max/1}}
+
+\begin{TemplatesOneCol}
+fd\_vector\_max(?integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_vector\_max(N)} succeeds if \texttt{N} is the current value of
+\IdxFK{vector\_max} \RefSP{Intro-FD}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_set\_vector\_max/1}\label{fd-set-vector-max/1}}
+
+\begin{TemplatesOneCol}
+fd\_set\_vector\_max(+integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_set\_vector\_max(N)} initializes \IdxFK{vector\_max} based on
+the value \texttt{N} \RefSP{Intro-FD}. More precisely, on 32 bit
+machines, \texttt{vector\_max} is set to the smallest value of
+\texttt{(32*k)-}1 which is $\geq$ \texttt{N}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{N} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
+
+\ErrCond{\texttt{N} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, N)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsection{Initial value constraints}
+
+\subsubsection{\IdxFBD{fd\_domain/3},
+               \IdxFBD{fd\_domain\_bool/1}}
+
+\begin{TemplatesOneCol}
+fd\_domain(+fd\_variable\_list\_or\_fd\_variable, +integer,
++integer)\\
+fd\_domain(?fd\_variable, +integer, +integer)\\
+fd\_domain\_bool(+fd\_variable\_list)\\
+fd\_domain\_bool(?fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_domain(Vars, Lower, Upper)} constraints each element \texttt{X}
+of \texttt{Vars} to take a value in \texttt{Lower..Upper}. This
+predicate is generally used to set the initial domain of variables to an
+interval. \texttt{Vars} can be also a single FD variable (or a single Prolog
+variable).
+
+\texttt{fd\_domain\_bool(Vars)} is equivalent to \texttt{fd\_domain(Vars, 0,
+1)} and is used to declare boolean FD variables.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Vars} is not a variable but is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Vars} is neither a variable nor an FD variable nor an
+integer nor a list}
+\ErrTerm{type\_error(list, Vars)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Vars} list is neither a
+variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\ErrCond{\texttt{Lower} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Lower} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Lower)}
+
+\ErrCond{\texttt{Upper} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Upper} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Upper)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_domain/2}}
+
+\begin{TemplatesOneCol}
+fd\_domain(+fd\_variable\_list, +integer\_list)\\
+fd\_domain(?fd\_variable, +integer\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_domain(Vars, Values)} constraints each element \texttt{X} of the
+list \texttt{Vars} to take a value in the list \texttt{Values}. This
+predicate is generally used to set the initial domain of variables to a set
+of values. The domain of each variable of \texttt{Vars} uses a sparse
+representation. \texttt{Vars} can be also a single FD variable (or a single
+Prolog variable).
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Vars} is not a variable but is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Vars} is neither a variable nor an FD variable nor an
+integer nor a list}
+\ErrTerm{type\_error(list, Vars)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Vars} list is neither a
+variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\ErrCond{\texttt{Values} is a partial list or a list with an element
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Values} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Values)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Values} list is neither a
+variable nor an integer}
+\ErrTerm{type\_error(integer, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsection{Type testing}
+
+\subsubsection{\IdxFBD{fd\_var/1}, \IdxFBD{non\_fd\_var/1},
+               \IdxFBD{generic\_var/1},
+               \IdxFBD{non\_generic\_var/1}}
+
+\begin{TemplatesTwoCols}
+fd\_var(?term)\\
+non\_fd\_var(?term)\\
+generic\_var(?term)\\
+non\_generic\_var(?term)
+
+\end{TemplatesTwoCols}
+
+\Description
+
+\texttt{fd\_var(Term)} succeeds if \texttt{Term} is currently an
+FD variable.
+
+\texttt{non\_fd\_var(Term)} succeeds if \texttt{Term} is
+currently not an FD variable (opposite of \texttt{fd\_var/1}).
+
+\texttt{generic\_var(Term)} succeeds if \texttt{Term} is
+either a Prolog variable or an FD variable.
+
+\texttt{non\_generic\_var(Term)} succeeds if
+\texttt{Term} is neither a Prolog variable nor an FD variable
+(opposite of \texttt{generic\_var/1}).
+
+\PlErrorsNone
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsection{FD variable information}
+These predicate allow the user to get some information about FD variables.
+They are not constraints, they only return the current state of a variable.
+
+\subsubsection{\IdxFBD{fd\_min/2},
+               \IdxFBD{fd\_max/2},
+               \IdxFBD{fd\_size/2},
+               \IdxFBD{fd\_dom/2}}
+
+\begin{TemplatesOneCol}
+fd\_min(+fd\_variable, ?integer)\\
+fd\_max(+fd\_variable, ?integer)\\
+fd\_size(+fd\_variable, ?integer)\\
+fd\_dom(+fd\_variable, ?integer\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_min(X, N)} succeeds if \texttt{N} is the minimal value of the
+current domain of \texttt{X}.
+
+\texttt{fd\_max(X, N)} succeeds if \texttt{N} is the maximal value of the
+current domain of \texttt{X}.
+
+\texttt{fd\_size(X, N)} succeeds if \texttt{N} is the number of elements of
+the current domain of \texttt{X}.
+
+\texttt{fd\_dom(X, Values)} succeeds if \texttt{Values} is the list of
+values of the current domain of \texttt{X}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{X} is neither an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Vars} list is neither a
+variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\ErrCond{\texttt{Values} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Values)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_has\_extra\_cstr/1},
+               \IdxFBD{fd\_has\_vector/1},
+               \IdxFBD{fd\_use\_vector/1}}
+
+\begin{TemplatesOneCol}
+fd\_has\_extra\_cstr(+fd\_variable)\\
+fd\_has\_vector(+fd\_variable)\\
+fd\_use\_vector(+fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_has\_extra\_cstr(X)} succeeds if the \IdxFK{extra\_cstr}
+of \texttt{X} is currently on \RefSP{Intro-FD}.
+
+\texttt{fd\_has\_vector(X)} succeeds if the current domain of \texttt{X}
+uses a sparse representation \RefSP{Intro-FD}.
+
+\texttt{fd\_use\_vector(X)} enforces a sparse representation for the domain
+of \texttt{X} \RefSP{Intro-FD}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{X} is neither an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsection{Arithmetic constraints}
+
+\subsubsection{FD arithmetic expressions}
+\label{FD-arithmetic-expressions}
+An FD arithmetic expression is a Prolog term built from integers, variables
+(Prolog or FD variables), and functors (or operators) that represent
+arithmetic functions. The following table details the components of an FD
+arithmetic expression:
+
+
+\begin{tabular}{|l|L{10cm}|}
+\hline
+
+FD Expression & Result \\
+
+\hline\hline
+
+Prolog variable & domain \texttt{0..fd\_max\_integer} \\
+
+\hline
+
+FD variable \texttt{X} & domain of \texttt{X} \\
+
+\hline
+
+integer number \texttt{N} & domain \texttt{N..N} \\
+
+\hline
+
+\texttt{+ E} & same as \texttt{E} \\
+
+\hline
+
+\texttt{- E} & opposite of \texttt{E} \\
+
+\hline
+
+\texttt{E1 + E2} & sum of \texttt{E1} and \texttt{E2} \\
+
+\hline
+
+\texttt{E1 - E2} & subtraction of \texttt{E2} from \texttt{E1} \\
+
+\hline
+
+\texttt{E1 * E2} & multiplication of \texttt{E1} by \texttt{E2} \\
+
+\hline
+
+\texttt{E1 / E2} & integer division of \texttt{E1} by \texttt{E2} (only
+succeeds if the remainder is 0) \\
+
+\hline
+
+\texttt{E1 ** E2} & \texttt{E1} raised to the power of \texttt{E2
+}(\texttt{E1} or \texttt{E2} must be an integer) \\
+
+\hline
+
+\texttt{min(E1,E2)} & minimum of \texttt{E1} and \texttt{E2} \\
+
+\hline
+
+\texttt{max(E1,E2)} & maximum of \texttt{E1} and \texttt{E2} \\
+
+\hline
+
+\texttt{dist(E1,E2)} & distance, i.e. $|$\texttt{E1 - E2$|$} \\
+
+\hline
+
+\texttt{E1 // E2} & quotient of the integer division of \texttt{E1} by
+\texttt{E2} \\
+
+\hline
+
+\texttt{E1 rem E2} & remainder of the integer division of \texttt{E1} by
+\texttt{E2} \\
+
+\hline
+
+\texttt{quot\_rem(E1,E2,R)} & quotient of the integer division of
+\texttt{E1} by \texttt{E2}
+  \linebreak
+   (\texttt{R} is the remainder of the integer division of \texttt{E1} by
+   \texttt{E2}) \\
+
+\hline
+\end{tabular}
+
+FD expressions are not restricted to be linear. However non-linear
+constraints usually yield less constraint propagation than linear
+constraints.
+
+\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{//}, \texttt{rem}
+and \texttt{**} are predefined infix operators. \texttt{+} and \texttt{-}
+are predefined prefix operators \RefSP{op/3:(Term-input/output)}.
+
+\begin{PlErrors}
+
+\ErrCond{a sub-expression is of the form \texttt{\_ ** E} and \texttt{E} is
+a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{a sub-expression \texttt{E} is neither a variable nor an integer
+nor an FD arithmetic functor}
+\ErrTerm{type\_error(fd\_evaluable, E)}
+
+\ErrCond{an expression is too complex}
+\ErrTerm{resource\_error(too\_big\_fd\_constraint)}
+
+\end{PlErrors}
+
+\subsubsection{Partial AC: \IdxFBD{(\#=)/2} - constraint equal, \label{Partial-AC:-(:=)/2}
+               \IdxFBD{(\#{\bs}=)/2} - constraint not equal, \\
+               \IdxFBD{(\#{\lt})/2} - constraint less than,
+               \IdxFBD{(\#={\lt})/2} - constraint less than or equal, \\
+               \IdxFBD{(\#{\gt})/2} - constraint greater than,
+               \IdxFBD{(\#{\gt}=)/2} - constraint greater than or equal}
+
+\begin{TemplatesOneCol}
+\#=(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\bs}=(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\lt}(?fd\_evaluable, ?fd\_evaluable)\\
+\#={\lt}(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\gt}(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\gt}=(?fd\_evaluable, ?fd\_evaluable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{FdExpr1 \#= FdExpr2} constrains \texttt{FdExpr1} to be
+equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\bs}= FdExpr2} constrains \texttt{FdExpr1}
+to be different from \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\lt} FdExpr2} constrains \texttt{FdExpr1} to
+be less than \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#={\lt} FdExpr2} constrains \texttt{FdExpr1}
+to be less than or equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\gt} FdExpr2} constrains \texttt{FdExpr1} to
+be greater than \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\gt}= FdExpr2} constrains \texttt{FdExpr1}
+to be greater than or equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1} and \texttt{FdExpr2} are arithmetic FD expressions
+\RefSP{FD-arithmetic-expressions}.
+
+\texttt{\#=}, \texttt{\#{\bs}=}, \texttt{\#{\lt}}, \texttt{\#={\lt}},
+\texttt{\#{\gt}} and \texttt{\#{\gt}=} are predefined infix operators
+\RefSP{op/3:(Term-input/output)}.
+
+These predicates post arithmetic constraints that are managed by the solver
+using a partial arc-consistency algorithm to reduce the domain of involved
+variables. In this scheme only the bounds of the domain of variables are
+updated. This leads to less propagation than full arc-consistency techniques
+\RefSP{Full-AC:-(:=:)/2} but is generally more efficient for
+arithmetic. These arithmetic constraints can be reified \RefSP{Boolean-and-reified-constraints}.
+
+\Errors
+
+Refer to the syntax of arithmetic FD expressions for possible errors
+\RefSP{FD-arithmetic-expressions}.
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsubsection{Full AC: \IdxFBD{(\#=\#)/2} - constraint equal, \label{Full-AC:-(:=:)/2}
+               \IdxFBD{(\#{\bs}=\#)/2} - constraint not equal, \\
+               \IdxFBD{(\#{\lt}\#)/2} - constraint less than,
+               \IdxFBD{(\#={\lt}\#)/2} - constraint less than or equal, \\
+               \IdxFBD{(\#{\gt}\#)/2} - constraint greater than,
+               \IdxFBD{(\#{\gt}=\#)/2} - constraint greater than or equal}
+
+\begin{TemplatesOneCol}
+\#=\#(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\bs}=\#(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\lt}\#(?fd\_evaluable, ?fd\_evaluable)\\
+\#={\lt}\#(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\gt}\#(?fd\_evaluable, ?fd\_evaluable)\\
+\#{\gt}=\#(?fd\_evaluable, ?fd\_evaluable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{FdExpr1 \#=\# FdExpr2} constrains \texttt{FdExpr1} to
+be equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\bs}=\# FdExpr2} constrains \texttt{FdExpr1} to be
+different from \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\lt}\# FdExpr2} constrains \texttt{FdExpr1}
+to be less than \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#={\lt}\# FdExpr2} constrains \texttt{FdExpr1} to be
+less than or equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\gt}\# FdExpr2} constrains \texttt{FdExpr1}
+to be greater than \texttt{FdExpr2}.
+
+\texttt{FdExpr1 \#{\gt}=\# FdExpr2} constrains \texttt{FdExpr1} to be
+greater than or equal to \texttt{FdExpr2}.
+
+\texttt{FdExpr1} and \texttt{FdExpr2} are arithmetic FD expressions
+\RefSP{FD-arithmetic-expressions}.
+
+\texttt{\#=\#}, \texttt{\#{\bs}=\#}, \texttt{\#{\lt}\#},
+\texttt{\#={\lt}\#}, \texttt{\#{\gt}\#} and \texttt{\#{\gt}=\#} are
+predefined infix operators \RefSP{op/3:(Term-input/output)}.
+
+These predicates post arithmetic constraints that are managed by the solver
+using a full arc-consistency algorithm to reduce the domain of involved
+variables. In this scheme the full domain of variables is updated. This
+leads to more propagation than partial arc-consistency techniques \RefSP{FD-arithmetic-expressions} but is generally less efficient for arithmetic.
+These arithmetic constraints can be reified \RefSP{Boolean-FD-expressions}.
+
+\Errors
+
+Refer to the syntax of arithmetic FD expressions for possible errors
+\RefSP{FD-arithmetic-expressions}.
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsubsection{\IdxFBD{fd\_prime/1},
+               \IdxFBD{fd\_not\_prime/1}}
+
+\begin{TemplatesOneCol}
+fd\_prime(?fd\_variable)\\
+fd\_not\_prime(?fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_prime(X)} constraints \texttt{X} to be a prime number between
+\texttt{0..\IdxFK{vector\_max}}.
+This constraint enforces a sparse representation
+for the domain of \texttt{X} \RefSP{Intro-FD}.
+
+\texttt{fd\_not\_prime(X)} constraints \texttt{X} to be a non prime number
+between \texttt{0..vector\_max}. This constraint enforces a sparse
+representation for the domain of \texttt{X} \RefSP{Intro-FD}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} is neither an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsection{Boolean and reified constraints}
+\label{Boolean-and-reified-constraints}
+
+\subsubsection{Boolean FD expressions}
+\label{Boolean-FD-expressions}
+
+An boolean FD expression is a Prolog term built from integers (0 for false,
+1 for true), variables (Prolog or FD variables), partial AC arithmetic
+constraints \RefSP{Partial-AC:-(:=)/2}, full AC arithmetic constraints
+\RefSP{Full-AC:-(:=:)/2} and functors (or operators) that represent
+boolean functions. When a sub-expression of a boolean expression is an
+arithmetic constraint \Param{c}, it is reified. Namely, as soon as the
+solver detects that \Param{c} is true (i.e. \emph{entailed}) the
+sub-expression has the value \texttt{1}. Similarly when the solver detects
+that \Param{c} is false (i.e. \emph{disentailed}) the sub-expression
+evaluates as \texttt{0}. While neither the entailment nor the disentailment
+can be detected the sub-expression is evaluated as a domain \texttt{0..1}.
+The following table details the components of an FD boolean expression:
+
+\begin{tabular}{|l|l|}
+\hline
+
+FD Expression & Result \\
+
+\hline\hline
+
+Prolog variable & domain \texttt{0..1} \\
+
+\hline
+
+FD variable \texttt{X} & domain of \texttt{X}, \texttt{X} is constrained to
+be in \texttt{0..1} \\
+
+\hline
+
+\texttt{0} (integer) & \texttt{0} (false) \\
+
+\hline
+
+\texttt{1} (integer) & \texttt{1} (true) \\
+
+\hline
+
+\texttt{\#{\bs} E} & not \texttt{E} \\
+
+\hline
+
+\texttt{E1 \#{\lt}={\gt} E2} & \texttt{E1} equivalent to \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#{\bs}{\lt}={\gt} E2} & \texttt{E1} not equivalent to
+\texttt{E2} (i.e. \texttt{E1} different from \texttt{E2)} \\
+
+\hline
+
+\texttt{E1 \#\# E2} & \texttt{E1} exclusive OR \texttt{E2} (i.e. \texttt{E1}
+not equivalent to \texttt{E2)} \\
+
+\hline
+
+\texttt{E1 \#=={\gt} E2} & \texttt{E1} implies \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#{\bs}=={\gt} E2} & \texttt{E1} does not imply \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#/{\bs} E2} & \texttt{E1} AND \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#{\bs}/{\bs} E2} & \texttt{E1} NAND \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#{\bs}/ E2} & \texttt{E1} OR \texttt{E2} \\
+
+\hline
+
+\texttt{E1 \#{\bs}{\bs}/ E2} & \texttt{E1} NOR \texttt{E2} \\
+
+\hline
+\end{tabular}
+
+\texttt{\#{\lt}={\gt}}, \texttt{\#{\bs}{\lt}={\gt}}, \texttt{\#\#},
+\texttt{\#=={\gt}}, \texttt{\#{\bs}=={\gt}}, \texttt{\#/{\bs}},
+\texttt{\#{\bs}/{\bs}}, \texttt{\#{\bs}/} and \texttt{\#{\bs}{\bs}/} are
+predefined infix operators. \texttt{\#{\bs}} is a predefined prefix operator
+\RefSP{op/3:(Term-input/output)}.
+
+\begin{PlErrors}
+
+\ErrCond{a sub-expression \texttt{E} is neither a variable nor an integer (0
+or 1) nor an FD boolean functor nor reified constraint}
+\ErrTerm{type\_error(fd\_bool\_evaluable, E)}
+
+\ErrCond{an expression is too complex}
+\ErrTerm{resource\_error(too\_big\_fd\_constraint)}
+
+\ErrCond{a sub-expression is an invalid reified constraint}
+\ErrTermRm{an arithmetic constraint error \RefSP{FD-arithmetic-expressions}}
+
+\end{PlErrors}
+
+
+
+\subsubsection{\IdxFBD{fd\_reified\_in/4}}
+
+\begin{TemplatesOneCol}
+fd\_reified\_in(?fd\_variable, +integer, +integer, ?fd\_variable)
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_reified\_in(X, Lower, Upper, B)} captures the truth value of the constraint $\texttt{X} \in [\texttt{Lower}..\texttt{Upper}]$ in the boolean variable \texttt{B}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{X} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\ErrCond{\texttt{B} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, B)}
+
+\ErrCond{\texttt{Lower} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Lower} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Lower)}
+
+\ErrCond{\texttt{Upper} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Upper} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Upper)}
+
+\end{PlErrors}
+
+\subsubsection{\IdxFBD{(\#{\bs})/1} - constraint NOT,
+               \IdxFBD{(\#{\lt}={\gt})/2} - constraint equivalent, \\
+               \IdxFBD{(\#{\bs}{\lt}={\gt})/2} - constraint different,
+               \IdxFBD{(\#\#)/2} - constraint XOR, \\
+               \IdxFBD{(\#=={\gt})/2} - constraint imply,
+               \IdxFBD{(\#{\bs}=={\gt})/2} - constraint not imply, \\
+               \IdxFBD{(\#/{\bs})/2} - constraint AND,
+               \IdxFBD{(\#{\bs}/{\bs})/2} - constraint NAND, \\
+               \IdxFBD{(\#{\bs}/)/2} - constraint OR,
+               \IdxFBD{(\#{\bs}{\bs}/)/2} - constraint NOR}
+
+\begin{TemplatesOneCol}
+\#{\bs}(?fd\_bool\_evaluable)\\
+\#{\lt}={\gt}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#{\bs}{\lt}={\gt}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#\#(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#=={\gt}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#{\bs}=={\gt}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#/{\bs}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#{\bs}/{\bs}(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#{\bs}/(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)\\
+\#{\bs}{\bs}/(?fd\_bool\_evaluable, ?fd\_bool\_evaluable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{\#{\bs} FdBoolExpr1} constraints \texttt{FdBoolExpr1} to be
+false.
+
+\texttt{FdBoolExpr1 \#{\lt}={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} to be equivalent to \texttt{FdBoolExpr2}.
+
+\texttt{FdBoolExpr1 \#{\bs}{\lt}={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} to be equivalent to not \texttt{FdBoolExpr2}.
+
+\texttt{FdBoolExpr1 \#\# FdBoolExpr2} constrains \texttt{FdBoolExpr1} XOR
+\texttt{FdBoolExpr2} to be true
+
+\texttt{FdBoolExpr1 \#=={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} to imply \texttt{FdBoolExpr2}.
+
+\texttt{FdBoolExpr1 \#{\bs}=={\gt} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} to not imply \texttt{FdBoolExpr2}.
+
+\texttt{FdBoolExpr1 \#/{\bs} FdBoolExpr2} constrains \texttt{FdBoolExpr1}
+AND \texttt{FdBoolExpr2} to be true.
+
+\texttt{FdBoolExpr1 \#{\bs}/{\bs} FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} AND \texttt{FdBoolExpr2} to be false.
+
+\texttt{FdBoolExpr1 \#{\bs}/ FdBoolExpr2} constrains \texttt{FdBoolExpr1}
+OR \texttt{FdBoolExpr2} to be true.
+
+\texttt{FdBoolExpr1 \#{\bs}{\bs}/ FdBoolExpr2} constrains
+\texttt{FdBoolExpr1} OR \texttt{FdBoolExpr2} to be false.
+
+\texttt{FdBoolExpr1} and \texttt{FdBoolExpr2} are boolean FD expressions
+\RefSP{Boolean-FD-expressions}.
+
+Note that \texttt{\#{\bs}{\lt}={\gt}} (not equivalent) and \texttt{\#\#}
+(exclusive or) are synonymous.
+
+These predicates post boolean constraints that are managed by the FD solver
+using a partial arc-consistency algorithm to reduce the domain of involved
+variables. The (dis)entailment of reified constraints is detected using
+either the bounds (for partial AC arithmetic constraints) or the full domain
+(for full AC arithmetic constraints).
+
+\texttt{\#{\lt}={\gt}}, \texttt{\#{\bs}{\lt}={\gt}}, \texttt{\#\#},
+\texttt{\#=={\gt}}, \texttt{\#{\bs}=={\gt}}, \texttt{\#/{\bs}},
+\texttt{\#{\bs}/{\bs}}, \texttt{\#{\bs}/} and \texttt{\#{\bs}{\bs}/} are
+predefined infix operators. \texttt{\#{\bs}} is a predefined prefix operator
+\RefSP{op/3:(Term-input/output)}.
+
+\Errors
+
+Refer to the syntax of boolean FD expressions for possible errors
+\RefSP{Boolean-FD-expressions}.
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsubsection{\IdxFBD{fd\_cardinality/2},\label{fd-cardinality/2}
+               \IdxFBD{fd\_cardinality/3},
+               \IdxFBD{fd\_at\_least\_one/1},
+               \IdxFBD{fd\_at\_most\_one/1}, \\
+               \IdxFBD{fd\_only\_one/1}}
+
+\begin{TemplatesOneCol}
+fd\_cardinality(+fd\_bool\_evaluable\_list, ?fd\_variable)\\
+fd\_cardinality(+integer, ?fd\_variable, +integer)\\
+fd\_at\_least\_one(+fd\_bool\_evaluable\_list)\\
+fd\_at\_most\_one(+fd\_bool\_evaluable\_list)\\
+fd\_only\_one(+fd\_bool\_evaluable\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_cardinality(List, Count)} unifies \texttt{Count} with the number
+of constraints that are true in \texttt{List}. This is equivalent to post
+the constraint \texttt{B$_{1}$ + B$_{2}$ + \ldots + B$_{n}$ \#= Count}
+where each variable \texttt{Bi} is a new variable defined by the constraint
+\texttt{B$_{i}$ \#{\lt}={\gt} C$_{i}$} where \texttt{C$_{i}$} is the
+\texttt{i}\emph{th} constraint of \texttt{List}. Each \texttt{C$_{i}$}
+must be a boolean FD expression \RefSP{Boolean-FD-expressions}.
+
+\texttt{fd\_cardinality(Lower, List, Upper)} is equivalent to
+\texttt{fd\_cardinality(List, Count), Lower \#={\lt} Count, Count \#={\lt}
+Upper}
+
+\texttt{fd\_at\_least\_one(List)} is equivalent to
+\texttt{fd\_cardinality(List, Count), Count \#{\gt}= 1}.
+
+\texttt{fd\_at\_most\_one(List)} is equivalent to
+\texttt{fd\_cardinality(List, Count), Count \#={\lt} 1}.
+
+\texttt{fd\_only\_one(List)} is equivalent to \texttt{fd\_cardinality(List,
+1)}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{List} is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\ErrCond{\texttt{Count} is neither an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, Count)}
+
+\ErrCond{\texttt{Lower} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Lower} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Lower)}
+
+\ErrCond{\texttt{Upper} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Upper} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Upper)}
+
+\ErrCond{an element \texttt{E} of the \texttt{List} list is an invalid
+boolean expression}
+\ErrTermRm{an FD boolean constraint \RefSP{Boolean-FD-expressions}}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsection{Symbolic constraints}
+
+\subsubsection{\IdxFBD{fd\_all\_different/1}}
+
+\begin{TemplatesOneCol}
+fd\_all\_different(+fd\_variable\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_all\_different(List)} constrains all variables in \texttt{List}
+to take distinct values. This is equivalent to posting an inequality
+constraint for each pair of variables. This constraint is triggered when a
+variable becomes ground, removing its value from the domain of the other
+variables.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{List} is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\ErrCond{an element \texttt{E} of the \texttt{List} list is neither a
+variable nor an integer nor an FD variable}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_element/3}\label{fd-element/3}}
+
+\begin{TemplatesOneCol}
+fd\_element(?fd\_variable, +integer\_list, ?fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_element(I, List, X)} constraints \texttt{X} to be equal to the
+\texttt{I}\emph{th} integer (from 1) of \texttt{List}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{I} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, I)}
+
+\ErrCond{\texttt{X} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\ErrCond{\texttt{List} is a partial list or a list with an element
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\ErrCond{an element \texttt{E} of the \texttt{List} list is neither a
+variable nor an integer}
+\ErrTerm{type\_error(integer, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_element\_var/3}}
+
+\begin{TemplatesOneCol}
+fd\_element\_var(?fd\_variable, +fd\_variable\_list, ?fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_element\_var(I, List, X)} constraints \texttt{X} to be equal to
+the \texttt{I}\emph{th} variable (from 1) of \texttt{List}. This
+constraint is similar to \texttt{fd\_element/3} \RefSP{fd-element/3} but
+\texttt{List} can also contain FD variables (rather than just integers).
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{I} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, I)}
+
+\ErrCond{\texttt{X} is neither a variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\ErrCond{\texttt{List} is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\ErrCond{an element \texttt{E} of the \texttt{List} list is neither a
+variable nor an integer nor an FD variable}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxFBD{fd\_atmost/3},
+               \IdxFBD{fd\_atleast/3},
+               \IdxFBD{fd\_exactly/3}}
+
+\begin{TemplatesOneCol}
+fd\_atmost(+integer, +fd\_variable\_list, +integer)\\
+fd\_atleast(+integer, +fd\_variable\_list, +integer)\\
+fd\_exactly(+integer, +fd\_variable\_list, +integer)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_atmost(N, List, V)} posts the constraint that at most \texttt{N}
+variables of \texttt{List} are equal to the value \texttt{V}.
+
+\texttt{fd\_atleast(N, List, V)} posts the constraint that at least
+\texttt{N} variables of \texttt{List} are equal to the value \texttt{V}.
+
+\texttt{fd\_exactly(N, List, V)} posts the constraint that at exactly
+\texttt{N} variables of \texttt{List} are equal to the value \texttt{V}.
+
+These constraints are special cases of \IdxFB{fd\_cardinality/2}
+\RefSP{fd-cardinality/2} but their implementation is more efficient.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{N} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
+
+\ErrCond{\texttt{V} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{V} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, V)}
+
+\ErrCond{\texttt{List} is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{List} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, List)}
+
+\ErrCond{an element \texttt{E} of the \texttt{List} list is neither a
+variable nor an FD variable nor an integer}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsubsection{\IdxFBD{fd\_relation/2},
+               \IdxFBD{fd\_relationc/2}}
+
+\begin{TemplatesOneCol}
+fd\_relation(+integer\_list\_list, ?fd\_variable\_list)\\
+fd\_relationc(+integer\_list\_list, ?fd\_variable\_list)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_relation(Relation, Vars)} constraints the tuple of variables
+\texttt{Vars} to be equal to one tuple of the list \texttt{Relation}. A
+tuple is represented by a list.
+
+Example: definition of the boolean AND relation so that X AND Y
+$\Leftrightarrow$ Z:
+
+\begin{Indentation}
+\begin{verbatim}
+and(X,Y,Z):-
+        fd_relation([[0,0,0],[0,1,0],[1,0,0],[1,1,1]], [X,Y,Z]).
+\end{verbatim}
+\end{Indentation}
+
+\texttt{fd\_relationc(Columns, Vars)} is similar to \texttt{fd\_relation/2}
+except that the relation is not given as the list of tuples but as the list
+of the columns of the relation. A column is represented by a list.
+
+Example:
+
+\begin{Indentation}
+\begin{verbatim}
+and(X,Y,Z):-
+        fd_relationc([[0,0,1,1],[0,1,0,1],[0,0,0,1]], [X,Y,Z]).
+\end{verbatim}
+\end{Indentation}
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Relation} is a partial list or a list with a sub-term
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Relation} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Relation)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Relation} list is neither a
+variable nor an integer}
+\ErrTerm{type\_error(integer, E)}
+
+\ErrCond{\texttt{Vars} is a partial list}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Vars} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Vars)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Vars} list is neither a
+variable nor an integer nor an FD variable}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsection{Labeling constraints}
+
+\subsubsection{\IdxFBD{fd\_labeling/2},\label{fd-labeling/2}
+               \IdxFBD{fd\_labeling/1},
+               \IdxFBD{fd\_labelingff/1}}
+
+\begin{TemplatesOneCol}
+fd\_labeling(+fd\_variable\_list, +fd\_labeling\_option\_list)\\
+fd\_labeling(+fd\_variable, +fd\_labeling\_option\_list)\\
+fd\_labeling(+fd\_variable\_list)\\
+fd\_labeling(+fd\_variable)\\
+fd\_labelingff(+fd\_variable\_list)\\
+fd\_labelingff(+fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_labeling(Vars, Options)} assigns a value to each variable
+\texttt{X} of the list \texttt{Vars} according to the list of labeling
+options given by \texttt{Options}. \texttt{Vars} can be also a single FD
+variable. This predicate is re-executable on backtracking.
+
+\SPart{FD labeling options}: \texttt{Options} is a list of labeling
+options. If this list contains contradictory options, the rightmost option
+is the one which applies. Possible options are:
+
+\begin{itemize}
+
+\item \AddFOD{variable\_method}\texttt{variable\_method(V)}: specifies the
+heuristics to select the variable to enumerate:
+
+\begin{itemize}
+
+\item \IdxFOD{standard}: no heuristics, the leftmost variable is selected.
+
+\item \IdxFOD{first\_fail} (or \texttt{ff}): selects the variable with the
+smallest number of elements in its domain. If several variables have the
+same number of elements the leftmost variable is selected.
+
+\item \IdxFOD{most\_constrained}: like \texttt{first\_fail} but when
+several variables have the same number of elements selects the
+variable that appears in most constraints.
+
+\item \IdxFOD{smallest}: selects the variable that has the smallest value
+in its domain. If there is more than one such variable selects the
+variable that appears in most constraints.
+
+\item \IdxFOD{largest}: selects the variable that has the greatest value in
+its domain. If there is more than one such variable selects the variable
+that appears in most constraints.
+
+\item \IdxFOD{max\_regret}: selects the variable that has the greatest
+difference between the smallest value and the next value of its domain. If
+there is more than one such variable selects the variable that appears in
+most constraints.
+
+\item \IdxFOD{random}: selects randomly a variable. Each variable is 
+chosen only once.
+
+\end{itemize}
+
+\BL The default value is \texttt{standard}.
+
+\item \AddFOD{reorder}\texttt{reorder(true/false)}: specifies if the variable
+heuristics should dynamically reorder the list of variable (\texttt{true}) or
+not (\texttt{false}). Dynamic reordering is generally more efficient but in
+some cases a static ordering is faster. The default value is
+\texttt{true}.
+
+\item \AddFOD{value\_method}\texttt{value\_method(V)}: specifies the heuristics
+to select the value to assign to the chosen variable:
+
+\begin{itemize}
+
+\item \IdxFOD{min}: enumerates the values from the smallest to the greatest
+(default).
+
+\item \IdxFOD{max}: enumerates the values from the greatest to the smallest.
+
+\item \IdxFOD{middle}: enumerates the values from the middle to the bounds.
+
+\item \IdxFOD{bounds}: enumerates the values from the bounds to the middle.
+
+\item \IdxFOD{random}: enumerates the values randomly. Each value is tried
+  only once.
+
+\item \IdxFOD{bisect}: recursively creates a choice between \texttt{X \#={\lt}
+    M} and \texttt{X \#{\gt} M}, where \texttt{M} is the midpoint of the
+  domain of the variable. Values are thus tried from the smallest to the
+  greatest. This is also known as \textit{domain splitting}.
+
+\end{itemize}
+
+\BL The default value is \texttt{min}.
+
+\item \AddFOD{backtracks}\texttt{backtracks(B)}: unifies \texttt{B} with the
+number of backtracks during the enumeration.
+
+\end{itemize}
+
+\texttt{fd\_labeling(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
+[])}.
+
+\texttt{fd\_labelingff(Vars)} is equivalent to \texttt{fd\_labeling(Vars,
+[variable\_method(ff)])}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Vars} is a partial list or a list with an element
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Vars} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Vars)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Vars} list is neither a
+variable nor an integer nor an FD variable}
+\ErrTerm{type\_error(fd\_variable, E)}
+
+\ErrCond{\texttt{Options} is a partial list or a list with an element
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Options} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Options)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Options} list is neither a
+variable nor a labeling option}
+\ErrTerm{domain\_error(fd\_labeling\_option, E)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+
+\subsection{Optimization constraints}
+
+\subsubsection{\IdxFBD{fd\_minimize/2},
+               \IdxFBD{fd\_maximize/2}}
+
+\begin{TemplatesOneCol}
+fd\_minimize(+callable\_term, ?fd\_variable)\\
+fd\_maximize(+callable\_term, ?fd\_variable)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{fd\_minimize(Goal, X)} repeatedly calls \texttt{Goal} to find a
+value that minimizes the variable \texttt{X}. \texttt{Goal} is a Prolog goal
+that should instantiate \texttt{X}, a common case being the use of
+\IdxFB{fd\_labeling/2} \RefSP{fd-labeling/2}. This predicate uses a
+branch-and-bound algorithm with restart: each time \texttt{call(Goal)}
+succeeds the computation restarts with a new constraint \texttt{X \#{\lt} V}
+where \texttt{V} is the value of \texttt{X} at the end of the last call of
+\texttt{Goal}. When a failure occurs (either because there are no remaining
+choice-points for \texttt{Goal} or because the added constraint is
+inconsistent with the rest of the store) the last solution is recomputed
+since it is optimal.
+
+\texttt{fd\_maximize(Goal, X)} is similar to \texttt{fd\_minimize/2} but
+\texttt{X} is maximized\texttt{.}
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Goal} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Goal} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Goal)}
+
+\ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal} does not
+correspond to an existing procedure and the value of the \texttt{unknown}
+Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
+\ErrTerm{existence\_error(procedure, Pred)}
+
+\ErrCond{\texttt{X} is neither a variable nor an FD variable nor an integer
+}
+\ErrTerm{type\_error(fd\_variable, X)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicates.
+%HEVEA\cutend

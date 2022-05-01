@@ -1,58 +1,84 @@
-     GET_X_VARIABLE		| x       | x  | op |
-     GET_Y_VARIABLE		| y       | x  | op |
-     GET_X_VALUE		| x       | x  | op |
-     GET_Y_VALUE		| y       | x  | op |
-     GET_ATOM    		| cst16   | x  | op |
-     GET_INTEGER		| int16   | x  | op |
-     GET_INTEGER_BIG		| ------- | x  | op | | int32   |
-     GET_FLOAT			| ------- | x  | op | | dbl64-1 | | dbl64-2 |
-     GET_NIL			| ------- | x  | op |
-     GET_LIST			| ------- | x  | op |
-     GET_STRUCTURE		| fun16   | x  | op | | ari8    |
-     				 	        	     
-     PUT_X_VARIABLE		| x       | x  | op |
-     PUT_Y_VARIABLE		| y       | x  | op |
-     PUT_VOID			| ------- | x  | op |
-     PUT_X_VALUE		| x       | x  | op |
-     PUT_Y_VALUE		| y       | x  | op |
-     PUT_Y_UNSAFE_VALUE		| y       | x  | op |
-     PUT_ATOM    		| cst16   | x  | op |
-     PUT_INTEGER		| int16   | x  | op |
-     PUT_INTEGER_BIG		| ------- | x  | op | | int32   |
-     PUT_FLOAT			| ------- | x  | op | | dbl64-1 | | dbl64-2 |
-     PUT_NIL			| ------- | x  | op |
-     PUT_LIST			| ------- | x  | op |
-     PUT_STRUCTURE		| fun16   | x  | op | | ari8    |
-				 	        	     
-     MATH_LOAD_X_VALUE		| x       | x  | op |
-     MATH_LOAD_Y_VALUE		| y       | x  | op |
-     				 	        	     
-     UNIFY_X_VARIABLE		| x       | -- | op |
-     UNIFY_Y_VARIABLE		| y       | -- | op |
-     UNIFY_VOID			| int16   | -- | op |
-     UNIFY_X_VALUE		| x       | -- | op |
-     UNIFY_Y_VALUE		| y       | -- | op |
-     UNIFY_X_LOCAL_VALUE	| x       | -- | op |
-     UNIFY_Y_LOCAL_VALUE	| y       | -- | op |
-     UNIFY_ATOM    		| cst16   | -- | op |
-     UNIFY_INTEGER		| int16   | -- | op | | int32   |
-     UNIFY_INTEGER_BIG		| ------------ | op | | int32   |
-     UNIFY_NIL			| ------------ | op |
-     UNIFY_LIST			| ------------ | op |
-     UNIFY_STRUCTURE		| fun16   | ar8| op |
-     				 	        	     
-     ALLOCATE			| int16   | -- | op |
-     DEALLOCATE			| ------------ | op |
-     				 		     
-     CALL			| fun16   | ar8| op | | f/n | of the caller
-     CALL_NATIVE		| fun16   | ar8| op | | adr32/64|
-     EXECUTE			| fun16   | ar8| op | | f/n | of the caller
-     EXECUTE_NATIVE		| fun16   | ar8| op | | adr32/64|
-     PROCEED			| ------------ | op |
-     FAIL			| ------------ | op |
-     				 		     
-     CUT_X			| x       | -- | op |
-     CUT_Y			| y       | -- | op |
+Here is the detail of the byte-code encoding
+The first word is always a 32-bits word.
+
+cst32 is a 32-bits words on any machine (an int = index in the atom table).
+dbl64 is always a 64-bits word on any machine.
+
+int32 or int64 is a 32-bits word on a 32-bits machine, a 64-bits word on a 64-bits machine.
+adr32 or adr64 is a 32-bits address on a 32-bits machine, a 64-bits word on a 64-bits machine.
+
+
+
+There a 2 formats for the first 32-bits word:
+
+     format 1              | i16     | i8 | op8|     see macros prefixed by BC1_...
+     format 2              | i24          | op8|     see macros prefixed by BC2_...
+
+
+Here is the instruction encoding
+
+     GET_X_VARIABLE	   | x       | x  | op |
+     GET_Y_VARIABLE	   | y       | x  | op |
+     GET_X_VALUE	   | x       | x  | op |
+     GET_Y_VALUE	   | y       | x  | op |
+     GET_ATOM    	   | cst16   | x  | op | 
+     GET_ATOM_BIG    	   | ------- | x  | op | | cst32  |
+     GET_INTEGER	   | int16   | x  | op |
+     GET_INTEGER_BIG	   | ------- | x  | op | | int32 or int64 |
+     GET_FLOAT		   | ------- | x  | op | | dbl64          |
+     GET_NIL		   | ------- | x  | op |
+     GET_LIST		   | ------- | x  | op |
+     GET_STRUCTURE	   | arity   | x  | op | | fun32  |
+     			    	        	     
+     PUT_X_VARIABLE	   | x       | x  | op |
+     PUT_Y_VARIABLE	   | y       | x  | op |
+     PUT_VOID		   | ------- | x  | op |
+     PUT_X_VALUE	   | x       | x  | op |
+     PUT_Y_VALUE	   | y       | x  | op |
+     PUT_Y_UNSAFE_VALUE	   | y       | x  | op |
+     PUT_ATOM    	   | cst16   | x  | op |
+     PUT_ATOM_BIG    	   | ------- | x  | op | | cst32  |
+     PUT_INTEGER	   | int16   | x  | op |
+     PUT_INTEGER_BIG	   | ------- | x  | op | | int32 or int64 |
+     PUT_FLOAT		   | ------- | x  | op | | dbl64          |
+     PUT_NIL		   | ------- | x  | op |
+     PUT_LIST		   | ------- | x  | op |
+     PUT_STRUCTURE	   | arity   | x  | op | | fun32  |
+			    	        	     
+     MATH_LOAD_X_VALUE	   | x       | x  | op |
+     MATH_LOAD_Y_VALUE	   | y       | x  | op |
+     			    	        	     
+     UNIFY_X_VARIABLE	   | x            | op |
+     UNIFY_Y_VARIABLE	   | y            | op |
+     UNIFY_VOID		   | int24        | op |
+     UNIFY_X_VALUE	   | x            | op |
+     UNIFY_Y_VALUE	   | y            | op |
+     UNIFY_X_LOCAL_VALUE   | x            | op |
+     UNIFY_Y_LOCAL_VALUE   | y            | op |
+     UNIFY_ATOM    	   | cst24        | op |
+     UNIFY_ATOM_BIG	   | ------------ | op | | cst32  |  useless while nb of atoms < 2^24
+     UNIFY_INTEGER	   | int24        | op |
+     UNIFY_INTEGER_BIG	   | ------------ | op | | int32 or int64 |
+     UNIFY_NIL		   | ------------ | op |
+     UNIFY_LIST		   | ------------ | op |
+     UNIFY_STRUCTURE	   | arity        | op | | fun32  |
+     			    	        	     
+     ALLOCATE		   | int24        | op |
+     DEALLOCATE		   | ------------ | op |
+     			    		     
+     CALL		   | arity        | op | | fun32  |  | f/n32  |          (f/n of the caller)
+     CALL_NATIVE	   | arity        | op | | fun32  |  | adr32 or adr64 |
+     EXECUTE		   | arity        | op | | fun32  |  | f/n32  |          (f/n of the caller)
+     EXECUTE_NATIVE	   | arity        | op | | fun32  |  | adr32 or adr64 |
+     PROCEED		   | ------------ | op |
+     FAIL		   | ------------ | op |
+     			    		     
+     GET_CURRENT_CHOICE_X  | x            | op |
+     GET_CURRENT_CHOICE_Y  | y            | op |
+     CUT_X		   | x            | op |
+     CUT_Y		   | y            | op |
+     SOFT_CUT_X		   | x            | op |
+     SOFT_CUT_Y		   | y            | op |
 
      CXT_CALL_X			| fun16	  | ar8| op | context | f/n of caller |
      CXT_CALL_Y			| fun16	  | ar8| op | context | f/n of caller |

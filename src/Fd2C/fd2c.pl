@@ -1,33 +1,48 @@
-/*-------------------------------------------------------------------------* 
- * GNU Prolog                                                              * 
- *                                                                         * 
- * Part  : FD constraint definition file to C code compiler                * 
- * File  : fd2c.pl                                                         * 
- * Descr.: main file                                                       * 
- * Author: Daniel Diaz                                                     * 
- *                                                                         * 
- * Copyright (C) 1999-2002 Daniel Diaz                                     * 
- *                                                                         * 
- * GNU Prolog is free software; you can redistribute it and/or modify it   * 
- * under the terms of the GNU General Public License as published by the   * 
- * Free Software Foundation; either version 2, or any later version.       * 
- *                                                                         * 
- * GNU Prolog is distributed in the hope that it will be useful, but       * 
- * WITHOUT ANY WARRANTY; without even the implied warranty of              * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        * 
- * General Public License for more details.                                * 
- *                                                                         * 
- * You should have received a copy of the GNU General Public License along * 
- * with this program; if not, write to the Free Software Foundation, Inc.  * 
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     * 
+/*-------------------------------------------------------------------------*
+ * GNU Prolog                                                              *
+ *                                                                         *
+ * Part  : FD constraint definition file to C code compiler                *
+ * File  : fd2c.pl                                                         *
+ * Descr.: main file                                                       *
+ * Author: Daniel Diaz                                                     *
+ *                                                                         *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ *                                                                         *
+ * This file is part of GNU Prolog                                         *
+ *                                                                         *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details.                                *
+ *                                                                         *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 fd2c(Args) :-
 	catch(fd2c1(Args), Err, exception(Err)).
 
 
+init :-				% to test under top-level
+	catch(close(stream_fd), _, true),
+	catch(close(stream_c), _, true).
 
 
 fd2c1(Args) :-
@@ -46,12 +61,11 @@ fd2c1(Args) :-
 
 
 
-parse_and_emit([]).
-
 parse_and_emit(LToken) :-
 	(   LToken = [] ->
 	    true
-	;   parse_user_cstr(Cstr, LToken, LToken1),
+	;
+	    parse_user_cstr(Cstr, LToken, LToken1),
 	    emit_user_cstr(Cstr),
 	    parse_and_emit(LToken1)
 	).
@@ -166,15 +180,14 @@ display_copying :-
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
 	format('FD Constraints to C Compiler (~a) ~a~n', [Name, Version]),
-	format('By Daniel Diaz~n', []),
 	write(Copyright),
-	nl,
+	nl, nl,
 	format('~a comes with ABSOLUTELY NO WARRANTY.~n', [Name]),
 	format('You may redistribute copies of ~a~n', [Name]),
-	format('under the terms of the GNU General Public License.~n', []),
+	format('under the terms of the GNU Lesser General Public License.~n', []),
 	format('For more information about these matters, see the files named COPYING.~n', []).
 
-	
+
 
 
           % Help

@@ -4,7 +4,7 @@ LIB_BIPS_PL          = @LIB_BIPS_PL@
 LIB_ENGINE_PL        = @LIB_ENGINE_PL@
 LIB_LINEDIT          = @LIB_LINEDIT@
 GPLC                 = @GPLC@
-CC                   = @CC@
+CC                   = @CC@ @CFLAGS_MACHINE@
 CFLAGS               = @CFLAGS@
 CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
 AR_RC                = @AR_RC@
@@ -47,14 +47,14 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
           call@OBJ_SUFFIX@ \
           call_args@OBJ_SUFFIX@ call_args_c@OBJ_SUFFIX@ \
           catch@OBJ_SUFFIX@ throw@OBJ_SUFFIX@ throw_c@OBJ_SUFFIX@ \
-          flag@OBJ_SUFFIX@ flag_c@OBJ_SUFFIX@ \
+          flag_supp@OBJ_SUFFIX@ flag@OBJ_SUFFIX@ flag_c@OBJ_SUFFIX@ \
           arith_inl@OBJ_SUFFIX@ arith_inl_c@OBJ_SUFFIX@ \
           type_inl@OBJ_SUFFIX@ type_inl_c@OBJ_SUFFIX@ \
           term_inl@OBJ_SUFFIX@ term_inl_c@OBJ_SUFFIX@ \
-	  g_var_inl@OBJ_SUFFIX@ g_var_inl_c@OBJ_SUFFIX@ \
+          g_var_inl@OBJ_SUFFIX@ g_var_inl_c@OBJ_SUFFIX@ \
           all_solut@OBJ_SUFFIX@ all_solut_c@OBJ_SUFFIX@ \
           sort@OBJ_SUFFIX@ sort_c@OBJ_SUFFIX@ \
-          list@OBJ_SUFFIX@ \
+          list@OBJ_SUFFIX@ list_c@OBJ_SUFFIX@ \
           stat@OBJ_SUFFIX@ stat_c@OBJ_SUFFIX@ \
           stream@OBJ_SUFFIX@ stream_c@OBJ_SUFFIX@ \
           file@OBJ_SUFFIX@ file_c@OBJ_SUFFIX@ \
@@ -80,22 +80,22 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 
 .pl.wam:
 	$(GPLC) -W $(GPLCFLAGS) --no-redef-error $*.pl
+
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam
 
 .c@OBJ_SUFFIX@:
-	$(GPLC) -c -C '$(CFLAGS) $(CFLAGS_UNSIGNED_CHAR)' $*.c 
+	$(GPLC) -c -C '$(CFLAGS) $(CFLAGS_UNSIGNED_CHAR)' $*.c
 
-$(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam \
-                      no_le_interf.wam le_interf.wam
-	rm -f $(LIBNAME) 
+$(LIBNAME): $(OBJLIB) no_sockets.wam sockets.wam no_le_interf.wam le_interf.wam
+	rm -f $(LIBNAME)
 	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
 	$(RANLIB) $(LIBNAME)
 
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ $(LIBNAME)
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
 distclean: clean
@@ -115,6 +115,7 @@ t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/$(LIB_ENGINE_PL) $(LIBN
 error_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 stream_supp@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
+flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 
 
 # depending on dynam_supp.h
@@ -122,6 +123,11 @@ flag_c@OBJ_SUFFIX@: ../EnginePl/gp_config.h
 dynam_supp@OBJ_SUFFIX@: dynam_supp.h
 bc_supp@OBJ_SUFFIX@:    dynam_supp.h
 assert_c@OBJ_SUFFIX@:   dynam_supp.h
+
+# depending on flag_supp.h
+
+flag_supp@OBJ_SUFFIX@:   flag_supp.h
+flag_c@OBJ_SUFFIX@:      flag_supp.h
 stream_supp@OBJ_SUFFIX@: flag_supp.h
 consult_c@OBJ_SUFFIX@:   flag_supp.h
 
@@ -172,6 +178,10 @@ unify.wam:       unify.pl
 utils.wam:       utils.pl
 write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
+
+check:
+	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo Bootstrap Prolog Bips OK
+
 
 
 # test: read alone

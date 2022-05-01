@@ -1,20 +1,16 @@
                                 GNU PROLOG
                                 ==========
 
-			      by Daniel Diaz
-			   Daniel.Diaz@inria.fr
-
-
 INTRODUCTION
 ************
 
 GNU Prolog is a native Prolog compiler with constraint solving over finite
-domains (FD) developed by Daniel Diaz (http://loco.inria.fr/~diaz).
+domains (FD) developed by Daniel Diaz (http://cri-dist.univ-paris1.fr/diaz/)
 Last information can be found at http://www.gnu.org/software/prolog
-or better at http://gprolog.inria.fr.
+or better at http://www.gprolog.org.
 
 A lot of work has been devoted to the ISO compatibility. GNU Prolog is very
-close to the ISO standard (http://www.logic-programming.org/prolog_std.html).
+close to the ISO standard.
 
 Here are some features of GNU Prolog:
 
@@ -60,23 +56,38 @@ Constraint solver:
 PORTS
 *****
 
-GNU Prolog is ported to the following architectures:
+GNU Prolog is currently ported to the following architectures:
 
    - ix86 / GNU/Linux
-   - ix86 / Win32 using Cygwin (see file src/CYGWIN)
-   - ix86 / Win32 using MSVC++ (tested with 6.0)
+   - ix86 / Win32 using Cygwin (see file src/WINDOWS-OLD)
+   - ix86 / Win32 using MinGW  (see file src/WINDOWS-OLD)
+   - ix86 / Win32 using MSVC++ (see file src/WINDOWS-OLD)
    - ix86 / SCO
    - ix86 / Solaris
    - ix86 / FreeBSD
    - ix86 / OpenBSD
    - ix86 / NetBSD
+   - ix86 / Darwin (Mac OS X)
+   - x86_64 / GNU/Linux
+   - x86_64 / Solaris
+   - x86_64 / Win64 using MinGW64 (see file src/WINDOWS)
+   - x86_64 / Win64 using MSVC++  (see file src/WINDOWS)
+   - x86_64 / Darwin (Mac OS X)
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
+   - PowerPC / NetBSD
    - sparc / SunOS (4.1.3 or higher)
    - sparc / Solaris
-   - alpha / linux
+   - sparc / NetBSD
+   - sparc64 / Solaris
+   - sparc64 / OpenBSD
+   - alpha / GNU/Linux
    - alpha / OSF1
    - mips / irix
+   - arm 32bits / GNU/Linux (armv6, armv7) 
+   - arm 64bits (aarch64)/ GNU/Linux (armv8)
+   - arm 64bits (aarch64) / Darwin (Mac OS X) (armv8)
+   - RISC-V 64bits / GNU/Linux
 
 
 
@@ -100,7 +111,7 @@ and the compiler using:
 
 	gplc FILE
 
-The simpliest way to compile a Prolog file 'prog.pl' is then:
+The simplest way to compile a Prolog file 'prog.pl' is then:
 
 	gplc prog.pl
 
@@ -108,6 +119,30 @@ which will produce the executable called prog (use gplc --help to have a
 brief overview of available options).
 
 Refer to the documentation for more information (see below).
+
+
+
+WINDOWS
+*******
+
+In Microsoft Windows if you intend to use the gplc compiler as described in
+the documentation you need to ascertain the following conditions are
+met:
+
+   - for the port compiled with Microsoft Visual C++ (aka MSVC++)
+     (tested with Microsoft Visual Studio 2019 Community) you'll need
+     MinGW as.exe (renamed as mingw-as.exe) installed and the cl.exe
+     compiler (used mainly as linker by GNU Prolog) available in 
+     your session path (alternatively link.exe is used).
+
+   - for the ports compiled either with MinGW, the gcc toolchain
+     must be installed and available in your session path.
+
+Observing these needs you'll also will be able to do the mixed
+language programming, as the examples included in the ExamplesC
+directory. However you'll need to write your own Makefile as the one
+provided is for gplc calling 'gcc' and the options passed by GNU
+Prolog will not work (see file ExamplesC/README).
 
 
 
@@ -125,7 +160,7 @@ WEB
 ***
 
 The GNU Prolog web site is: http://www.gnu.org/software/prolog/
-or also (primary web site): http://gprolog.inria.fr/
+or also (primary web site): http://www.gprolog.org/
 
 
 
@@ -150,9 +185,30 @@ subject line.
 COPYING
 *******
 
-Because the basic GNU Prolog libraries are released under the GNU
-General Public License (GNU GPL), any program recommended for use with
-them must be free software and released under a GPL-compatible free
-software license, so that the combination can be (as a whole) under
-the GNU GPL as well.  For a list of some GPL-compatible free software
-licenses, see http://www.gnu.org/philosophy/license-list.html.
+GNU Prolog is free software. Since version 1.4.0, GNU Prolog distributed
+under a dual license: LGPL or GPL. So, you can redistribute it and/or modify
+it under the terms of either:
+
+  * the GNU Lesser General Public License (LGPL) as published by the Free
+    Software Foundation; either version 3 of the License, or (at your option)
+    any later version.
+
+or 
+
+  * the GNU General Public License (GPL) as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any
+    later version.  
+
+or both in parallel (as here).
+
+GNU Prolog is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received copies of the GNU General Public License and the GNU
+Lesser General Public License along with this program. If not, see
+http://www.gnu.org/licenses/.
+
+Remark: versions of GNU Prolog prior to 1.4.0 were entirely released under
+the GNU General Public License (GPL).
+

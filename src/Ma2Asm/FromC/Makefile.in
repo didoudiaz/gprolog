@@ -4,19 +4,20 @@ CFLAGS = @CFLAGS@
 
 # other local variables
 
-INCL=-I../../EnginePl
 #CFLAGS    = -O3
 #CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
 CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
 
+# for cl.exe use /FA to obtain assembly
+#CFLAGS= /FA
 #CFLAGS= /Ox /Oy
 
-opt: 
-	 $(GPLC) -c -C '$(CFLAGS) $(INCL) -S' -o asm_inst.s asm_inst.c
+opt:
+	 $(CC) -S $(CFLAGS) asm_inst.c
 
 
 no:
-	 $(GPLC) -c -C '-S $(INCL)' -o asm_inst.s asm_inst.c
+	 $(CC) -S asm_inst.c
 
 clean:
 	-rm *.s

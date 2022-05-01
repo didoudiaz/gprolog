@@ -1,3 +1,4 @@
+
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
@@ -6,23 +7,35 @@
  * Descr.: dynamic predicate support - header file                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*---------------------------------*
  * Constants                       *
@@ -38,9 +51,9 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef long (*ScanFct) ();
+typedef PlLong (*ScanFct) ();
 
-typedef unsigned long DynStamp;
+typedef PlULong DynStamp;
 
 typedef struct dynpinf *DynPInfP;
 
@@ -68,6 +81,7 @@ typedef struct dyncinf		/* Dynamic clause information     */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
   char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
+  int pl_file;			/* file name of its definition    */
   DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
   DynCInfP next_erased_cl;	/* pointer to next erased clause  */
   unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
@@ -83,7 +97,7 @@ DynCInf;
 
 typedef struct			/* Dynamic switch item info       */
 {				/* ------------------------------ */
-  long key;			/* key: atm, int, f/n             */
+  PlLong key;			/* key: atm, int, f/n             */
   D2ChHdr ind_chain;		/* indexical chain                */
 }
 DSwtInf;
@@ -118,19 +132,19 @@ DynPInf;
  * Function Prototypes             *
  *---------------------------------*/
 
-DynCInf *Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
-			    Bool asserta, Bool check_perm);
+DynCInf *Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
+			       Bool asserta, Bool check_perm, int pl_file);
 
-void Delete_Dynamic_Clause(DynCInf *clause);
+void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
-PredInf *Update_Dynamic_Pred(int func, int arity, int what_to_do);
+PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi);
 
-DynCInf *Scan_Dynamic_Pred(int owner_func, int owner_arity,
+DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 			   DynPInf *dyn, WamWord first_arg_word,
 			   ScanFct alt_fct, int alt_fct_type,
 			   int alt_info_size, WamWord *alt_info);
 
-int Scan_Choice_Point_Pred(WamWord *b, int *arity);
+int Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity);
 
-void Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
+void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
 			 WamWord *body_word);

@@ -1,20 +1,19 @@
-% compiler: GNU Prolog 1.2.15 (Sep 12 2002)
+% compiler: GNU Prolog 1.5.1
 % file    : inst_codif.pl
-% date    : 9 17 2002
-% time    : 18:25:37
 
 
-file_name('/home/diaz/GP/src/src/Pl2Wam/inst_codif.pl').
+file_name('/home/diaz/GP/src/Pl2Wam/inst_codif.pl').
 
 
-predicate(alias_stop_instruction/1,29,static,private,user,[
-    load_cut_level(1),
+predicate(alias_stop_instruction/1,41,static,private,monofile,global,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     allocate(1),
     get_variable(x(2),0),
     get_variable(y(0),1),
     put_variable(x(0),1),
     put_void(3),
-    call_c('Blt_Functor',[fast_call,boolean],[x(2),x(1),x(3)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(1),x(3)]),
     put_value(x(2),1),
     call('$alias_stop_instruction/1_$aux1'/2),
     cut(y(0)),
@@ -22,7 +21,7 @@ predicate(alias_stop_instruction/1,29,static,private,user,[
     proceed]).
 
 
-predicate('$alias_stop_instruction/1_$aux1'/2,29,static,private,user,[
+predicate('$alias_stop_instruction/1_$aux1'/2,41,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -49,11 +48,11 @@ label(7),
     get_atom(call_c,0),
     put_integer(2,2),
     put_variable(x(0),3),
-    call_c('Blt_Arg',[fast_call,boolean],[x(2),x(1),x(3)]),
+    call_c('Pl_Blt_Arg',[fast_call,boolean],[x(2),x(1),x(3)]),
     execute('$alias_stop_instruction/1_$aux2'/1)]).
 
 
-predicate('$alias_stop_instruction/1_$aux2'/1,29,static,private,user,[
+predicate('$alias_stop_instruction/1_$aux2'/1,41,static,private,monofile,local,[
     try_me_else(1),
     put_value(x(0),1),
     put_atom(jump,0),
@@ -66,8 +65,9 @@ label(1),
     execute(memberchk/2)]).
 
 
-predicate(codification/2,43,static,private,user,[
-    load_cut_level(2),
+predicate(codification/2,55,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(1),
     get_variable(y(0),2),
     call(codif/2),
@@ -76,12 +76,14 @@ predicate(codification/2,43,static,private,user,[
     proceed]).
 
 
-predicate(codif/2,47,static,private,user,[
-    try_me_else(78),
+predicate(codif/2,59,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
+    try_me_else(80),
     switch_on_term(8,fail,fail,fail,1),
 
 label(1),
-    switch_on_structure([(get_variable/2,2),(get_value/2,3),(get_atom/2,17),(get_integer/2,19),(get_float/2,21),(get_nil/1,23),(get_list/1,25),(get_structure/2,27),(put_variable/2,4),(put_void/1,31),(put_value/2,5),(put_unsafe_value/2,39),(put_atom/2,41),(put_integer/2,43),(put_float/2,45),(put_nil/1,47),(put_list/1,49),(put_structure/2,51),(math_load_value/2,6),(math_fast_load_value/2,7),(unify_variable/1,61),(unify_value/1,63),(unify_local_value/1,65),(call/1,67),(execute/1,69),(load_cut_level/1,71),(cut/1,73),(call_c/3,75),(foreign_call_c/4,77)]),
+    switch_on_structure([(get_variable/2,2),(get_value/2,3),(get_atom/2,17),(get_integer/2,19),(get_float/2,21),(get_nil/1,23),(get_list/1,25),(get_structure/2,27),(put_variable/2,4),(put_void/1,31),(put_value/2,5),(put_unsafe_value/2,39),(put_atom/2,41),(put_integer/2,43),(put_float/2,45),(put_nil/1,47),(put_list/1,49),(put_structure/2,51),(math_load_value/2,6),(math_fast_load_value/2,7),(unify_variable/1,61),(unify_value/1,63),(unify_local_value/1,65),(call/1,67),(execute/1,69),(get_current_choice/1,71),(cut/1,73),(soft_cut/1,75),(call_c/3,77),(foreign_call_c/4,79)]),
 
 label(2),
     try(9),
@@ -556,31 +558,44 @@ label(66),
     retry_me_else(68),
 
 label(67),
-    get_variable(x(2),1),
+    allocate(3),
+    get_variable(y(0),1),
     get_structure(call/1,0),
-    unify_structure((/)/2),
-    unify_void(1),
-    unify_variable(x(1)),
+    unify_variable(x(0)),
+    get_variable(y(1),2),
+    put_variable(y(2),1),
+    call('$codif/2_$aux1'/2),
+    cut(y(1)),
     put_integer(0,0),
+    put_unsafe_value(y(2),1),
+    put_value(y(0),2),
+    deallocate,
     execute(lst_r_for_call_execute/3),
 
 label(68),
     retry_me_else(70),
 
 label(69),
-    get_variable(x(2),1),
+    allocate(3),
+    get_variable(y(0),1),
     get_structure(execute/1,0),
-    unify_structure((/)/2),
-    unify_void(1),
-    unify_variable(x(1)),
+    unify_variable(x(0)),
+    get_variable(y(1),2),
+    put_variable(y(2),1),
+    call('$codif/2_$aux2'/2),
+    cut(y(1)),
     put_integer(0,0),
+    put_unsafe_value(y(2),1),
+    put_value(y(0),2),
+    deallocate,
     execute(lst_r_for_call_execute/3),
 
 label(70),
     retry_me_else(72),
 
 label(71),
-    get_structure(load_cut_level/1,0),
+    get_structure(get_current_choice/1,0),
+    unify_structure(x/1),
     unify_variable(x(0)),
     get_list(1),
     unify_variable(x(1)),
@@ -607,6 +622,20 @@ label(74),
     retry_me_else(76),
 
 label(75),
+    get_structure(soft_cut/1,0),
+    unify_structure(x/1),
+    unify_variable(x(0)),
+    get_list(1),
+    unify_variable(x(1)),
+    unify_nil,
+    get_structure(r/1,1),
+    unify_value(x(0)),
+    proceed,
+
+label(76),
+    retry_me_else(78),
+
+label(77),
     allocate(3),
     get_variable(y(1),1),
     get_structure(call_c/3,0),
@@ -614,17 +643,17 @@ label(75),
     unify_variable(x(0)),
     unify_variable(y(0)),
     put_variable(y(2),1),
-    call('$codif/2_$aux1'/2),
+    call('$codif/2_$aux3'/2),
     put_value(y(0),0),
     put_unsafe_value(y(2),1),
     put_value(y(1),2),
     deallocate,
     execute(lst_rw_for_c_call/3),
 
-label(76),
+label(78),
     trust_me_else_fail,
 
-label(77),
+label(79),
     get_structure(foreign_call_c/4,0),
     unify_void(2),
     unify_variable(x(0)),
@@ -633,14 +662,15 @@ label(77),
     put_nil(1),
     execute(lst_rw_for_foreign_c_call/3),
 
-label(78),
+label(80),
     trust_me_else_fail,
     get_nil(1),
     proceed]).
 
 
-predicate('$codif/2_$aux1'/2,115,static,private,user,[
-    load_cut_level(2),
+predicate('$codif/2_$aux3'/2,131,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(3),
     get_variable(y(0),1),
@@ -665,7 +695,61 @@ label(1),
     proceed]).
 
 
-predicate(lst_r_for_call_execute/3,132,static,private,user,[
+predicate('$codif/2_$aux2'/2,121,static,private,monofile,local,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([((/)/2,3),((:)/2,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure((/)/2,0),
+    unify_void(1),
+    unify_local_value(x(1)),
+    proceed,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_structure((:)/2,0),
+    unify_void(1),
+    unify_structure((/)/2),
+    unify_void(1),
+    unify_local_value(x(1)),
+    proceed]).
+
+
+predicate('$codif/2_$aux1'/2,117,static,private,monofile,local,[
+    switch_on_term(2,fail,fail,fail,1),
+
+label(1),
+    switch_on_structure([((/)/2,3),((:)/2,5)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_structure((/)/2,0),
+    unify_void(1),
+    unify_local_value(x(1)),
+    proceed,
+
+label(4),
+    trust_me_else_fail,
+
+label(5),
+    get_structure((:)/2,0),
+    unify_void(1),
+    unify_structure((/)/2),
+    unify_void(1),
+    unify_local_value(x(1)),
+    proceed]).
+
+
+predicate(lst_r_for_call_execute/3,148,static,private,monofile,global,[
     try_me_else(1),
     get_nil(2),
     get_value(x(1),0),
@@ -679,11 +763,11 @@ label(1),
     get_structure(r/1,3),
     unify_local_value(x(0)),
     math_fast_load_value(x(0),0),
-    call_c('Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
+    call_c('Pl_Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
     execute(lst_r_for_call_execute/3)]).
 
 
-predicate(lst_rw_for_foreign_c_call/3,141,static,private,user,[
+predicate(lst_rw_for_foreign_c_call/3,157,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -715,8 +799,9 @@ label(4),
     execute(lst_rw_for_foreign_c_call/3)]).
 
 
-predicate(lst_rw_for_c_call/3,149,static,private,user,[
-    load_cut_level(3),
+predicate(lst_rw_for_c_call/3,165,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(2,3,fail,1,fail),
 
 label(1),

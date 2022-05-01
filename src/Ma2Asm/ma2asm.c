@@ -6,37 +6,54 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include "ma_parser.h"
-#include "ma_protos.h"
-
 #include "../EnginePl/gp_config.h"
 #include "../Wam2Ma/bt_string.c"
 #include "../TopComp/copying.c"
 
+#define MA2ASM_FILE
 
+#include "ma_parser.h"
+#include "ma_protos.h"
+
+
+#if 0
+#define DEBUG
+#endif
 
 
 /*---------------------------------*
@@ -45,11 +62,6 @@
 
 #define DEFAULT_OUTPUT_SUFFIX      ASM_SUFFIX
 
-#define LONG_STACK_SIZE            8192
-
-#define MASK_LONG_GLOBAL           1
-#define MASK_LONG_INITIALIZED      2
-
 
 
 
@@ -57,43 +69,32 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct inflong *InfLongP;
-
-typedef struct inflong
-{
-  char *name;
-  int global;
-  VType vtype;			/* NONE, INITIAL_VALUE, ARRAY_SZIE */
-  long value;
-  InfLongP next;
-}
-InfLong;
-
-
-
-
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
 
 char *file_name_in;
 char *file_name_out;
-int inline_asm;
-int comment;
-int dynamic;
+
+Bool comment;
+Bool pic_code;
+Bool ignore_fc;
+
+MapperInf mi;
+
+LabelGen lg_cont; /* local label generator for continuations (always available) see macros Label_Cont_XXX() */
 
 FILE *file_out;
 
-int work_label = 0;
-
+BTString bt_code;		/* only filled if pre-pass is activated */
+BTString bt_long;
 BTString bt_string;
-
-InfLong dummy_long_start;
-InfLong *long_end = &dummy_long_start;
-int nb_long;
+BTString bt_double;		/* only filled used if needed */
 
 char *initializer_fct = NULL;
 
+char local_label[64];
+int local_label_count = 0;
 
 
 
@@ -101,21 +102,21 @@ char *initializer_fct = NULL;
  * Function Prototypes             *
  *---------------------------------*/
 
-void Init_Inline_Data(void);
+void Invoke_Dico_String(int no, char *str, void *info);
 
-char **Find_Inline_Data(char *fct_name);
+void Invoke_Dico_Double(int no, char *str, void *info);
 
-void Emit_Inline_Data(char **p_inline);
+void Invoke_Dico_Long(int no, char *str, void *info);
+
+StringInf *Record_String(char *str);
+
+DoubleInf *Record_Double(char *ma_str, double dbl_val);
 
 void Switch_Rec(int start, int stop, SwtInf swt[]);
 
 void Switch_Equal(SwtInf *c);
 
 int Switch_Cmp_Int(SwtInf *c1, SwtInf *c2);
-
-void Label_Printf(char *label, ...);
-
-void Inst_Printf(char *op, char *operands, ...);
 
 void Inst_Out(char *op, char *operands);
 
@@ -143,8 +144,19 @@ void Display_Help(void);
 int
 main(int argc, char *argv[])
 {
-  InfLong *p;
   int n;
+
+  /* some default values */
+  mi.can_produce_pic_code = FALSE;
+  mi.needs_pre_pass = FALSE;
+  mi.comment_prefix = "#";
+  mi.local_symb_prefix = "L";
+  mi.string_symb_prefix = "LC";
+  mi.double_symb_prefix = "LD";
+  mi.strings_need_null = FALSE;
+  mi.call_c_reverse_args = FALSE;
+
+  Init_Mapper();
 
   Parse_Arguments(argc, argv);
 
@@ -156,9 +168,13 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-  Init_Inline_Data();
-
+  BT_String_Init(&bt_code); 		/* only filled if pre_pass is activated */
+  BT_String_Init(&bt_long);
   BT_String_Init(&bt_string);
+  BT_String_Init(&bt_double);		/* only filled if dico double is needed */
+
+  Label_Gen_Init(&lg_cont, "cont");	/* available for any mapper */
+  
   Asm_Start();
 
   if (!Parse_Ma_File(file_name_in, comment))
@@ -173,20 +189,24 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_String_Start(n);
-
-      BT_String_List(&bt_string, Dico_String);
-
+      BT_String_List(&bt_string, Invoke_Dico_String);
       Dico_String_Stop(n);
     }
 
-  if (nb_long)
+  n = bt_double.nb_elem;
+  if (n)
     {
-      Dico_Long_Start(nb_long);
+      Dico_Double_Start(n);
+      BT_String_List(&bt_double, Invoke_Dico_Double);
+      Dico_Double_Stop(n);
+    }
 
-      for (p = dummy_long_start.next; p; p = p->next)
-	Dico_Long(p->name, p->global, p->vtype, p->value);
-
-      Dico_Long_Stop(nb_long);
+  n = bt_long.nb_elem;
+  if (n)
+    {
+      Dico_Long_Start(n);
+      BT_String_List(&bt_long, Invoke_Dico_Long);
+      Dico_Long_Stop(n);
     }
 
   Data_Stop(initializer_fct);
@@ -203,13 +223,257 @@ main(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
+ * INVOKE_DICO_STRING                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_String(int no, char *str, void *info)
+{
+  StringInf *d = (StringInf *) info;
+  Dico_String(d);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INVOKE_DICO_DOUBLE                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_Double(int no, char *str, void *info)
+{
+  DoubleInf *d = (DoubleInf *) info;
+
+  if (comment)
+    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
+      
+  Dico_Double(d);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * INVOKE_DICO_LONG                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Invoke_Dico_Long(int no, char *name, void *info)
+{
+  LongInf *l = (LongInf *) info;
+  Dico_Long(l);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * RECORD_STRING                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+StringInf *
+Record_String(char *str)
+{
+  char label[32];
+  BTNode *b = BT_String_Add(&bt_string, str);
+  StringInf *s = (StringInf *) &b->info;
+  s->no = b->no;
+  s->str = str;
+  sprintf(label, "%s%d", mi.string_symb_prefix, s->no);
+  s->symb = strdup(label);
+  return s;
+}
+
+
+
+/*-------------------------------------------------------------------------*
+ * RECORD_DOUBLE                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+DoubleInf *
+Record_Double(char *ma_str, double dbl_val)
+{
+  char label[32];
+  char *p;
+  static char cmt[64];
+  BTNode *b = BT_String_Add(&bt_double, ma_str);
+  DoubleInf *d = (DoubleInf *) &b->info;
+  d->no = b->no;
+  d->ma_str = ma_str;
+  sprintf(label, "%s%d", mi.double_symb_prefix, d->no);
+  d->symb = strdup(label);
+  d->v.dbl = dbl_val;
+
+  /* check if the double read in MA file is given in a human-readable form */
+  p = ma_str;
+  while(*p && strchr("0123456789.-eE", *p))
+    p++;
+
+  d->is_ma_str_human = (*p == '\0');
+
+  if (d->is_ma_str_human)
+    d->cmt_str = d->ma_str;
+  else
+    {
+      sprintf(cmt, "%s = %1.17g", ma_str, dbl_val);
+      d->cmt_str = strdup(cmt);
+    }
+
+  return d;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * DECLARE_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
 Declare_Initializer(char *init_fct)
+{				/* init_fct: strdup done by the parser */
+  initializer_fct = init_fct;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_CODE                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void				/* called if pre_pass */
+Decl_Code(CodeInf *c)
 {
-  initializer_fct = strdup(init_fct);
+  CodeInf *c1;
+  /* needs to create a copy of c (malloc)
+   * actually donne by BT_String_Add 
+   */
+
+		/* name: strdup done by the parser */
+  c1 = (CodeInf *) &BT_String_Add(&bt_code, c->name)->info;
+  *c1 = *c;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_LONG                                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Decl_Long(LongInf *l)
+{
+  LongInf *l1;
+  /* needs to create a copy of c (malloc)
+   * actually donne by BT_String_Add 
+   */
+
+		/* name: strdup done by the parser */
+  l1 = (LongInf *) &BT_String_Add(&bt_long, l->name)->info;
+  *l1 = *l;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_CODE_DEFINED                                                         *
+ *                                                                         *
+ * Needs a pre-pass.                                                       *
+ *-------------------------------------------------------------------------*/
+int
+Is_Code_Defined(char *name)
+{
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  return (BT_String_Lookup(&bt_code, name) != NULL);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_CODE_INFOS                                                          *
+ *                                                                         *
+ * Needs a pre-pass.                                                       *
+ *-------------------------------------------------------------------------*/
+CodeInf *
+Get_Code_Infos(char *name)
+{
+  BTNode *b = BT_String_Lookup(&bt_code, name);
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  return (b == NULL) ? NULL : (CodeInf *) &b->info;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_LONG_INFOS                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+LongInf *
+Get_Long_Infos(char *name)
+{
+  BTNode *b = BT_String_Lookup(&bt_long, name);
+
+  return (b == NULL) ? NULL : (LongInf *) &b->info;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SCOPE_OF_SYMBOL                                                         *
+ *                                                                         *
+ * Need a pre-pass.                                                        *
+ * Returns 0: global symbol, 1: local code, 2: other local symbol (long,..)*
+ *-------------------------------------------------------------------------*/
+
+/* A symbol not defined (not encountered neither as code nor long) can be:
+ * - foreign_long, foreign_double (thus external)
+ * - an external predicate or C function (e.g. function associated to a WAM 
+ *   instruction like Get_Integer() or Pl_Un_Term() which is generated when 
+ *   compiling foreign directive).
+ * - a local label (for branching) or local symbol (strings, double constants)
+ * Only the last case is local and we know it begins with . or L
+ */
+int
+Scope_Of_Symbol(char *name)
+{
+  CodeInf *c;
+  LongInf *l;
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  /* test local symbols first since they are not recoded in bt_code/bt_long */
+
+  if (*name == '.' || strncmp(name, mi.local_symb_prefix, strlen(mi.local_symb_prefix)) == 0)
+    return 2;
+
+  c = Get_Code_Infos(name);
+  if (c)
+    return (c->global) ? 0 : 1;
+
+  l = Get_Long_Infos(name);
+  if (l)
+    return (l->global) ? 0 : 2;
+
+  return 0;			/* not defined, considered as global (code/data) */
 }
 
 
@@ -220,26 +484,20 @@ Declare_Initializer(char *init_fct)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
+Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[])
 {
   unsigned i;			/* unsigned is important for the loop */
   int inc;
   int offset = 0;
-  int no;
-  char **p_inline;
+  StringInf *s;
+  DoubleInf *d;
 
-  p_inline = Find_Inline_Data(fct_name);
-#if 0				/* to only inline a nth call (for debug) */
-  {
-    static int nth_inline = 0;
-    if (p_inline && ++nth_inline != 1)
-      p_inline = NULL;
-  }
-#endif
+  if (ignore_fc)
+    fc = FALSE;
 
-  Call_C_Start(fct_name, fc, nb_args, p_inline);
+  Call_C_Start(fct_name, fc, nb_args, nb_args_in_words);
 
-  if (!call_c_reverse_args)
+  if (!mi.call_c_reverse_args)
     i = 0, inc = 1;
   else
     i = nb_args - 1, inc = -1;
@@ -249,40 +507,41 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
       switch (arg[i].type)
 	{
 	case INTEGER:
-	  offset += Call_C_Arg_Int(offset, arg[i].t.int_val);
+	  offset += Call_C_Arg_Int(offset, arg[i].int_val);
 	  break;
 
-	case FLOAT:
-	  offset += Call_C_Arg_Double(offset, arg[i].t.dbl_val);
+	case FLOAT:		/* strdup done by the parser */
+	  d = Record_Double(arg[i].str_val, arg[i].dbl_val);
+	  if (comment)
+	    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
+	  offset += Call_C_Arg_Double(offset, d);
 	  break;
 
-	case STRING:
-	  no = BT_String_Add(&bt_string, arg[i].t.str_val)->no;
-	  offset += Call_C_Arg_String(offset, no);
+	case STRING:		/* strdup done by the parser */
+	  s = Record_String(arg[i].str_val);
+	  if (comment)
+	    Inst_Printf("", "%s %s", mi.comment_prefix, s->str);
+	  offset += Call_C_Arg_String(offset, s);
 	  break;
 
 	case MEM:
-	  offset +=
-	    Call_C_Arg_Mem_L(offset, arg[i].adr_of, arg[i].t.mem.name,
-			     arg[i].t.mem.index);
+	  offset += Call_C_Arg_Mem_L(offset, arg[i].adr_of, arg[i].str_val, arg[i].index);
 	  break;
 
 	case X_REG:
-	  offset += Call_C_Arg_Reg_X(offset, arg[i].adr_of, arg[i].t.index);
+	  offset += Call_C_Arg_Reg_X(offset, arg[i].adr_of, arg[i].index);
 	  break;
 
 	case Y_REG:
-	  offset += Call_C_Arg_Reg_Y(offset, arg[i].adr_of, arg[i].t.index);
+	  offset += Call_C_Arg_Reg_Y(offset, arg[i].adr_of, arg[i].index);
 	  break;
 
 	case FL_ARRAY:
-	  offset += Call_C_Arg_Foreign_L(offset, arg[i].adr_of,
-					 arg[i].t.index);
+	  offset += Call_C_Arg_Foreign_L(offset, arg[i].adr_of, arg[i].index);
 	  break;
 
 	case FD_ARRAY:
-	  offset += Call_C_Arg_Foreign_D(offset, arg[i].adr_of,
-					 arg[i].t.index);
+	  offset += Call_C_Arg_Foreign_D(offset, arg[i].adr_of, arg[i].index);
 	  break;
 
 	default:		/* for the compiler */
@@ -290,106 +549,9 @@ Call_C(char *fct_name, int fc, int nb_args, ArgInf arg[])
 	}
     }
 
-  if (p_inline)
-    {
-      if (comment)
-	Label_Printf("\t\t%s inlining %s", comment_prefix, fct_name);
-      Emit_Inline_Data(p_inline);
-    }
-  else
-    Call_C_Invoke(fct_name, nb_args);
-  
-  if (p_inline && comment)
-    Label_Printf("\t\t%s code after inlining (Call_C_Stop)", comment_prefix);
-  Call_C_Stop(fct_name, nb_args, p_inline);
-}
+  Call_C_Invoke(fct_name, fc, nb_args, nb_args_in_words);
 
-
-
-
-/*-------------------------------------------------------------------------*
- * INIT_INLINE_DATA                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Init_Inline_Data(void)
-
-{
-  char **p, **q;
-
-  if (inline_asm == 0)
-    return;
-
-  p = inline_asm_data;
-  while(*p)
-    {
-      q = &INL_ACCESS_NEXT(p);
-      for(p += 4; *p != INL_END_FUNC; p++)
-	;
-      p++;
-
-      *q = (char *) p;
-    }
-
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * FIND_INLINE_DATA                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char **
-Find_Inline_Data(char *fct_name)
-
-{
-  char **p;
-
-  if (inline_asm)
-    {
-      p = inline_asm_data;
-      while(*p && strcmp(*p, fct_name) != 0)
-	p = (char **) INL_ACCESS_NEXT(p);
-
-      if (*p && INL_ACCESS_LEVEL(p) <= inline_asm)
-	return p;
-    }
-
-  return NULL;
-}
-
-
-
-/*-------------------------------------------------------------------------*
- * EMIT_INLINE_DATA                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_Inline_Data(char **p_inline)
-    
-{
-  char **p = p_inline;
-  unsigned long l;
-  static int nb_inlined = 0;	/* a global variable */
-
-  nb_inlined++;
-
-  for(p += 4; *p != INL_END_FUNC; p++)
-    {
-      l = (unsigned long) *p;
-      if (l < 1024)		/* label definition */
-	Label_Printf("%s%d_%d:", local_symb_prefix, nb_inlined, l);
-      else
-	{
-	  l = (unsigned long) p[1];
-	  if (l < 1024)
-	    Inst_Printf(p[0], "%s%d_%d", local_symb_prefix, nb_inlined, l);
-	  else
-	    Inst_Printf(p[0], "%s", p[1]);
-	  p++;
-	}
-    }
+  Call_C_Stop(fct_name, nb_args);
 }
 
 
@@ -419,7 +581,7 @@ void
 Switch_Rec(int start, int stop, SwtInf swt[])
 {
   int mid;
-  char str[32];
+  char lab_cont[32];
 
   switch (stop - start + 1)	/* nb elements */
     {
@@ -444,10 +606,10 @@ Switch_Rec(int start, int stop, SwtInf swt[])
     default:
       mid = (start + stop) / 2;
       Switch_Equal(swt + mid);
-      sprintf(str, "Lwork%d", work_label++);
-      Jump_If_Greater(str);
+      strcpy(lab_cont, Label_Cont_New());
+      Jump_If_Greater(lab_cont);
       Switch_Rec(start, mid - 1, swt);
-      Label(str);
+      Label(lab_cont);
       Switch_Rec(mid + 1, stop, swt);
     }
 }
@@ -483,33 +645,55 @@ Switch_Cmp_Int(SwtInf *c1, SwtInf *c2)
 
 
 /*-------------------------------------------------------------------------*
- * DECL_LONG                                                               *
+ * LABEL_GEN_INIT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Decl_Long(char *name, int global, VType vtype, long value)
+Label_Gen_Init(LabelGen *g, char *prefix)
 {
-  InfLong *p;
-
-  nb_long++;
-
-  p = (InfLong *) malloc(sizeof(InfLong));
-  if (p == NULL)
-    {
-      fprintf(stderr, "Cannot allocate memory for long %s\n", name);
-      exit(1);
-    }
+  g->prefix = prefix;
+  g->no = 0;
+  g->label[0] = '\0';
+}
 
 
-  p->name = name;		/* strdup done by the parser */
-  p->global = global;
 
-  p->vtype = vtype;
-  p->value = value;
-  p->next = NULL;
 
-  long_end->next = p;
-  long_end = p;
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_NEW                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Label_Gen_New(LabelGen *g)
+{
+  sprintf(g->label, "%s%s%d", mi.local_symb_prefix, g->prefix, ++g->no);
+  return g->label;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_GET                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Label_Gen_Get(LabelGen *g)
+{
+  return g->label;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * LABEL_GEN_NO                                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Label_Gen_No(LabelGen *g)
+{
+  return g->no;
 }
 
 
@@ -544,7 +728,6 @@ void
 Inst_Printf(char *op, char *operands, ...)
 {
   va_list arg_ptr;
-
 
   va_start(arg_ptr, operands);
 
@@ -625,9 +808,9 @@ Parse_Arguments(int argc, char *argv[])
 
 
   file_name_in = file_name_out = NULL;
-  inline_asm = 0;
-  dynamic = 0;
-  comment = 0;
+  comment = FALSE;
+  pic_code = FALSE;
+  ignore_fc = FALSE;
 
   for (i = 1; i < argc; i++)
     {
@@ -637,8 +820,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      if (++i >= argc)
 		{
-		  fprintf(stderr, "FILE missing after %s option\n",
-			  argv[i - 1]);
+		  fprintf(stderr, "FILE missing after %s option\n", argv[i - 1]);
 		  exit(1);
 		}
 
@@ -646,15 +828,18 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--inline-asm"))
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC"))
 	    {
-	      inline_asm = 1;
+	      if (mi.can_produce_pic_code)
+		pic_code = TRUE;
+	      else
+		fprintf(stderr, "ignored option %s - cannot produce PIC code for this architecture\n", argv[i]);
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--full-inline-asm"))
+	  if (Check_Arg(i, "--ignore-fast"))
 	    {
-	      inline_asm = 2;
+	      ignore_fc = TRUE;
 	      continue;
 	    }
 
@@ -666,7 +851,7 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--comment"))
 	    {
-	      comment = 1;
+	      comment = TRUE;
 	      continue;
 	    }
 
@@ -682,8 +867,7 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  fprintf(stderr, "unknown option %s - try ma2asm --help\n",
-		  argv[i]);
+	  fprintf(stderr, "unknown option %s - try ma2asm --help\n", argv[i]);
 	  exit(1);
 	}
 
@@ -695,7 +879,6 @@ Parse_Arguments(int argc, char *argv[])
 	}
       file_name_in = argv[i];
     }
-
 
   if (file_name_in != NULL && strcmp(file_name_in, "-") == 0)
     file_name_in = NULL;
@@ -730,8 +913,8 @@ Display_Help(void)
   L("");
   L("Options:");
   L("  -o FILE, --output FILE      set output file name");
-  L("  --inline-asm                inline some C calls as asm instructions");
-  L("  --full-inline-asm           inline most C calls as asm instructions");
+  L("  --pic                       produce position independent code (PIC)");
+  L("  --ignore-fast               ignore fast call (FC) declarations");
   L("  --comment                   include comments in the output file");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

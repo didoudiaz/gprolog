@@ -1,0 +1,65 @@
+			GNU PROLOG Benchmarks
+			=====================
+
+
+This directory contains a set of Prolog benchmarks
+
+To compile them with GNU Prolog:
+
+	make
+
+Each benchmark accepts a count (nb of iteration) as command-line argument, e.g:
+
+	zebra 10
+	house(yellow,norwegian,fox,water,kools)
+	house(blue,ukrainian,horse,tea,chesterfields)
+	house(red,english,snails,milk,winstons)
+	house(ivory,spanish,dog,orange_juice,lucky_strikes)
+	house(green,japanese,zebra,coffee,parliaments)
+	17 msec per iter, 10 iters, total time : 170 msec
+
+NB: only the last iteration displays the solution.
+
+Each bench includes the Prolog file common.pl (part recovering the counter
+from the command-line and ierating the bench). This file includes itself the
+Prolog source hook.pl defining the predicats get_count/1 (recover the count
+form the command-line) and get_cpu_time/1 (user time in msec).
+
+This makes it possible to run the benchmarks with different systems (defining
+a hook.pl file for each system).
+
+If present, each sub-directorie (YAP, WAMCC, SICSTUS, CIAO, BINPROLOG, XSB, SWI) contains
+3 files:
+
+	MAKE_PROGS: a shell-script building the benchmarks
+	MAKE_CLEAN: a shell-script removing build benchmarks
+	HOOK.pl: the hook file needed for the corresponding system
+
+To compile the benchmarks with a given system use MAKE_PROGS in the
+associated directory (e.g. YAP):
+
+	cd YAP
+	MAKE_PROGS   (or MAKE_PROGS BENCH_NAME...)
+
+MAKE_PROGS build the list of benchmarks passed as argument. In none, it
+builds all benchmarks described in the file ../PROGS.  Be sure to be in the
+sub-directory (cd) before doing MAKE_PROGS.  NB: under SICSTUS, the
+compilation mode is byte-code (compactcode), to activate native code
+(fastcode) define the environment variable NATIVE.
+
+The build benchmark act like under GNU Prolog, accepting a count as
+command-line argument. It is not mandatory to be in sub-directory for the
+execution. e.g.:
+
+	~/...blabla.../ExamplesPl/YAP/zebra 10
+
+To clean the benchmarks with a given system use MAKE_CLEAN in the
+associated directory (e.g. YAP):
+
+	cd YAP
+	MAKE_CLEAN
+
+
+
+	
+	

@@ -1,0 +1,65 @@
+		Prolog <-> C interface examples
+
+
+This directory contains examples presented in the documentation. To build:
+
+	make
+
+examp.pl / examp_c.c: examples calling C from Prolog and C from Prolog
+
+new_main.pl / new_main_c.c: example defining a new main function.
+
+
+WINDOWS
+-------
+
+In Microsoft Windows if you intend to use the gplc compiler as described in
+the documentation you need to be certain the following conditions are
+met:
+
+   - for the port compiled with MS Visual C++ you need the 'cl' compiler
+     (must be available from your PATH).
+
+   - for the port compiled with MinGW you need the MinGW gcc toolchain
+     (must be available from your PATH).
+
+   - For any version you need the MinGW assembler (called as.exe). 
+     Copy it under a directory somewhere inside your PATH under the 
+     name mingw-as.exe.
+     A version can be found at: http://gprolog.org/mingw-as.exe
+
+It is a good idea to read src/WNIDOWS (and maybe src/WINDOWS64) file before.
+
+Observing these needs you'll also will be able to do the mixed
+language programming, as the examples included in the ExamplesC
+directory. However you'll need to write your own Makefile as the one
+provided is for gplc calling 'gcc' and the options passed by GNU
+Prolog will not work, here is an example for nmake and MSVC++ compiler:
+
+
+GPLC = gplc
+CFLAGS=-c -W4
+
+EXECS=examp.exe new_main.exe
+.SUFFIXES: .obj .c .wam .pl
+
+.pl.obj:
+	$(GPLC) $(CFLAGS) $<
+
+.c.obj:
+	$(GPLC) $(CFLAGS) $<
+
+all: $(EXECS)
+
+examp.exe: examp.obj examp_c.obj
+	$(GPLC) -o $@ $**
+
+new_main.exe: new_main.obj new_main_c.obj
+	$(GPLC) -o $@ $**
+
+clean:
+	rm -f $(EXECS) *.obj
+
+
+
+

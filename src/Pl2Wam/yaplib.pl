@@ -1,4 +1,3 @@
-/* $Id$ */
 
 prolog_name('YAP Prolog').
 prolog_version('4.3.12').

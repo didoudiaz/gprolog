@@ -6,23 +6,35 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,10 +47,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"		/* ensure __unix__ defined if not Win32 */
+#include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#include <windows.h>
+#include <windows.h>            /* warning: windows.h defines _WIN32 */
 #endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
@@ -46,14 +58,18 @@
 #include <unistd.h>
 #include <sys/param.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <sys/resource.h>
+#ifdef __CYGWIN__
+#include <sys/cygwin.h>
+#endif
 #else /* _WIN32 */
 #include <process.h>
 #include <direct.h>
 #endif
 
-#include "engine_pl.h"		/* before netdb.h which declares a function */
-			 /* gcc cannot define a global reg var after a fct */
+#include "engine_pl.h"          /* before netdb.h which declares a function */
+                         /* gcc cannot define a global reg var after a fct */
 
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -80,29 +96,30 @@
  * Constants                       *
  *---------------------------------*/
 
-#define M_SECURITY_MARGIN          128	/* in WamWords */
-#define M_MAGIC                    0x12345678
+#define M_MAGIC1                   0x12345678
+#define M_MAGIC2                   0xdeadbeef
 
-#define UNKOWN_SYS_ERRNO           "Unknown error (%d)"
-
-
+#define UNKNOWN_SYS_ERRNO          "Unknown error (%d)"
 
 
-	  /* Error Messages */
+
+
+          /* Error Messages */
 
 #define ERR_STACKS_ALLOCATION      "Memory allocation fault"
 
 #define ERR_CANNOT_OPEN_DEV0       "Cannot open /dev/zero : %s"
 #define ERR_CANNOT_UNMAP           "unmap failed : %s"
 
-#define ERR_CANNOT_PROTECT         "VirtualProtect failed : %lu"
+#define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
+#define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
 
 #define ERR_CANNOT_EXEC_GETCWD     "cannot execute getcwd"
 
 
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, environment variable used: %s)"
+#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, reached: %d Kb, environment variable used: %s)"
 
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb - fixed size)"
+#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb, reached: %d Kb - fixed size)"
 
 
 
@@ -115,26 +132,11 @@
  * Global Variables                *
  *---------------------------------*/
 
-static long start_user_time = 0;
-static long start_system_time = 0;
-static long start_real_time = 0;
+static PlLong start_user_time = 0;
+static PlLong start_system_time = 0;
+static PlLong start_real_time = 0;
 
 static int cur_seed = 1;
-
-static char cur_work_dir[MAXPATHLEN];
-
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-static WamWord *check_adr[NB_OF_STACKS];
-
-#endif
-
-#ifdef M_USE_MMAP
-
-static int page_size;
-
-#endif
 
 
 
@@ -142,20 +144,6 @@ static int page_size;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-static void Fill_Magic_Adr_Table(void);
-
-#endif
-
-#ifndef M_ix86_win32
-
-static void SIGSEGV_Handler();
-
-#endif
-
-static void Stack_Overflow(int stk_nb);
 
 #ifdef INET_MANAGEMENT
 
@@ -173,475 +161,66 @@ static char *Host_Name_From_Alias(struct hostent *host_entry);
 
 
 /*-------------------------------------------------------------------------*
- * INIT_MACHINE                                                            *
+ * PL_INIT_MACHINE                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Init_Machine(void)
+Pl_Init_Machine(void)
 {
   tzset();
 
-  start_user_time = M_User_Time();
-  start_system_time = M_System_Time();
-  start_real_time = M_Real_Time();
-
-  getcwd(cur_work_dir, sizeof(cur_work_dir) - 1);
+  start_user_time = Pl_M_User_Time();
+  start_system_time = Pl_M_System_Time();
+  start_real_time = Pl_M_Real_Time();
 
 #if defined(HAVE_MALLOPT) && defined(M_MMAP_MAX)
   mallopt(M_MMAP_MAX, 0);
 #endif
 
-  Init_Machine1();
-}
-
-
-
-
-#ifdef M_USE_MALLOC
-
-/*-------------------------------------------------------------------------*
- * M_ALLOCATE_STACKS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-M_Allocate_Stacks(void)
-{
-  unsigned len = 0;
-  WamWord *addr;
-  int i;
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    len += stk_tbl[i].size;
-
-  addr = (WamWord *) Calloc(len, sizeof(WamWord));
-
-  if (addr == NULL)
-    Fatal_Error(ERR_STACKS_ALLOCATION);
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].stack = addr;
-      addr += stk_tbl[i].size;
-    }
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-  Fill_Magic_Adr_Table();
-#endif
-}
-
-#endif
-
-
-
-
-#ifdef M_USE_MMAP
-
-#ifndef M_ix86_win32
-#include <sys/mman.h>
-
-#if !defined(MAP_ANON) && defined(MAP_ANONYMOUS)
-#define MAP_ANON MAP_ANONYMOUS
-#endif
-#endif
-
-/*-------------------------------------------------------------------------*
- * M_ALLOCATE_STACKS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-M_Allocate_Stacks(void)
-{
-  unsigned len = 0;
-  WamWord *addr;
-  int i;
-
-#if !defined(M_ix86_win32) && !defined(MAP_ANON)
-  int fd;
-
-  fd = open("/dev/zero", 0);
-
-  if (fd == -1)
-    Fatal_Error(ERR_CANNOT_OPEN_DEV0, M_Sys_Err_String(errno));
-
-#endif
-
-  page_size = getpagesize() / sizeof(WamWord);
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].size = Round_Up(stk_tbl[i].size, page_size);
-      len += stk_tbl[i].size + page_size;
-    }
-
-  addr = (WamWord *) M_MMAP_HIGH_ADR;
-  len *= sizeof(WamWord);
-
-#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
-  i = 0;
- try_mmap:
-#endif
-#ifdef DEBUG
-  DBGPRINTF("trying at high addr:%lx\n", (long) addr);
-#endif
-  addr = (WamWord *) Round_Down((long) addr, getpagesize());
-  addr -= len;
-#ifdef M_ix86_win32
-  addr = (WamWord *) VirtualAlloc(addr, len,
-				  MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-#else
-  addr = (WamWord *) mmap((caddr_t) addr, len, PROT_READ | PROT_WRITE,
-			  MAP_PRIVATE
-#ifdef MMAP_NEEDS_FIXED
-			  | MAP_FIXED
-#endif
-#ifdef MAP_ANON
-			  | MAP_ANON, -1,
-#else
-			  , fd,
-#endif
-			  0);
-#endif
-
-
-#ifdef DEBUG
-  DBGPRINTF("start addr:%lx   size:%d\n", (long) addr, len);
-#endif
-
-#ifdef M_ix86_win32
-  if (addr == NULL
-#else
-  if ((long) addr == -1
-#endif
-#if TAG_SIZE_HIGH > 0
-      || (((unsigned long) (addr) + len) >> (WORD_SIZE - TAG_SIZE_HIGH)) != 0
-#endif
-      )
-    {
-#if !defined(M_ix86_win32) && defined(M_MMAP_HIGH_ADR_ALT)
-      if (i == 0)
-	{
-	  i = 1;
-	  if ((long) addr >= 0)
-	    munmap(addr, len);
-	  addr = (WamWord *) M_MMAP_HIGH_ADR_ALT;
-	  goto try_mmap;
-	}
-#endif
-
-      Fatal_Error(ERR_STACKS_ALLOCATION);
-    }
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      stk_tbl[i].stack = addr;
-      addr += stk_tbl[i].size;
-#ifdef M_ix86_win32
-      {
-	DWORD old_prot;
-
-	if (!VirtualProtect(addr, page_size, PAGE_NOACCESS, &old_prot))
-	  Fatal_Error(ERR_CANNOT_PROTECT, GetLastError());
-      }
-#else
-      if (munmap((caddr_t) addr, page_size) == -1)
-	Fatal_Error(ERR_CANNOT_UNMAP, M_Sys_Err_String(errno));
-#endif
-
-      addr += page_size;
-    }
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-  Fill_Magic_Adr_Table();
-#endif
-
-#if defined(M_sparc_solaris) || defined(M_ix86_solaris) || \
-    defined(M_ix86_sco) || defined(M_x86_64_linux)
-  {
-    struct sigaction act;
-
-    act.sa_handler = NULL;
-    act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SA_SIGINFO;
-
-    sigaction(SIGSEGV, &act, NULL);
-  }
-
-#elif !defined(M_ix86_win32)
-  signal(SIGSEGV, (void (*)()) SIGSEGV_Handler);
-#endif
-}
-
-#endif /* M_USE_MMAP */
-
-
-
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-/*-------------------------------------------------------------------------*
- * FILL_MAGIC_ADR_TABLE                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Fill_Magic_Adr_Table(void)
-{
-  int i;
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    {
-      if (stk_tbl[i].size == 0)
-	check_adr[i] = (WamWord *) NULL;
-      else
-	{
-	  check_adr[i] = stk_tbl[i].stack + stk_tbl[i].size -
-	    M_SECURITY_MARGIN;
-	  *check_adr[i] = M_MAGIC;
-	}
-    }
-}
-
-#endif
-
-
-
-#ifdef M_ix86_win32
-
-/*-------------------------------------------------------------------------*
- * GETPAGESIZE                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-getpagesize(void)
-{
-  SYSTEM_INFO si;
-
-  GetSystemInfo(&si);
-  return si.dwPageSize;
-}
-
-
-
-
-static long *fault_addr;
-
-/*-------------------------------------------------------------------------*
- * IS_WIN32_SEGV                                                           *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-int
-Is_Win32_SEGV(void *exp)
-{
-  LPEXCEPTION_POINTERS err = (LPEXCEPTION_POINTERS) exp;
-  PEXCEPTION_RECORD per = err->ExceptionRecord;
-
-  if (per->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
-    return EXCEPTION_CONTINUE_SEARCH;
-
-  fault_addr = (long *) (per->ExceptionInformation[1]);
-  return EXCEPTION_EXECUTE_HANDLER;
-}
-
-#endif /* M_ix86_win32 */
-
-
-
-
-/*-------------------------------------------------------------------------*
- * SIGSEGV_HANDLER                                                         *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-#if defined(M_sparc_sunos)
-
-static void
-SIGSEGV_Handler(int sig, int code, int scp, WamWord *addr)
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
-
-void
-SIGSEGV_Handler(int sig, siginfo_t * sip)
-#elif defined(M_alpha_osf)
-
-static void
-SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_ix86_linux) || defined(M_powerpc_linux) || defined(M_alpha_linux)
-//#include <asm/sigcontext.h>
-
-#if 0				/* old linux */
-static void
-SIGSEGV_Handler(int sig, struct sigcontext_struct scp)
-#else
-static void
-SIGSEGV_Handler(int sig, struct sigcontext scp)
-#endif
-#elif defined(M_ix86_sco)
-#define _XOPEN_SOURCE_EXTENDED
-#include <signal.h>
-#include <sys/siginfo.h>
-
-static void
-SIGSEGV_Handler(int sig, siginfo_t * si)
-#elif defined(M_ix86_bsd)
-
-static void
-SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_ix86_win32)
-
-void
-SIGSEGV_Handler(void)
-#elif defined(M_mips_irix)
-
-#include <signal.h>
-
-void
-SIGSEGV_Handler(int sig, int code, struct sigcontext *scp)
-#elif defined(M_x86_64_linux)
-
-void
-SIGSEGV_Handler(int sig, siginfo_t *sip, void *scp)
-#else
-
-static void
-SIGSEGV_Handler(int sig)
-#endif
-{
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-  M_Check_Magic_Words();
-
-#else
-
-#if defined(M_alpha_osf)
-
-  WamWord *addr = (WamWord *) (scp->sc_traparg_a0);
-
-#elif defined(M_alpha_linux)
-
-  WamWord *addr = (WamWord *) (scp.sc_fp_trigger_inst);	/* why this one? */
-
-  /* WamWord *addr=(WamWord *) (scp.sc_traparg_a0); */
-
-#elif defined(M_sparc_solaris) || defined(M_ix86_solaris)
-
-  WamWord *addr = (WamWord *) sip->si_addr;
-
-#elif defined(M_ix86_linux)
-
-  WamWord *addr = (WamWord *) scp.cr2;
-
-#elif defined(M_x86_64_linux)
-
-  WamWord *addr = (WamWord *) sip->si_addr;
-
-#elif defined(M_ix86_sco)
-
-  WamWord *addr = (WamWord *) si->si_addr;
-
-#elif defined(M_ix86_bsd)
-
-  WamWord *addr = (WamWord *) scp->sc_err;
-
-#elif defined(M_powerpc_linux)
-
-  WamWord *addr = (WamWord *) scp.regs->dar;
-
-#elif defined(M_mips_irix)
-
-  WamWord *addr = scp->sc_regs[16];
-
-#elif defined(M_ix86_win32)
-
-  WamWord *addr = (WamWord *) fault_addr;
-
-#endif
-
-  int i;
-
-#ifdef DEBUG
-  DBGPRINTF("BAD ADDRESS:%lx\n", (long) addr);
-#endif /* DEBUG */
-
-  i = NB_OF_STACKS - 1;
-  if (addr < stk_tbl[i].stack + stk_tbl[i].size + page_size)
-    while (i >= 0)
-      {
-#ifdef DEBUG
-	DBGPRINTF("STACK[%d].stack + size: %lx\n",
-		  i, (long) (stk_tbl[i].stack + stk_tbl[i].size));
-#endif
-	if (addr >= stk_tbl[i].stack + stk_tbl[i].size)
-	  Stack_Overflow(i);
-	i--;
-      }
-#endif
-
-  Fatal_Error("Segmentation Violation");
-}
-
-
-
-
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-/*-------------------------------------------------------------------------*
- * M_CHECK_MAGIC_WORDS                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-M_Check_Magic_Words(void)
-{
-  int i;
-
-  for (i = 0; i < NB_OF_STACKS; i++)
-    if (check_adr[i] && *check_adr[i] != M_MAGIC)
-      Stack_Overflow(i);
-}
-
-#endif
-
-
-
-
-/*-------------------------------------------------------------------------*
- * STACK_OVERFLOW                                                          *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static void
-Stack_Overflow(int stk_nb)
-{
-  InfStack *s = stk_tbl + stk_nb;
-  char *var = s->env_var_name;
-  int size = s->size;
-
-  if (s->stack == Global_Stack)
-    size += REG_BANK_SIZE;	/* see Init_Engine */
-
-  size = Wam_Words_To_KBytes(size);
-
-  if (fixed_sizes || var[0] == '\0')
-    Fatal_Error(ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
-
-  Fatal_Error(ERR_STACK_OVERFLOW_ENV, s->name, size, var);
+  Pl_Init_Machine1();
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * M_SYS_ERR_STRING                                                        *
+ * PL_M_SYS_ERR_STRING                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Sys_Err_String(int err_no)
+Pl_M_Sys_Err_String(int err_no)
 {
-#ifdef M_sparc_sunos
+#ifdef M_sparc32_sunos
   extern char *sys_errlist[];
   extern int sys_nerr;
 #endif
 
   char *str;
-  static char buff[32];
+  static char buff[64];
 
-#if defined(M_sparc_sunos)
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if (err_no == M_ERROR_WIN32)
+    {
+      int status = GetLastError();
+
+      if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, status, 0, 
+			buff, sizeof(buff), NULL) == 0)
+	sprintf(buff, "Windows " UNKNOWN_SYS_ERRNO, status);
+      else
+	{			/* windows adds a ".\r\n" at end - remove it */
+	  char *p = buff + strlen(buff);
+	  while (--p > buff && (isspace(*p) || *p == '.'))
+	    {
+	    }
+	  p[1] = '\0';
+	}
+
+      return buff;
+    }
+#endif
+
+
+#if defined(M_sparc32_sunos)
   str = (err_no >= 0 && err_no < sys_nerr) ? sys_errlist[err_no] : NULL;
 #else
   str = strerror(err_no);
@@ -650,28 +229,22 @@ M_Sys_Err_String(int err_no)
   if (str)
     return str;
 
-  sprintf(buff, UNKOWN_SYS_ERRNO, err_no);
+  sprintf(buff, UNKNOWN_SYS_ERRNO, err_no);
   return buff;
 }
 
 
 
 
-#ifdef __CIGWIN__
-#define ULL unsigned long long
-#else
-#define ULL unsigned __int64
-#endif
-
 /*-------------------------------------------------------------------------*/
 /* M_USER_TIME                                                             */
 /*                                                                         */
 /* returns the user time used since the start of the process (in ms).      */
 /*-------------------------------------------------------------------------*/
-long
-M_User_Time(void)
+PlLong
+Pl_M_User_Time(void)
 {
-  long user_time;
+  PlLong user_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
@@ -686,15 +259,15 @@ M_User_Time(void)
 
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
-		      &creat_t, &exit_t, &kernel_t, &user_t))
-    user_time = (long) (((ULL) user_t.dwHighDateTime << 32) +
-			(ULL) user_t.dwLowDateTime) / 10000;
-  else				/* not implemented on Windows 95/98 */
-    user_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+                      &creat_t, &exit_t, &kernel_t, &user_t))
+    user_time = (PlLong) (((__int64) user_t.dwHighDateTime << 32) +
+                        (__int64) user_t.dwLowDateTime) / 10000;
+  else                          /* not implemented on Windows 95/98 */
+    user_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
-  Fatal_Error("user time not available");
+  Pl_Fatal_Error("user time not available");
   return 0;
 
 #endif
@@ -706,14 +279,14 @@ M_User_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_SYSTEM_TIME                                                           *
+ * PL_M_SYSTEM_TIME                                                        *
  *                                                                         *
  * returns the system time used since the start of the process (in ms).    *
  *-------------------------------------------------------------------------*/
-long
-M_System_Time(void)
+PlLong
+Pl_M_System_Time(void)
 {
-  long system_time;
+  PlLong system_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct rusage rsr_usage;
@@ -728,15 +301,15 @@ M_System_Time(void)
 
   /* Success on Windows NT */
   if (GetProcessTimes(GetCurrentProcess(),
-		      &creat_t, &exit_t, &kernel_t, &user_t))
-    system_time = (long) (((ULL) kernel_t.dwHighDateTime << 32) +
-			  (ULL) kernel_t.dwLowDateTime) / 10000;
-  else				/* not implemented on Windows 95/98 */
+                      &creat_t, &exit_t, &kernel_t, &user_t))
+    system_time = (PlLong) (((__int64) kernel_t.dwHighDateTime << 32) +
+                          (__int64) kernel_t.dwLowDateTime) / 10000;
+  else                          /* not implemented on Windows 95/98 */
     system_time = 0;
 
 #else
 
-  Fatal_Error("system time not available");
+  Pl_Fatal_Error("system time not available");
   return 0;
 
 #endif
@@ -748,14 +321,14 @@ M_System_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_REAL_TIME                                                             *
+ * PL_M_REAL_TIME                                                          *
  *                                                                         *
  * returns the real time used since the start of the process (in ms).      *
  *-------------------------------------------------------------------------*/
-long
-M_Real_Time(void)
+PlLong
+Pl_M_Real_Time(void)
 {
-  long real_time;
+  PlLong real_time;
 
 #if defined(__unix__) && !defined(__CYGWIN__)
   struct timeval tv;
@@ -765,11 +338,11 @@ M_Real_Time(void)
 
 #elif defined(_WIN32) || defined(__CYGWIN__)
 
-  real_time = (long) ((double) clock() * 1000 / CLOCKS_PER_SEC);
+  real_time = (PlLong) ((double) clock() * 1000 / CLOCKS_PER_SEC);
 
 #else
 
-  Fatal_Error("real time not available");
+  Pl_Fatal_Error("real time not available");
   return 0;
 
 #endif
@@ -788,35 +361,39 @@ M_Real_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOMIZE                                                             *
+ * PL_M_RANDOMIZE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-M_Randomize(void)
+Pl_M_Randomize(void)
 {
-#ifdef M_ix86_win32
+  static int count = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
   int seed = GetTickCount();
 #else
   struct timeval tv;
   int seed;
 
   gettimeofday(&tv, NULL);
-  seed = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+  seed = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 #endif
-  seed = (seed ^ getpid()) & 0xFFFFFF;
+  count = (count + rand()) % 0xFFFF;
+  seed = seed ^ (getpid() << (seed & 0xFF));
+  seed *= count;
+  seed = seed & 0xFFFFFF;
 
-  M_Set_Seed(seed);
+  Pl_M_Set_Seed(seed);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * M_SET_SEED                                                              *
+ * PL_M_SET_SEED                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-M_Set_Seed(int n)
+Pl_M_Set_Seed(int n)
 {
   cur_seed = n;
   srand(cur_seed);
@@ -826,11 +403,11 @@ M_Set_Seed(int n)
 
 
 /*-------------------------------------------------------------------------*
- * M_GET_SEED                                                              *
+ * PL_M_GET_SEED                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-M_Get_Seed(void)
+Pl_M_Get_Seed(void)
 {
   return cur_seed;
 }
@@ -839,12 +416,12 @@ M_Get_Seed(void)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOM_INTEGER                                                        *
+ * PL_M_RANDOM_INTEGER                                                     *
  *                                                                         *
  * return an integer x s.t. 0 <= x < n                                     *
  *-------------------------------------------------------------------------*/
 int
-M_Random_Integer(int n)
+Pl_M_Random_Integer(int n)
 {
   return (int) ((double) n * rand() / (RAND_MAX + 1.0));
 }
@@ -853,12 +430,12 @@ M_Random_Integer(int n)
 
 
 /*-------------------------------------------------------------------------*
- * M_RANDOM_FLOAT                                                          *
+ * PL_M_RANDOM_FLOAT                                                       *
  *                                                                         *
  * return a double x s.t. 0 <= x < n                                       *
  *-------------------------------------------------------------------------*/
 double
-M_Random_Float(double n)
+Pl_M_Random_Float(double n)
 {
   return n * rand() / (RAND_MAX + 1.0);
 }
@@ -867,42 +444,40 @@ M_Random_Float(double n)
 
 
 /*-------------------------------------------------------------------------*
- * M_HOST_NAME_FROM_NAME                                                   *
+ * PL_M_HOST_NAME_FROM_NAME                                                *
  *                                                                         *
- * if host_name==NULL use current host name.                               *
+ * if host_name == NULL use current host name.                             *
  *-------------------------------------------------------------------------*/
 char *
-M_Host_Name_From_Name(char *host_name)
+Pl_M_Host_Name_From_Name(char *host_name)
 {
   static char buff[4096];
 
-#ifdef M_ix86_win32
-  long length = sizeof(buff);
-#endif
 #ifdef INET_MANAGEMENT
   struct hostent *host_entry;
 #endif
 
   if (host_name == NULL)
     {
+      PlLong length = sizeof(buff);
       host_name = buff;
-#if defined(M_ix86_win32) && defined(NO_USE_SOCKETS)
+#if defined(_WIN32) && !defined(__CYGWIN__) && defined(NO_USE_SOCKETS)
       if (GetComputerName(buff, &length) == 0)
 #else
-      if (gethostname(buff, sizeof(buff)))
+      if (gethostname(buff, length))
 #endif
-	{
-	  strcpy(buff, "unknown host name");
-	  goto finish;
-	}
+        {
+          strcpy(buff, "unknown host name");
+          goto finish;
+        }
     }
 
-  if (strchr(host_name, '.') != NULL)	/* qualified name */
+  if (strchr(host_name, '.') != NULL)   /* qualified name */
     goto finish;
 
 #ifdef INET_MANAGEMENT
 
-  host_entry = gethostbyname(host_name);	/* use name server */
+  host_entry = gethostbyname(host_name);        /* use name server */
   if (host_entry == NULL)
     goto finish;
 
@@ -918,19 +493,18 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * M_HOST_NAME_FROM_ADR                                                    *
+ * PL_M_HOST_NAME_FROM_ADR                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-M_Host_Name_From_Adr(char *host_address)
+Pl_M_Host_Name_From_Adr(char *host_address)
 {
 #ifdef INET_MANAGEMENT
   struct hostent *host_entry;
   struct in_addr iadr;
 
-#if defined(M_sparc_sunos) || defined(M_sparc_solaris) || \
-    defined(M_ix86_cygwin) || defined(M_ix86_solaris)  || \
-    defined(M_ix86_win32)
+#if defined(M_sparc32_sunos) || defined(M_sparc32_solaris) || defined(M_ix86_solaris) || \
+    defined(_WIN32) || defined(__CYGWIN__)
   if ((iadr.s_addr = inet_addr(host_address)) == -1)
 #else
   if (inet_aton(host_address, &iadr) == 0)
@@ -979,20 +553,280 @@ Host_Name_From_Alias(struct hostent *host_entry)
 
 
 /*-------------------------------------------------------------------------*
- * M_SET_WORKING_DIR                                                       *
+ * PL_M_SET_WORKING_DIR                                                    *
  *                                                                         *
  * must preserve errno if fails (used in os_interf_c.c)                    *
  *-------------------------------------------------------------------------*/
 Bool
-M_Set_Working_Dir(char *path)
+Pl_M_Set_Working_Dir(char *path)
 {
-  char *new_path = M_Absolute_Path_Name(path);
+  char *new_path = Pl_M_Absolute_Path_Name(path);
 
-  if (new_path != NULL && chdir(new_path) == 0)
+  return (new_path != NULL && chdir(new_path) == 0);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_GET_WORKING_DIR                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_M_Get_Working_Dir(void)
+{
+  static char cur_work_dir[MAXPATHLEN];
+
+  if (getcwd(cur_work_dir, sizeof(cur_work_dir) - 1) == NULL)
+    strcpy(cur_work_dir, ".");
+  return cur_work_dir;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_ABSOLUTE_PATH_NAME0                                                *
+ *                                                                         *
+ * del_trail_slash: TRUE: remove ending / (usually wanted behavior)        *
+ *                  FALSE: keep it (we can see the user wanted a directory)*
+ * returns an absolute file name.                                          *
+ *-------------------------------------------------------------------------*/
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#endif
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
+char *
+Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
+{
+  static char buff1[MAXPATHLEN];
+  static char buff2[MAXPATHLEN];
+  char *dst, *base_dst;
+  char *p, *q;
+  char c;
+  Bool add_slash = FALSE;
+
+#define SWAP_SRC_DST { char *tmp = src; src = dst; dst = tmp; }
+
+  dst = buff1;
+  while ((*dst++ = *src))       /* expand $VARNAME and %VARNAME% (Win32) */
     {
-      strcpy(cur_work_dir, new_path);
-      return TRUE;
+      c = *src++;
+      if (c == '$'
+#if defined(_WIN32) || defined(__CYGWIN__)
+          || c == '%'
+#endif
+	  )
+        {
+          p = dst;
+          while (isalnum(*src) || *src == '_')
+            *dst++ = *src++;
+#if defined(_WIN32) || defined(__CYGWIN__)
+          if (c == '%' && *src != '%')
+            continue;
+#endif
+          *dst = '\0';
+          q = getenv(p);
+          if (q)
+            {
+              p--;
+              strcpy(p, q);
+              dst = p + strlen(p);
+#if defined(_WIN32) || defined(__CYGWIN__)
+              if (c == '%')
+                src++;
+#endif
+            }
+#if defined(_WIN32) || defined(__CYGWIN__)
+          else if (c == '%')
+            *dst++ = *src++;
+#endif
+        }
     }
+  *dst = '\0';
+
+  src = buff1;
+  dst = buff2;
+  if (src[0] == '~')
+    {
+      if (Is_Dir_Sep(src[1]) || src[1] == '\0') /* ~/... cf $HOME */
+        {
+	  q = NULL;;
+          if ((p = getenv("HOME")) == NULL)
+	    {
+#if defined(_WIN32) || defined(__CYGWIN__)
+	      if ((p = getenv("HOMEPATH")) == NULL)
+		return NULL;
+	      q = getenv("HOMEDRIVE");
+#else
+	      return NULL;
+#endif
+	    }
+	  if (q == NULL)
+	    q = "";
+          sprintf(dst, "%s%s/%s", q, p, src + 1);
+	  SWAP_SRC_DST;
+        }
+#if defined(__unix__) || defined(__CYGWIN__)
+      else                      /* ~user/... read passwd */
+        {
+          struct passwd *pw;
+
+          p = src + 1;
+          while (*p && !Is_Dir_Sep(*p))
+            p++;
+
+          src[0] = *p;
+          *p = '\0';
+          if ((pw = getpwnam(src + 1)) == NULL)
+            return NULL;
+
+          *p = src[0];
+
+          sprintf(dst, "%s/%s", pw->pw_dir, p);
+	  SWAP_SRC_DST;
+        }
+#endif
+    }
+
+  if (strcmp(src, "user") == 0)   /* prolog special file 'user' */
+    return src;
+
+  add_slash = (!del_trail_slash && Pl_M_Path_Ends_With_Dir(src));
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+
+  base_dst = dst;
+  if (_fullpath(dst, src, MAXPATHLEN) == NULL)
+    return NULL;
+
+  SWAP_SRC_DST;
+  for (dst = src; *dst; dst++)    /* \ becomes / */
+    if (*dst == '\\')
+      *dst = '/';
+
+  /* dst points the \0 */
+
+#else  /* __unix__ || __CYGWIN__ */
+
+#if defined(__CYGWIN__) && !defined(__MSYS__)
+
+  cygwin_conv_path(CCP_WIN_A_TO_POSIX, dst, src, MAXPATHLEN);
+  SWAP_SRC_DST;
+
+#endif
+
+  if (src[0] != '/')      /* add current directory */
+    {
+      sprintf(dst, "%s/%.*s", Pl_M_Get_Working_Dir(), MAXPATHLEN, src); /* precise MAXPATHLEN to avoid gcc warning */
+      SWAP_SRC_DST;
+    }
+
+  base_dst = dst;
+  while ((*dst++ = *src))
+    {
+      if (*src++ != '/')
+        continue;
+
+    collapse:
+      while (*src == '/')       /* collapse /////... as / */
+        src++;
+
+      if (*src != '.')
+        continue;
+
+      if (src[1] == '/' || src[1] == '\0')      /* /./ or final /. becomes / */
+        {
+          src++;
+          goto collapse;
+        }
+
+      if (src[1] != '.' || (src[2] != '/' && src[2] != '\0'))
+        continue;
+      /* case /../ */
+      src += 2;
+      dst -= 2;
+      while (dst >= base_dst && *dst != '/')
+        dst--;
+
+      if (dst < base_dst)
+        return NULL;
+    }
+
+  dst--;                        /* dst points the \0 */
+
+#endif
+
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define MIN_PREFIX 3            /* win32 minimal path c:\  */
+#else
+#define MIN_PREFIX 1            /* unix  minimal path /    */
+#endif
+
+  if (dst - base_dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
+    strcpy(dst, "/");
+  else
+    {
+      if (dst - base_dst > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
+	*--dst = '\0';		/* remove last / or \ */
+
+      if (add_slash)	    	/* and maybe (re)add a last / if needed */
+	strcpy(dst, "/");
+    }
+
+#if 0
+  printf("FINAL: %s\n", base_dst);
+#endif
+  return base_dst;
+}
+
+
+
+
+char *
+Pl_M_Absolute_Path_Name(char *src)
+{
+  return Pl_M_Absolute_Path_Name0(src, TRUE);
+}
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_IS_ABSOLUTE_FILE_NAME                                              *
+ *                                                                         *
+ * Test if a path name is absolute (i.e. not relative).                    *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_M_Is_Absolute_File_Name(char *path)
+{
+  if (Is_Dir_Sep(*path))
+    return TRUE;
+
+
+  /* Windows: path strating with a drive specif is considered as absolute
+   * (even if not followed by an antislash, e.g. c:foo is absolute).
+   * Indeed, for a relative path, it is always 
+   * possible to add before it the current working directory and it is not 
+   * possible before a drive specif.
+   * This is the behavior of Win32 PathIsRelative() function.
+   * (to use it #include <shlwapi.h> and link with shlwapi.dll
+   */
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+  if (Has_Drive_Specif(path))
+    return TRUE;
+
+#endif
 
   return FALSE;
 }
@@ -1001,173 +835,141 @@ M_Set_Working_Dir(char *path)
 
 
 /*-------------------------------------------------------------------------*
- * M_GET_WORKING_DIR                                                       *
+ * PL_M_DECOMPOSE_FILE_NAME                                                *
  *                                                                         *
+ * Decompose a path name into the dir, base and suffix (extension).        *
+ *                                                                         *
+ * path:   the path to decompose                                           *
+ * del_trail_slashes: see below                                            *
+ * base:   points the buffer which will receive the basename               *
+ *         (or "" if none. It includes the suffix                          *
+ * suffix: points inside base to the suffix part                           *
+ *         (or "" if none, i.e. at the end of base)                        *
+ * returns the dirname part (or "" if none)                                *
+ *                                                                         *
+ * Returned pointers are on 2 static buffers (dir and base) which can be   *
+ * written.                                                                *
+ *                                                                         *
+ * del_trail_slashes: delete trailing slashes from dir ?                   *
+ *  FALSE: nothing is done (path is simply split into dir and base).       *
+ *         Concatenating dir and base yields the complete pathname.        *
+ *  TRUE:  trailing slashes of the dir part are removed (similarly to      *
+ *         dirname(3) except that initial trailing slashes of path are not *
+ *         removed). If the dir part is empty then "." is returned.        *
+ *         Concatenating dir "/" and base yields a complete pathname.      *
+ *                                                                         *
+ * To remove the extension from base simply do *suffix = '\0'              *
+ * To add/change the suffix simply do strcpy(suffix, ".txt");              *
  *-------------------------------------------------------------------------*/
 char *
-M_Get_Working_Dir(void)
+Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char **suffix)
 {
-  return cur_work_dir;
+  static char buff_dir[MAXPATHLEN];
+  static char buff_base[MAXPATHLEN];
+  int dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
+
+#if 0 && defined(_WIN32)	/* uncomment to explicitely use _splitpath() on Windows */
+
+  char direct[_MAX_DIR];
+  char ext[_MAX_EXT];
+  
+  _splitpath(path, buff_dir, direct, buff_base, ext); /* buff_dir contains the drive */
+  dir_start_pos = strlen(buff_dir);
+  strcat(buff_dir, direct);	/* concat the dirname */
+
+  *suffix = buff_base + strlen(buff_base); /* buff_base contains the basename */
+  strcpy(*suffix, ext);		     /* concat the suffix */
+    
+#else
+
+  /* This version works for both Windows and Unix */
+
+  char *p;
+
+  strcpy(buff_dir, path);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if (Has_Drive_Specif(buff_dir))
+    dir_start_pos = 2;
+#endif
+
+  Find_Last_Dir_Sep(p, buff_dir);
+
+  p = (p == NULL) ? buff_dir + dir_start_pos : p + 1;
+
+  strcpy(buff_base, p);
+  *p = '\0';
+
+  if ((p = strrchr(buff_base, '.')) != NULL)
+    *suffix = p;      
+  else
+    *suffix = buff_base + strlen(buff_base); /* i.e. suffix = "" */
+
+#endif
+
+  if (del_trail_slashes)
+    {
+      if (buff_dir[dir_start_pos] == '\0') /* if dir is empty it becomes "." */
+	strcat(buff_dir, ".");
+      else
+	{
+	  int len = strlen(buff_dir);		/* remove all trailing / */
+	  while(--len >= dir_start_pos && Is_Dir_Sep(buff_dir[len]))
+	    ;
+
+	  if (len < dir_start_pos)		/* if all are / keep one */
+	    len = dir_start_pos;
+	  buff_dir[len + 1] = '\0';
+	}
+    }
+
+#if 0			 /* uncomment to avoid extension with only one '.' */
+  if ((*suffix)[0] == '.' && (*suffix)[1] == '\0') /* not really a suffix: undo it */
+    (*suffix)++;		     /* points the \0 */
+#endif
+
+  *base = buff_base;
+
+  return buff_dir;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * M_ABSOLUTE_PATH_NAME                                                    *
+ * PL_M_PATH_ENDS_WITH_DIR                                                 *
  *                                                                         *
- * returns an absolute file name.                                          *
+ * Return TRUE if ends with / or /. or /..                                 *
  *-------------------------------------------------------------------------*/
-char *
-M_Absolute_Path_Name(char *src)
+Bool
+Pl_M_Path_Ends_With_Dir(char *path)
 {
-  static char buff[2][MAXPATHLEN];
-  int res = 0;
-  char *dst;
-  char *p, *q;
-
-#ifdef M_ix86_win32
-  char c;
-#endif
-
-
-  dst = buff[res];
-  while ((*dst++ = *src))	/* expand $VARNAME */
-    {
-#ifdef M_ix86_win32
-      c = *src;
-#endif
-      if (*src++ == '$'
-#ifdef M_ix86_win32
-	  || c == '%'
-#endif
-	)
-	{
-	  p = dst;
-	  while (isalnum(*src))
-	    *dst++ = *src++;
-#ifdef M_ix86_win32
-	  if (c == '%' && *src != '%')
-	    continue;
-#endif
-	  *dst = '\0';
-	  q = getenv(p);
-	  if (q)
-	    {
-	      p--;
-	      strcpy(p, q);
-	      dst = p + strlen(p);
-#ifdef M_ix86_win32
-	      if (c == '%')
-		src++;
-#endif
-	    }
-#ifdef M_ix86_win32
-	  else if (c == '%')
-	    *dst++ = *src++;
-#endif
-	}
-    }
-  *dst = '\0';
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-  for (src = buff[res]; *src; src++)	/* \ becomes / */
-    if (*src == '\\')
-      *src = '/';
-#endif
-
-  if (strcmp(buff[res], "user") == 0)	/* prolog special file 'user' */
-    return buff[res];
-
-
-  if (buff[res][0] == '~')
-    {
-      if (buff[res][1] == DIR_SEP_C || buff[res][1] == '\0')	/* ~/... cf $HOME */
-	{
-	  if ((p = getenv("HOME")) == NULL)
-	    return NULL;
-
-	  sprintf(buff[1 - res], "%s/%s", p, buff[res] + 1);
-	  res = 1 - res;
-	}
-#if defined(__unix__) || defined(__CYGWIN__)
-      else			/* ~user/... read passwd */
-	{
-	  struct passwd *pw;
-
-	  p = buff[res] + 1;
-	  while (*p && *p != DIR_SEP_C)
-	    p++;
-
-	  buff[res][0] = *p;
-	  *p = '\0';
-	  if ((pw = getpwnam(buff[res] + 1)) == NULL)
-	    return NULL;
-
-	  *p = buff[res][0];
-
-	  sprintf(buff[1 - res], "%s/%s", pw->pw_dir, p);
-	  res = 1 - res;
-	}
-#endif
-    }
-
-#ifdef __CYGWIN__
-  cygwin_conv_to_full_posix_path(buff[res], buff[1 - res]);
-  res = 1 - res;
-#endif
-
-#ifdef M_ix86_win32
-  if (_fullpath(buff[1 - res], buff[res], MAXPATHLEN) == NULL)
-    return NULL;
-  res = 1 - res;
-#else
-  if (buff[res][0] != DIR_SEP_C)	/* add cur_work_dir */
-    {
-      sprintf(buff[1 - res], "%s/%s", cur_work_dir, buff[res]);
-      res = 1 - res;
-    }
-#endif
-
-  res = 1 - res;
-  src = buff[1 - res];
-  dst = buff[res];
-
-  while ((*dst++ = *src))
-    {
-      if (*src++ != DIR_SEP_C)
-	continue;
-
-    collapse:
-#ifndef __CYGWIN__		/* CYGWIN uses //<drive>/<path> for <drive>:\<path> */
-      while (*src == DIR_SEP_C)	/* collapse /////... as / */
-	src++;
-#endif
-      if (*src != '.')
-	continue;
-
-      if (src[1] == DIR_SEP_C || src[1] == '\0')	/* /./ removed */
-	{
-	  src++;
-	  goto collapse;
-	}
-
-      if (src[1] != '.' || (src[2] != DIR_SEP_C && src[2] != '\0'))
-	continue;
-      /* case /../ */
-      src += 2;
-      p = dst - 2;
-      while (p >= buff[res] && *p != DIR_SEP_C)
-	p--;
-
-      if (p < buff[res])
-	return NULL;
-
-      dst = p;
-    }
-
-  if (dst[-2] == DIR_SEP_C)
-    dst[-2] = '\0';		/* remove last / */
-
-  return buff[res];
+  int len = strlen(path);
+  return ((len > 1 && Is_Dir_Sep(path[len - 1])) ||
+	  (len > 2 && Is_Dir_Sep(path[len - 2]) && path[len - 1] == '.') ||
+	  (len > 3 && Is_Dir_Sep(path[len - 3]) && path[len - 2] == '.' && path[len - 1] == '.'));
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_IS_DIR_NAME                                                        *
+ *                                                                         *
+ * Return TRUE or FALSE or -1 (errno) in case of error                     *
+ *-------------------------------------------------------------------------*/
+int
+Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error)
+{
+  struct stat file_info;
+
+  if (stat(path, &file_info) < 0)
+    {
+      if ((errno != ENOENT && errno != ENOTDIR) || inexistent_as_error)
+	return -1;
+
+      return Pl_M_Path_Ends_With_Dir(path); /* does not exist: directory is marked in path */
+    }
+
+  return S_ISDIR(file_info.st_mode);
+}
+

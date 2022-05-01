@@ -1,13 +1,11 @@
-% compiler: GNU Prolog 1.2.13 (Apr 20 2002)
+% compiler: GNU Prolog 1.5.1
 % file    : debugger.pl
-% date    : 6 12 2002
-% time    : 13:44:58
 
 
-file_name('/home/diaz/GP/src/src/BipsPl/debugger.pl').
+file_name('/home/diaz/GP/src/BipsPl/debugger.pl').
 
 
-predicate('$init_debugger'/0,29,static,private,built_in,[
+predicate('$init_debugger'/0,41,static,private,monofile,built_in,[
     allocate(0),
     put_integer(13,0),
     put_integer(1,1),
@@ -16,37 +14,37 @@ predicate('$init_debugger'/0,29,static,private,built_in,[
     unify_integer(0),
     unify_nil,
     put_atom('$debug_info',0),
-    call_c('Blt_G_Link',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
     deallocate,
     execute('$debug_switch_off'/0)]).
 
 
-predicate('$debug_switch_off'/0,38,static,private,built_in,[
+predicate('$debug_switch_off'/0,50,static,private,monofile,built_in,[
     put_atom('$debug_mode',0),
     put_atom(nodebug,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$debug_next',0),
     put_atom(nodebug,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$debug_leash',0),
     put_integer(31,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$debug_depth',0),
     put_integer(10,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
-    call_c('Reset_Debug_Call_Code_0',[],[]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Reset_Debug_Call_Code_0',[],[]),
     proceed]).
 
 
-predicate('$debug_switch_on'/1,47,static,private,built_in,[
+predicate('$debug_switch_on'/1,59,static,private,monofile,built_in,[
     allocate(1),
     put_atom('$debug_mode',1),
-    call_c('Blt_G_Assign',[fast_call],[x(1),x(0)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(0)]),
     put_atom('$debug_next',1),
-    call_c('Blt_G_Assign',[fast_call],[x(1),x(0)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(0)]),
     put_atom('$debug_info',0),
     put_variable(y(0),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_integer(1,0),
     put_value(y(0),1),
     put_integer(0,2),
@@ -58,69 +56,59 @@ predicate('$debug_switch_on'/1,47,static,private,built_in,[
     put_atom(false,3),
     call(setarg/4),
     deallocate,
-    call_c('Set_Debug_Call_Code_0',[],[]),
+    call_c('Pl_Set_Debug_Call_Code_0',[],[]),
     proceed]).
 
 
-predicate(wam_debug/0,60,static,private,built_in,[
-    put_atom(wam_debug,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
-    call_c('Debug_Wam',[],[]),
+predicate(wam_debug/0,72,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wam_debug,0]),
+    call_c('Pl_Debug_Wam',[],[]),
     proceed]).
 
 
-predicate(notrace/0,67,static,private,built_in,[
-    put_atom(notrace,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+predicate(notrace/0,79,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[notrace,0]),
     execute(nodebug/0)]).
 
 
-predicate(nodebug/0,74,static,private,built_in,[
+predicate(nodebug/0,86,static,private,monofile,built_in,[
     allocate(0),
-    put_atom(nodebug,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nodebug,0]),
     call('$debug_switch_off'/0),
     deallocate,
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(trace/0,80,static,private,built_in,[
+predicate(trace/0,92,static,private,monofile,built_in,[
     allocate(0),
-    put_atom(trace,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[trace,0]),
     put_atom(trace,0),
     call('$debug_switch_on'/1),
     deallocate,
     execute('$show_debugger_mode'/0)]).
 
 
-predicate(debug/0,86,static,private,built_in,[
+predicate(debug/0,98,static,private,monofile,built_in,[
     allocate(0),
-    put_atom(debug,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debug,0]),
     put_atom(debug,0),
     call('$debug_switch_on'/1),
     deallocate,
     execute('$show_debugger_mode'/0)]).
 
 
-predicate('$show_debugger_mode'/0,94,static,private,built_in,[
+predicate('$show_debugger_mode'/0,106,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_mode',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     call('$show_debugger_mode1'/1),
     put_atom(debugger_output,0),
     deallocate,
     execute(nl/1)]).
 
 
-predicate('$show_debugger_mode1'/1,100,static,private,built_in,[
+predicate('$show_debugger_mode1'/1,112,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -164,11 +152,9 @@ label(7),
     execute(write/2)]).
 
 
-predicate(debugging/0,114,static,private,built_in,[
+predicate(debugging/0,126,static,private,monofile,built_in,[
     allocate(0),
-    put_atom(debugging,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[debugging,0]),
     call('$show_debugger_mode'/0),
     call('$show_leashing_info'/0),
     call('$show_undefined_action'/0),
@@ -176,13 +162,12 @@ predicate(debugging/0,114,static,private,built_in,[
     execute('$show_spy_points'/0)]).
 
 
-predicate(leash/1,124,static,private,built_in,[
-    load_cut_level(1),
+predicate(leash/1,136,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
-    put_atom(leash,2),
-    put_integer(1,3),
-    call_c('Set_Bip_Name_2',[],[x(2),x(3)]),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[leash,1]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(1)),
     execute('$pl_err_instantiation'/0),
 
@@ -271,7 +256,7 @@ label(13),
     cut(y(0)),
     put_atom('$debug_leash',0),
     put_unsafe_value(y(1),1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
     execute('$show_leashing_info'/0),
 
@@ -282,7 +267,7 @@ label(14),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$leash_make_mask'/2,157,static,private,built_in,[
+predicate('$leash_make_mask'/2,169,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -309,25 +294,26 @@ label(4),
     call('$debug_port_mask'/2),
     math_fast_load_value(y(2),0),
     math_fast_load_value(y(3),1),
-    call_c('Fct_Fast_Or',[fast_call,x(0)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_Or',[fast_call,x(0)],[x(0),x(1)]),
     get_value(y(1),0),
     deallocate,
     proceed]).
 
 
-predicate('$show_leashing_info'/0,167,static,private,built_in,[
+predicate('$show_leashing_info'/0,179,static,private,monofile,built_in,[
     allocate(0),
     put_atom('$debug_leash',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     call('$show_leashing_info1'/1),
     put_atom(debugger_output,0),
     deallocate,
     execute(nl/1)]).
 
 
-predicate('$show_leashing_info1'/1,173,static,private,built_in,[
-    load_cut_level(1),
+predicate('$show_leashing_info1'/1,185,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     get_integer(0,0),
     cut(x(1)),
@@ -344,7 +330,7 @@ label(1),
     call(write/2),
     put_atom('$debug_work',0),
     put_integer(91,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     call('$show_leashing_info2'/1),
     put_atom(debugger_output,0),
@@ -353,7 +339,7 @@ label(1),
     execute(write/2)]).
 
 
-predicate('$show_leashing_info2'/1,184,static,private,built_in,[
+predicate('$show_leashing_info2'/1,196,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -362,15 +348,15 @@ predicate('$show_leashing_info2'/1,184,static,private,built_in,[
     call('$debug_port_mask'/2),
     math_fast_load_value(y(0),0),
     math_fast_load_value(y(2),1),
-    call_c('Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
     put_integer(0,1),
-    call_c('Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$debug_work',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_atom('$debug_work',1),
     put_integer(44,2),
-    call_c('Blt_G_Assign',[fast_call],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_list(2),
     unify_value(x(0)),
     unify_list,
@@ -386,23 +372,23 @@ label(1),
     proceed]).
 
 
-predicate('$debug_is_not_leashed'/1,197,static,private,built_in,[
+predicate('$debug_is_not_leashed'/1,209,static,private,monofile,built_in,[
     allocate(2),
     put_atom('$debug_leash',1),
     put_variable(y(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_variable(y(1),1),
     call('$debug_port_mask'/2),
     math_fast_load_value(y(1),0),
     math_fast_load_value(y(0),1),
-    call_c('Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
     put_integer(0,1),
-    call_c('Blt_Fast_Eq',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Eq',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     proceed]).
 
 
-predicate('$debug_port_mask'/2,205,static,private,built_in,[
+predicate('$debug_port_mask'/2,217,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -449,7 +435,7 @@ label(11),
     proceed]).
 
 
-predicate('$show_undefined_action'/0,218,static,private,built_in,[
+predicate('$show_undefined_action'/0,230,static,private,monofile,built_in,[
     allocate(1),
     put_atom(unknown,0),
     put_variable(y(0),1),
@@ -464,7 +450,7 @@ predicate('$show_undefined_action'/0,218,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$show_undefined_action1'/1,225,static,private,built_in,[
+predicate('$show_undefined_action1'/1,237,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -498,19 +484,18 @@ label(7),
     execute(write/2)]).
 
 
-predicate(spypoint_condition/3,237,static,private,built_in,[
-    load_cut_level(3),
+predicate(spypoint_condition/3,249,static,private,monofile,built_in,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
-    put_atom(spypoint_condition,1),
-    put_integer(3,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spypoint_condition,3]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     execute('$pl_err_instantiation'/0),
 
 label(1),
     retry_me_else(2),
-    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     cut(x(3)),
     execute('$spypoint_condition1'/3),
 
@@ -521,7 +506,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$spypoint_condition1'/3,250,static,private,built_in,[
+predicate('$spypoint_condition1'/3,262,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     get_variable(x(4),2),
@@ -529,7 +514,7 @@ predicate('$spypoint_condition1'/3,250,static,private,built_in,[
     get_variable(x(2),0),
     put_variable(x(0),5),
     put_variable(x(1),6),
-    call_c('Blt_Functor',[fast_call,boolean],[x(2),x(5),x(6)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(5),x(6)]),
     call('$$spypoint_condition1/3_$aux1'/5),
     fail,
 
@@ -538,8 +523,9 @@ label(1),
     proceed]).
 
 
-predicate('$$spypoint_condition1/3_$aux1'/5,250,static,private,built_in,[
-    load_cut_level(5),
+predicate('$$spypoint_condition1/3_$aux1'/5,262,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     allocate(6),
     get_variable(y(0),0),
@@ -566,7 +552,7 @@ predicate('$$spypoint_condition1/3_$aux1'/5,250,static,private,built_in,[
     call('$debug_spy_set'/2),
     put_atom('$debug_mode',0),
     put_atom(nodebug,1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     deallocate,
     execute(debug/0),
 
@@ -582,12 +568,10 @@ label(1),
     execute(format/3)]).
 
 
-predicate(spy/1,266,static,private,built_in,[
+predicate(spy/1,278,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
-    put_atom(spy,1),
-    put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[spy,1]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -595,10 +579,10 @@ predicate(spy/1,266,static,private,built_in,[
     call('$debug_spy_set'/2),
     put_value(y(0),0),
     put_nil(1),
-    call_c('Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$debug_mode',0),
     put_atom(nodebug,1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     call(debug/0),
     fail,
 
@@ -607,12 +591,10 @@ label(1),
     proceed]).
 
 
-predicate(nospy/1,280,static,private,built_in,[
+predicate(nospy/1,292,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
-    put_atom(nospy,1),
-    put_integer(1,2),
-    call_c('Set_Bip_Name_2',[],[x(1),x(2)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospy,1]),
     put_variable(y(0),1),
     call('$debug_list_of_pred'/2),
     put_value(y(0),0),
@@ -624,12 +606,10 @@ label(1),
     proceed]).
 
 
-predicate(nospyall/0,291,static,private,built_in,[
+predicate(nospyall/0,303,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
-    put_atom(nospyall,0),
-    put_integer(0,1),
-    call_c('Set_Bip_Name_2',[],[x(0),x(1)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nospyall,0]),
     put_structure('$debug_spy_point'/3,0),
     unify_void(3),
     call(retractall/1),
@@ -645,8 +625,9 @@ label(1),
     proceed]).
 
 
-predicate('$debug_spy_set'/2,303,static,private,built_in,[
-    load_cut_level(2),
+predicate('$debug_spy_set'/2,315,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -695,8 +676,9 @@ label(4),
     execute('$debug_spy_set'/2)]).
 
 
-predicate('$$debug_spy_set/2_$aux1'/3,305,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_spy_set/2_$aux1'/3,317,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -719,8 +701,9 @@ label(1),
     proceed]).
 
 
-predicate('$debug_spy_reset'/1,317,static,private,built_in,[
-    load_cut_level(1),
+predicate('$debug_spy_reset'/1,329,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -762,8 +745,9 @@ label(4),
     execute('$debug_spy_reset'/1)]).
 
 
-predicate('$$debug_spy_reset/1_$aux1'/3,319,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_spy_reset/1_$aux1'/3,331,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),2),
@@ -786,13 +770,14 @@ label(1),
     proceed]).
 
 
-predicate('$has_spy_point'/2,330,static,private,built_in,[
-    load_cut_level(2),
+predicate('$has_spy_point'/2,342,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     allocate(1),
     get_variable(y(0),2),
     put_variable(x(3),4),
     put_variable(x(2),5),
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(4),x(5)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(4),x(5)]),
     put_structure('$debug_spy_point'/3,0),
     unify_value(x(3)),
     unify_value(x(2)),
@@ -804,14 +789,15 @@ predicate('$has_spy_point'/2,330,static,private,built_in,[
     proceed]).
 
 
-predicate('$has_no_spy_point'/1,335,static,private,built_in,[
-    load_cut_level(1),
+predicate('$has_no_spy_point'/1,347,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
     put_variable(x(2),3),
     put_variable(x(1),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
     put_structure('$debug_spy_point'/3,0),
     unify_value(x(2)),
     unify_value(x(1)),
@@ -826,8 +812,9 @@ label(1),
     proceed]).
 
 
-predicate('$spy_test_condition'/3,345,static,private,built_in,[
-    load_cut_level(3),
+predicate('$spy_test_condition'/3,357,static,private,monofile,built_in,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     get_structure(c/3,2),
     unify_local_value(x(0)),
     unify_local_value(x(1)),
@@ -836,10 +823,11 @@ predicate('$spy_test_condition'/3,345,static,private,built_in,[
     execute('$$spy_test_condition/3_$aux1'/2)]).
 
 
-predicate('$$spy_test_condition/3_$aux1'/2,345,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$spy_test_condition/3_$aux1'/2,357,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
     proceed,
 
@@ -856,7 +844,7 @@ label(1),
     proceed]).
 
 
-predicate('$show_spy_points'/0,354,static,private,built_in,[
+predicate('$show_spy_points'/0,366,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     put_atom(debugger_output,0),
@@ -885,10 +873,11 @@ label(1),
     proceed]).
 
 
-predicate('$debug_list_of_pred'/2,366,static,private,built_in,[
-    load_cut_level(2),
+predicate('$debug_list_of_pred'/2,378,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
     execute('$pl_err_instantiation'/0),
 
@@ -952,7 +941,7 @@ label(8),
     get_variable(y(1),1),
     get_variable(y(2),2),
     put_value(y(0),0),
-    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     cut(y(2)),
     put_atom(max_arity,0),
     put_variable(y(3),1),
@@ -981,22 +970,23 @@ label(9),
     execute('$debug_list_of_pred1'/4)]).
 
 
-predicate('$debug_list_of_pred1'/4,394,static,private,built_in,[
-    load_cut_level(4),
+predicate('$debug_list_of_pred1'/4,406,static,private,monofile,built_in,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     try_me_else(1),
-    call_c('Blt_Var',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(4)),
     execute('$pl_err_instantiation'/0),
 
 label(1),
     retry_me_else(2),
-    call_c('Blt_Var',[fast_call,boolean],[x(1)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(1)]),
     cut(x(4)),
     execute('$pl_err_instantiation'/0),
 
 label(2),
     retry_me_else(3),
-    call_c('Blt_Var',[fast_call,boolean],[x(2)]),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(2)]),
     cut(x(4)),
     execute('$pl_err_instantiation'/0),
 
@@ -1008,29 +998,29 @@ label(3),
     get_variable(y(2),2),
     get_variable(y(3),3),
     put_value(y(0),0),
-    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     put_atom(max_arity,0),
     put_variable(y(4),1),
     call(current_prolog_flag/2),
     put_value(y(1),0),
-    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     put_value(y(2),0),
-    call_c('Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     math_fast_load_value(y(1),0),
     put_integer(0,1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(1),0),
     math_fast_load_value(y(4),1),
-    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(2),0),
     put_integer(0,1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(2),0),
     math_fast_load_value(y(4),1),
-    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$debug_work',0),
     put_nil(1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     put_value(y(2),2),
@@ -1045,7 +1035,7 @@ label(3),
     execute('$$debug_list_of_pred1/4_$aux2'/5)]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux2'/5,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux2'/5,418,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),4),
@@ -1069,7 +1059,7 @@ label(1),
     proceed]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux3'/4,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux3'/4,418,static,private,monofile,local,[
     try_me_else(1),
     get_value(x(1),0),
     get_value(x(0),2),
@@ -1090,7 +1080,7 @@ label(2),
     proceed]).
 
 
-predicate('$$debug_list_of_pred1/4_$aux1'/4,406,static,private,built_in,[
+predicate('$$debug_list_of_pred1/4_$aux1'/4,418,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -1102,13 +1092,13 @@ predicate('$$debug_list_of_pred1/4_$aux1'/4,406,static,private,built_in,[
     call('$current_predicate_any'/1),
     math_fast_load_value(y(3),0),
     math_fast_load_value(y(1),1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(3),0),
     math_fast_load_value(y(2),1),
-    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$debug_work',0),
     put_variable(x(2),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_atom('$debug_work',0),
     put_structure((/)/2,3),
     unify_local_value(y(0)),
@@ -1116,18 +1106,19 @@ predicate('$$debug_list_of_pred1/4_$aux1'/4,406,static,private,built_in,[
     put_list(1),
     unify_value(x(3)),
     unify_value(x(2)),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     fail,
 
 label(1),
     trust_me_else_fail,
     put_atom('$debug_work',0),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(3)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(3)]),
     proceed]).
 
 
-predicate('$debug_call'/2,444,static,private,built_in,[
-    load_cut_level(2),
+predicate('$debug_call'/2,456,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(23),
     switch_on_term(3,1,fail,fail,2),
 
@@ -1231,7 +1222,7 @@ label(23),
     get_variable(y(1),1),
     put_atom('$debug_info',0),
     put_variable(y(2),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(2),0),
     get_structure(d/2,0),
     unify_variable(y(3)),
@@ -1240,10 +1231,10 @@ label(23),
     put_variable(y(5),1),
     call('$$debug_call/2_$aux1'/2),
     math_fast_load_value(y(3),0),
-    call_c('Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
+    call_c('Pl_Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
     get_variable(y(6),0),
     math_fast_load_value(y(5),0),
-    call_c('Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
+    call_c('Pl_Fct_Fast_Inc',[fast_call,x(0)],[x(0)]),
     get_variable(y(7),0),
     put_variable(y(8),0),
     call('$get_current_B'/1),
@@ -1266,8 +1257,8 @@ label(23),
     call(setarg/3),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_value(y(6),2),
-    put_value(y(7),3),
+    put_unsafe_value(y(6),2),
+    put_unsafe_value(y(7),3),
     put_unsafe_value(y(9),4),
     put_unsafe_value(y(2),5),
     put_value(y(3),6),
@@ -1276,8 +1267,9 @@ label(23),
     execute('$debug_call1'/8)]).
 
 
-predicate('$$debug_call/2_$aux1'/2,476,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$debug_call/2_$aux1'/2,488,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1303,8 +1295,9 @@ label(4),
     proceed]).
 
 
-predicate('$debug_call1'/8,499,static,private,built_in,[
-    load_cut_level(8),
+predicate('$debug_call1'/8,511,static,private,monofile,built_in,[
+    pragma_arity(9),
+    get_current_choice(x(8)),
     try_me_else(1),
     allocate(10),
     get_variable(y(0),0),
@@ -1342,7 +1335,7 @@ predicate('$debug_call1'/8,499,static,private,built_in,[
     call('$debug_end_call'/6),
     put_unsafe_value(y(9),0),
     put_unsafe_value(y(8),1),
-    put_value(y(7),2),
+    put_unsafe_value(y(7),2),
     deallocate,
     execute('$$debug_call1/8_$aux1'/3),
 
@@ -1366,10 +1359,10 @@ label(2),
     put_atom('$debug_next',1),
     put_structure(retry/1,3),
     unify_variable(x(0)),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(3)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(3)]),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(2),1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     put_value(x(6),2),
     put_integer(1,0),
     put_value(y(2),1),
@@ -1380,18 +1373,18 @@ label(2),
     call(setarg/3),
     put_atom('$debug_next',0),
     put_atom(trace,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
     execute('$debug_call'/2)]).
 
 
-predicate('$$debug_call1/8_$aux1'/3,499,static,private,built_in,[
+predicate('$$debug_call1/8_$aux1'/3,511,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
-    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     cut(x(2)),
     proceed,
 
@@ -1400,13 +1393,13 @@ label(1),
     proceed]).
 
 
-predicate('$debug_call_port'/5,529,static,private,built_in,[
+predicate('$debug_call_port'/5,542,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
     put_atom('$debug_unify',0),
     put_atom('',1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(x(2),1),
     put_value(x(3),2),
     put_value(x(4),3),
@@ -1415,19 +1408,22 @@ predicate('$debug_call_port'/5,529,static,private,built_in,[
     call('$debug_port'/5),
     put_atom('$debug_unify',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_value(y(0),1),
     put_value(y(1),2),
     deallocate,
     execute('$$debug_call_port/5_$aux1'/3)]).
 
 
-predicate('$$debug_call_port/5_$aux1'/3,529,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_call_port/5_$aux1'/3,542,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     put_atom('',4),
-    call_c('Blt_Term_Eq',[fast_call,boolean],[x(0),x(4)]),
+    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(4)]),
     cut(x(3)),
+    put_atom(fail,0),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(1),x(0)]),
     put_value(x(1),0),
     put_value(x(2),1),
     execute('$call_from_debugger'/2),
@@ -1438,7 +1434,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_end_call'/6,541,static,private,built_in,[
+predicate('$debug_end_call'/6,558,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),4),
@@ -1459,12 +1455,12 @@ label(1),
     fail]).
 
 
-predicate('$debug_exception_port'/5,552,static,private,built_in,[
+predicate('$debug_exception_port'/5,569,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),4),
     put_atom('$debug_ball',4),
     put_value(y(0),5),
-    call_c('Blt_G_Assign',[fast_call],[x(4),x(5)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(4),x(5)]),
     put_atom(exception,4),
     call('$debug_port'/5),
     put_value(y(0),0),
@@ -1475,7 +1471,7 @@ predicate('$debug_exception_port'/5,552,static,private,built_in,[
     execute('$throw'/4)]).
 
 
-predicate('$debug_port'/5,562,static,private,built_in,[
+predicate('$debug_port'/5,579,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1494,7 +1490,7 @@ predicate('$debug_port'/5,562,static,private,built_in,[
     execute('$debug_port1'/6)]).
 
 
-predicate('$debug_port1'/6,567,static,private,built_in,[
+predicate('$debug_port1'/6,584,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(0),
     call('$debug_port2'/6),
@@ -1504,13 +1500,14 @@ label(1),
     trust_me_else_fail,
     put_atom('$debug_next',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    call_c('Blt_Atom',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     proceed]).
 
 
-predicate('$debug_port2'/6,578,static,private,built_in,[
-    load_cut_level(6),
+predicate('$debug_port2'/6,595,static,private,monofile,built_in,[
+    pragma_arity(7),
+    get_current_choice(x(6)),
     try_me_else(1),
     allocate(1),
     get_variable(x(2),1),
@@ -1518,7 +1515,7 @@ predicate('$debug_port2'/6,578,static,private,built_in,[
     get_variable(y(0),6),
     put_atom('$debug_next',3),
     put_variable(x(0),5),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(3),x(5)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(3),x(5)]),
     put_value(x(4),3),
     call('$debug_port_ignore'/4),
     cut(y(0)),
@@ -1530,8 +1527,9 @@ label(1),
     execute('$debug_port_prompt'/6)]).
 
 
-predicate('$debug_port_ignore'/4,588,static,private,built_in,[
-    load_cut_level(4),
+predicate('$debug_port_ignore'/4,605,static,private,monofile,built_in,[
+    pragma_arity(5),
+    get_current_choice(x(4)),
     switch_on_term(4,1,fail,fail,3),
 
 label(1),
@@ -1588,7 +1586,7 @@ label(11),
     put_structure(s/2,1),
     unify_variable(y(2)),
     unify_variable(y(3)),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(x(3),0),
     put_variable(y(4),1),
     call('$debug_port_mask'/2),
@@ -1596,7 +1594,7 @@ label(11),
     put_value(y(2),1),
     put_unsafe_value(y(4),2),
     put_value(y(3),3),
-    put_value(y(1),4),
+    put_unsafe_value(y(1),4),
     deallocate,
     execute('$$debug_port_ignore/4_$aux2'/5),
 
@@ -1624,29 +1622,30 @@ label(15),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux3'/3,609,static,private,built_in,[
+predicate('$$debug_port_ignore/4_$aux3'/3,626,static,private,monofile,local,[
     try_me_else(1),
     math_fast_load_value(x(0),0),
     math_fast_load_value(x(1),1),
-    call_c('Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
     proceed,
 
 label(1),
     trust_me_else_fail,
     put_atom(fail,0),
-    call_c('Blt_Term_Neq',[fast_call,boolean],[x(2),x(0)]),
+    call_c('Pl_Blt_Term_Neq',[fast_call,boolean],[x(2),x(0)]),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux2'/5,600,static,private,built_in,[
-    load_cut_level(5),
+predicate('$$debug_port_ignore/4_$aux2'/5,617,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     get_value(x(1),0),
     math_fast_load_value(x(2),0),
     math_fast_load_value(x(3),1),
-    call_c('Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
     put_integer(0,1),
-    call_c('Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gt',[fast_call,boolean],[x(0),x(1)]),
     cut(x(5)),
     fail,
 
@@ -1656,8 +1655,9 @@ label(1),
     proceed]).
 
 
-predicate('$$debug_port_ignore/4_$aux1'/3,593,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_port_ignore/4_$aux1'/3,610,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),3),
@@ -1670,8 +1670,9 @@ label(1),
     proceed]).
 
 
-predicate('$debug_port_prompt'/6,619,static,private,built_in,[
-    load_cut_level(6),
+predicate('$debug_port_prompt'/6,636,static,private,monofile,built_in,[
+    pragma_arity(7),
+    get_current_choice(x(6)),
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1683,7 +1684,7 @@ predicate('$debug_port_prompt'/6,619,static,private,built_in,[
     call(repeat/0),
     put_atom('$debug_next',0),
     put_atom(trace,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     put_value(y(2),2),
@@ -1700,8 +1701,9 @@ predicate('$debug_port_prompt'/6,619,static,private,built_in,[
     proceed]).
 
 
-predicate('$$debug_port_prompt/6_$aux1'/5,619,static,private,built_in,[
-    load_cut_level(5),
+predicate('$$debug_port_prompt/6_$aux1'/5,636,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -1734,7 +1736,7 @@ label(1),
     execute('$debug_exec_cmd'/6)]).
 
 
-predicate('$debug_read_cmd'/1,633,static,private,built_in,[
+predicate('$debug_read_cmd'/1,650,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_atom(debugger_output,0),
@@ -1747,10 +1749,10 @@ predicate('$debug_read_cmd'/1,633,static,private,built_in,[
     call(get_key/2),
     math_fast_load_value(y(1),0),
     put_integer(0,1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(1),0),
     put_integer(255,1),
-    call_c('Blt_Fast_Lt',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lt',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_value(y(1),1),
     call(char_code/2),
@@ -1761,8 +1763,9 @@ predicate('$debug_read_cmd'/1,633,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_read_integer'/1,645,static,private,built_in,[
-    load_cut_level(1),
+predicate('$debug_read_integer'/1,662,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     allocate(1),
     get_variable(y(0),1),
     put_value(x(0),1),
@@ -1777,18 +1780,19 @@ predicate('$debug_read_integer'/1,645,static,private,built_in,[
     proceed]).
 
 
-predicate('$debug_exec_cmd'/6,653,static,private,built_in,[
-    load_cut_level(6),
+predicate('$debug_exec_cmd'/6,670,static,private,monofile,built_in,[
+    pragma_arity(7),
+    get_current_choice(x(6)),
     try_me_else(1),
     allocate(1),
     put_variable(y(0),1),
     call(char_code/2),
     math_fast_load_value(y(0),0),
     put_integer(10,1),
-    call_c('Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Gte',[fast_call,boolean],[x(0),x(1)]),
     math_fast_load_value(y(0),0),
     put_integer(13,1),
-    call_c('Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_Fast_Lte',[fast_call,boolean],[x(0),x(1)]),
     put_atom(c,0),
     put_void(1),
     put_void(2),
@@ -1824,7 +1828,7 @@ label(7),
     get_atom(c,0),
     put_atom('$debug_next',0),
     put_atom(trace,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(8),
@@ -1834,7 +1838,7 @@ label(9),
     get_atom(l,0),
     put_atom('$debug_next',0),
     put_atom(debug,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(10),
@@ -1865,7 +1869,7 @@ label(13),
     get_variable(y(0),2),
     put_atom('$debug_next',0),
     put_atom(skip,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom(exit,0),
     put_variable(y(1),1),
     call('$debug_port_mask'/2),
@@ -1877,14 +1881,14 @@ label(13),
     call('$debug_port_mask'/2),
     math_fast_load_value(y(1),0),
     math_fast_load_value(y(2),1),
-    call_c('Fct_Fast_Or',[fast_call,x(0)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_Or',[fast_call,x(0)],[x(0),x(1)]),
     math_fast_load_value(y(3),1),
-    call_c('Fct_Fast_Or',[fast_call,x(2)],[x(0),x(1)]),
+    call_c('Pl_Fct_Fast_Or',[fast_call,x(2)],[x(0),x(1)]),
     put_atom('$debug_skip',0),
     put_structure(s/2,1),
     unify_local_value(y(0)),
     unify_local_value(x(2)),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
     proceed,
 
@@ -1901,12 +1905,12 @@ label(15),
     call('$debug_read_integer'/1),
     put_atom('$debug_next',0),
     put_atom(skip,1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     put_atom('$debug_skip',0),
     put_structure(s/2,1),
     unify_local_value(y(0)),
     unify_integer(31),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
     proceed,
 
@@ -1927,7 +1931,7 @@ label(19),
     put_atom('$debug_next',0),
     put_structure(retry/1,1),
     unify_local_value(x(2)),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(20),
@@ -1947,7 +1951,7 @@ label(23),
     put_atom('$debug_next',0),
     put_structure(fail/1,1),
     unify_local_value(x(2)),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
 label(24),
@@ -2081,7 +2085,7 @@ label(43),
     cut(x(6)),
     put_variable(x(0),3),
     put_variable(x(1),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(2),x(3),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(3),x(4)]),
     call('$$debug_exec_cmd/6_$aux4'/2),
     fail,
 
@@ -2094,7 +2098,7 @@ label(45),
     get_variable(y(0),6),
     put_variable(x(3),0),
     put_variable(x(2),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(1),x(0),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(1),x(0),x(4)]),
     put_structure((/)/2,0),
     unify_value(x(3)),
     unify_value(x(2)),
@@ -2122,13 +2126,13 @@ label(47),
     unify_variable(y(4)),
     call(read/2),
     put_value(y(2),0),
-    call_c('Blt_Callable',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
     put_value(y(0),0),
     put_variable(x(1),3),
     put_variable(x(2),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
     put_value(y(2),0),
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     put_value(y(2),0),
     put_value(y(3),1),
     put_value(y(4),2),
@@ -2145,7 +2149,7 @@ label(49),
     get_variable(y(0),6),
     put_variable(x(3),0),
     put_variable(x(2),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(1),x(0),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(1),x(0),x(4)]),
     put_structure((/)/2,0),
     unify_value(x(3)),
     unify_value(x(2)),
@@ -2163,7 +2167,7 @@ label(51),
     cut(x(6)),
     put_variable(x(1),3),
     put_variable(x(2),4),
-    call_c('Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(3),x(4)]),
     put_structure((/)/2,0),
     unify_value(x(1)),
     unify_value(x(2)),
@@ -2220,7 +2224,7 @@ label(59),
     call('$debug_read_integer'/1),
     put_atom('$debug_depth',0),
     put_unsafe_value(y(1),1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     cut(y(0)),
     fail,
 
@@ -2268,8 +2272,9 @@ label(66),
     fail]).
 
 
-predicate('$$debug_exec_cmd/6_$aux6'/1,802,static,private,built_in,[
-    load_cut_level(1),
+predicate('$$debug_exec_cmd/6_$aux6'/1,822,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
@@ -2299,8 +2304,9 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux5'/3,781,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_exec_cmd/6_$aux5'/3,798,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -2310,9 +2316,9 @@ predicate('$$debug_exec_cmd/6_$aux5'/3,781,static,private,built_in,[
     put_value(y(0),0),
     call('$current_predicate_any'/1),
     cut(y(3)),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    put_value(y(2),2),
+    put_value(y(1),0),
+    put_value(y(2),1),
+    put_value(y(0),2),
     deallocate,
     execute('$$debug_exec_cmd/6_$aux7'/3),
 
@@ -2329,15 +2335,18 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux7'/3,781,static,private,built_in,[
-    load_cut_level(3),
+predicate('$$debug_exec_cmd/6_$aux7'/3,798,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
     allocate(3),
-    get_variable(y(0),1),
-    get_variable(y(1),2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
     get_variable(y(2),3),
-    put_atom(native_code,1),
-    call('$predicate_property_any'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_atom(native_code,2),
+    call('$predicate_property1'/3),
     cut(y(2)),
     put_atom(debugger_output,0),
     put_atom('native code predicate ~a/~d~n',1),
@@ -2352,14 +2361,19 @@ predicate('$$debug_exec_cmd/6_$aux7'/3,781,static,private,built_in,[
 label(1),
     trust_me_else_fail,
     allocate(0),
-    call(listing/1),
+    call_c('Pl_Reset_Debug_Call_Code_0',[],[]),
+    put_value(x(2),0),
+    call('$listing_any'/1),
     put_atom(debugger_output,0),
+    call(nl/1),
     deallocate,
-    execute(nl/1)]).
+    call_c('Pl_Set_Debug_Call_Code_0',[],[]),
+    proceed]).
 
 
-predicate('$$debug_exec_cmd/6_$aux4'/2,752,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$debug_exec_cmd/6_$aux4'/2,769,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(5),
     get_variable(y(0),0),
@@ -2398,8 +2412,9 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux3'/2,735,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$debug_exec_cmd/6_$aux3'/2,752,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(1),
     get_atom(call,0),
@@ -2412,7 +2427,7 @@ predicate('$$debug_exec_cmd/6_$aux3'/2,735,static,private,built_in,[
     call(read/2),
     put_atom('$debug_unify',0),
     put_unsafe_value(y(0),1),
-    call_c('Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
     proceed,
 
@@ -2429,14 +2444,15 @@ label(1),
     fail]).
 
 
-predicate('$$debug_exec_cmd/6_$aux2'/1,718,static,private,built_in,[
-    load_cut_level(1),
+predicate('$$debug_exec_cmd/6_$aux2'/1,735,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     get_atom(exception,0),
     cut(x(1)),
     put_atom('$debug_ball',1),
     put_variable(x(0),2),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_list(2),
     unify_value(x(0)),
     unify_nil,
@@ -2455,7 +2471,7 @@ label(1),
     execute(nl/1)]).
 
 
-predicate('$$debug_exec_cmd/6_$aux1'/1,665,static,private,built_in,[
+predicate('$$debug_exec_cmd/6_$aux1'/1,682,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2483,7 +2499,7 @@ label(7),
     proceed]).
 
 
-predicate('$debug_write_goal'/4,841,static,private,built_in,[
+predicate('$debug_write_goal'/4,861,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2491,7 +2507,7 @@ predicate('$debug_write_goal'/4,841,static,private,built_in,[
     get_variable(y(3),3),
     put_atom('$debug_depth',0),
     put_variable(y(4),1),
-    call_c('Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
     put_variable(y(5),1),
     call('$$debug_write_goal/4_$aux1'/2),
@@ -2525,8 +2541,9 @@ predicate('$debug_write_goal'/4,841,static,private,built_in,[
     execute(write_term/3)]).
 
 
-predicate('$$debug_write_goal/4_$aux1'/2,841,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$debug_write_goal/4_$aux1'/2,861,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -2544,7 +2561,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_port_pretty'/2,855,static,private,built_in,[
+predicate('$debug_port_pretty'/2,875,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2599,7 +2616,7 @@ label(13),
     proceed]).
 
 
-predicate('$debug_disp_anc_lst'/1,870,static,private,built_in,[
+predicate('$debug_disp_anc_lst'/1,890,static,private,monofile,built_in,[
     allocate(1),
     get_list(0),
     unify_variable(x(0)),
@@ -2616,7 +2633,7 @@ predicate('$debug_disp_anc_lst'/1,870,static,private,built_in,[
     execute('$debug_disp_anc_lst1'/1)]).
 
 
-predicate('$debug_disp_anc_lst1'/1,876,static,private,built_in,[
+predicate('$debug_disp_anc_lst1'/1,896,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2648,7 +2665,7 @@ label(4),
     execute('$debug_write_goal'/4)]).
 
 
-predicate('$debug_disp_alternatives'/2,885,static,private,built_in,[
+predicate('$debug_disp_alternatives'/2,905,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -2667,7 +2684,7 @@ predicate('$debug_disp_alternatives'/2,885,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_disp_alternatives1'/2,892,static,private,built_in,[
+predicate('$debug_disp_alternatives1'/2,912,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -2704,8 +2721,9 @@ label(4),
     execute('$debug_disp_alt'/2)]).
 
 
-predicate('$debug_disp_alt'/2,900,static,private,built_in,[
-    load_cut_level(2),
+predicate('$debug_disp_alt'/2,920,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     get_value(x(1),0),
     cut(x(2)),
@@ -2739,7 +2757,7 @@ label(1),
     proceed]).
 
 
-predicate('$debug_disp_alt1'/3,910,static,private,built_in,[
+predicate('$debug_disp_alt1'/3,930,static,private,monofile,built_in,[
     try_me_else(1),
     execute('$debug_is_debug_predicate'/1),
 
@@ -2748,7 +2766,7 @@ label(1),
     allocate(2),
     put_variable(x(0),3),
     put_variable(x(1),4),
-    call_c('Scan_Choice_Point_Info_3',[boolean],[x(2),x(3),x(4)]),
+    call_c('Pl_Scan_Choice_Point_Info_3',[boolean],[x(2),x(3),x(4)]),
     put_variable(y(0),2),
     put_variable(y(1),3),
     call('$pred_without_aux'/4),
@@ -2779,7 +2797,7 @@ label(5),
     put_unsafe_value(y(0),1),
     put_variable(x(0),2),
     put_void(3),
-    call_c('Blt_Functor',[fast_call,boolean],[x(1),x(2),x(3)]),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(1),x(2),x(3)]),
     deallocate,
     execute('$debug_is_debug_predicate'/1),
 
@@ -2802,11 +2820,10 @@ label(8),
     put_void(3),
     put_atom($,4),
     call(sub_atom/5),
-    put_structure((/)/2,0),
-    unify_local_value(y(0)),
-    unify_local_value(y(1)),
-    put_atom(native_code,1),
-    call('$predicate_property_any'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_atom(native_code,2),
+    call('$predicate_property1'/3),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -2821,8 +2838,9 @@ label(9),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate('$$debug_disp_alt1/3_$aux1'/2,925,static,private,built_in,[
-    load_cut_level(2),
+predicate('$$debug_disp_alt1/3_$aux1'/2,945,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     try_me_else(1),
     allocate(3),
     get_variable(y(0),2),
@@ -2846,7 +2864,7 @@ label(1),
     execute('$debug_disp_alt2'/1)]).
 
 
-predicate('$$debug_disp_alt1/3_$aux2'/3,925,static,private,built_in,[
+predicate('$$debug_disp_alt1/3_$aux2'/3,945,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -2877,7 +2895,7 @@ label(1),
     execute('$debug_check_bip'/2)]).
 
 
-predicate('$debug_disp_alt2'/1,941,static,private,built_in,[
+predicate('$debug_disp_alt2'/1,963,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(0)),
     unify_nil,
@@ -2886,7 +2904,7 @@ predicate('$debug_disp_alt2'/1,941,static,private,built_in,[
     execute(format/3)]).
 
 
-predicate('$debug_is_debug_predicate'/1,947,static,private,built_in,[
+predicate('$debug_is_debug_predicate'/1,969,static,private,monofile,built_in,[
     put_integer(0,1),
     put_integer(7,2),
     put_void(3),
@@ -2894,32 +2912,12 @@ predicate('$debug_is_debug_predicate'/1,947,static,private,built_in,[
     execute(sub_atom/5)]).
 
 
-predicate('$debug_check_bip'/2,953,static,private,built_in,[
-    load_cut_level(2),
-    try_me_else(1),
-    allocate(1),
-    get_variable(x(3),0),
-    get_variable(y(0),2),
-    put_structure((/)/2,0),
-    unify_local_value(x(3)),
-    unify_local_value(x(1)),
-    put_atom(built_in,1),
-    call(predicate_property/2),
-    cut(y(0)),
-    deallocate,
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    get_variable(x(2),0),
-    put_structure((/)/2,0),
-    unify_local_value(x(2)),
-    unify_local_value(x(1)),
-    put_atom(built_in_fd,1),
-    execute(predicate_property/2)]).
+predicate('$debug_check_bip'/2,975,static,private,monofile,built_in,[
+    put_atom(built_in,2),
+    execute('$predicate_property1'/3)]).
 
 
-predicate('$debug_disp_help'/0,962,static,private,built_in,[
+predicate('$debug_disp_help'/0,986,static,private,monofile,built_in,[
     allocate(0),
     put_atom(debugger_output,0),
     put_atom('Debugging commands:~n~n',1),
@@ -2982,11 +2980,11 @@ predicate('$debug_disp_help'/0,962,static,private,built_in,[
     execute(nl/1)]).
 
 
-predicate('$choice_point_info'/4,983,static,private,built_in,[
-    call_c('Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
+predicate('$choice_point_info'/4,1007,static,private,monofile,built_in,[
+    call_c('Pl_Choice_Point_Info_4',[],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate('$choice_point_arg'/3,987,static,private,built_in,[
-    call_c('Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
+predicate('$choice_point_arg'/3,1011,static,private,monofile,built_in,[
+    call_c('Pl_Choice_Point_Arg_3',[],[x(0),x(1),x(2)]),
     proceed]).

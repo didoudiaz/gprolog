@@ -1,0 +1,4 @@
+// Simple resource file to add an icon to an executable
+// Simply pass the resulting .res file to the linker
+
+1 ICON "..\\..\\gprolog.ico"

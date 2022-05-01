@@ -6,23 +6,35 @@
  * Descr.: code emission                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 /*-------------------------------------------------------------------------*
  * WAM Instructions                                                        *
@@ -62,8 +74,9 @@
  * retry_me_else(L)                         retry(L)                       *
  * trust_me_else_fail                       trust(L)                       *
  *                                                                         *
- * load_cut_level(A)                                                       *
+ * get_current_choice(V)                    pragma_arity(N) (for cut)      *
  * cut(V)                                                                  *
+ * soft_cut(V)                                                             *
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *
@@ -97,12 +110,14 @@ emit_code_init(WamFile0, PlFile0) :-
 	g_assign(cur_pl_file, ''),
 	prolog_name(Name),
 	prolog_version(Version),
-	prolog_date(Date),
-	date_time(dt(Yr, Mh, Dy, Hr, Me, Sd)),
-	format(Stream, '%% compiler: ~a ~a (~a)~n', [Name, Version, Date]),
+	format(Stream, '%% compiler: ~a ~a~n', [Name, Version]),
 	format(Stream, '%% file    : ~a~n', [PlFile]),
-	format(Stream, '%% date    : ~d ~d ~d~n', [Mh, Dy, Yr]),
-	format(Stream, '%% time    : ~d:~d:~d~n', [Hr, Me, Sd]).
+	g_read(wam_comment, Cmt),
+	(   Cmt = '' ->
+	    true
+	;
+	    format(Stream, '%%           ~a~n', [Cmt])
+	).
 
 
 
@@ -115,17 +130,25 @@ emit_code_files('', PlFile, WamFile) :-
 	decompose_file_name(PlFile, _, Prefix, Suffix),
 	(   g_read(native_code, t) ->
 	    WamSuffix = '.wam'
-	;   WamSuffix = '.wbc'
+	;
+	    WamSuffix = '.wbc'
 	),
-	(   Suffix = '.pl' ->
+	(   '$prolog_file_suffix'(Suffix) ->
 	    atom_concat(Prefix, WamSuffix, WamFile)
-	;   atom_concat(Prefix, Suffix, WF),
+	;
+	    atom_concat(Prefix, Suffix, WF),
 	    atom_concat(WF, WamSuffix, WamFile)
 	).
 
 emit_code_files(WamFile, _, WamFile).
 
-
+/*
+:- if(\+ '$current_predicate_any'('$prolog_file_suffix'/1)).
+'$prolog_file_suffix'('.pl').
+'$prolog_file_suffix'('.pro').
+'$prolog_file_suffix'('.prolog').
+:- endif.
+*/
 
 
 emit_code_term(Bytes, Lines) :-
@@ -166,13 +189,40 @@ emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	    PubPriv = public
 	;   PubPriv = private
 	),
-	(   test_pred_info(bpl, Pred, N) ->
-	    UsBplBfd = built_in
-	;   test_pred_info(bfd, Pred, N) ->
-	    UsBplBfd = built_in_fd
-	;   UsBplBfd = user
+	(   test_pred_info(multi, Pred, N) ->
+	    MonoMulti = multifile
+	;   MonoMulti = monofile
 	),
-	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,', [Pred / N, PlLine, StaDyn, PubPriv, UsBplBfd]).
+	g_read(module, Module0),
+	export_type(Pred, N, Module0, _Module, ExportBplBfd),
+  		% MODULES: then add Module:Pred/N instead of Pred/N in the next line
+	format(Stream, '~n~npredicate(~q,~d,~a,~a,~a,~a,',
+	       [Pred/N, PlLine, StaDyn, PubPriv, MonoMulti, ExportBplBfd]).
+
+
+
+export_type(Pred, _, Module, Module, local) :-
+	'$aux_name'(Pred), !.
+
+export_type(Pred, N, Module, Module, local) :-
+	test_pred_info(multi, Pred, N), !.
+
+export_type(Pred, N, _, system, built_in) :-
+	test_pred_info(bpl, Pred, N), !.
+
+export_type(Pred, N, _, system, built_in_fd) :-
+	test_pred_info(bfd, Pred, N), !.
+
+export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
+	is_exported(Pred, N), !.
+
+export_type(_, _, Module, Module, global) :-
+	g_read(module_already_seen, f), !.
+
+export_type(Pred, N, Module, Module, global) :-
+	is_exported(Pred, N), !.
+
+export_type(_, _, Module, Module, local).
 
 
 
@@ -256,7 +306,25 @@ emit_one_arg([X|L], Stream) :-
 	emit_list(L, P, Stream).
 
 emit_one_arg(A, Stream) :-
+	g_read(native_code, f),	    % if also wanted to .wam remove this line
+	emit_one_f_n(A, Stream), !. % if fail breakthrough
+
+emit_one_arg(A, Stream) :-
 	writeq(Stream, A).
+
+
+ /* this is added to fix a bug with consult/1. Pb with operators:
+  *    :- op(500, xfx, edge).
+  *    p(a edge b).
+  *    :- op(0, xfx, edge).
+  * will fail if edge is declared in the top-level before consult
+  */
+
+emit_one_f_n(M:P/N, Stream) :-
+	format(Stream, '(~q):(~q)/~q', [M, P, N]).
+
+emit_one_f_n(F/N, Stream) :-
+	format(Stream, '(~q)/~q', [F, N]).
 
 
 
@@ -265,7 +333,7 @@ emit_list([], _, Stream) :-
 	put_char(Stream, ']').
 
 emit_list([X|L], P, Stream) :-
-	format(Stream, ',~n~*c', [P, 0' ]),
+	format(Stream, ',~n~*c', [P, 32]), % changed 0' to 32 for emacs highlighting
 	write_term(Stream, X, [quoted(true), priority(999)]),
 	emit_list(L, P, Stream).
 
@@ -323,6 +391,13 @@ bc_emit_lst_clause([bc(Cl, WamCode)|LCompCl], Stream) :-
 
 
 
-bc_emit_prolog_term(Stream, X) :-
-	numbervars(X, 0, _),
-	write_term(Stream, X, [numbervars(true), ignore_ops(true), quoted(true)]).
+bc_emit_prolog_term(Stream, Term) :- % create choice point for '$above'/1 write option
+	'$get_current_B'(B),
+	name_singleton_vars(Term),
+	bind_variables(Term, [exclude([Term])]),
+	write_term(Stream, Term, [numbervars(true), namevars(true), '$above'(B), ignore_ops(true), quoted(true)]),
+	fail.
+
+bc_emit_prolog_term(_, _).
+
+

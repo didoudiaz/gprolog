@@ -6,23 +6,35 @@
  * Descr.: sort management - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
- * GNU Prolog is free software; you can redistribute it and/or modify it   *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; either version 2, or any later version.       *
+ * This file is part of GNU Prolog                                         *
  *                                                                         *
- * GNU Prolog is distributed in the hope that it will be useful, but       *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU        *
+ * GNU Prolog is free software: you can redistribute it and/or             *
+ * modify it under the terms of either:                                    *
+ *                                                                         *
+ *   - the GNU Lesser General Public License as published by the Free      *
+ *     Software Foundation; either version 3 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or                                                                      *
+ *                                                                         *
+ *   - the GNU General Public License as published by the Free             *
+ *     Software Foundation; either version 2 of the License, or (at your   *
+ *     option) any later version.                                          *
+ *                                                                         *
+ * or both in parallel, as here.                                           *
+ *                                                                         *
+ * GNU Prolog is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
  * General Public License for more details.                                *
  *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc.  *
- * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
+ * You should have received copies of the GNU General Public License and   *
+ * the GNU Lesser General Public License along with this program.  If      *
+ * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-/* $Id$ */
 
 #define OBJ_INIT Sort_Initializer
 
@@ -53,10 +65,10 @@ static WamWord minus_2;
  * Function Prototypes             *
  *---------------------------------*/
 
-static long Keysort_Cmp(WamWord u_word, WamWord v_word);
+static PlLong Keysort_Cmp(WamWord u_word, WamWord v_word);
 
 static int Merge_Sort(WamWord *base, WamWord *aux, int n,
-		      Bool keep_dup, long (*cmp) ());
+		      Bool keep_dup, PlLong (*cmp) ());
 
 
 
@@ -75,62 +87,119 @@ Sort_Initializer(void)
 
 
 /*-------------------------------------------------------------------------*
- * SORT_LIST_2                                                             *
+ * CHK_PAIR                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-Sort_List_2(WamWord list1_word, WamWord list2_word)
+static void
+Chk_Pair(WamWord start_word)
 {
-  WamWord *arg;
-  int n;
-  int sort_type;
+  WamWord word, tag_mask;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=sort0/2, 2=keysort/2 */
-
-  Check_For_Un_List(list2_word);
-
-  arg = H;			/* array in the heap */
-  n = Rd_Proper_List_Check(list1_word, arg);
-
-  if (n == 0)
-    return Un_Atom(atom_nil, list2_word);
-
-  if (n == 1)
-    return Unify(list1_word, list2_word);
-
-  n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Term_Compare : Keysort_Cmp);
-
-  /* n can have changed here (if dup removed) */
-
-  return Unify(Mk_Proper_List(n, arg), list2_word);
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask != TAG_REF_MASK && (tag_mask != TAG_STC_MASK || 
+      Functor_And_Arity(UnTag_STC(word)) != minus_2))
+    Pl_Err_Type(pl_type_pair, word);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * SORT_LIST_1                                                             *
+ * GET_PAIR                                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static WamWord
+Get_Pair(WamWord start_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  if (tag_mask != TAG_STC_MASK || Functor_And_Arity(UnTag_STC(word)) != minus_2)
+    Pl_Err_Type(pl_type_pair, word);
+
+  return word;			/* store dereferenced words in the array */
+}
+
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SORT_LIST_2                                                          *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
+{
+  WamWord *arg;
+  int n;
+  int sort_type;
+
+  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=msort/2, 2=keysort/2 */
+
+  arg = H;			/* array in the heap */
+
+  if (sort_type != 2)
+    {
+      Pl_Check_For_Un_List(list2_word);
+      n = Pl_Rd_Proper_List_Check(list1_word, arg);
+    }
+  else
+    {
+      Pl_Check_For_Un_List2(list2_word, Chk_Pair);
+      n = Pl_Rd_Proper_List_Check2(list1_word, arg, Get_Pair);
+    }
+
+  if (n == 0)
+    return Pl_Un_Atom(ATOM_NIL, list2_word);
+
+  if (n == 1)
+    return Pl_Unify(list1_word, list2_word);
+
+  n = Merge_Sort(arg, arg + n, n, sort_type,
+		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
+
+  /* n can have changed here (if dup removed) */
+
+  return Pl_Unify(Pl_Mk_Proper_List(n, arg), list2_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SORT_LIST_1                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Sort_List_1(WamWord list_word)
+Pl_Sort_List_1(WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *adr, *arg, *prev;
   int n;
   int sort_type;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=sort0/1, 2=keysort/1 */
+  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=msort/1, 2=keysort/1 */
 
   arg = H;
-  n = Rd_Proper_List_Check(list_word, arg);
+
+  if (sort_type != 2)
+    {
+      n = Pl_Rd_Proper_List_Check(list_word, arg);
+    }
+  else
+    {
+      n = Pl_Rd_Proper_List_Check2(list_word, arg, Get_Pair);
+    }
 
   if (n <= 1)
     return;
 
   n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Term_Compare : Keysort_Cmp);
+		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
   /* n can have changed here (if dup removed) */
   /* update in-place the list */
   do
@@ -152,31 +221,15 @@ Sort_List_1(WamWord list_word)
  * KEYSORT_CMP                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static long
+static PlLong
 Keysort_Cmp(WamWord u_word, WamWord v_word)
 {
-  WamWord word, tag_mask;
-  WamWord *adr;
+  /* here we know that u_word and v_word are dereferenced (and are pairs) */
 
-  DEREF(u_word, word, tag_mask);
-  u_word = word;
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(u_word);
-      if (Functor_And_Arity(adr) == minus_2)
-	u_word = Arg(adr, 0);
-    }
-  
-  DEREF(v_word, word, tag_mask);
-  v_word = word;
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(v_word);
-      if (Functor_And_Arity(adr) == minus_2)
-	v_word = Arg(adr, 0);
-    }
+  u_word = Arg(UnTag_STC(u_word), 0);
+  v_word = Arg(UnTag_STC(v_word), 0);
 
-  return Term_Compare(u_word, v_word);
+  return Pl_Term_Compare(u_word, v_word);
 }
 
 
@@ -190,7 +243,7 @@ Keysort_Cmp(WamWord u_word, WamWord v_word)
  * elements of the array (2 WamWords) and classically returns <0, 0, >0.   *
  *-------------------------------------------------------------------------*/
 static int
-Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, long (*cmp) ())
+Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, PlLong (*cmp) ())
 {
   WamWord *l1, *l2;
   int n1, n2;
