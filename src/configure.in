@@ -2,8 +2,8 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.5.1, bug-prolog@gnu.org,,www.gprolog.org)
-AC_PREREQ(2.52)
+AC_INIT([gprolog],[1.5.1],[bug-prolog@gnu.org],[],[www.gprolog.org])
+AC_PREREQ([2.71])
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
 
@@ -218,11 +218,6 @@ AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constr
                    *)  ;;
                esac])
 
-if test "$USE_EBP" = no; then
-        AC_DEFINE(NO_USE_EBP)
-fi
-
-
 AC_ARG_ENABLE(watermark, [  --enable-watermark      call foreign destructors upon choice-point removal],
              [case "$enableval" in
                   yes) AC_DEFINE(USE_WATERMARK) USE_WATERMARK=yes;;
@@ -269,7 +264,6 @@ dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
 dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
-AC_PROG_CC_STDC
 
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
@@ -612,14 +606,14 @@ dnl Check for socklen_t
 dnl -------------------
 
 AC_MSG_CHECKING(for socklen_t)
-AC_TRY_COMPILE([#include <sys/types.h>
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 #include <sys/socket.h>
-], [socklen_t x;
-], [AC_MSG_RESULT(yes)], [
-AC_TRY_COMPILE([#include <sys/types.h>
+]], [[socklen_t x;
+]])],[AC_MSG_RESULT(yes)],[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 #include <sys/socket.h>
-], [int accept(int, struct sockaddr *, size_t *);
-], [
+]], [[int accept(int, struct sockaddr *, size_t *);
+]])], [
 AC_MSG_RESULT(size_t)
 AC_DEFINE(socklen_t, size_t)], [
 AC_MSG_RESULT(int)
@@ -634,10 +628,9 @@ case "$host_os" in
      linux*)
 
 AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
-AC_TRY_COMPILE([#include <signal.h>
-], [struct sigcontext p;
-], [AC_MSG_RESULT(no)],
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>
+]], [[struct sigcontext p;
+]])],[AC_MSG_RESULT(no)],[
 AC_MSG_RESULT(yes)
 AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
 esac
@@ -1084,7 +1077,7 @@ do
     fi
 done
 
-AC_CONFIG_HEADER(EnginePl/gp_config.h)
+AC_CONFIG_HEADERS([EnginePl/gp_config.h])
 AC_CONFIG_FILES(Makefile
                 TopComp/Makefile
                 Pl2Wam/Makefile
