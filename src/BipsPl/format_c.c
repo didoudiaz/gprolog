@@ -147,7 +147,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
   int i, k;
   char *format_stack[256];
   char **top_stack;
-  char buff[2048];
+  char *buff;
 
   //  printf("d: %p\n", &d);
   top_stack = format_stack;

@@ -6,7 +6,7 @@
  * Descr.: contextual LP management                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -22,12 +22,10 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: context.pl,v 1.6 2006/01/03 00:15:33 spa Exp $  */
-
 /*-------------------------------------------------------------------------*
  * This file implements a support for contextual LP. It is a prototype and *
  * should be considered as an alpha version. One main requierement was to  *
- * modify the existing compiler code as few as possible and to group here  *
+ * modify the existing compiler code as little as possible and to group    *
  * all context-specific code in order to obtain a little diff vs derived   *
  * gprolog version. This imposed some limitation to context support in the *
  * compiler. Mainly, the compiler expects at most 1 unit/1 declaration per *

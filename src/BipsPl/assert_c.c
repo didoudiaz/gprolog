@@ -90,6 +90,27 @@ Pl_Assert_5(WamWord head_word, WamWord body_word,
 
 
 /*-------------------------------------------------------------------------*
+ * PL_ASSERT_6                                                             *
+ *                                                                         *
+ * Like Pl_Assert_5 but with a unit identifier (for contexts)              *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Assert_6(WamWord head_word, WamWord body_word,
+	    WamWord asserta_word, WamWord check_perm_word, 
+	    WamWord pl_file_word, WamWord unit_word)
+{
+  Bool asserta = Pl_Rd_Integer(asserta_word);
+  Bool check_perm = Pl_Rd_Integer(check_perm_word);
+  int pl_file = Pl_Rd_Atom(pl_file_word);
+
+  last_clause = Pl_Add_Dynamic_Clause_CX
+    (head_word, body_word, asserta, check_perm, pl_file, unit_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_CLAUSE_3                                                             *
  *                                                                         *
  * for_what=0 for clause/2  (ie. error if not public)                      *

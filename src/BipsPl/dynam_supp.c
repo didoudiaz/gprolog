@@ -225,6 +225,18 @@ DynCInf *
 Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 		      Bool check_perm, int pl_file)
 {
+  return Pl_Add_Dynamic_Clause_CX (head_word, body_word, asserta, 
+				   check_perm, pl_file, (WamWord) NULL);
+}
+
+/*-------------------------------------------------------------------------*
+ * PL_ADD_DYNAMIC_CLAUSE_CX                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+DynCInf *
+Pl_Add_Dynamic_Clause_CX(WamWord head_word, WamWord body_word, Bool asserta,
+			 Bool check_perm, int pl_file, WamWord unit_word)
+{
   WamWord word;
   WamWord *first_arg_adr;
   int func, arity;

@@ -128,12 +128,12 @@ Pl_Call_Info_Bip_Name_1(WamWord call_info_word)
 Bool
 Current_Unit_2(WamWord unit_atom_word, WamWord unit_args_word)
 {
-  int unit_atom = Rd_Atom(unit_atom_word);
-  int unit_args = Rd_Integer(unit_args_word);
+  int unit_atom = Pl_Rd_Atom(unit_atom_word);
+  int unit_args = Pl_Rd_Integer(unit_args_word);
 
-  if (atom_tbl[unit_atom].modules &&
+  if (pl_atom_tbl[unit_atom].modules &&
       0 <= unit_args && unit_args <= 255 &&
-      atom_tbl[unit_atom].modules[unit_args])
+      pl_atom_tbl[unit_atom].modules[unit_args])
     return TRUE;
   else
     return FALSE;

@@ -60,6 +60,8 @@ void Source_Line(int line_no, char *cmt);
 
 
 
+void F_unit_name(ArgVal arg[]);
+
 void F_file_name(ArgVal arg[]);
 
 void F_predicate(ArgVal arg[]);

@@ -157,8 +157,8 @@ Pl_Current_Predicate_Alt_0(void)
   WamWord cxt;
   Bool all;
 
-  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
-		      0);
+  Pl_Update_Choice_Point
+    ((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 0);
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
@@ -176,7 +176,7 @@ Pl_Current_Predicate_Alt_0(void)
 
   for (;;)
     {
-      pred = (PredInf *) Hash_Next(&scan);
+      pred = (PredInf *) Pl_Hash_Next(&scan);
       if (pred == NULL) {
 	WamWord word, tag_mask;
 	int atom, arity;
@@ -206,10 +206,10 @@ Pl_Current_Predicate_Alt_0(void)
 	  if (lst_adr)
 	    cxt = Cdr (lst_adr); /* pop context, in all cases */
 
-	  if (atom_tbl[atom].modules &&
-	      atom_tbl[atom].modules[arity]) { /* found? */
+	  if (pl_atom_tbl[atom].modules &&
+	      pl_atom_tbl[atom].modules[arity]) { /* found? */
 	    pred = (PredInf *)
-	      Hash_First (atom_tbl[atom].modules[arity], &scan);
+	      Pl_Hash_First (pl_atom_tbl[atom].modules[arity], &scan);
 	  }
 	  else {		/* nope. empty unit: go to next one. */
 	    goto DOWN_IN_CXT;

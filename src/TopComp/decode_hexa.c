@@ -140,17 +140,19 @@ Encode_Hexa_CX(char *unit, int uarity,
   *str++ = 'X';
   *str++ = '0' + ((module_encode << 1) | pred_encode);
   *str++ = '_';
-  if (module) {
+  if (module && *module != '\0') {
     if (module_encode == 1)
       str += sprintf(str, "%s_", module);
     else if (module_encode == 2) {
       str = Encode_String(module, str);
       *str++ = '_';
     }
-    if (unit)			/* only output when it's a unit */
+    if (unit && *unit)		/* only output when it's a unit */
       str += sprintf (str, "u%d_", uarity);
-    *str++ = '_';
+    else
+      *str++ = '_';
   }
+  //  *str++ = '_';
 
   if (pred_encode == 0)
     str += sprintf(str, "%s", pred);

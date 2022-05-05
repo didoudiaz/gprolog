@@ -260,7 +260,7 @@ Pl_Reset_Prolog(void)
   Pl_Fd_Reset_Solver();
 
   {
-    void Cxt_Init(void) FC;
+    void Cxt_Init(void);
 
     Cxt_Init();
   }

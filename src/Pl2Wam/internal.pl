@@ -379,6 +379,10 @@ inline_predicate(g_test_reset_bit, 2, t).
 
 /* --- Contexts -----------------------------------------------------------*/
 
+inline_predicate(context, 1, _).
+
+inline_predicate(ccontext, 1, _).
+
 inline_predicate('$cxt_get_K', 1, _).
 
 inline_predicate('$cxt_get_CK', 1, _).

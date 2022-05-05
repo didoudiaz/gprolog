@@ -236,10 +236,6 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 
 void Init_Foreign_Table(void);
 
-void Native_Hexa_Symbol(char *cxt_unit, int uarity,
-			char *functor, int arity,
-			char *buff);
-
 void Emit_Obj_Initializer(void);
 
 void Emit_Exec_Directives(void);
@@ -255,13 +251,6 @@ void Emit_One_F_N_Tagged(int no, char *str, void *info);
 void Label_Printf(char *label, ...) GCCPRINTF(1);
 
 void Inst_Printf(char *op, char *operands, ...) GCCPRINTF(2);
-
-#define Native_Hexa_Symbol_For_Pred(p, buff)				\
-  Native_Hexa_Symbol((p->cxt_unit) ? p->cxt_unit->str : NULL,		\
-		     (p->cxt_unit) ? p->cxt_unit->arity : 0,		\
-		     p->functor->str, p->arity, buff)
-
-
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -312,6 +301,7 @@ void Display_Help(void);
 
 
 #define DEF_X_Y(xy)           PlLong xy; char c
+#define DEF_X_Y1(c, xy)	      PlLong xy; char c
 
 #define LOAD_X_Y(xy)          Get_Arg(top, PlLong, xy); \
                               if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
@@ -471,24 +461,6 @@ Source_Line(int line_no, char *cmt)
 
 
 
-
-/*-------------------------------------------------------------------------*
- * NATIVE_HEXA_SYMBOL                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Native_Hexa_Symbol(char *cxt_unit, int uarity,
-		   char *module, char *functor, int arity, char *buff)
-{
-  if (cxt_unit && cxt_unit[0])
-    {
-      buff = Compute_Hexa(cxt_unit, buff);
-      sprintf(buff, "_%d__", uarity);
-      buff += strlen(buff);
-    }
-  buff = Compute_Hexa(functor, buff);
-  sprintf(buff, "_%d", arity);
-}
 
 /*-------------------------------------------------------------------------*
  * F_UNIT_NAME                                                             *

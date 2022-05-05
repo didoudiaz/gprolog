@@ -79,6 +79,7 @@ char *file_name_out;
 Bool comment;
 Bool pic_code;
 Bool ignore_fc;
+Bool dynamic;			/* produce dynamic libraries (dll/so) */
 
 MapperInf mi;
 

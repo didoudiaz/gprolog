@@ -1829,9 +1829,9 @@ Cxt_Lookup_Pred_With_K(long key, WamWord cxt_call_K)
 	  goto next;		/* or display an error ? */
       }
 
-      if (atom_tbl[atom].modules &&
-	  (ctable = atom_tbl[atom].modules[arity]) &&
-	  (pred = (PredInf *) Hash_Find(ctable, key)))
+      if (pl_atom_tbl[atom].modules &&
+	  (ctable = pl_atom_tbl[atom].modules[arity]) &&
+	  (pred = (PredInf *) Pl_Hash_Find(ctable, key)))
 	{
 	  Cxt_Assign_K(call_K);
 	  return pred;
@@ -1844,7 +1844,7 @@ Cxt_Lookup_Pred_With_K(long key, WamWord cxt_call_K)
     }
 				/* IS IT CORRECT ??? */
   Cxt_Assign_K(cxt_call_K);
-  return (PredInf *) Hash_Find(pred_tbl, key);
+  return (PredInf *) Pl_Hash_Find(pl_pred_tbl, key);
 
 #else  /* FIXME: TRY THIS (lookup in global first) LATER... */
 
@@ -1923,7 +1923,7 @@ WamCont FC
 Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
 {
   PredInf *pred = Cxt_Lookup_Pred_With_K(key, cxt_call_K);
-  WamCont BC_Emulate_Pred(int, void *);
+  WamCont Pl_BC_Emulate_Pred(int, void *);
 
   if (pred == NULL)
     {
@@ -1948,10 +1948,10 @@ Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
 	DEREF(Car(lst_adr), word, tag_mask);
 
 	if (tag_mask == TAG_ATM_MASK)
-	  sprintf (p, "%s%s/%d", sep, atom_tbl[UnTag_ATM(word)].name, 0);
+	  sprintf (p, "%s%s/%d", sep, pl_atom_tbl[UnTag_ATM(word)].name, 0);
 	else if (tag_mask == TAG_STC_MASK)
 	  sprintf (p, "%s%s/%ld", sep,
-		   atom_tbl[Functor(UnTag_STC(word))].name,
+		   pl_atom_tbl[Functor(UnTag_STC(word))].name,
 		   Arity(UnTag_STC(word)));
 	else
 	  goto next;		/* or display an error ? */
@@ -1964,8 +1964,8 @@ Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
       }
       sprintf (p, "])");
       
-      Set_C_Bip_Name(pseudo_bip_name, -1); /* FIXME: properly dump context */
-      Unknown_Pred_Error(Functor_Of(key), Arity_Of(key));
+      Pl_Set_C_Bip_Name(pseudo_bip_name, -1); // FIXME: properly dump context
+      Pl_Unknown_Pred_Error(Functor_Of(key), Arity_Of(key));
 
       return ALTB(B);		/* i.e. fail */
     }
@@ -1973,7 +1973,7 @@ Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
   if (pred->codep)
     return (WamCont) pred->codep;
   else if (pred->dyn)
-    return BC_Emulate_Pred ((int) key, pred->dyn);
+    return Pl_BC_Emulate_Pred ((int) key, pred->dyn);
   else
     return ALTB(B);		/* fail for dynamic w/o any clauses */
 }
@@ -2043,5 +2043,5 @@ Cxt_Arg_Unify(int arg_no, WamWord term_word, WamWord sub_term_word)
   if (!Cxt_Arg_Load(arg_no, term_word, &word))
     return FALSE;
 
-  return Unify(sub_term_word, word);
+  return Pl_Unify(sub_term_word, word);
 }

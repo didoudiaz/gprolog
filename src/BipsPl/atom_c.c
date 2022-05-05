@@ -622,7 +622,6 @@ Pl_Number_Atom_2(WamWord number_word, WamWord atom_word)
 {
   WamWord word, tag_mask;
   char *str;
-  char buffer[64];
 
   DEREF(atom_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)

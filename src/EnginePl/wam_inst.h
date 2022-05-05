@@ -550,15 +550,16 @@ static inline PredInf * FC
 Cxt_Lookup_Pred_In (int key, WamWord unit, int arity)
 {
   int unit_atom = UnTag_ATM (unit);
-  void *ptable = pred_tbl;
+  void *ptable = pl_pred_tbl;
 
   if (unit_atom && unit_atom != ATOM_NIL &&
-      atom_tbl[unit_atom].modules && atom_tbl[unit_atom].modules[arity])
-    ptable = atom_tbl[unit_atom].modules[arity];
+      pl_atom_tbl[unit_atom].modules && 
+      pl_atom_tbl[unit_atom].modules[arity])
+    ptable = pl_atom_tbl[unit_atom].modules[arity];
   else
-    ptable = pred_tbl;
+    ptable = pl_pred_tbl;
 
-  return (PredInf *) Hash_Find (ptable, key);
+  return (PredInf *) Pl_Hash_Find (ptable, key);
 }
 
 #endif

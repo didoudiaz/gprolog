@@ -736,14 +736,15 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case CXT_CALL_X:		/* unlike regular call and execute, we */
     case CXT_EXECUTE_X:		/* can't resolve to predicate code address */
       nb_word = 3;		/* before runtime. */
-      BC_Fun(w) = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
-      BC_Ari(w) = arity;
+      w1 = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
+      BC2_Arity(w) = arity;
+
       w1 = (unsigned) BC_Arg_X_Or_Y (*arg_adr, &op);
       w2 = (unsigned) Functor_Arity(caller_func, caller_arity);
       break;
 
     case CXT_ASSIGN_K_X:	/* arg: an X or a Y */
-      BC_XY(w) = BC_Arg_X_Or_Y (*arg_adr, &op);
+      BC1_XY(w) = BC_Arg_X_Or_Y (*arg_adr, &op);
       break;
 
     case CXT_ARG_LOAD_XX:	/* args: NUMBER, X or Y, X or Y */
@@ -752,16 +753,16 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 	unsigned int op1 = 0;
 	unsigned int op2 = 0;
 	nb_word = 2;
-	BC_Ari(w) = Rd_Integer (*arg_adr++);
-	BC_XY(w)  = BC_Arg_X_Or_Y (*arg_adr++, (int *) &op1);
+	BC1_Arity(w) = Pl_Rd_Integer (*arg_adr++);
+	BC1_XY(w)  = BC_Arg_X_Or_Y (*arg_adr++, (int *) &op1);
 	w1 = (unsigned) BC_Arg_X_Or_Y (*arg_adr, (int *) &op2);
 	op += (op1 << 1) | op2;
       }
       break;
 
     case CXT_UNIT_FOR_NEXT_CALL: /* arg: FUNCTOR/ARITY; ignore for now */
-      BC_Fun(w) = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
-      BC_Ari(w) = arity;
+      BC2_XY(w) = func = BC_Arg_Func_Arity(*arg_adr++, &arity);
+      BC1_Arity(w) = arity;
       break;
 
 /** ------------------------------------------------------------------------ */
@@ -1501,28 +1502,28 @@ bc_loop:
       w1 = Y(E, bc->word);	/* fetch call context */
       goto CXT_EXECUTE_COMMON;
 
-    CXT_EXECUTE_COMMON:		/* TBD */
-      func = BC_Fun (w);
-      arity = BC_Ari (w);
+    CXT_EXECUTE_COMMON:		/* SPA: TBD */
+      ++bc;
+      func = bc->word;		/* SPA: TBD not yet ready (never was) */
+      arity = BC2_Arity (*bc);		/* SPA: TBD again */
 
-      if (debug_call_code != NULL && debug_call &&
-	  Detect_If_Aux_Name(func) == NULL)
-	{
-	  w1 = bc->word;
-	  caller_func = Functor_Of(w1);
-	  caller_arity = Arity_Of(w1);
-	  Prep_Debug_Call(func, arity, caller_func, caller_arity);
-	  return debug_call_code;
-	}
+      if (pl_debug_call_code != NULL && debug_call &&
+	  Pl_Detect_If_Aux_Name(func) == NULL) {
+	w1 = bc->word;
+	caller_func = Functor_Of(w1);
+	caller_arity = Arity_Of(w1);
+	Prep_Debug_Call(func, arity, caller_func, caller_arity);
+	return pl_debug_call_code;
+      }
 
       if ((pred = Cxt_Lookup_Pred(Functor_Arity (func, arity))) == NULL)
 	{
 	  w1 = bc->word;
 	  caller_func = Functor_Of(w1);
 	  caller_arity = Arity_Of(w1);
-	  Set_Bip_Name_2(Tag_ATM(caller_func),
-			 Tag_INT(caller_arity));
-	  Unknown_Pred_Error(func, arity);
+	  Pl_Set_Bip_Name_2(Tag_ATM(caller_func),
+			    Tag_INT(caller_arity));
+	  Pl_Unknown_Pred_Error(func, arity);
 	  goto fail;
 	}
 
@@ -1538,47 +1539,47 @@ bc_loop:
       goto bc_loop;
 
     case CXT_ASSIGN_K_X:	/* OK */
-      x = BC_XY(w);
+      x = BC1_XY(w);
       Cxt_Assign_K (X(x));
       goto bc_loop;
 
     case CXT_ASSIGN_K_Y:	/* OK */
-      y = BC_XY(w);
+      y = BC1_XY(w);
       Cxt_Assign_K (Y(E, y));
       goto bc_loop;
 
     case CXT_ARG_LOAD_XX:	/* OK? */
     case CXT_ARG_UNIFY_XX:	/* OK? */
-      term = X(BC_XY(w));
+      term = X(BC1_XY(w));
       subterm = X(bc->word);
       goto CXT_ARG_COMMON;
 
     case CXT_ARG_LOAD_XY:	/* OK? */
     case CXT_ARG_UNIFY_XY:
-      term = X(BC_XY(w));
+      term = X(BC1_XY(w));
       subterm = Y(E, bc->word);
       goto CXT_ARG_COMMON;
 
     case CXT_ARG_LOAD_YX:	/* OK? */
     case CXT_ARG_UNIFY_YX:
-      term = Y(E, BC_XY(w));
+      term = Y(E, BC1_XY(w));
       subterm = X(bc->word);
       goto CXT_ARG_COMMON;
 
     case CXT_ARG_LOAD_YY:	/* OK? */
     case CXT_ARG_UNIFY_YY:
-      term = Y(E, BC_XY(w));
+      term = Y(E, BC1_XY(w));
       subterm = Y(E, bc->word);
       goto CXT_ARG_COMMON;
 
     CXT_ARG_COMMON:
       ++bc;
       if (BC_Op(w) < CXT_ARG_UNIFY_XX) {
-	if (!Cxt_Arg_Load (BC_Ari(w), term, subterm)) /* FIXME: subterm should be ww* */
+	if (!Cxt_Arg_Load (BC1_Arity(w), term, &subterm)) /* FIXME: subterm should be ww* */
 	  goto fail;
       }
       else {
-	if (!Cxt_Arg_Unify (BC_Ari(w), term, subterm))
+	if (!Cxt_Arg_Unify (BC1_Arity(w), term, subterm))
 	  goto fail;
       }
       goto bc_loop;

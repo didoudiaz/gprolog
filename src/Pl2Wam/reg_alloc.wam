@@ -2,7 +2,7 @@
 % file    : reg_alloc.pl
 
 
-file_name('/home/diaz/GP/src/Pl2Wam/reg_alloc.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/Pl2Wam/reg_alloc.pl').
 
 
 predicate(allocate_registers/1,98,static,private,monofile,global,[

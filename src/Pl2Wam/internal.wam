@@ -2,7 +2,7 @@
 % file    : internal.pl
 
 
-file_name('/home/diaz/GP/src/Pl2Wam/internal.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/Pl2Wam/internal.pl').
 
 
 predicate(internal_format/6,73,static,private,monofile,global,[
@@ -574,7 +574,15 @@ label(1),
                     (g_set_bit,113),
                     (g_reset_bit,115),
                     (g_test_set_bit,117),
-                    (g_test_reset_bit,119)]),
+                    (g_test_reset_bit,119),
+                    (context,121),
+                    (ccontext,123),
+                    ('$cxt_get_K',125),
+                    ('$cxt_get_CK',127),
+                    ('$cxt_put_K',129),
+                    ('$cxt_for_call',131),
+                    ('$cxt_unit_for_next_call',133),
+                    ('$cxt_arg',135)]),
 
 label(2),
     try(97),
@@ -1094,10 +1102,74 @@ label(117),
     proceed,
 
 label(118),
-    trust_me_else_fail,
+    retry_me_else(120),
 
 label(119),
     get_atom(g_test_reset_bit,0),
     get_integer(2,1),
     get_atom(t,2),
+    proceed,
+
+label(120),
+    retry_me_else(122),
+
+label(121),
+    get_atom(context,0),
+    get_integer(1,1),
+    proceed,
+
+label(122),
+    retry_me_else(124),
+
+label(123),
+    get_atom(ccontext,0),
+    get_integer(1,1),
+    proceed,
+
+label(124),
+    retry_me_else(126),
+
+label(125),
+    get_atom('$cxt_get_K',0),
+    get_integer(1,1),
+    proceed,
+
+label(126),
+    retry_me_else(128),
+
+label(127),
+    get_atom('$cxt_get_CK',0),
+    get_integer(1,1),
+    proceed,
+
+label(128),
+    retry_me_else(130),
+
+label(129),
+    get_atom('$cxt_put_K',0),
+    get_integer(1,1),
+    proceed,
+
+label(130),
+    retry_me_else(132),
+
+label(131),
+    get_atom('$cxt_for_call',0),
+    get_integer(1,1),
+    proceed,
+
+label(132),
+    retry_me_else(134),
+
+label(133),
+    get_atom('$cxt_unit_for_next_call',0),
+    get_integer(1,1),
+    proceed,
+
+label(134),
+    trust_me_else_fail,
+
+label(135),
+    get_atom('$cxt_arg',0),
+    get_integer(3,1),
     proceed]).

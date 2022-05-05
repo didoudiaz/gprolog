@@ -3,7 +3,7 @@ GPLCFLAGS = --fast-math
 CFLAGS = @CFLAGS@
 PLS       = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
             code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
-            indexing.pl wam_emit.pl
+            indexing.pl context.pl wam_emit.pl
 OBJS      = $(PLS:.pl=@OBJ_SUFFIX@)
 WAMS      = $(PLS:.pl=.wam)
 

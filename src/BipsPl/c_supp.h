@@ -280,8 +280,6 @@ Bool Pl_Un_Callable(int func, int arity, WamWord *arg, WamWord start_word);
 
 Bool Pl_Un_Term(WamWord term_word, WamWord start_word);
 
-Bool Un_Term(WamWord term_word, WamWord start_word);
-
 
 
 WamWord Pl_Mk_Integer(PlLong value);

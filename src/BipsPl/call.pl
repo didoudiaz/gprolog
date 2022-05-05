@@ -179,7 +179,7 @@ call_det(Goal, Deterministic) :-
 
 
 
-% --- Contexts ------------------------------------------------------------ %
+% --- Contexts ----------------------------------------------------------------
 
 :- op(600, xfx, [:<]).		% useless if boot-strapped but useful
 :- op(600, xfy, [:>]).		% if compiled with standard GNU-Prolog

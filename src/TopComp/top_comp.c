@@ -205,7 +205,7 @@ int no_fd_lib = 0;
 int no_fd_lib_warn = 0;
 int strip = 0;
 
-#ifdef USE_DYNAMIC;
+#ifdef USE_DYNAMIC
 int dynamic = 0;
 #endif
 

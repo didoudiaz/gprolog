@@ -146,16 +146,16 @@ Pl_Create_Pred_Module(int module, int marity,
 
 #ifdef DEBUG
   DBGPRINTF("Create pred: %s/%d  unit: %s/%d  prop: %x\n",
-	    atom_tbl[func].name, arity,
-	    module>0? (atom_tbl[module].name): "<NONE>", marity,
+	    pl_atom_tbl[func].name, arity,
+	    module>0? (pl_atom_tbl[module].name): "<NONE>", marity,
 	    prop);
 #endif
 
-  if (module < 0 || module == ATOM_NIL || module == atom_void)
+  if (module < 0 || module == ATOM_NIL || module == pl_atom_void)
     p_tbl = &pl_pred_tbl;
   else
     {				/* lookup or create a module pred table */
-      atom_module = atom_tbl + module;
+      atom_module = pl_atom_tbl + module;
       
       if (atom_module->modules == NULL) /* no units yet */
 	atom_module->modules = (void *) Calloc (256, (sizeof (void *)));
@@ -167,7 +167,7 @@ Pl_Create_Pred_Module(int module, int marity,
 
       if (atom_module->modules[marity] == NULL)
 	atom_module->modules[marity] =
-	  Hash_Alloc_Table(START_MODULE_PRED_TBL_SIZE, sizeof(PredInf));
+	  Pl_Hash_Alloc_Table(START_MODULE_PRED_TBL_SIZE, sizeof(PredInf));
       p_tbl = &atom_module->modules[marity];
     }
 
@@ -179,7 +179,7 @@ Pl_Create_Pred_Module(int module, int marity,
   pred_info.dyn = NULL;
 
   Pl_Extend_Table_If_Needed(p_tbl);
-  pred = (PredInf *) Hash_Insert(*p_tbl, (char *) &pred_info, FALSE);
+  pred = (PredInf *) Pl_Hash_Insert(*p_tbl, (char *) &pred_info, FALSE);
 
   if (prop != pred->prop)	/* predicate exists - occurs for multifile pred */
     {
@@ -239,7 +239,7 @@ Pl_Lookup_Pred(int func, int arity)
     return p;
   else {			/* predicate in context -> search */
     X(254) = X(255);
-    return (PredInf *) Lookup_Pred_in_Cxt (func, arity, X(255));
+    return (PredInf *) Pl_Lookup_Pred_in_Cxt (func, arity, X(255));
   }
 }
 

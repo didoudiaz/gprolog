@@ -440,7 +440,7 @@ char *
 Pl_Float_To_String(double d)
 {
   char *p, *q, *e;
-  char *buff = buffer? buffer: fts_buffer;
+  char *buff = fts_buffer;
 
 #if 0
   vsprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
