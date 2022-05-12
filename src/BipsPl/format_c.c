@@ -147,7 +147,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
   int i, k;
   char *format_stack[256];
   char **top_stack;
-  char *buff;
+  char *buff = (char *) alloca (2048);
 
   //  printf("d: %p\n", &d);
   top_stack = format_stack;

@@ -2,7 +2,7 @@
 % file    : sort.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/sort.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/sort.pl').
 
 
 predicate('$use_sort'/0,41,static,private,monofile,built_in,[
@@ -10,13 +10,17 @@ predicate('$use_sort'/0,41,static,private,monofile,built_in,[
 
 
 predicate(sort/2,44,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,2]),
+    cxt_assign_K(y(2)),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -25,13 +29,17 @@ predicate(sort/2,44,static,private,monofile,built_in,[
 
 
 predicate(msort/2,52,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,2]),
+    cxt_assign_K(y(2)),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -40,13 +48,17 @@ predicate(msort/2,52,static,private,monofile,built_in,[
 
 
 predicate(keysort/2,60,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,2]),
+    cxt_assign_K(y(2)),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -55,12 +67,16 @@ predicate(keysort/2,60,static,private,monofile,built_in,[
 
 
 predicate(sort/1,68,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[sort,1]),
+    cxt_assign_K(y(1)),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Sort_List_1',[],[x(0)]),
@@ -68,12 +84,16 @@ predicate(sort/1,68,static,private,monofile,built_in,[
 
 
 predicate(msort/1,76,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[msort,1]),
+    cxt_assign_K(y(1)),
     put_integer(0,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Sort_List_1',[],[x(0)]),
@@ -81,12 +101,16 @@ predicate(msort/1,76,static,private,monofile,built_in,[
 
 
 predicate(keysort/1,84,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[keysort,1]),
+    cxt_assign_K(y(1)),
     put_integer(0,0),
     put_integer(2,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Sort_List_1',[],[x(0)]),

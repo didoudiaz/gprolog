@@ -2,7 +2,7 @@
 % file    : print.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/print.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/print.pl').
 
 
 predicate('$use_print'/0,41,static,private,monofile,built_in,[
@@ -23,15 +23,19 @@ predicate(print/2,48,static,private,monofile,built_in,[
 
 predicate('$try_portray'/1,55,static,private,monofile,built_in,[
     try_me_else(1),
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     put_structure((/)/2,0),
     unify_atom(portray),
     unify_integer(1),
     call('$current_predicate'/1),
+    cxt_assign_K(y(1)),
     put_atom('$portray_ok',0),
     put_integer(0,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    cxt_assign_K(y(1)),
     put_structure(format/3,0),
     unify_atom(top_level_output),
     unify_atom('exception from portray/1: ~q~n'),
@@ -50,9 +54,11 @@ predicate('$try_portray'/1,55,static,private,monofile,built_in,[
     put_integer(1,4),
     put_atom(false,5),
     call('$catch'/6),
+    cxt_assign_K(y(1)),
     put_atom('$portray_ok',0),
     put_integer(1,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    cxt_assign_K(y(1)),
     fail,
 
 label(1),
@@ -64,11 +70,15 @@ label(1),
 
 
 predicate(get_print_stream/1,68,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
+    get_variable(y(0),255),
+    cxt_assign_K(y(0)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_print_stream,1]),
-    put_variable(y(0),1),
+    cxt_assign_K(y(0)),
+    put_variable(y(1),1),
     call('$check_stream_or_var'/2),
-    put_unsafe_value(y(0),0),
+    cxt_assign_K(y(0)),
+    put_unsafe_value(y(1),0),
     deallocate,
     call_c('Pl_Get_Print_Stm_1',[],[x(0)]),
     proceed]).

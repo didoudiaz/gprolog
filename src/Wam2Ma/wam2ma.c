@@ -469,9 +469,9 @@ Source_Line(int line_no, char *cmt)
 void
 F_unit_name(ArgVal arg[])
 {
-  Args2(STR(unit_name), INTEGER(unit_arity));
+  Args1(F_N_0(unit_name, unit_arity));
 
-  Cxt_Unit_Name (strdup (unit_name), unit_arity);
+  Cxt_Unit_Name(unit_name, unit_arity);
 }
 
 
@@ -2467,12 +2467,12 @@ Display_Help(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Cxt_Unit_Name(char *unit_name, int arity)
+Cxt_Unit_Name(BTNode *unit_name, int arity)
 {
-  if (strcmp(unit_name, "[]") == 0)
+  if (strcmp(unit_name->str, "[]") == 0)
     cxt_cur_unit = NULL;
   else {
-    cxt_cur_unit = BT_String_Add(&bt_atom, unit_name);
+    cxt_cur_unit = unit_name;
     cxt_cur_unit->arity = arity;
   }
 }

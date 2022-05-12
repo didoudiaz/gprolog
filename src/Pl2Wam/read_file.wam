@@ -2,7 +2,7 @@
 % file    : read_file.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/Pl2Wam/read_file.pl').
+file_name('/home/diaz/tmp/gprolog/src/Pl2Wam/read_file.pl').
 
 
 predicate(read_file_init/1,127,static,private,monofile,global,[

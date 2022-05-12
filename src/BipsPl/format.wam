@@ -2,7 +2,7 @@
 % file    : format.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/format.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/format.pl').
 
 
 predicate('$use_format'/0,41,static,private,monofile,built_in,[

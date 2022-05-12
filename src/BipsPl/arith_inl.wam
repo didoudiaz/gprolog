@@ -2,7 +2,7 @@
 % file    : arith_inl.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/arith_inl.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/arith_inl.pl').
 
 
 predicate('$use_arith_inl'/0,41,static,private,monofile,built_in,[

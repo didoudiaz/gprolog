@@ -49,27 +49,29 @@
  *
  * XK_[E(MODULE)__]E(PRED)__aN
  *
- * K: an ASCII digit '0'-'5' storing coding information about MODULE and PRED
- *    associated integer (value on 3 bits):
- *     0 (00 0) : no module present        PRED is not encoded
- *     1 (00 1) : no module present        PRED is encoded
- *     2 (01 0) : MODULE is not encoded    PRED is not encoded
- *     3 (01 1) : MODULE is not encoded    PRED is encoded
- *     4 (10 0) : MODULE is encoded        PRED is not encoded
- *     5 (10 1) : MODULE is encoded        PRED is encoded
+ * K: an ASCII hex digit storing coding information about MODULE and PRED
+ *    associated integer (value on 4 bits):
+ *     (* ** 0) PRED is not encoded
+ *     (* ** 1) PRED is encoded
+ *     (* *0 *) no module or unit present
+ *     (* 01 *) module or unit present, not encoded
+ *     (* 11 *) module or unit present, encoded
+ *     (0 *1 *) module is ISO module name
+ *     (1 *1 *) module is unit name -> requires arity
  *
  * Where E(STR) =
- *  - STR (not encoded) if STR only contains letters, digits or _
- *    but does not contain the substring __ and does not begin/end with _
- *    regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
- *  - an hexa representation (encoded) of each character of the string
+ *  - STR (not encoded) if STR only contains letters, digits or _ but
+ *    does not contain the substring __ (2 _'s) and does not begin/end
+ *    with _ regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
+ *  - a hex representation (encoded) of each character of the string
  *
- * Extension for contexts: MODULE is now MODULE/M_ARITY (lexically),
- * with M_ARITY defaulting to 0, so we now have:
+ * For contexts: MODULE represents the UNIT and is now MODULE/M_ARITY
+ * (lexically), with M_ARITY defaulting to 0, so we now have:
  *
- * XK_[E(MODULE)_[uM_]_]E(PRED)__aN
+ * XK_[E(MODULE)__[uM__]]E(PRED)__aN
  *
- * If M_ARITY is zero, the string "uM_" is omitted.
+ * When encoding a unit (i.e. K > 7), even if M_ARITY is zero, the
+ * string "uM__" is *NOT* omitted.
  *
  * NB: if this mangling schema is modified also modify macro 
  *     Prolog_Prototype in engine.h
@@ -122,6 +124,8 @@ Encode_Hexa_CX(char *unit, int uarity,
 	       char *module, char *pred, int arity, char *str)
 {
   int module_encode;
+  int encode_flags;
+  char encode_code[4];		/* 2 should suffice */
   int pred_encode = String_Needs_Encoding(pred);
 
   if (module && unit) {	      /* explicit module => context ignored */
@@ -133,26 +137,31 @@ Encode_Hexa_CX(char *unit, int uarity,
 
   module_encode = ( (module == NULL || *module == '\0') ? 0 :
 		    String_Needs_Encoding(module) + 1 ) ;
-  
-  // bit pattern: mm p (range 0 to 0'101 ~ 1+4 = 5)
+
+  encode_flags =
+    pred_encode |				// lower bit
+    (module_encode << 1) |			// 2 next bits
+    ( unit && unit[0] ? 1 << 3 : 0 );		// upper bit
+  sprintf (encode_code, "%01X", encode_flags);
+
+  // bit pattern: u mm p (range 0 to 0'1111 = 1 hex digit)
+  // u ~ 0 if no unit, 1 otherwise
   // mm ~ 00 if no module, 01 if module in cleartext, 10 if encoded (hex)
   // p ~ 0 if pred in cleartext, 1 if encoded (hex)
   *str++ = 'X';
-  *str++ = '0' + ((module_encode << 1) | pred_encode);
+  *str++ = encode_code[0];
   *str++ = '_';
   if (module && *module != '\0') {
     if (module_encode == 1)
-      str += sprintf(str, "%s_", module);
+      str += sprintf(str, "%s__", module);
     else if (module_encode == 2) {
       str = Encode_String(module, str);
       *str++ = '_';
-    }
-    if (unit && *unit)		/* only output when it's a unit */
-      str += sprintf (str, "u%d_", uarity);
-    else
       *str++ = '_';
+    }
+    if (encode_flags > 7)	/* only output when it's a unit */
+      str += sprintf (str, "u%d__", uarity);
   }
-  //  *str++ = '_';
 
   if (pred_encode == 0)
     str += sprintf(str, "%s", pred);

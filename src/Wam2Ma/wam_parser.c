@@ -84,7 +84,7 @@ ParseInf;
  *---------------------------------*/
 
 ParseInf decl[] = {
-  {"unit_name", F_unit_name, 2, {ATOM, INTEGER}},
+  {"unit_name", F_unit_name, 1, {F_N}},
   {"file_name", F_file_name, 1, {ATOM}},
   {"directive", F_directive, 3, {INTEGER, ATOM, LIST_INST}},
   {"predicate", F_predicate, 7, {MP_N, INTEGER, ATOM, ATOM, ATOM, ATOM, LIST_INST}},

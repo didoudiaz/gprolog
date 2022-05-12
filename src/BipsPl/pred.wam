@@ -2,7 +2,7 @@
 % file    : pred.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/pred.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/pred.pl').
 
 
 predicate('$use_pred'/0,41,static,private,monofile,built_in,[
@@ -54,22 +54,28 @@ predicate(predicate_property/2,71,static,private,monofile,built_in,[
 
 label(1),
     retry_me_else(2),
-    allocate(4),
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cxt_assign_K(y(2)),
     cut(x(2)),
+    cxt_assign_K(y(2)),
     put_structure((/)/2,0),
-    unify_variable(y(2)),
     unify_variable(y(3)),
+    unify_variable(y(4)),
     call('$current_predicate_bips'/1),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
-    put_value(y(2),1),
-    put_value(y(3),2),
-    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
-    put_value(y(2),0),
     put_value(y(3),1),
+    put_value(y(4),2),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    cxt_assign_K(y(2)),
+    put_value(y(3),0),
+    put_value(y(4),1),
     put_value(y(1),2),
     deallocate,
     execute('$predicate_property1'/3),
@@ -82,30 +88,38 @@ label(2),
 
 
 predicate('$predicate_property_pi'/2,90,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     call('$current_predicate_bips'/1),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     get_structure((/)/2,0),
     unify_variable(x(0)),
     unify_variable(x(1)),
+    cxt_assign_K(y(2)),
     put_value(y(1),2),
     deallocate,
     execute('$predicate_property1'/3)]).
 
 
 predicate('$predicate_property_pi_any'/2,96,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     call('$current_predicate_any'/1),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     get_structure((/)/2,0),
     unify_variable(x(0)),
     unify_variable(x(1)),
+    cxt_assign_K(y(2)),
     put_value(y(1),2),
     deallocate,
     execute('$predicate_property1'/3)]).
@@ -114,14 +128,18 @@ predicate('$predicate_property_pi_any'/2,96,static,private,monofile,built_in,[
 predicate('$predicate_property1'/3,104,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
-    allocate(4),
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
     get_variable(y(3),3),
+    get_variable(y(4),255),
+    cxt_assign_K(y(4)),
     put_value(y(2),0),
     call('$check_pred_prop'/1),
+    cxt_assign_K(y(4)),
     cut(y(3)),
+    cxt_assign_K(y(4)),
     put_value(y(2),0),
     put_value(y(0),1),
     put_value(y(1),2),

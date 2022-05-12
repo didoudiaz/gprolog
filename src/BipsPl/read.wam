@@ -2,7 +2,7 @@
 % file    : read.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/read.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/read.pl').
 
 
 predicate('$use_read'/0,41,static,private,monofile,built_in,[
@@ -10,10 +10,14 @@ predicate('$use_read'/0,41,static,private,monofile,built_in,[
 
 
 predicate(read/1,49,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read,1]),
+    cxt_assign_K(y(1)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Read_1',[boolean],[x(0)]),
@@ -21,11 +25,15 @@ predicate(read/1,49,static,private,monofile,built_in,[
 
 
 predicate(read/2,54,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read,2]),
+    cxt_assign_K(y(2)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -34,20 +42,25 @@ predicate(read/2,54,static,private,monofile,built_in,[
 
 
 predicate(read_term/2,76,static,private,monofile,built_in,[
-    allocate(5),
+    allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_term,2]),
+    cxt_assign_K(y(2)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(2)),
     put_value(y(1),0),
-    put_variable(y(2),1),
-    put_variable(y(3),2),
-    put_variable(y(4),3),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    put_variable(y(5),3),
     call('$get_read_options'/4),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
-    put_unsafe_value(y(2),1),
-    put_unsafe_value(y(3),2),
-    put_unsafe_value(y(4),3),
+    put_unsafe_value(y(3),1),
+    put_unsafe_value(y(4),2),
+    put_unsafe_value(y(5),3),
     deallocate,
     call_c('Pl_Read_Term_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
@@ -59,31 +72,38 @@ predicate(read_term/3,83,static,private,monofile,built_in,[
 
 
 predicate('$read_term'/3,87,static,private,monofile,built_in,[
-    allocate(6),
+    allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
+    get_variable(y(3),255),
+    cxt_assign_K(y(3)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(3)),
     put_value(y(2),0),
-    put_variable(y(3),1),
-    put_variable(y(4),2),
-    put_variable(y(5),3),
+    put_variable(y(4),1),
+    put_variable(y(5),2),
+    put_variable(y(6),3),
     call('$get_read_options'/4),
+    cxt_assign_K(y(3)),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_unsafe_value(y(3),2),
-    put_unsafe_value(y(4),3),
-    put_unsafe_value(y(5),4),
+    put_unsafe_value(y(4),2),
+    put_unsafe_value(y(5),3),
+    put_unsafe_value(y(6),4),
     deallocate,
     call_c('Pl_Read_Term_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
 predicate('$set_read_defaults'/0,95,static,private,monofile,built_in,[
-    allocate(0),
+    allocate(1),
+    get_variable(y(0),255),
+    cxt_assign_K(y(0)),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
+    cxt_assign_K(y(0)),
     put_integer(1,0),
     put_integer(-1,1),
     deallocate,
@@ -91,30 +111,39 @@ predicate('$set_read_defaults'/0,95,static,private,monofile,built_in,[
 
 
 predicate('$get_read_options'/4,102,static,private,monofile,built_in,[
-    allocate(4),
+    allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
     get_variable(y(3),3),
+    get_variable(y(4),255),
+    cxt_assign_K(y(4)),
     put_value(y(0),0),
     call('$check_list'/1),
+    cxt_assign_K(y(4)),
     put_atom('$read_variables',0),
     put_nil(1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    cxt_assign_K(y(4)),
     put_atom('$read_variable_names',0),
     put_nil(1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    cxt_assign_K(y(4)),
     put_atom('$read_singletons',0),
     put_nil(1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    cxt_assign_K(y(4)),
     put_value(y(0),0),
     call('$get_read_options1'/1),
+    cxt_assign_K(y(4)),
     put_atom('$read_variables',0),
     put_value(y(1),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    cxt_assign_K(y(4)),
     put_atom('$read_variable_names',0),
     put_value(y(2),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    cxt_assign_K(y(4)),
     put_atom('$read_singletons',0),
     put_value(y(3),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
@@ -138,13 +167,17 @@ label(3),
     trust_me_else_fail,
 
 label(4),
-    allocate(2),
+    allocate(3),
     get_list(0),
     unify_variable(x(0)),
     unify_variable(y(0)),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call('$get_read_options2'/1),
+    cxt_assign_K(y(2)),
     cut(y(1)),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     deallocate,
     execute('$get_read_options1'/1)]).
@@ -205,27 +238,33 @@ label(9),
     retry_me_else(11),
 
 label(10),
-    allocate(1),
+    allocate(2),
     get_structure(syntax_error/1,0),
     unify_variable(y(0)),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     call('$check_nonvar'/1),
-    put_value(y(0),0),
+    put_unsafe_value(y(1),0),
+    put_value(y(0),1),
     deallocate,
-    execute('$$get_read_options2/1_$aux1'/1),
+    execute('$$get_read_options2/1_$aux1'/2),
 
 label(11),
     trust_me_else_fail,
 
 label(12),
-    allocate(1),
+    allocate(2),
     get_structure(end_of_term/1,0),
     unify_variable(y(0)),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     call('$check_nonvar'/1),
-    put_value(y(0),0),
+    put_unsafe_value(y(1),0),
+    put_value(y(0),1),
     deallocate,
-    execute('$$get_read_options2/1_$aux2'/1),
+    execute('$$get_read_options2/1_$aux2'/2),
 
 label(13),
     trust_me_else_fail,
@@ -234,70 +273,62 @@ label(13),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_read_options2/1_$aux2'/1,149,static,private,monofile,local,[
-    switch_on_term(2,1,fail,fail,fail),
-
-label(1),
-    switch_on_atom([(dot,3),(eof,5)]),
-
-label(2),
-    try_me_else(4),
-
-label(3),
-    get_atom(dot,0),
+predicate('$$get_read_options2/1_$aux2'/2,149,static,private,monofile,local,[
+    try_me_else(1),
+    cxt_assign_K(x(0)),
+    get_atom(dot,1),
+    cxt_assign_K(x(0)),
     put_integer(0,0),
     put_integer(3,1),
     execute('$sys_var_reset_bit'/2),
 
-label(4),
+label(1),
     trust_me_else_fail,
-
-label(5),
-    get_atom(eof,0),
+    cxt_assign_K(x(0)),
+    get_atom(eof,1),
+    cxt_assign_K(x(0)),
     put_integer(0,0),
     put_integer(3,1),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_read_options2/1_$aux1'/1,139,static,private,monofile,local,[
-    switch_on_term(2,1,fail,fail,fail),
-
-label(1),
-    switch_on_atom([(error,3),(warning,5),(fail,7)]),
-
-label(2),
-    try_me_else(4),
-
-label(3),
-    get_atom(error,0),
+predicate('$$get_read_options2/1_$aux1'/2,139,static,private,monofile,local,[
+    try_me_else(1),
+    cxt_assign_K(x(0)),
+    get_atom(error,1),
+    cxt_assign_K(x(0)),
     put_integer(1,0),
     put_integer(0,1),
     execute('$sys_var_write'/2),
 
-label(4),
-    retry_me_else(6),
-
-label(5),
-    get_atom(warning,0),
+label(1),
+    retry_me_else(2),
+    cxt_assign_K(x(0)),
+    get_atom(warning,1),
+    cxt_assign_K(x(0)),
     put_integer(1,0),
     put_integer(1,1),
     execute('$sys_var_write'/2),
 
-label(6),
+label(2),
     trust_me_else_fail,
-
-label(7),
-    get_atom(fail,0),
+    cxt_assign_K(x(0)),
+    get_atom(fail,1),
+    cxt_assign_K(x(0)),
     put_integer(1,0),
     put_integer(2,1),
     execute('$sys_var_write'/2)]).
 
 
 predicate(read_atom/1,163,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_atom,1]),
+    cxt_assign_K(y(1)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Read_Atom_1',[boolean],[x(0)]),
@@ -305,11 +336,15 @@ predicate(read_atom/1,163,static,private,monofile,built_in,[
 
 
 predicate(read_atom/2,169,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_atom,2]),
+    cxt_assign_K(y(2)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -318,10 +353,14 @@ predicate(read_atom/2,169,static,private,monofile,built_in,[
 
 
 predicate(read_integer/1,177,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_integer,1]),
+    cxt_assign_K(y(1)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Read_Integer_1',[boolean],[x(0)]),
@@ -329,11 +368,15 @@ predicate(read_integer/1,177,static,private,monofile,built_in,[
 
 
 predicate(read_integer/2,183,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_integer,2]),
+    cxt_assign_K(y(2)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -342,10 +385,14 @@ predicate(read_integer/2,183,static,private,monofile,built_in,[
 
 
 predicate(read_number/1,191,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_number,1]),
+    cxt_assign_K(y(1)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     call_c('Pl_Read_Number_1',[boolean],[x(0)]),
@@ -353,11 +400,15 @@ predicate(read_number/1,191,static,private,monofile,built_in,[
 
 
 predicate(read_number/2,197,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_number,2]),
+    cxt_assign_K(y(2)),
     call('$set_read_defaults'/0),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,

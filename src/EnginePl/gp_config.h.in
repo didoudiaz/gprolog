@@ -105,9 +105,6 @@
 /* Define if you have a mallopt function */
 #undef HAVE_MALLOPT
 
-/* Define if you have a mkstemp function */
-#undef HAVE_MKSTEMP
-
 /* Define if you have a htole32 function */
 #undef HAVE_DECL_HTOLE32
 
@@ -141,11 +138,7 @@
 /* Define if you don't want to include the FD constraint solver */
 #undef NO_USE_FD_SOLVER
 
-/* Define if you want to use the foreign destructor in choicepoint functions */
-#undef USE_WATERMARK
 
-/* Define if you want to use dynamically-loadable objects */
-#undef USE_DYNAMIC
 
 
 /* Define if the cpu is a mips32 */
@@ -322,13 +315,8 @@
 #define PROLOG_DIALECT             any
 #define PROLOG_NAME                any
 #define PROLOG_VERSION             any
-#define PROLOG_VARIANT             any
 #define PROLOG_DATE                any
 #define PROLOG_COPYRIGHT           any
-
-#define PROLOG_BINDIR		   any
-#define PROLOG_LIBDIR		   any
-#define PROLOG_INCDIR		   any
 
 #define TOP_LEVEL                  any
 #define GPLC                       any

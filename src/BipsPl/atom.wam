@@ -2,7 +2,7 @@
 % file    : atom.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/atom.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/atom.pl').
 
 
 predicate('$use_atom'/0,41,static,private,monofile,built_in,[
@@ -108,12 +108,16 @@ predicate('$current_atom_alt'/0,139,static,private,monofile,built_in,[
 
 
 predicate(atom_property/2,146,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[atom_property,2]),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     call('$current_atom'/1),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -121,11 +125,14 @@ predicate(atom_property/2,146,static,private,monofile,built_in,[
 
 
 predicate('$atom_property_any'/2,151,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
+    get_variable(y(2),255),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     call('$current_atom_any'/1),
+    cxt_assign_K(y(2)),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
@@ -135,13 +142,17 @@ predicate('$atom_property_any'/2,151,static,private,monofile,built_in,[
 predicate('$atom_property1'/2,158,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
-    allocate(3),
+    allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
+    get_variable(y(3),255),
+    cxt_assign_K(y(3)),
     put_value(y(1),0),
     call('$check_atom_prop'/1),
+    cxt_assign_K(y(3)),
     cut(y(2)),
+    cxt_assign_K(y(3)),
     put_value(y(0),0),
     put_variable(x(2),1),
     put_variable(x(3),7),
@@ -149,6 +160,7 @@ predicate('$atom_property1'/2,158,static,private,monofile,built_in,[
     put_variable(x(5),9),
     put_variable(x(6),10),
     call_c('Pl_Atom_Property_6',[],[x(0),x(1),x(7),x(8),x(9),x(10)]),
+    cxt_assign_K(y(3)),
     put_value(y(1),0),
     put_value(y(0),1),
     deallocate,

@@ -2,7 +2,7 @@
 % file    : throw.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/throw.pl').
+file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/throw.pl').
 
 
 predicate('$use_throw'/0,41,static,private,monofile,built_in,[
@@ -22,39 +22,52 @@ predicate('$throw1'/2,49,static,private,monofile,built_in,[
 
 
 predicate('$throw_internal'/2,54,static,private,monofile,built_in,[
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
-    put_value(y(0),0),
-    call('$$throw_internal/2_$aux1'/2),
+    get_variable(y(1),255),
+    put_value(x(1),2),
+    put_value(y(1),0),
+    put_value(y(0),1),
+    call('$$throw_internal/2_$aux1'/3),
+    cxt_assign_K(y(1)),
     put_integer(8,0),
     put_value(y(0),1),
     call('$sys_var_put'/2),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
     deallocate,
     execute('$unwind'/1)]).
 
 
-predicate('$$throw_internal/2_$aux1'/2,54,static,private,monofile,local,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
+predicate('$$throw_internal/2_$aux1'/3,54,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     try_me_else(1),
-    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
-    cut(x(2)),
-    call_c('Pl_Call_Info_Bip_Name_1',[],[x(1)]),
+    cxt_assign_K(x(0)),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(1)]),
+    cut(x(3)),
+    cxt_assign_K(x(0)),
+    call_c('Pl_Call_Info_Bip_Name_1',[],[x(2)]),
+    cxt_assign_K(x(0)),
     execute('$pl_err_instantiation'/0),
 
 label(1),
     trust_me_else_fail,
+    cxt_assign_K(x(0)),
     proceed]).
 
 
 predicate('$unwind'/1,66,static,private,monofile,built_in,[
-    allocate(2),
+    allocate(3),
     get_variable(y(0),0),
+    get_variable(y(1),255),
+    cxt_assign_K(y(1)),
     put_integer(7,0),
-    put_variable(y(1),1),
+    put_variable(y(2),1),
     call('$sys_var_read'/2),
+    cxt_assign_K(y(1)),
     put_value(y(0),0),
-    put_unsafe_value(y(1),1),
+    put_unsafe_value(y(2),1),
     call_c('Pl_Throw_2',[],[x(0),x(1)]),
+    cxt_assign_K(y(1)),
     fail]).
