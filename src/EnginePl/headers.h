@@ -6,7 +6,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -21,8 +21,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
-
-/* $Id: headers.h,v 1.1.1.1 2003/04/08 09:42:52 spa Exp $ */
 
 #ifndef _GPROLOG_H
 #define _GPROLOG_H

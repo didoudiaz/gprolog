@@ -22,8 +22,6 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
 
-/* $Id: context.h,v 1.2 2006/07/15 19:59:35 spa Exp $ */
-
 extern PredInf *Cxt_Lookup_Pred_With_K (long key, WamWord cxt_call_K) FC;
 extern PredInf *Cxt_Lookup_Pred (long key) FC;
 extern WamCont Cxt_Call_Tagged(WamWord key, WamWord call_K) FC;

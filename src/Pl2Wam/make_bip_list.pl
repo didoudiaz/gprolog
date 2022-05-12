@@ -6,7 +6,7 @@
  * Descr.: bip file generator                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2002 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -21,8 +21,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.  *
  * 59 Temple Place - Suite 330, Boston, MA 02111, USA.                     *
  *-------------------------------------------------------------------------*/
-
-/* $Id: make_bip_list.pl,v 1.2 2003/09/17 13:23:18 spa Exp $ */
 
 q :-
 	set_prolog_flag(strict_iso, off),
