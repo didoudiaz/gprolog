@@ -554,6 +554,9 @@ F_predicate(ArgVal arg[])
   /* 'user' is accepted for compatibility as 'global' - no longer generated */
 
 
+  if (cxt_cur_unit)		// definitions for contextual predicates
+    local_symbol = TRUE;	// are always local
+
   if (!local_symbol)
     prop |= MASK_PRED_EXPORTED;
 
