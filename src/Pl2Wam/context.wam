@@ -2,7 +2,7 @@
 % file    : context.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/Pl2Wam/context.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/Pl2Wam/context.pl').
 
 
 predicate('$cxt_for_call'/1,65,static,private,monofile,global,[
@@ -1595,7 +1595,7 @@ predicate(cxt_emit_unit_name/1,532,static,private,monofile,global,[
     execute(format/3)]).
 
 
-directive(59,system,[
+directive(60,system,[
     put_integer(600,0),
     put_atom(xfx,1),
     put_list(2),
@@ -1604,7 +1604,7 @@ directive(59,system,[
     execute(op/3)]).
 
 
-directive(60,system,[
+directive(61,system,[
     put_integer(600,0),
     put_atom(xfy,1),
     put_list(2),
@@ -1613,7 +1613,7 @@ directive(60,system,[
     execute(op/3)]).
 
 
-directive(61,system,[
+directive(62,system,[
     put_integer(600,0),
     put_atom(xfy,1),
     put_list(2),
@@ -1622,7 +1622,7 @@ directive(61,system,[
     execute(op/3)]).
 
 
-directive(62,system,[
+directive(63,system,[
     put_integer(600,0),
     put_atom(fy,1),
     put_list(2),

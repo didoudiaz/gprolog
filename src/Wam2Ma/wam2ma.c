@@ -1212,10 +1212,19 @@ F_deallocate(ArgVal arg[])
 void
 F_call(ArgVal arg[])
 {
+  char  *ux = cxt_unit_for_next_call;
+  PlLong ua = cxt_arity_for_next_call;
+
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa_CX(cxt_unit_for_next_call, cxt_arity_for_next_call,
-		 m, p, n, buff_hexa);
+  if (!cxt_cur_unit ||
+      !strcmp (ux, cxt_cur_unit->str) ||
+      ua != cxt_cur_unit->arity) {
+    ux = "";
+    ua = 0;
+  }
+
+  Encode_Hexa_CX(ux, ua, m, p, n, buff_hexa);
   cxt_unit_for_next_call[0] = 0;
 
   Inst_Printf("pl_call", buff_hexa);
@@ -1231,10 +1240,19 @@ F_call(ArgVal arg[])
 void
 F_execute(ArgVal arg[])
 {
+  char  *ux = cxt_unit_for_next_call;
+  PlLong ua = cxt_arity_for_next_call;
+
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa_CX(cxt_unit_for_next_call, cxt_arity_for_next_call,
-		 m, p, n, buff_hexa);
+  if (!cxt_cur_unit ||
+      !strcmp (ux, cxt_cur_unit->str) ||
+      ua != cxt_cur_unit->arity) {
+    ux = "";
+    ua = 0;
+  }
+
+  Encode_Hexa_CX(ux, ua, m, p, n, buff_hexa);
   cxt_unit_for_next_call[0] = 0;
 
   Inst_Printf("pl_jump", buff_hexa);

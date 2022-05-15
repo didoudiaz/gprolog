@@ -6,7 +6,7 @@
  * Descr.: contextual LP management                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz, Salvador Abreu                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -56,12 +56,11 @@
  * Makefile --min-bips by --no-top-level.                                  *
  * ------------------------------------------------------------------------*/
 
-:- op(600, xfx, [:<]).		% useless if boot-strapped but useful
-:- op(600, xfy, [:>]).		% when compiled with regular GNU-Prolog
+:- op(600, xfx, [:<]).		% useless if bootstrapped but nice to have
+:- op(600, xfy, [:>]).		% when compiling with regular GNU-Prolog
 :- op(600, xfy, [::]).		% ...
 :- op(600, fy, [:<, :^, :#, :>]). % ...
 				
-
 '$cxt_for_call'(_).		% FIXME: should never be needed!!!
  
 % --- First pass - keep info about defined predicates --- %
@@ -479,7 +478,7 @@ cxt_rewrite_simple(P, P2) :-
 	nonvar(P),
 	functor(P, F, N),
 	(   g_read(cxt_env_call, 0)
-	;   g_read(cxt_env_call, 1), % recursive
+	;   g_read(cxt_env_call, 1), % recursive call ==> no context
 	    g_read(cxt_cur_func, F),
 	    g_read(cxt_cur_arity, N)
 	), !,
