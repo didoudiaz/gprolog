@@ -21,7 +21,7 @@ pl_year()
     LC_ALL=C date '+%Y'
 }
 
-PROLOG_NAME='GNU Prolog'
+PROLOG_NAME='GNU Prolog/CX'
 PROLOG_DIALECT='gprolog-cx'
 PROLOG_VERSION=$PACKAGE_VERSION
 PROLOG_DATE=`pl_date`
