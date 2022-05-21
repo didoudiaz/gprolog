@@ -1,0 +1,17 @@
+#!/bin/sh
+BENCH_PL=`cat ../PROGS`
+
+p=`(cd ..;pwd)`
+p1=`pwd`;
+
+for i in ${*:-$BENCH_PL}
+do
+        echo $i
+        f=$i.pl
+        sed -e 's/^:- include(common)\.//' $p/$i.pl >$f
+        sed -e 's/^:- include(hook)\.//' $p/common.pl >>$f
+        cat HOOK.pl >>$f
+	wamcc $f
+	w_gcc -s -o $i $i.c -lwamcc
+	rm -f $i.c $i.h $i.usr
+done

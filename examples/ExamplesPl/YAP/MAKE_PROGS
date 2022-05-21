@@ -1,0 +1,17 @@
+#!/bin/sh
+BENCH_PL=`cat ../PROGS`
+
+p=`(cd ..;pwd)`
+p1=`pwd`;
+
+for i in ${*:-$BENCH_PL}
+do
+        echo $i
+        f=$p1/$i.pl
+        echo "#!/bin/sh" >$i
+        echo "sed -e 's/^:- include(common)\.//' $p/$i.pl >$f" >>$i
+        echo "sed -e 's/^:- include(hook)\.//' $p/common.pl >>$f" >>$i
+        echo "cat $p1/HOOK.pl >>$f" >>$i
+	echo "echo \"compile('$f'). \" | yap -- \$* 2>/dev/null" >>$i
+	chmod a+x $i
+done
