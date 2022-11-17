@@ -42,6 +42,7 @@
 #include "../EnginePl/engine_pl.h"
 #include "../BipsPl/c_supp.h"
 #include "../BipsPl/inl_protos.h"
+#include "../BipsPl/flag_supp.h"
 #include "copying.c"
 
 
@@ -167,6 +168,12 @@ Main_Wrapper(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--quiet"))
+	    {
+	      SYS_VAR_QUIET = 1;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "-h") || Check_Arg(i, "--help"))
 	    {
 	      Display_Help();
@@ -234,6 +241,7 @@ Display_Help(void)
   L("  --init-goal    GOAL         execute GOAL before entering the top-level");
   L("  --entry-goal   GOAL         execute GOAL inside the top-level");
   L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
+  L("  --quiet                     suppress top-level banner");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");

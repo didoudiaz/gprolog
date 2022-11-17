@@ -240,3 +240,11 @@ p:-write(toto),nl.
 
 %:- initialization((trace, p)).
 %foo:-write(a),write(b),nl.
+
+test(Goal) :-
+	open(foo, write, Stream),
+	set_output(Stream),
+%	set_error(Stream),
+	% redirect any output from Goal using implicit streams to file "foo"
+	call(Goal),
+	close(Stream).

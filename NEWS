@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.5.1
 
+* add --quiet option to top-level command-line (do not display banner)
 * port to RISC-V 64 bits/Linux - many thanks to
   Jasper Taylor <jasper@simulistics.com>
 * fix issue #23: add built-in predicate copy_file/2

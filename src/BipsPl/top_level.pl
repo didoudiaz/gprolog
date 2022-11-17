@@ -42,17 +42,26 @@
 
 
 top_level :-
+	(   '$sys_var_read'(15, 0) ->
+	    '$banner'(top_level_output),
+	    nl(top_level_output)
+	;   true
+	),
+	break.
+
+
+
+
+'$banner'(Stream) :-
 	current_prolog_flag(prolog_name, Name),
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
 	current_prolog_flag(address_bits, Bits),
 	current_prolog_flag(compiled_at, Date),
 	current_prolog_flag(c_cc, CC),
-	format(top_level_output, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
-	format(top_level_output, 'Compiled ~a with ~a~n', [Date, CC]),
-	format(top_level_output, '~a~n', [Copyright]),
-	nl,
-	break.
+	format(Stream, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
+	format(Stream, 'Compiled ~a with ~a~n', [Date, CC]),
+	format(Stream, '~a~n', [Copyright]).
 
 
 

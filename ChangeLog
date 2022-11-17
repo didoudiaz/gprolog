@@ -1,3 +1,7 @@
+Thu Nov 17 17:30:01 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* add --quiet option to top-level command-line (do not display banner)
+
 Wed Mar  9 17:41:41 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #23: add built-in predicate copy_file/2

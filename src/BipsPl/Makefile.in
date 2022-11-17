@@ -107,7 +107,7 @@ t.wam: t.pl
 
 t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/$(LIB_ENGINE_PL) $(LIBNAME) \
             ../Linedit/$(LIB_LINEDIT)
-	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib
+	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib --new-top-level
 
 
 # depending on ../EnginePl/gp_config.h
