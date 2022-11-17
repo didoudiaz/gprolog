@@ -358,7 +358,7 @@ break :-
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
 	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
 	nonvar(Err),
-	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.
 	
 '$exec_cmd_line_consult_files'([_|LFile]) :-
@@ -383,7 +383,7 @@ break :-
 '$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
 	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->
 	    true
-	;   format('~Nwarning: command-line goal ~q failed~n', [Goal])).
+	;   format(top_level_output, '~Nwarning: command-line goal ~q failed~n', [Goal])).
 
 
 '$exec_cmd1'(Goal) :-
@@ -392,5 +392,5 @@ break :-
 
 
 '$exec_cmd_err'(Goal, Err) :-
-	format('~Nwarning: command-line goal ~q caused exception: ~q~n', [Goal, Err]).
+	format(top_level_output, '~Nwarning: command-line goal ~q caused exception: ~q~n', [Goal, Err]).
 
