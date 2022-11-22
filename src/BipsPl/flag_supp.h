@@ -117,21 +117,21 @@ FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong v
  * modifiable flags give rise to global variable pl_flag_xxx
  */
 
-#define NEW_FLAG_INTEGER(f, v) Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_INTEGER(f, v) Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ATOM_A(f, v)  Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_ATOM_A(f, v)  Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ATOM(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
+#define NEW_FLAG_R_ATOM(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
 
-#define NEW_FLAG_ROUND(f, v)   Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ROUND, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_ROUND(f, v)   Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ROUND, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_BOOL(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_BOOL, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_BOOL(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_BOOL, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ON_OFF(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ON_OFF, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_ON_OFF(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ON_OFF, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ERR(f, v)     pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ERR, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_ERR(f, v)     pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ERR, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_QUOTES(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_QUOTES, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_QUOTES(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_QUOTES, v, NULL, NULL, NULL)
 
 
 

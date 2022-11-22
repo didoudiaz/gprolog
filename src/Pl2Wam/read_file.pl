@@ -1163,7 +1163,7 @@ disp_msg(MsgType, Column, Msg, LArg) :-
 	),
 	format('~a: ', [MsgType]),
 	format(Msg, LArg),
-	nl(user_output).
+	nl.
 
 
 

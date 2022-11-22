@@ -79,17 +79,20 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
-  char *arg[] = { "pl2wam", "-w", "--compile-msg", "--no-redef-error",
-		  "--pl-state", tmp_file, "-o", tmp_file, pl_file,
-		  NULL, NULL, NULL, NULL };  /* 3 warnings + 1 for terminal NULL */
-  int warn_i = sizeof(arg) / sizeof(arg[0]) - 4; /* the 4 NULL */
+  char *arg[16] = { "pl2wam", "-w", "--no-redef-error", 
+		    "--pl-state", tmp_file, "-o", tmp_file, pl_file };
+  int arg_i = 0;
+  while(arg[arg_i] != NULL)
+    arg_i++;
 
+#define ADD_ARG(flag, opt_str)  if (!Flag_Value(flag))  arg[arg_i++] = opt_str
 
-#define ADD_WARN(flag, opt_str)  if (!Flag_Value(flag))  arg[warn_i++] = opt_str
-
-  ADD_WARN(suspicious_warning, "--no-susp-warn");
-  ADD_WARN(singleton_warning, "--no-singl-warn");
-  ADD_WARN(multifile_warning, "--no-mult-warn");
+  if (!SYS_VAR_QUIET)
+    arg[arg_i++] = "--compile-msg";
+  
+  ADD_ARG(suspicious_warning, "--no-susp-warn");
+  ADD_ARG(singleton_warning, "--no-singl-warn");
+  ADD_ARG(multifile_warning, "--no-mult-warn");
 
 
   save = SYS_VAR_SAY_GETC;
