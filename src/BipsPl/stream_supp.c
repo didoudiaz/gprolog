@@ -243,7 +243,7 @@ Init_Stream_Supp(void)
       pl_stream_use_linedit = TRUE;
     }
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin);
+  Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin, FALSE);
   pl_stm_input = pl_stm_stdin;
 
 
@@ -261,7 +261,7 @@ Init_Stream_Supp(void)
   if (pl_le_hook_flush && isatty(1))
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout);
+  Pl_Add_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout, FALSE);
   pl_stm_output = pl_stm_stdout;
 
 
@@ -279,17 +279,17 @@ Init_Stream_Supp(void)
   if (pl_le_hook_flush && isatty(2))
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr);
+  Pl_Add_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr, FALSE);
   pl_stm_error = pl_stm_stderr;
 
   pl_stm_top_level_input = pl_stm_debugger_input = pl_stm_input;
   pl_stm_top_level_output = pl_stm_debugger_output = pl_stm_output;
 
-  Pl_Add_Alias_To_Stream(pl_atom_top_level_input, pl_stm_top_level_input);
-  Pl_Add_Alias_To_Stream(pl_atom_top_level_output, pl_stm_top_level_output);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_input, pl_stm_top_level_input, FALSE);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_output, pl_stm_top_level_output, FALSE);
 
-  Pl_Add_Alias_To_Stream(pl_atom_debugger_input, pl_stm_debugger_input);
-  Pl_Add_Alias_To_Stream(pl_atom_debugger_output, pl_stm_debugger_output);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_input, pl_stm_debugger_input, FALSE);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_output, pl_stm_debugger_output, FALSE);
 }
 
 
@@ -470,13 +470,21 @@ Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 
 
 /*-------------------------------------------------------------------------*
- * REMOVE_STREAM                                                           *
+ * PL_DELETE_STREAM                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Delete_Stream(int stm)
+Pl_Delete_Stream(int stm, Bool keep_stream)
 {
   Del_Aliases_Of_Stream(stm);
+
+  if (keep_stream)
+    return;
+
+  if (stm == pl_stm_input)
+    pl_stm_input = pl_stm_stdin;
+  else if (stm == pl_stm_output)
+    pl_stm_output = pl_stm_stdout;
 
   Update_Mirrors_To_Del_Stream(stm);
 
@@ -539,41 +547,29 @@ Pl_Find_Stream_By_Alias(int atom_alias)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Add_Alias_To_Stream(int atom_alias, int stm)
+Pl_Add_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
 {
   AliasInf *alias;
   AliasInf alias_info;
 
   alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
   if (alias != NULL)
-    return alias->stm == stm;	/* fail if assigned to another stream */
+    {
+      if (!reassign)
+	return alias->stm == stm;	/* fail if assigned to another stream */
+
+      alias->stm = stm;		/* reassign it (thus always succeeds) */
+      return TRUE;
+    }      
 
   Pl_Extend_Table_If_Needed(&pl_alias_tbl);
 
   alias_info.atom = atom_alias;
   alias_info.stm = stm;
 
-  alias = (AliasInf *) Pl_Hash_Insert(pl_alias_tbl, (char *) &alias_info, FALSE);
+  Pl_Hash_Insert(pl_alias_tbl, (char *) &alias_info, FALSE);
 
   return TRUE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_REASSIGN_ALIAS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Reassign_Alias(int atom_alias, int stm)
-{
-  AliasInf *alias;
-
-  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
-
-  if (alias != NULL)
-    alias->stm = stm;
 }
 
 
@@ -591,8 +587,28 @@ Del_Aliases_Of_Stream(int stm)
 
   for (alias = (AliasInf *) Pl_Hash_First(pl_alias_tbl, &scan); alias;
        alias = (AliasInf *) Pl_Hash_Next(&scan))
-    if (alias->stm == stm)
+    {
+      if (alias->stm != stm)
+	continue;
+
+      if (alias->atom == pl_atom_user_input ||
+	  alias->atom == pl_atom_top_level_input ||
+	  alias->atom == pl_atom_debugger_input)
+	{
+	  alias->stm = pl_stm_stdin;
+	  continue;
+	}
+      
+      if (alias->atom == pl_atom_user_output ||
+	  alias->atom == pl_atom_top_level_output ||
+	  alias->atom == pl_atom_debugger_output)
+	{
+	  alias->stm = pl_stm_stdout;
+	  continue;
+	}
+      
       Pl_Hash_Delete(pl_alias_tbl, alias->atom);
+    }
 }
 
 
@@ -1875,7 +1891,7 @@ Pl_Delete_Str_Stream(int stm)
       Free(str_stream);
     }
 
-  Pl_Delete_Stream(stm);
+  Pl_Delete_Stream(stm, FALSE);
 }
 
 

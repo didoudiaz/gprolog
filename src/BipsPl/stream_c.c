@@ -175,8 +175,8 @@ Pl_Set_Top_Level_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
   pl_stm_top_level_input = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
   pl_stm_top_level_output = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
 
-  Pl_Reassign_Alias(pl_atom_top_level_input, pl_stm_top_level_input);
-  Pl_Reassign_Alias(pl_atom_top_level_output, pl_stm_top_level_output);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_input, pl_stm_top_level_input, TRUE);
+  Pl_Add_Alias_To_Stream(pl_atom_top_level_output, pl_stm_top_level_output, TRUE);
 }
 
 
@@ -192,8 +192,8 @@ Pl_Set_Debugger_Streams_2(WamWord sora_in_word, WamWord sora_out_word)
   pl_stm_debugger_input = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT);
   pl_stm_debugger_output = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT);
 
-  Pl_Reassign_Alias(pl_atom_debugger_input, pl_stm_debugger_input);
-  Pl_Reassign_Alias(pl_atom_debugger_output, pl_stm_debugger_output);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_input, pl_stm_debugger_input, TRUE);
+  Pl_Add_Alias_To_Stream(pl_atom_debugger_output, pl_stm_debugger_output, TRUE);
 }
 
 
@@ -337,7 +337,24 @@ Pl_Add_Stream_Alias_2(WamWord sora_word, WamWord alias_word)
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
 
-  return Pl_Add_Alias_To_Stream(Pl_Rd_Atom_Check(alias_word), stm);
+  return Pl_Add_Alias_To_Stream(Pl_Rd_Atom_Check(alias_word), stm, FALSE);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_SET_STREAM_ALIAS_2                                                   *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Set_Stream_Alias_2(WamWord sora_word, WamWord alias_word)
+{
+  int stm;
+
+  stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
+
+  return Pl_Add_Alias_To_Stream(Pl_Rd_Atom_Check(alias_word), stm, TRUE);
 }
 
 
@@ -497,30 +514,20 @@ Pl_Close_Stm(int stm, Bool force)
 {
   StmInf *pstm = pl_stm_tbl[stm];
   int fd = 0;
-
-  Pl_Stream_Flush(pstm);
-
-  if (stm == pl_stm_stdin || stm == pl_stm_stdout || stm == pl_stm_stderr)
-    return;
-
-  if (stm == pl_stm_top_level_input || stm == pl_stm_top_level_output)
-    return;
-
-  if (stm == pl_stm_debugger_input || stm == pl_stm_debugger_output)
-    return;
-
-  if (stm == pl_stm_input)
-    pl_stm_input = pl_stm_stdin;
-  else if (stm == pl_stm_output)
-    pl_stm_output = pl_stm_stdout;
+  Bool keep_stream = FALSE;
 
   if (pstm->prop.special_close)
     Pl_Err_System(Pl_Create_Atom(ERR_NEEDS_SPECIAL_CLOSE));
 
-  if (pstm->fct_close == fclose)
+  Pl_Stream_Flush(pstm);
+
+  if (stm == pl_stm_stdin || stm == pl_stm_stdout || stm == pl_stm_stderr)
+    keep_stream = TRUE;
+
+  if (!keep_stream && pstm->fct_close == fclose)
     fd = fileno((FILE *) (pstm->file));
 
-  if (Pl_Stream_Close(pstm) != 0)
+  if (!keep_stream && Pl_Stream_Close(pstm) != 0)
     {
       if (force == 0)
 	Pl_Err_System(Pl_Create_Atom(ERR_CANNOT_CLOSE_STREAM));
@@ -530,7 +537,7 @@ Pl_Close_Stm(int stm, Bool force)
 	close(fd);
     }
 
-  Pl_Delete_Stream(stm);
+  Pl_Delete_Stream(stm, keep_stream);
 }
 
 

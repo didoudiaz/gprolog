@@ -313,6 +313,13 @@ add_stream_alias(_, Alias) :-
 
 
 
+set_stream_alias(SorA, Alias) :-
+	set_bip_name(set_stream_alias, 2),
+	'$call_c_test'('Pl_Set_Stream_Alias_2'(SorA, Alias)).
+
+
+
+
 add_stream_mirror(SorA, Mirror) :-
 	set_bip_name(add_stream_mirror, 2),
 	'$call_c'('Pl_Add_Stream_Mirror_2'(SorA, Mirror)).

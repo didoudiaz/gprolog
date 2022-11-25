@@ -341,11 +341,11 @@ int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
 
 int Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text);
 
-void Pl_Delete_Stream(int stm);
+void Pl_Delete_Stream(int stm, Bool keep_stream);
 
 int Pl_Find_Stream_By_Alias(int atom_alias);
 
-Bool Pl_Add_Alias_To_Stream(int atom_alias, int stm);
+Bool Pl_Add_Alias_To_Stream(int atom_alias, int stm, Bool reassign);
 
 void Pl_Reassign_Alias(int atom_alias, int stm);
 

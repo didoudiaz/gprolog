@@ -248,3 +248,9 @@ test(Goal) :-
 	% redirect any output from Goal using implicit streams to file "foo"
 	call(Goal),
 	close(Stream).
+
+s:-stream_property(X,alias(Y)), write(X-Y), nl, fail ; true.
+f:-open('/tmp/foo',write,X,[alias(foo), buffering(none)]), write(X-foo), nl.
+b:-open('/tmp/bar',write,X,[alias(bar), buffering(none)]), write(X-bar), nl.
+
+
