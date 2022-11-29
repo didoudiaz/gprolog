@@ -349,14 +349,14 @@ Pl_Add_Stream_Alias_2(WamWord sora_word, WamWord alias_word)
  * PL_SET_STREAM_ALIAS_2                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+Bool
 Pl_Set_Stream_Alias_2(WamWord sora_word, WamWord alias_word)
 {
   int stm;
 
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
 
-  Pl_Set_Alias_To_Stream(Pl_Rd_Atom_Check(alias_word), stm, TRUE);
+  return Pl_Set_Alias_To_Stream(Pl_Rd_Atom_Check(alias_word), stm, TRUE) != NULL;
 }
 
 

@@ -315,7 +315,7 @@ add_stream_alias(_, Alias) :-
 
 set_stream_alias(SorA, Alias) :-
 	set_bip_name(set_stream_alias, 2),
-	'$call_c'('Pl_Set_Stream_Alias_2'(SorA, Alias)).
+	'$call_c_test'('Pl_Set_Stream_Alias_2'(SorA, Alias)).
 
 
 

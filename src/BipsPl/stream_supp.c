@@ -551,8 +551,11 @@ Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
   alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
   if (alias != NULL)
     {
-      if (!reassign) /* return NULL if the alias is assigned to another stream */
-	return (alias->stm == stm) ? alias : NULL; 
+      if (!reassign ||
+	  atom_alias == pl_atom_user_input ||
+	  atom_alias == pl_atom_user_output ||
+	  atom_alias == pl_atom_user_error)
+	return (alias->stm == stm) ? alias : NULL; /* return NULL if the alias is assigned to another stream */
 
       alias->stm = stm;		/* reassign it */
       if (alias->atom == pl_atom_current_input)
