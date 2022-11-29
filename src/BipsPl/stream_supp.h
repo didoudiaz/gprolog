@@ -203,14 +203,14 @@ int pl_stm_stdin;
 int pl_stm_stdout;
 int pl_stm_stderr;
 
-int pl_stm_input;
-int pl_stm_output;
-int pl_stm_error;
+AliasInf *pl_alias_current_input;
+AliasInf *pl_alias_current_output;
 
-int pl_stm_top_level_input;
-int pl_stm_top_level_output;
-int pl_stm_debugger_input;
-int pl_stm_debugger_output;
+AliasInf *pl_alias_top_level_input;
+AliasInf *pl_alias_top_level_output;
+
+AliasInf * pl_alias_debugger_input;
+AliasInf *pl_alias_debugger_output;
 
 Bool pl_stream_use_linedit;
 char *pl_le_prompt;
@@ -221,6 +221,9 @@ int pl_atom_stream;
 int pl_atom_user_input;
 int pl_atom_user_output;
 int pl_atom_user_error;
+
+int pl_atom_current_input;
+int pl_atom_current_output;
 
 int pl_atom_top_level_input;
 int pl_atom_top_level_output;
@@ -271,14 +274,14 @@ extern int pl_stm_stdin;
 extern int pl_stm_stdout;
 extern int pl_stm_stderr;
 
-extern int pl_stm_input;
-extern int pl_stm_output;
-extern int pl_stm_error;
+extern AliasInf *pl_alias_current_input;
+extern AliasInf *pl_alias_current_output;
 
-extern int pl_stm_top_level_input;
-extern int pl_stm_top_level_output;
-extern int pl_stm_debugger_input;
-extern int pl_stm_debugger_output;
+extern AliasInf *pl_alias_top_level_input;
+extern AliasInf *pl_alias_top_level_output;
+
+extern AliasInf *pl_alias_debugger_input;
+extern AliasInf *pl_alias_debugger_output;
 
 extern Bool pl_stream_use_linedit;
 extern char *pl_le_prompt;
@@ -288,6 +291,10 @@ extern int pl_atom_stream;
 
 extern int pl_atom_user_input;
 extern int pl_atom_user_output;
+extern int pl_atom_user_error;
+
+extern int pl_atom_current_input;
+extern int pl_atom_current_output;
 
 extern int pl_atom_top_level_input;
 extern int pl_atom_top_level_output;
@@ -325,6 +332,18 @@ extern int pl_atom_eof;
 #endif
 
 
+/* macros (pseudo-vars) to access to the stm of a predefined alias */
+
+#define pl_stm_current_input      (pl_alias_current_input->stm)
+#define pl_stm_current_output     (pl_alias_current_output->stm)
+
+#define pl_stm_top_level_input    (pl_alias_top_level_input->stm)
+#define pl_stm_top_level_output   (pl_alias_top_level_output->stm)
+
+#define pl_stm_debugger_input     (pl_alias_debugger_input->stm)
+#define pl_stm_debugger_output    (pl_alias_debugger_output->stm)
+
+
 
 
 /*---------------------------------*
@@ -332,9 +351,9 @@ extern int pl_atom_eof;
  *---------------------------------*/
 
 int Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
-	       StmFct fct_getc, StmFct fct_putc,
-	       StmFct fct_flush, StmFct fct_close,
-	       StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
+		  StmFct fct_getc, StmFct fct_putc,
+		  StmFct fct_flush, StmFct fct_close,
+		  StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
 
 int Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
 				 Bool force_eof_reset);
@@ -345,9 +364,7 @@ void Pl_Delete_Stream(int stm, Bool keep_stream);
 
 int Pl_Find_Stream_By_Alias(int atom_alias);
 
-Bool Pl_Add_Alias_To_Stream(int atom_alias, int stm, Bool reassign);
-
-void Pl_Reassign_Alias(int atom_alias, int stm);
+AliasInf *Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign);
 
 void Pl_Add_Mirror_To_Stream(int stm, int m_stm);
 

@@ -75,7 +75,7 @@ Pl_Get_Key_2(WamWord sora_word, WamWord code_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -117,7 +117,7 @@ Pl_Get_Key_No_Echo_2(WamWord sora_word, WamWord code_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -159,7 +159,7 @@ Pl_Get_Char_2(WamWord sora_word, WamWord char_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -200,7 +200,7 @@ Pl_Get_Code_2(WamWord sora_word, WamWord code_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -245,7 +245,7 @@ Pl_Get_Byte_2(WamWord sora_word, WamWord byte_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, FALSE, TRUE);
@@ -287,7 +287,7 @@ Pl_Unget_Char_2(WamWord sora_word, WamWord char_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -321,7 +321,7 @@ Pl_Unget_Code_2(WamWord sora_word, WamWord code_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -356,7 +356,7 @@ Pl_Unget_Byte_2(WamWord sora_word, WamWord byte_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, FALSE, TRUE);
@@ -391,7 +391,7 @@ Pl_Peek_Char_2(WamWord sora_word, WamWord char_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -432,7 +432,7 @@ Pl_Peek_Code_2(WamWord sora_word, WamWord code_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, TRUE);
@@ -476,7 +476,7 @@ Pl_Peek_Byte_2(WamWord sora_word, WamWord byte_word)
   int c;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
+    ? pl_stm_current_input : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);
 
   pl_last_input_sora = sora_word;
   Pl_Check_Stream_Type(stm, FALSE, TRUE);
@@ -516,7 +516,7 @@ Pl_Put_Char_2(WamWord sora_word, WamWord char_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
 
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
@@ -550,7 +550,7 @@ Pl_Put_Code_2(WamWord sora_word, WamWord code_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
 
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);
@@ -585,7 +585,7 @@ Pl_Put_Byte_2(WamWord sora_word, WamWord byte_word)
   int stm;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
 
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, FALSE, FALSE);

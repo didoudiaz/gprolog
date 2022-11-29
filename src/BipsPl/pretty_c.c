@@ -156,7 +156,7 @@ Pl_Portray_Clause_3(WamWord sora_word, WamWord term_word, WamWord above_word)
   
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;

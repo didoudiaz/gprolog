@@ -672,7 +672,7 @@ label(1),
 
 predicate(set_stream_alias/2,316,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_stream_alias,2]),
-    call_c('Pl_Set_Stream_Alias_2',[boolean],[x(0),x(1)]),
+    call_c('Pl_Set_Stream_Alias_2',[],[x(0),x(1)]),
     proceed]).
 
 

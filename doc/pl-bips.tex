@@ -1931,9 +1931,9 @@ stream to a source/sink (section above). A stream-term is a compound term of
 the form \texttt{'\$stream'(I)} where \texttt{I} is an integer.
 
 \SPart{Stream aliases}: any stream may be associated with a stream alias
-which is an atom which may be used to refer to that stream. The association
-can be done at open time or using \IdxPB{add\_stream\_alias/2}
-\RefSP{add-stream-alias/2}. Such an association automatically ends when the
+(an atom) which may be used to refer to that stream. The association
+can be done at open time or later using \IdxPB{set\_stream\_alias/2}
+\RefSP{set-stream-alias/2}. Such an association automatically ends when the
 stream is closed. A particular alias only refers to at most one stream at any
 one time. However, more than one alias can be associated with a stream. Most
 built-in predicates which have a stream-term as an input argument also accept
@@ -1945,16 +1945,23 @@ execution of every goal: the standard input stream which has the alias
 \IdxPKD{user\_input}, the standard output stream which has the alias
 \IdxPKD{user\_output} and the standard error stream which has the alias
 \IdxPKD{user\_error}. A goal which attempts to close either standard stream
-succeeds, but does not close the stream.
+succeeds, but does not close the stream. These aliases cannot be reassigned.
 
-\SPart{Current streams}: during execution there is a current input stream
-and a current output stream. By default, the current input and output
-streams are the standard input and output streams, but the built-in
-predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
-\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change them.
-When the current input stream is closed, the standard input stream becomes
-the current input stream. When the current output stream is closed, the
-standard output stream becomes the current output stream.
+\SPart{Current streams}: during execution there is a current input
+stream and a current output stream. By default, the current input and
+output streams are the standard input and output streams, but the
+built-in predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
+\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change
+them. These streams also have aliases: \IdxPKD{current\_input}
+and \IdxPKD{current\_output}.  When the current input stream is closed,
+the standard input stream becomes the current input stream. When the
+current output stream is closed, the standard output stream becomes
+the current output stream.
+
+\SPart{Other aliases}: GNU Prolog provides aliases for the streams
+used by the top-level (\IdxPKD{top\_level\_input},
+\IdxPKD{top\_level\_output}) and by the debugger
+(\IdxPKD{debugger\_input}, \IdxPKD{debugger\_output}).
 
 \SPart{Text streams and binary streams}: a text stream is a sequence of
 characters. A text stream is also regarded as a sequence of lines where each
@@ -2297,13 +2304,14 @@ close(+stream\_or\_alias)
 
 \Description
 
-\texttt{close(SorA, Options)} closes the stream associated with the stream-term
-or alias \texttt{SorA}. If \texttt{SorA} is the standard input stream or the
-standard output stream \texttt{close/2} simply succeeds else the associated
-source/sink is physically closed. If \texttt{SorA} is the current input
-stream the current input stream becomes the standard input stream
-\IdxPK{user\_input}. If \texttt{SorA} is the current output stream the
-current output stream becomes the standard output stream
+\texttt{close(SorA, Options)} physically closes the stream associated
+with the stream-term or alias \texttt{SorA}. If \texttt{SorA} is the
+standard input stream or the standard output stream \texttt{close/2}
+succeeds without closing the stream (but user-defined aliases related
+to the closed stream are removed). If \texttt{SorA} is the current
+input stream the current input stream becomes the standard input
+stream \IdxPK{user\_input}. If \texttt{SorA} is the current output
+stream the current output stream becomes the standard output stream
 \IdxPK{user\_output}.
 
 \SPart{Close options}: \texttt{Options} is a list of close options. For the
@@ -2882,17 +2890,22 @@ by character until the required position is reached.
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{add\_stream\_alias/2}\label{add-stream-alias/2}}
+\subsubsection{\IdxPBD{set\_stream\_alias/2}, \label{set-stream-alias/2}
+		\IdxPBD{add\_stream\_alias/2}}
 
 \begin{TemplatesOneCol}
+set\_stream\_alias(+stream\_or\_alias, +atom)\\
 add\_stream\_alias(+stream\_or\_alias, +atom)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{add\_stream\_alias(SorA, Alias)} adds \texttt{Alias} as a new alias
+\texttt{set\_stream\_alias(SorA, Alias)} (re)assignes \texttt{Alias} as an alias
 to the stream associated with the stream-term or alias \texttt{SorA}.
+
+\texttt{add\_stream\_alias(SorA, Alias)} is similar except that it
+throws an error if the \texttt{Alias} is already in use (i.e. assigned to another stream).
 
 \begin{PlErrors}
 
@@ -2911,14 +2924,14 @@ to the stream associated with the stream-term or alias \texttt{SorA}.
 \ErrCond{\texttt{SorA} is not associated with an open stream}
 \ErrTerm{existence\_error(stream, SorA)}
 
-\ErrCond{\texttt{Alias} is already associated with an open stream}
+\ErrCond{\texttt{Alias} is already associated with an open stream (for \texttt{add\_stream\_alias/2})}
 \ErrTerm{permission\_error(add\_alias, source\_sink, alias(Alias))}
 
 \end{PlErrors}
 
 \Portability
 
-GNU Prolog predicate.
+GNU Prolog predicates.
 
 \subsubsection{\IdxPBD{current\_alias/2}}
 

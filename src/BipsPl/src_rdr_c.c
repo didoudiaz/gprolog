@@ -332,12 +332,12 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	  atom_file_name = Pl_Rd_Atom(file_name_word);
 	  if (strcmp(pl_atom_tbl[atom_file_name].name, "user") == 0)
 #if 0
-	    stm = pl_stm_input;
+	    stm = pl_stm_current_input;
 #else
 	  {
-	    stm = Pl_Add_Stream(0, (PlLong) 0, pl_stm_tbl[pl_stm_input]->prop,
+	    stm = Pl_Add_Stream(0, (PlLong) 0, pl_stm_tbl[pl_stm_current_input]->prop,
 		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_input];
+	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_current_input];
 	  }
 #endif
 	  else
@@ -1397,7 +1397,7 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   int char_count;
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;
