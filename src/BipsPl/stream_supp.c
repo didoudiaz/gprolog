@@ -275,14 +275,12 @@ Init_Stream_Supp(void)
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
 
-  /* these alias are set to stdin/out/err and will not be changed */
-
-  Pl_Set_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin, TRUE);
-  Pl_Set_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout, TRUE);
-  Pl_Set_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr, TRUE);
-
-  /* these alias are initially set to stdin/out and can be changed by the user */
+  /* these aliases are initially set to stdin/out/err and can be changed by the user */
   
+  pl_alias_user_input = Pl_Set_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin, TRUE);
+  pl_alias_user_output = Pl_Set_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout, TRUE);
+  pl_alias_user_error = Pl_Set_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr, TRUE);
+
   pl_alias_current_input = Pl_Set_Alias_To_Stream(pl_atom_current_input, pl_stm_stdin, TRUE); 
   pl_alias_current_output = Pl_Set_Alias_To_Stream(pl_atom_current_output, pl_stm_stdout, TRUE);
 
@@ -551,11 +549,8 @@ Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
   alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
   if (alias != NULL)
     {
-      if (!reassign ||
-	  atom_alias == pl_atom_user_input ||
-	  atom_alias == pl_atom_user_output ||
-	  atom_alias == pl_atom_user_error)
-	return (alias->stm == stm) ? alias : NULL; /* return NULL if the alias is assigned to another stream */
+      if (!reassign) /* return NULL if the alias is assigned to another stream */
+	return (alias->stm == stm) ? alias : NULL; 
 
       alias->stm = stm;		/* reassign it */
       if (alias->atom == pl_atom_current_input)
@@ -610,6 +605,12 @@ Del_Aliases_Of_Stream(int stm)
 	  alias->atom == pl_atom_debugger_output)
 	{
 	  alias->stm = pl_stm_stdout;
+	  continue;
+	}
+      
+      if (alias->atom == pl_atom_user_error)
+	{
+	  alias->stm = pl_stm_stderr;
 	  continue;
 	}
       

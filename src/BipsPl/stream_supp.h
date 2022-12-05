@@ -203,6 +203,10 @@ int pl_stm_stdin;
 int pl_stm_stdout;
 int pl_stm_stderr;
 
+AliasInf *pl_alias_user_input;
+AliasInf *pl_alias_user_output;
+AliasInf *pl_alias_user_error;
+
 AliasInf *pl_alias_current_input;
 AliasInf *pl_alias_current_output;
 
@@ -274,6 +278,10 @@ extern int pl_stm_stdin;
 extern int pl_stm_stdout;
 extern int pl_stm_stderr;
 
+extern AliasInf *pl_alias_user_input;
+extern AliasInf *pl_alias_user_output;
+extern AliasInf *pl_alias_user_error;
+
 extern AliasInf *pl_alias_current_input;
 extern AliasInf *pl_alias_current_output;
 
@@ -333,6 +341,10 @@ extern int pl_atom_eof;
 
 
 /* macros (pseudo-vars) to access to the stm of a predefined alias */
+
+#define pl_stm_user_input         (pl_alias_user_input->stm)
+#define pl_stm_user_output        (pl_alias_user_output->stm)
+#define pl_stm_user_error         (pl_alias_user_error->stm)
 
 #define pl_stm_current_input      (pl_alias_current_input->stm)
 #define pl_stm_current_output     (pl_alias_current_output->stm)
