@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.5.1
 
+* add new prefedined stream aliases (current_input, current_output)
+* add new built-in to reassign a stream alias (set_stream_alias/2)
 * add --quiet option to top-level command-line (do not display banner)
 * port to RISC-V 64 bits/Linux - many thanks to
   Jasper Taylor <jasper@simulistics.com>

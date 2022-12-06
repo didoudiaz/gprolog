@@ -1,3 +1,8 @@
+Mon Dec  5 15:36:38 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* add new prefedined stream aliases (current_input/output)
+	* add new built-in to reassign a stream alias (set_stream_alias/2)
+
 Thu Nov 17 17:30:01 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* add --quiet option to top-level command-line (do not display banner)
