@@ -71,8 +71,10 @@ static Range not_prime_range;
 
 #if 0
 static int max_prime_value = 1000;
-#else
+#elif 0
 static int max_prime_value = 10000;
+#else
+static int max_prime_value = 100000;
 #endif
 
 
