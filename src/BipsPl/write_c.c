@@ -6,7 +6,7 @@
  * Descr.: term output (write/1 and friends) management - C part           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -74,7 +74,7 @@ Pl_Write_Term_2(WamWord sora_word, WamWord term_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;
@@ -292,7 +292,7 @@ Pl_Nl_1(WamWord sora_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
 
   pl_last_output_sora = sora_word;
   Pl_Check_Stream_Type(stm, TRUE, FALSE);

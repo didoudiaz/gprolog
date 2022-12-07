@@ -114,7 +114,7 @@ In addition, \texttt{gprolog.h} defines a set of macros:
   of this version (e.g. \texttt{"Mar 29 2011"}.
 
 \item \texttt{PL\_PROLOG\_COPYRIGHT}: a C constant string associated with the
-  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2021 Daniel Diaz"}.
+  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2022 Daniel Diaz"}.
 
 \end{itemize}
 
@@ -847,25 +847,27 @@ interface when an input argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlLong  Pl_Rd_Integer_Check       (PlTerm term)
-PlLong  Pl_Rd_Positive_Check      (PlTerm term)
-int     Pl_Rd_C_Int_Check         (PlTerm term)
-int     Pl_Rd_C_Int_Positive_Check(PlTerm term)
-double  Pl_Rd_Float_Check         (PlTerm term)
-double  Pl_Rd_Number_Check        (PlTerm term)
-int     Pl_Rd_Atom_Check          (PlTerm term)
-int     Pl_Rd_Boolean_Check       (PlTerm term)
-int     Pl_Rd_Char_Check          (PlTerm term)
-int     Pl_Rd_In_Char_Check       (PlTerm term)
-int     Pl_Rd_Code_Check          (PlTerm term)
-int     Pl_Rd_In_Code_Check       (PlTerm term)
-int     Pl_Rd_Byte_Check          (PlTerm term)
-int     Pl_Rd_In_Byte_Check       (PlTerm term)
-char   *Pl_Rd_String_Check        (PlTerm term)
-char   *Pl_Rd_Chars_Check         (PlTerm term)
-char   *Pl_Rd_Codes_Check         (PlTerm term)
-int     Pl_Rd_Chars_Str_Check     (PlTerm term, char *str)
-int     Pl_Rd_Codes_Str_Check     (PlTerm term, char *str)
+PlLong  Pl_Rd_Integer_Check           (PlTerm term)
+PlLong  Pl_Rd_Positive_Check          (PlTerm term)
+int     Pl_Rd_C_Int_Check             (PlTerm term)
+int     Pl_Rd_C_Int_Positive_Check    (PlTerm term)
+double  Pl_Rd_Float_Check             (PlTerm term)
+double  Pl_Rd_Number_Check            (PlTerm term)
+int     Pl_Rd_Atom_Check              (PlTerm term)
+int     Pl_Rd_Boolean_Check           (PlTerm term)
+int     Pl_Rd_Char_Check              (PlTerm term)
+int     Pl_Rd_In_Char_Check           (PlTerm term)
+int     Pl_Rd_Code_Check              (PlTerm term)
+int     Pl_Rd_In_Code_Check           (PlTerm term)
+int     Pl_Rd_Byte_Check              (PlTerm term)
+int     Pl_Rd_In_Byte_Check           (PlTerm term)
+char   *Pl_Rd_String_Check            (PlTerm term)
+char   *Pl_Rd_Chars_Check             (PlTerm term)
+char   *Pl_Rd_Codes_Check             (PlTerm term)
+char   *Pl_Rd_Chars_Or_Codes_Check    (PlTerm term)
+int     Pl_Rd_Chars_Str_Check         (PlTerm term, char *str)
+int     Pl_Rd_Codes_Str_Check         (PlTerm term, char *str)
+int     Pl_Rd_Chars_Or_Codes_Str_Check(PlTerm term, char *str)
 \end{verbatim}
 \end{Indentation}
 
@@ -876,11 +878,18 @@ of a \texttt{PlLong}. If the Prolog integer does not fit into a C
 occur on 64-bits machine with \texttt{int} on 32-bits). Similarly for
 \texttt{Pl\_Rd\_C\_Int\_Positive\_Check()}.
   
-All functions returning a C string (\texttt{char *}) use a same buffer. The
-function \texttt{Pl\_Rd\_Chars\_Str\_Check()} is similar to
-\texttt{Pl\_Rd\_Chars\_Check()} but accepts as argument a string to store the
-result and returns the length of that string (which is also the length of
-the Prolog list). Similarly for \texttt{Pl\_Rd\_Codes\_Str\_Check()}.
+All functions returning a C string (\texttt{char *}) use a same
+buffer. The function \texttt{Pl\_Rd\_Chars\_Check()} accepts a list of
+characters while \texttt{Pl\_Rd\_Codes\_Check()} expects a list of
+character codes. The function
+\texttt{Pl\_Rd\_Chars\_Or\_Codes\_Check()} accepts either a list of
+characters or a list of character codes. The function
+\texttt{Pl\_Rd\_Chars\_Str\_Check()} is similar to
+\texttt{Pl\_Rd\_Chars\_Check()} but accepts as argument a string to
+store the result and returns the length of that string (which is also
+the length of the Prolog list). Similarly for
+\texttt{Pl\_Rd\_Codes\_Str\_Check()} and 
+\texttt{Pl\_Rd\_chars\_Or\_Codes\_Str\_Check()}.
 
 \SPart{Complex terms}: the following functions return the sub-arguments
 (terms) of complex terms as an array of \texttt{PlTerm} except
@@ -953,10 +962,8 @@ complex functions \RefSP{Introduction:(Manipulating-Prolog-terms)}.
 \begin{verbatim}
 PlBool Pl_Un_Proper_List_Check(int size, PlTerm *arg, PlTerm term)
 PlBool Pl_Un_List_Check       (PlTerm *arg, PlTerm term)
-PlBool Pl_Un_Compound_Check   (int functor, int arity, PlTerm *arg,
-                               PlTerm term)
-PlBool Pl_Un_Callable_Check   (int functor, int arity, PlTerm *arg,
-                               PlTerm term)
+PlBool Pl_Un_Compound_Check   (int functor, int arity, PlTerm *arg, PlTerm term)
+PlBool Pl_Un_Callable_Check   (int functor, int arity, PlTerm *arg, PlTerm term)
 \end{verbatim}
 \end{Indentation}
 
@@ -1099,7 +1106,7 @@ PlBool Pl_Builtin_Non_Fd_Var          (PlTerm term)
 PlBool Pl_Builtin_Generic_Var         (PlTerm term)
 PlBool Pl_Builtin_Non_Generic_Var     (PlTerm term)
 int    Pl_Type_Of_Term                (PlTerm term)
-PlLong   Pl_List_Length                 (PlTerm list)
+PlLong Pl_List_Length                 (PlTerm list)
 \end{verbatim}
 \end{Indentation}
 

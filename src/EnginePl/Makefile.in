@@ -8,11 +8,11 @@ RANLIB        = @RANLIB@
 
 
 LIBNAME = $(LIB_ENGINE_PL)
-OBJLIB  = machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ mem_alloc@OBJ_SUFFIX@ \
+OBJLIB  = arch_dep@OBJ_SUFFIX@ machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ \
           misc@OBJ_SUFFIX@ hash_fct@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
           engine@OBJ_SUFFIX@ engine1@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
-          if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
+          mem_alloc@OBJ_SUFFIX@ if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
 all: config wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
 
@@ -59,6 +59,7 @@ try_sigaction@EXE_SUFFIX@: try_sigaction.c
 
 # General core
 
+arch_dep@OBJ_SUFFIX@: arch_dep.h gp_config.h
 
 machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h
 

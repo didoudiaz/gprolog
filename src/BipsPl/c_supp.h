@@ -6,7 +6,7 @@
  * Descr.: C interface support - header file                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -120,6 +120,10 @@ char *Pl_Rd_Codes_Check(WamWord start_word);
 
 char *Pl_Rd_Codes(WamWord start_word);
 
+char *Pl_Rd_Chars_Or_Codes_Check(WamWord start_word);
+
+char *Pl_Rd_Chars_Or_Codes(WamWord start_word);
+
 int Pl_Rd_Chars_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Chars_Str(WamWord start_word, char *str);
@@ -127,6 +131,10 @@ int Pl_Rd_Chars_Str(WamWord start_word, char *str);
 int Pl_Rd_Codes_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Codes_Str(WamWord start_word, char *str);
+
+int Pl_Rd_Chars_Or_Codes_Str_Check(WamWord start_word, char *str);
+
+int Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str);
 
 WamWord *Pl_Rd_List_Check(WamWord start_word);
 

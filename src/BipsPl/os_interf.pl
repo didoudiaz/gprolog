@@ -6,7 +6,7 @@
  * Descr.: operating system interface management                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -78,6 +78,13 @@ directory_files(PathName, List) :-
 rename_file(PathName1, PathName2) :-
 	set_bip_name(rename_file, 2),
 	'$call_c_test'('Pl_Rename_File_2'(PathName1, PathName2)).
+
+
+
+
+copy_file(PathName1, PathName2) :-
+	set_bip_name(copy_file, 2),
+	'$call_c_test'('Pl_Copy_File_2'(PathName1, PathName2)).
 
 
 

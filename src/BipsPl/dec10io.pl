@@ -6,7 +6,7 @@
  * Descr.: DEC-10 I/O compatibility library                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -52,10 +52,9 @@
 
 '$find_existing_stream'(File, Stream, Mode) :-
 	clause('$dec10_stream'(File, Stream, Mode), _), !,
-	(   current_stream(Stream),                 % test if it still exists
+	(   current_stream(Stream),                     % test if it still exists
 	    stream_property(Stream, file_name(File)),   % (with correct name)
-	    stream_property(Stream, Mode)                % (and correct mode)
-	                                  ->
+	    stream_property(Stream, Mode) ->            % (and correct mode)
 	    true
 	;   retract('$dec10_stream'(File, Stream, Mode)),       % no, retract
 	    fail

@@ -87,6 +87,8 @@ GNU Prolog is currently ported to the following architectures:
    - arm 32bits / GNU/Linux (armv6, armv7) 
    - arm 64bits (aarch64)/ GNU/Linux (armv8)
    - arm 64bits (aarch64) / Darwin (Mac OS X) (armv8)
+   - RISC-V 64bits / GNU/Linux
+
 
 
 INSTALLATION

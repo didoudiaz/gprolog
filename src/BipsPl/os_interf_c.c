@@ -6,7 +6,7 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -130,7 +130,9 @@ static int nb_sig;
 
 static int Flag_Of_Permission(WamWord perm_word, Bool is_a_directory);
 
-static char *Get_Path_Name(WamWord path_name_word);
+static char *Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash);
+
+#define Get_Path_Name(p)  Get_Path_Name0(p, TRUE)
 
 static Bool Date_Time_To_Prolog(time_t *t, WamWord date_time_word);
 
@@ -330,39 +332,19 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
   char *path_name;
   Bool res;
   char *name;
-
-#ifdef _WIN32
-  PlLong h;
-  struct _finddata_t d;
-  static char buff[MAXPATHLEN];
-#else
   DIR *dir;
   struct dirent *cur_entry;
-#endif
-
 
   Pl_Check_For_Un_List(list_word);
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef _WIN32
-  sprintf(buff, "%s\\*.*", path_name);
-  h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
-  Os_Test_Error(h);
-#else
-  dir = opendir(path_name);
+  dir = opendir(path_name);	/* on windows: see opendir in ../EnginePl/arch_dep.c */
   Os_Test_Error_Null(dir);
-#endif
 
-#ifdef _WIN32
-  do
-    {
-      name = d.name;
-#else
   while ((cur_entry = readdir(dir)) != NULL)
     {
       name = cur_entry->d_name;
-#endif
       if (!Pl_Get_List(list_word) || !Pl_Unify_Atom(Pl_Create_Allocate_Atom(name)))
 	{
 	  res = FALSE;
@@ -371,18 +353,11 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
 
       list_word = Pl_Unify_Variable();
     }
-#ifdef _WIN32
-  while (_findnext(h, &d) == 0);
-#endif
 
   res = Pl_Get_Nil(list_word);
 
 finish:
-#ifdef _WIN32
-  _findclose(h);
-#else
   closedir(dir);
-#endif
 
   return res;
 }
@@ -405,6 +380,88 @@ Pl_Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
 
   Os_Test_Error(rename(path_name1, path_name2));
 
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_COPY_FILE_2                                                          *
+ *                                                                         *
+ * We could use some OS-dependent utility to be faster, e.g.:              *
+ * on WinXX: use CopyFileA(src, dst, false);                               *
+ * on MacOS: copyfile(src, dst, NULL, COPYFILE_DATA);                      *
+ * on Linux: sendfile(dst_fd, src_fd, NULL, stat_buf.st_size);             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
+{
+  char path_name1[MAXPATHLEN];
+  char *path_name2;
+  FILE *f_in = NULL, *f_out = NULL;
+  int is_dir;
+  char *base, *suffix;
+  int size_rd;
+  char buff[BUFSIZ];
+
+  strcpy(path_name1, Get_Path_Name(path_name1_word));
+  path_name2 = Get_Path_Name0(path_name2_word, FALSE);
+
+  if ((f_in = fopen(path_name1, "rb")) == NULL)
+    {
+      int err_no;
+    error:
+      err_no = errno;
+      if (f_in != NULL)
+	fclose(f_in);
+      if (f_out != NULL)
+	fclose(f_out);
+      errno = err_no;
+      Os_Test_Error(-1);
+    }
+
+  is_dir = Pl_M_Is_Dir_Name(path_name2, FALSE);
+  if (is_dir < 0)
+    goto error;
+  if (is_dir)
+    {
+      Pl_M_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
+      sprintf(path_name2 + strlen(path_name2), "/%s", base);
+    }
+
+  if ((f_out = fopen(path_name2, "wb")) == NULL)
+    goto error;
+
+  while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
+    {
+      int size_left = size_rd;
+      int try_wr = 0;
+      char *p = buff;
+      while(size_left > 0)
+	{
+	  int size_wr = fwrite(p, 1, size_left, f_out);
+	  if (size_wr > 0)
+	    {
+	      size_left -= size_wr;
+	      p += size_wr;
+	      continue;
+	    }
+	  
+	  if (size_wr == 0)
+	    errno = EAGAIN;
+
+	  if ((errno != EAGAIN && errno != EINTR) || ++try_wr >= 5)
+	    goto error;
+	}
+    }
+
+  if (size_rd < 0)
+    goto error;
+
+  fclose(f_in);
+  fclose(f_out);
+  
   return TRUE;
 }
 
@@ -567,7 +624,7 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
-			       WamWord path_name_word)
+				  WamWord path_name_word)
 {
   char *path_name;
 
@@ -587,7 +644,7 @@ Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Real_File_Name_2(WamWord real_path_name_word,
-			   WamWord path_name_word)
+			      WamWord path_name_word)
 {
   char *path_name = Get_Path_Name(path_name_word);
 
@@ -756,7 +813,7 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
-		 WamWord path_name_word)
+		    WamWord path_name_word)
 {
   char *dir;
   char *prefix;
@@ -1054,7 +1111,7 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   int stm;
   FILE *f_in, *f_out, *f_err;
   int pid;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   int atom;
   char err[1024];
 
@@ -1209,8 +1266,8 @@ Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
     p = NULL;
   else
     {
-      t.tv_sec = (PlLong) (time_out / 1000);
-      t.tv_usec = (PlLong) (fmod(time_out, 1000) * 1000);
+      t.tv_sec = (long) (time_out / 1000);
+      t.tv_usec = (long) (fmod(time_out, 1000) * 1000);
       p = &t;
     }
 
@@ -1312,7 +1369,7 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       DEREF(Car(lst_adr), word, tag_mask);
 
       if (tag_mask == TAG_INT_MASK)
-	fd = UnTag_INT(word);
+	fd = (int) UnTag_INT(word);
       else
 	{
 	  stm = Pl_Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
@@ -1371,7 +1428,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
   DEREF(signal_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = (int) UnTag_ATM(word);
       sig = -1;
       for (i = 0; i < nb_sig; i++)
 	if (tsig[i].atom == atom)
@@ -1433,16 +1490,16 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
 
 
 /*-------------------------------------------------------------------------*
- * GET_PATH_NAME                                                           *
+ * GET_PATH_NAME0                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Path_Name(WamWord path_name_word)
+Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash)
 {
   char *path_name;
 
   path_name = Pl_Rd_String_Check(path_name_word);
-  if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+  if ((path_name = Pl_M_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
     Pl_Err_Domain(pl_domain_os_path, path_name_word);
 
   return path_name;

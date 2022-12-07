@@ -6,7 +6,7 @@
  * Descr.: test - Prolog part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -240,3 +240,17 @@ p:-write(toto),nl.
 
 %:- initialization((trace, p)).
 %foo:-write(a),write(b),nl.
+
+test(Goal) :-
+	open(foo, write, Stream),
+	set_output(Stream),
+%	set_error(Stream),
+	% redirect any output from Goal using implicit streams to file "foo"
+	call(Goal),
+	close(Stream).
+
+s:-stream_property(X,alias(Y)), write(X-Y), nl, fail ; true.
+f:-open('/tmp/foo',write,X,[alias(foo), buffering(none)]), write(X-foo), nl.
+b:-open('/tmp/bar',write,X,[alias(bar), buffering(none)]), write(X-bar), nl.
+
+

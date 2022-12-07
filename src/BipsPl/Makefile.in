@@ -107,7 +107,7 @@ t.wam: t.pl
 
 t@EXE_SUFFIX@: t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ ../EnginePl/$(LIB_ENGINE_PL) $(LIBNAME) \
             ../Linedit/$(LIB_LINEDIT)
-	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib
+	$(GPLC) -o t@EXE_SUFFIX@ t@OBJ_SUFFIX@ t_c@OBJ_SUFFIX@ --no-fd-lib --new-top-level
 
 
 # depending on ../EnginePl/gp_config.h
@@ -130,6 +130,22 @@ flag_supp@OBJ_SUFFIX@:   flag_supp.h
 flag_c@OBJ_SUFFIX@:      flag_supp.h
 stream_supp@OBJ_SUFFIX@: flag_supp.h
 consult_c@OBJ_SUFFIX@:   flag_supp.h
+
+#depending on stream_supp.h
+
+stream_c@OBJ_SUFFIX@:    stream_supp.h
+read_c@OBJ_SUFFIX@:      stream_supp.h
+char_io_c@OBJ_SUFFIX@:   stream_supp.h
+write_c@OBJ_SUFFIX@:     stream_supp.h
+format_c@OBJ_SUFFIX@:    stream_supp.h
+pretty_c@OBJ_SUFFIX@:    stream_supp.h
+consult_c@OBJ_SUFFIX@:	 stream_supp.h
+top_level_c@OBJ_SUFFIX@: stream_supp.h
+debugger_c@OBJ_SUFFIX@:  stream_supp.h
+throw_c@OBJ_SUFFIX@:     stream_supp.h
+src_rdr_c@OBJ_SUFFIX@:   stream_supp.h
+error_supp@OBJ_SUFFIX@:  stream_supp.h
+write_supp@OBJ_SUFFIX@:  stream_supp.h
 
 foreign.wam:     foreign.pl
 
@@ -180,7 +196,7 @@ write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
 
 check:
-	@../Pl2Wam/check_boot -a [a-z][a-z]*.wam && echo Bootstrap Prolog Bips OK
+	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo Bootstrap Prolog Bips OK
 
 
 

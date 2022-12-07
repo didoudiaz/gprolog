@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -188,7 +188,7 @@ Pl_Init_Machine(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_M_Sys_Err_String(int ret_val)
+Pl_M_Sys_Err_String(int err_no)
 {
 #ifdef M_sparc32_sunos
   extern char *sys_errlist[];
@@ -199,9 +199,9 @@ Pl_M_Sys_Err_String(int ret_val)
   static char buff[64];
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-  if (ret_val == M_ERROR_WIN32)
+  if (err_no == M_ERROR_WIN32)
     {
-      int status =  GetLastError();
+      int status = GetLastError();
 
       if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, status, 0, 
 			buff, sizeof(buff), NULL) == 0)
@@ -221,15 +221,15 @@ Pl_M_Sys_Err_String(int ret_val)
 
 
 #if defined(M_sparc32_sunos)
-  str = (errno >= 0 && errno < sys_nerr) ? sys_errlist[errno] : NULL;
+  str = (err_no >= 0 && err_no < sys_nerr) ? sys_errlist[err_no] : NULL;
 #else
-  str = strerror(errno);
+  str = strerror(err_no);
 #endif
 
   if (str)
     return str;
 
-  sprintf(buff, UNKNOWN_SYS_ERRNO, errno);
+  sprintf(buff, UNKNOWN_SYS_ERRNO, err_no);
   return buff;
 }
 
@@ -586,8 +586,10 @@ Pl_M_Get_Working_Dir(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_ABSOLUTE_PATH_NAME                                                 *
+ * PL_M_ABSOLUTE_PATH_NAME0                                                *
  *                                                                         *
+ * del_trail_slash: TRUE: remove ending / (usually wanted behavior)        *
+ *                  FALSE: keep it (we can see the user wanted a directory)*
  * returns an absolute file name.                                          *
  *-------------------------------------------------------------------------*/
 #ifdef __GNUC__
@@ -598,13 +600,14 @@ Pl_M_Get_Working_Dir(void)
 #pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
 char *
-Pl_M_Absolute_Path_Name(char *src)
+Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
 {
   static char buff1[MAXPATHLEN];
   static char buff2[MAXPATHLEN];
   char *dst, *base_dst;
   char *p, *q;
   char c;
+  Bool add_slash = FALSE;
 
 #define SWAP_SRC_DST { char *tmp = src; src = dst; dst = tmp; }
 
@@ -692,6 +695,8 @@ Pl_M_Absolute_Path_Name(char *src)
   if (strcmp(src, "user") == 0)   /* prolog special file 'user' */
     return src;
 
+  add_slash = (!del_trail_slash && Pl_M_Path_Ends_With_Dir(src));
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
   base_dst = dst;
@@ -709,7 +714,7 @@ Pl_M_Absolute_Path_Name(char *src)
 
 #if defined(__CYGWIN__) && !defined(__MSYS__)
 
-  cygwin_conv_pathx(CCP_WIN_A_TO_POSIX, dst, src, MAXPATHLEN);
+  cygwin_conv_path(CCP_WIN_A_TO_POSIX, dst, src, MAXPATHLEN);
   SWAP_SRC_DST;
 
 #endif
@@ -733,7 +738,7 @@ Pl_M_Absolute_Path_Name(char *src)
       if (*src != '.')
         continue;
 
-      if (src[1] == '/' || src[1] == '\0')      /* /./ removed */
+      if (src[1] == '/' || src[1] == '\0')      /* /./ or final /. becomes / */
         {
           src++;
           goto collapse;
@@ -764,12 +769,31 @@ Pl_M_Absolute_Path_Name(char *src)
 
   if (dst - base_dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
     strcpy(dst, "/");
+  else
+    {
+      if (dst - base_dst > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
+	*--dst = '\0';		/* remove last / or \ */
 
-  if (dst - base_dst > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
-    dst[-1] = '\0';             /* remove last / or \ */
+      if (add_slash)	    	/* and maybe (re)add a last / if needed */
+	strcpy(dst, "/");
+    }
 
+#if 0
+  printf("FINAL: %s\n", base_dst);
+#endif
   return base_dst;
 }
+
+
+
+
+char *
+Pl_M_Absolute_Path_Name(char *src)
+{
+  return Pl_M_Absolute_Path_Name0(src, TRUE);
+}
+
+
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -837,7 +861,6 @@ Pl_M_Is_Absolute_File_Name(char *path)
  * To remove the extension from base simply do *suffix = '\0'              *
  * To add/change the suffix simply do strcpy(suffix, ".txt");              *
  *-------------------------------------------------------------------------*/
-
 char *
 Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char **suffix)
 {
@@ -908,3 +931,45 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
 
   return buff_dir;
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_PATH_ENDS_WITH_DIR                                                 *
+ *                                                                         *
+ * Return TRUE if ends with / or /. or /..                                 *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_M_Path_Ends_With_Dir(char *path)
+{
+  int len = strlen(path);
+  return ((len > 1 && Is_Dir_Sep(path[len - 1])) ||
+	  (len > 2 && Is_Dir_Sep(path[len - 2]) && path[len - 1] == '.') ||
+	  (len > 3 && Is_Dir_Sep(path[len - 3]) && path[len - 2] == '.' && path[len - 1] == '.'));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_M_IS_DIR_NAME                                                        *
+ *                                                                         *
+ * Return TRUE or FALSE or -1 (errno) in case of error                     *
+ *-------------------------------------------------------------------------*/
+int
+Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error)
+{
+  struct stat file_info;
+
+  if (stat(path, &file_info) < 0)
+    {
+      if ((errno != ENOENT && errno != ENOTDIR) || inexistent_as_error)
+	return -1;
+
+      return Pl_M_Path_Ends_With_Dir(path); /* does not exist: directory is marked in path */
+    }
+
+  return S_ISDIR(file_info.st_mode);
+}
+

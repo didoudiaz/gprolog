@@ -6,7 +6,7 @@
  * Descr.: translation file for AMD x86-64                                 *
  * Author: Gwenole Beauchesne, Ozaki Kiichi and Daniel Diaz                *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz and Gwenole Beauchesne              *
+ * Copyright (C) 1999-2022 Daniel Diaz and Gwenole Beauchesne              *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

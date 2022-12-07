@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -174,7 +174,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *   - a forward  indexing   chain                                         *
  *   - a backward indexing   chain                                         *
  *   - the clause number                                                   *
- *   - the erase stamp (only if the clause is reased, DYN_STAMP_NONE else) *
+ *   - the erase stamp (only if the clause is erased, DYN_STAMP_NONE else) *
  *   - the pointer to the next erased clause (only if the clause is erased)*
  *   - the pointer to the byte-code (or NULL if the clause is interpreted) *
  *   - the size of the Prolog term                                         *
@@ -273,8 +273,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
     dyn = Alloc_Init_Dyn_Info(pred, arity);
 
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key) : NO_INDEX;
 
 #ifdef DEBUG
   DBGPRINTF("\n");

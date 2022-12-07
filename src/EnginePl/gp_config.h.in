@@ -6,7 +6,7 @@
  * Descr.: general configuration file (handled by autoconf) - header file  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -162,16 +162,21 @@
 /* Define if the cpu is a x86-64 */
 #undef M_x86_64
 
-/* Define if the cpu is a arm32 (armv7, armhf) */
+/* Define if the cpu is an arm32 (armv7, armhf) */
 #undef M_arm32
 
-/* Define if the cpu is a arm4 (arch64) */
+/* Define if the cpu is an arm64 (arch64) */
 #undef M_arm64
 
-/* Define if the OS is an SGI IRIX */
+/* Define if the cpu is a riscv64 */
+#undef M_riscv64
+
+
+
+/* Define if the OS is a SGI IRIX */
 #undef M_irix
 
-/* Define if the OS is an DEC OSF1 */
+/* Define if the OS is a DEC OSF1 */
 #undef M_osf
 
 /* Define if the OS is a sunos */
@@ -202,7 +207,8 @@
 #undef M_bsd
 
 
-/* Define if the system is an mips32/irix */
+
+/* Define if the system is a mips32/irix */
 #undef M_mips32_irix
 
 /* Define if the system is an alpha/linux */
@@ -274,14 +280,18 @@
 /* Define if the system is a x86-64/darwin */
 #undef M_x86_64_darwin
 
-/* Define if the system is a arm32/linux */
+/* Define if the system is an arm32/linux */
 #undef M_arm32_linux
 
-/* Define if the system is a arm64/linux */
+/* Define if the system is an arm64/linux */
 #undef M_arm64_linux
 
-/* Define if the system is a arm64/darwin (e.g. Apple arm M1/MacOS)*/
+/* Define if the system is an arm64/darwin (e.g. Apple arm M1/MacOS) */
 #undef M_arm64_darwin
+
+/* Define if the system is a riscv64/linux */
+#undef M_riscv64_linux
+
 
 
 /* Define if building universal (internal helper macro) */

@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : read_file.pl
 
 
@@ -3396,9 +3396,8 @@ predicate(disp_msg/4,1154,static,private,monofile,global,[
     put_value(y(2),0),
     put_value(y(3),1),
     call(format/2),
-    put_atom(user_output,0),
     deallocate,
-    execute(nl/1)]).
+    execute(nl/0)]).
 
 
 predicate('$disp_msg/4_$aux1'/2,1154,static,private,monofile,local,[

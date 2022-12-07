@@ -6,7 +6,7 @@
  * Descr.: test file for MA translation                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -796,8 +796,13 @@ test_arg_fd_array(void)
 
 
 void FC
-test_arg_fd_array1(double a, double b, double *c, double *d)
+test_arg_fd_array1(PlLong i1, PlLong i2, PlLong i3, PlLong i4, double a, double b, double *c, double *d)
 {
+  CHECK_RESULT_LONG(i1, 1);	/* to check if loading of a load does not destroy first integer arguments in regs */
+  CHECK_RESULT_LONG(i2, 2);
+  CHECK_RESULT_LONG(i3, 3);
+  CHECK_RESULT_LONG(i4, 4);
+
   CHECK_RESULT_DOUBLE(a, 1.2e30);
   CHECK_RESULT_DOUBLE(b, -1.234567);
   CHECK_RESULT_ADDR(c, pl_foreign_double);

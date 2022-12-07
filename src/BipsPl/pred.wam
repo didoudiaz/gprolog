@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : pred.pl
 
 
@@ -470,7 +470,7 @@ label(14),
 
 label(15),
     get_atom(call,0),
-    get_integer(0,1),
+    get_integer(1,1),
     get_structure(call/1,2),
     unify_integer(0),
     proceed,

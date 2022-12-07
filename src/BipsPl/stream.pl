@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2022 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -309,6 +309,13 @@ add_stream_alias(SorA, Alias) :-
 
 add_stream_alias(_, Alias) :-
 	'$pl_err_permission'(add_alias, source_sink, alias(Alias)).
+
+
+
+
+set_stream_alias(SorA, Alias) :-
+	set_bip_name(set_stream_alias, 2),
+	'$call_c_test'('Pl_Set_Stream_Alias_2'(SorA, Alias)).
 
 
 
