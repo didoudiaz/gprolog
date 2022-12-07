@@ -139,6 +139,9 @@ Pl_Init_Oper(void)
   ADD_OPER(600, FY, ":^");
   ADD_OPER(600, FY, ":#");
 
+  ADD_OPER(600, XFY, ".");      /* alternative notation for context ext. */
+  ADD_OPER(600, FY,  ".");      /*  */
+
   ADD_OPER(500, YFX, "+");
   ADD_OPER(500, YFX, "-");
   ADD_OPER(500, YFX, "/\\");

@@ -42,8 +42,13 @@
 
 
 [File|Files] :-
-	consult([File|Files]).
+	list([File|Files]),
+        consult([File|Files]).
 
+[UNIT | GOAL] :-
+    functor(UNIT, U, A),
+    current_unit(U, A), !,                      % existing unit
+    UNIT :> GOAL.
 
 
 

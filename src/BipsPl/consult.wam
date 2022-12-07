@@ -1,23 +1,56 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog 1.5.9
 % file    : consult.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/consult.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/consult.pl').
 
 
 predicate('$use_consult'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('.'/2,44,static,private,monofile,built_in,[
+predicate(('.')/2,44,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
+    try_me_else(1),
     get_variable(x(2),0),
     put_list(0),
     unify_local_value(x(2)),
     unify_local_value(x(1)),
-    execute(consult/1)]).
+    call_c('Pl_Blt_List',[fast_call,boolean],[x(0)]),
+    put_list(0),
+    unify_local_value(x(2)),
+    unify_local_value(x(1)),
+    execute(consult/1),
+
+label(1),
+    trust_me_else_fail,
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),255),
+    cxt_assign_K(y(3)),
+    put_value(y(0),2),
+    put_variable(x(0),3),
+    put_variable(x(1),4),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(3),x(4)]),
+    cxt_assign_K(y(3)),
+    call(current_unit/2),
+    cxt_assign_K(y(3)),
+    cut(y(2)),
+    put_list(4),
+    unify_local_value(y(0)),
+    unify_local_value(y(3)),
+    put_value(y(1),0),
+    put_atom('.',1),
+    put_integer(2,2),
+    put_atom(true,3),
+    deallocate,
+    cxt_execute('$call'/4,x(4))]).
 
 
-predicate(consult/1,50,static,private,monofile,built_in,[
+predicate(consult/1,55,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(3),
@@ -37,7 +70,7 @@ predicate(consult/1,50,static,private,monofile,built_in,[
     execute('$consult/1_$aux1'/2)]).
 
 
-predicate('$consult/1_$aux1'/2,50,static,private,monofile,local,[
+predicate('$consult/1_$aux1'/2,55,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -58,7 +91,7 @@ label(1),
     execute('$consult1'/1)]).
 
 
-predicate('$consult1'/1,60,static,private,monofile,built_in,[
+predicate('$consult1'/1,65,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -85,7 +118,7 @@ label(4),
     execute('$consult1'/1)]).
 
 
-predicate('$consult2'/1,67,static,private,monofile,built_in,[
+predicate('$consult2'/1,72,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -108,7 +141,7 @@ predicate('$consult2'/1,67,static,private,monofile,built_in,[
     execute('$$consult2/1_$aux2'/3)]).
 
 
-predicate('$$consult2/1_$aux2'/3,67,static,private,monofile,local,[
+predicate('$$consult2/1_$aux2'/3,72,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -145,7 +178,7 @@ label(1),
     fail]).
 
 
-predicate('$$consult2/1_$aux1'/3,67,static,private,monofile,local,[
+predicate('$$consult2/1_$aux1'/3,72,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -166,7 +199,7 @@ label(1),
     execute('$$consult2/1_$aux3'/3)]).
 
 
-predicate('$$consult2/1_$aux3'/3,67,static,private,monofile,local,[
+predicate('$$consult2/1_$aux3'/3,72,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -191,7 +224,7 @@ label(1),
     execute('$pl_err_existence'/2)]).
 
 
-predicate('$consult3'/2,91,static,private,monofile,built_in,[
+predicate('$consult3'/2,96,static,private,monofile,built_in,[
     call_c('Pl_Consult_2',[boolean],[x(0),x(1)]),
     proceed]).
 
@@ -223,7 +256,7 @@ predicate('$load_file'/1,112,static,private,monofile,built_in,[
     execute(close/1)]).
 
 
-predicate('$$load_file/1_$aux1'/4,108,static,private,monofile,local,[
+predicate('$$load_file/1_$aux1'/4,113,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -352,7 +385,7 @@ label(7),
     proceed]).
 
 
-predicate('$$load_pred/2_$aux3'/5,133,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux3'/5,138,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -382,7 +415,7 @@ label(1),
     fail]).
 
 
-predicate('$$load_pred/2_$aux2'/7,133,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux2'/7,138,static,private,monofile,local,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -410,7 +443,7 @@ label(1),
     execute('$check_owner_files'/3)]).
 
 
-predicate('$$load_pred/2_$aux1'/4,125,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux1'/4,130,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -504,7 +537,7 @@ label(1),
     proceed]).
 
 
-predicate('$$check_pred_type/4_$aux1'/5,166,static,private,monofile,local,[
+predicate('$$check_pred_type/4_$aux1'/5,171,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -578,7 +611,7 @@ label(1),
     proceed]).
 
 
-predicate('$$check_owner_files/3_$aux1'/7,179,static,private,monofile,local,[
+predicate('$$check_owner_files/3_$aux1'/7,184,static,private,monofile,local,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -643,7 +676,7 @@ predicate(load/1,198,static,private,monofile,built_in,[
     execute('$load/1_$aux1'/2)]).
 
 
-predicate('$load/1_$aux1'/2,194,static,private,monofile,local,[
+predicate('$load/1_$aux1'/2,199,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -691,7 +724,7 @@ label(4),
     execute('$load1'/1)]).
 
 
-predicate('$load2'/1,211,static,private,monofile,built_in,[
+predicate('$load2'/1,216,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -721,7 +754,7 @@ predicate('$load2'/1,211,static,private,monofile,built_in,[
     execute('$load_file'/1)]).
 
 
-predicate('$$load2/1_$aux2'/3,211,static,private,monofile,local,[
+predicate('$$load2/1_$aux2'/3,216,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -746,7 +779,7 @@ label(1),
     execute('$pl_err_existence'/2)]).
 
 
-predicate('$$load2/1_$aux1'/4,211,static,private,monofile,local,[
+predicate('$$load2/1_$aux1'/4,216,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -825,7 +858,7 @@ predicate('$add_clause_term'/2,261,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate('$add_clause_term_and_bc'/3,263,static,private,monofile,built_in,[
+predicate('$add_clause_term_and_bc'/3,268,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -845,7 +878,7 @@ predicate('$add_clause_term_and_bc'/3,263,static,private,monofile,built_in,[
     execute('$add_clause_term'/2)]).
 
 
-predicate(listing/0,274,static,private,monofile,built_in,[
+predicate(listing/0,279,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -898,7 +931,7 @@ label(2),
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_any'/0,298,static,private,monofile,built_in,[
+predicate('$listing_any'/0,303,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -989,7 +1022,7 @@ label(1),
     proceed]).
 
 
-predicate('$listing_one_pi'/3,335,static,private,monofile,built_in,[
+predicate('$listing_one_pi'/3,340,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1016,7 +1049,7 @@ predicate('$listing_one_pi'/3,335,static,private,monofile,built_in,[
     execute('$predicate_property_pi_any'/2)]).
 
 
-predicate('$$listing_one_pi/3_$aux1'/2,335,static,private,monofile,local,[
+predicate('$$listing_one_pi/3_$aux1'/2,340,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

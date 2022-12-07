@@ -61,6 +61,16 @@
 :- op(600, xfy, [::]).		% ...
 :- op(600, fy, [:<, :^, :#, :>]). % ...
 				
+% -----------------------------------------------------------------------------
+% unit directive; notations.
+%
+% :- unit(UNAME(ARGS)).
+% :- unit(UNAME(ARGS), []).
+% :- unit(UNAME(ARGS), PUBLICLIST, DIALECT).
+% 
+
+:- op(1000, fx, [unit]).
+
 '$cxt_for_call'(_).		% FIXME: should never be needed!!!
  
 % --- First pass - keep info about defined predicates --- %
@@ -377,6 +387,11 @@ cxt_rewrite_body(call(G), G1) :-
 %	g_read(cxt_var, CxtVar),
 %	cxt_rewrite_body(CxtVar :< G, G1),
 %	cxt_rewrite_body(CxtVar :< R, R1).
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+cxt_rewrite_body(.(C,G), NG) :- cxt_rewrite_body(C :> G, NG).
+%% cxt_rewrite_body(.G,  NG) :- cxt_rewrite_body(
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
