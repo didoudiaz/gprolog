@@ -170,8 +170,6 @@ FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong v
 #define SYS_VAR_LINEDIT             (pl_sys_var[12])
 #define SYS_VAR_DEBUGGER            (pl_sys_var[13])
 
-#define SYS_VAR_QUIET               (pl_sys_var[15])
-
 #define SYS_VAR_SAY_GETC            (pl_sys_var[20])
 #define CHAR_TO_EMIT_WHEN_CHAR      '\1'
 
@@ -189,8 +187,9 @@ FlagInf *pl_flag_double_quotes;
 FlagInf *pl_flag_multifile_warning;
 FlagInf *pl_flag_os_error;
 FlagInf *pl_flag_singleton_warning;
-FlagInf *pl_flag_strict_iso;
 FlagInf *pl_flag_suspicious_warning;
+FlagInf *pl_flag_show_information;
+FlagInf *pl_flag_strict_iso;
 FlagInf *pl_flag_syntax_error;
 FlagInf *pl_flag_unknown;
 
@@ -205,8 +204,9 @@ extern FlagInf *pl_flag_double_quotes;
 extern FlagInf *pl_flag_multifile_warning;
 extern FlagInf *pl_flag_os_error;
 extern FlagInf *pl_flag_singleton_warning;
-extern FlagInf *pl_flag_strict_iso;
 extern FlagInf *pl_flag_suspicious_warning;
+extern FlagInf *pl_flag_show_information;
+extern FlagInf *pl_flag_strict_iso;
 extern FlagInf *pl_flag_syntax_error;
 extern FlagInf *pl_flag_unknown;
 
@@ -236,7 +236,6 @@ Bool Pl_Write_Pl_State_File(WamWord file_word);
  *  11: permanent top level handler (B level) for abort and stop.          *
  *  12: permanent: is linedit present ?                                    *
  *  13: permanent: is the debugger present ?                               *
- *  15: quiet mode ? (see command-line option)                             *
  *                                                                         *
  *  20: permanent: should stream fcts emit a char before calling fgetc ?   *
  *                                                                         *

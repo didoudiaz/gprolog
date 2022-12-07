@@ -170,6 +170,7 @@ Flag_Initializer(void)
   NEW_FLAG_W_ON_OFF (singleton_warning,         1);
   NEW_FLAG_W_ON_OFF (suspicious_warning,        1);
   NEW_FLAG_W_ON_OFF (multifile_warning,         1);
+  NEW_FLAG_W_ON_OFF (show_information,          1);
   NEW_FLAG_W_ON_OFF (strict_iso,                1);
 #if 0
   NEW_FLAG_W_ON_OFF (debug,                     0);
@@ -189,7 +190,6 @@ Flag_Initializer(void)
   NEW_FLAG_W_ERR    (unknown,                   PF_ERR_ERROR);
   NEW_FLAG_W_ERR    (syntax_error,              PF_ERR_ERROR);
   NEW_FLAG_W_ERR    (os_error,                  PF_ERR_ERROR);
-
 
   SYS_VAR_LINEDIT = pl_stream_use_linedit;
 }

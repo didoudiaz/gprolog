@@ -87,7 +87,7 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 
 #define ADD_ARG(flag, opt_str)  if (!Flag_Value(flag))  arg[arg_i++] = opt_str
 
-  if (!SYS_VAR_QUIET)
+  if (Flag_Value(show_information))
     arg[arg_i++] = "--compile-msg";
   
   ADD_ARG(suspicious_warning, "--no-susp-warn");
@@ -117,8 +117,7 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   if (pid < 0)
     {
     error_pl2wam:
-      Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam "
-				"(maybe not found)"));
+      Pl_Err_System(Pl_Create_Atom("error trying to execute pl2wam (maybe not found)"));
       return FALSE;
     }
 
@@ -163,7 +162,6 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
       Pl_Stream_Putc(c, pstm_o);
     }
   pl_use_le_prompt = save_use_le_prompt;
-
   if (f_in)
     fclose(f_in);
   fclose(f_out);

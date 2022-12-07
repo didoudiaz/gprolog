@@ -38,11 +38,11 @@
 
 :-	built_in.
 
-:-	ensure_linked([consult / 1, load / 1]).
+:-	ensure_linked([consult/1, load/1]).
 
 
 top_level :-
-	(   '$sys_var_read'(15, 0) ->
+	(   current_prolog_flag(show_information, on) ->
 	    '$banner'(top_level_output),
 	    nl(top_level_output)
 	;   true

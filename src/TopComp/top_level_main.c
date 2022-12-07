@@ -170,7 +170,7 @@ Main_Wrapper(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--quiet"))
 	    {
-	      SYS_VAR_QUIET = 1;
+	      Flag_Value(show_information) = 0;
 	      continue;
 	    }
 
@@ -241,7 +241,7 @@ Display_Help(void)
   L("  --init-goal    GOAL         execute GOAL before entering the top-level");
   L("  --entry-goal   GOAL         execute GOAL inside the top-level");
   L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
-  L("  --quiet                     suppress top-level banner");
+  L("  --quiet                     suppress informational messages (banner, ...)");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");
