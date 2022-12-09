@@ -809,19 +809,40 @@ err:
   sa.bInheritHandle = TRUE;
   sa.lpSecurityDescriptor = NULL;
 
-  if ((f_in && !CreatePipe(&pipe_in_r, &pipe_in_w, &sa, 0)) ||
-      (f_out && !CreatePipe(&pipe_out_r, &pipe_out_w, &sa, 0)) ||
-      (f_err && f_err != f_out
-       && !CreatePipe(&pipe_err_r, &pipe_err_w, &sa, 0)))
-    goto windows_err;
+  if (f_in)
+    {
+      if (!CreatePipe(&pipe_in_r, &pipe_in_w, &sa, 0))
+	goto windows_err;
+      /* Ensure the write handle to the pipe for STDIN is not inherited. */
+      if (!SetHandleInformation(pipe_in_w, HANDLE_FLAG_INHERIT, 0))
+	goto windows_err;
+    }
 
+  if (f_out)
+    {
+      if (!CreatePipe(&pipe_out_r, &pipe_out_w, &sa, 0))
+	goto windows_err;
+      /* Ensure the read handle to the pipe for STDOUT is not inherited. */
+      if (!SetHandleInformation(pipe_out_r, HANDLE_FLAG_INHERIT, 0))
+	goto windows_err;
+    }
+
+  if (f_err && f_err != f_out)
+    {
+      if (!CreatePipe(&pipe_err_r, &pipe_err_w, &sa, 0))
+	goto windows_err;
+      /* Ensure the read handle to the pipe for STDERR is not inherited. */
+      if (!SetHandleInformation(pipe_err_r, HANDLE_FLAG_INHERIT, 0))
+	goto windows_err;
+    }
+
+  ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
-  si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+  si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW; /* not suer STARTF_USESHOWWINDOW is needed */
   si.wShowWindow = SW_HIDE;
   si.hStdInput = (f_in) ? pipe_in_r : GetStdHandle(STD_INPUT_HANDLE);
   si.hStdOutput = (f_out) ? pipe_out_w : GetStdHandle(STD_OUTPUT_HANDLE);
-  si.hStdError = (f_err) ? ((f_err == f_out) ? pipe_out_w : pipe_err_w)
-    : GetStdHandle(STD_ERROR_HANDLE);
+  si.hStdError = (f_err) ? ((f_err == f_out) ? pipe_out_w : pipe_err_w) : GetStdHandle(STD_ERROR_HANDLE);
   if (arg[1] == NULL || arg[1] == (char *) 1)
     cmd = arg[0];
   else
@@ -844,8 +865,14 @@ err:
 #ifdef DEBUG
   DBGPRINTF("   cmd=<%s>\n", cmd);
 #endif
+  /* Initially I put the flag DETACHED_PROCESS but under Win32 this creates a console window,
+   * so I put CREATE_NO_WINDOW. With DETACHED_PROCESS, the child does not inherit parent console.
+   * If it is a console app, it creates a new console (thus visible).
+   * With CREATE_NO_WINDOW, a new console (conhost.exe) that doesn't have a window is created
+   * (this seems the better).
+   */
   if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE,
-		     (detach) ? DETACHED_PROCESS : 0, NULL, NULL, &si, &pi))
+		     (detach) ? CREATE_NO_WINDOW : 0, NULL, NULL, &si, &pi))
     {
       status = GetLastError();
 #ifdef DEBUG
