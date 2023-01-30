@@ -133,19 +133,20 @@ consult_c@OBJ_SUFFIX@:   flag_supp.h
 
 #depending on stream_supp.h
 
-stream_c@OBJ_SUFFIX@:    stream_supp.h
-read_c@OBJ_SUFFIX@:      stream_supp.h
-char_io_c@OBJ_SUFFIX@:   stream_supp.h
-write_c@OBJ_SUFFIX@:     stream_supp.h
-format_c@OBJ_SUFFIX@:    stream_supp.h
-pretty_c@OBJ_SUFFIX@:    stream_supp.h
-consult_c@OBJ_SUFFIX@:	 stream_supp.h
-top_level_c@OBJ_SUFFIX@: stream_supp.h
-debugger_c@OBJ_SUFFIX@:  stream_supp.h
-throw_c@OBJ_SUFFIX@:     stream_supp.h
-src_rdr_c@OBJ_SUFFIX@:   stream_supp.h
-error_supp@OBJ_SUFFIX@:  stream_supp.h
-write_supp@OBJ_SUFFIX@:  stream_supp.h
+stream_c@OBJ_SUFFIX@:     stream_supp.h
+read_c@OBJ_SUFFIX@:       stream_supp.h
+char_io_c@OBJ_SUFFIX@:    stream_supp.h
+write_c@OBJ_SUFFIX@:      stream_supp.h
+format_c@OBJ_SUFFIX@:     stream_supp.h
+pretty_c@OBJ_SUFFIX@:     stream_supp.h
+consult_c@OBJ_SUFFIX@:	  stream_supp.h
+top_level_c@OBJ_SUFFIX@:  stream_supp.h
+debugger_c@OBJ_SUFFIX@:   stream_supp.h
+throw_c@OBJ_SUFFIX@:      stream_supp.h
+src_rdr_c@OBJ_SUFFIX@:    stream_supp.h
+error_supp@OBJ_SUFFIX@:   stream_supp.h
+write_supp@OBJ_SUFFIX@:   stream_supp.h
+os_interf_c@OBJ_SUFFIX@:  stream_supp.h
 
 foreign.wam:     foreign.pl
 

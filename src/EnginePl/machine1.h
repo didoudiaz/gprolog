@@ -50,6 +50,12 @@
 #define M_ERROR_WIN32              -2 /* read GetLastError instead of errno */
 
 
+#define M_SPAWN_REDIRECT_CREATE    ((FILE *) 1)
+#define M_SPAWN_REDIRECT_NULL      ((FILE *) 2)
+/* other values means an existing stream (a FILE *) */
+
+
+
 
 /*---------------------------------*
  * Type Definitions                *

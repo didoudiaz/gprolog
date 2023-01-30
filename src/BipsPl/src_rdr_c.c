@@ -335,7 +335,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	    stm = pl_stm_current_input;
 #else
 	  {
-	    stm = Pl_Add_Stream(0, (PlLong) 0, pl_stm_tbl[pl_stm_current_input]->prop,
+	    stm = Pl_Add_Stream(0, (PlLong) 0, 0, pl_stm_tbl[pl_stm_current_input]->prop,
 		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_current_input];
 	  }

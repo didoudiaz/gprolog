@@ -62,18 +62,21 @@
 #define STREAM_BUFFERING_LINE      1
 #define STREAM_BUFFERING_BLOCK     2
 
-
 #define STREAM_EOF_NOT             0
 #define STREAM_EOF_AT              1
 #define STREAM_EOF_PAST            2
 
 
 
-					/* values for Get_Stream_Or_Alias */
-#define STREAM_CHECK_VALID         0	/* simply a valid stream */
+					/* possible values for 'test' in Pl_Get_Stream_Or_Alias */
+#define STREAM_CHECK_VALID         0	/* simply a valid stream or alias */
 #define STREAM_CHECK_EXIST         1	/* valid and exist */
 #define STREAM_CHECK_INPUT         2	/* valid, exist and mode=input  */
 #define STREAM_CHECK_OUTPUT        3	/* valid, exist and mode=output */
+				/* additional OR masks */
+#define STREAM_CHECK_ACCEPT_VAR    (1 << 8)
+#define STREAM_CHECK_ACCEPT_NULL   (1 << 9)
+#define STREAM_CHECK_HAS_FILENO    (1 << 10)
 
 
 
@@ -137,7 +140,8 @@ typedef struct stm_lst		/* Chained stream list            */
 typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
   int atom_file_name;		/* atom associated to filename    */
-  PlLong file;		/* accessor (FILE *,TTYInf *) != 0*/
+  PlLong file;			/* accessor (FILE *,TTYInf *) != 0*/
+  int fileno;			/* fileno (-1 if not a POSIX file)*/
   StmProp prop;			/* assoctiated properties         */
   StmLst *mirror;		/* mirror streams                 */
   StmLst *mirror_of;            /* streams this stream as mirror  */
@@ -262,6 +266,8 @@ int pl_atom_bof;
 int pl_atom_current;
 int pl_atom_eof;
 
+int pl_atom_null;
+
 #else
 
 extern StmInf **pl_stm_tbl;
@@ -337,6 +343,8 @@ extern int pl_atom_bof;
 extern int pl_atom_current;
 extern int pl_atom_eof;
 
+extern int pl_atom_null;
+
 #endif
 
 
@@ -362,7 +370,7 @@ extern int pl_atom_eof;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
+int Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
 		  StmFct fct_getc, StmFct fct_putc,
 		  StmFct fct_flush, StmFct fct_close,
 		  StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
@@ -389,6 +397,8 @@ void Pl_Flush_All_Streams(void);
 void Pl_Set_Stream_Buffering(int stm);
 
 int Pl_Get_Stream_Or_Alias(WamWord sora_word, int test_mask);
+
+Bool Pl_Get_Stream(int stm, WamWord start_word);
 
 void Pl_Check_Stream_Type(int stm, Bool check_text, Bool for_input);
 

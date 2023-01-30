@@ -283,8 +283,14 @@ popen(Cmd, Mode, Stream) :-
 	'$get_open_stm'(Stream, Stm),
 	'$call_c_test'('Pl_Popen_3'(Cmd, Mode, Stm)).
 
-
-
+	  % Exec/4-5 use or not the PID
+	  % if Pid is not used, the process is detached
+	  %    (waitpid is called by C code)
+	  % If StreamIn/Out/Err are needed and files are large:
+	  %    do not detach (use Pid)
+	  %    read/write StreamIn/Out/Err
+	  %    use wait/2 to obtain status (and avoid Zombie process)
+	  %
           % exec mask in sys_var[0]:
           %     b0
           %     0/1
@@ -310,11 +316,12 @@ exec(Cmd, StreamIn, StreamOut, StreamErr) :-
 
 
 
-'$exec'(Cmd, StreamIn, StreamOut, StreamErr, Pid) :-
-	'$get_open_stm'(StreamIn, StmIn),
-	'$get_open_stm'(StreamOut, StmOut),
-	'$get_open_stm'(StreamErr, StmErr),
-	'$call_c_test'('Pl_Exec_5'(Cmd, StmIn, StmOut, StmErr, Pid)).
+'$exec'(Cmd, SorAIn, SorAOut, SorAErr, Pid) :-
+%	'$get_open_stm'(StreamIn, StmIn),
+%	'$get_open_stm'(StreamOut, StmOut),
+%	'$get_open_stm'(StreamErr, StmErr),
+%	'$call_c_test'('Pl_Exec_5'(Cmd, StmIn, StmOut, StmErr, Pid)).
+	'$call_c_test'('Pl_Exec_5'(Cmd, SorAIn, SorAOut, SorAErr, Pid)).
 
 
 

@@ -73,7 +73,8 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
   StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
   int pid;
-  FILE *f_out, *f_in;
+  FILE *f_in = M_SPAWN_REDIRECT_CREATE;
+  FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   FILE **pf_in;
   PlLong save;
   unsigned char *p = NULL;

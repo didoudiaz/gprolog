@@ -1103,23 +1103,38 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
-	  WamWord stm_err_word, WamWord pid_word)
+Pl_Exec_5(WamWord cmd_word, WamWord sora_in_word, WamWord sora_out_word,
+	  WamWord sora_err_word, WamWord pid_word)
+
+#define STM_TO_FILE(s) ((s == -3) ? M_SPAWN_REDIRECT_NULL : ((s < 0) ? M_SPAWN_REDIRECT_CREATE : (FILE *) pl_stm_tbl[s]->file))
+
 {
   char *cmd;
   char **arg;
-  int stm;
-  FILE *f_in, *f_out, *f_err;
+  int mask_or =  STREAM_CHECK_ACCEPT_VAR | STREAM_CHECK_ACCEPT_NULL | STREAM_CHECK_HAS_FILENO;
+  int stm_in = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT | mask_or);
+  int stm_out = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT | mask_or);
+  int stm_err = Pl_Get_Stream_Or_Alias(sora_err_word, STREAM_CHECK_OUTPUT | mask_or);
+  FILE *f_in = STM_TO_FILE(stm_in);
+  FILE *f_out = STM_TO_FILE(stm_out);
+  FILE *f_err = STM_TO_FILE(stm_err);
   int pid;
   int mask = (int) SYS_VAR_OPTION_MASK;
   int atom;
   char err[1024];
+  Bool merge_var_out_err = FALSE;
 
+  if (stm_err == -2 && stm_out == -2) /* check if both vars are the same (if yes merge out and err) */
+    {
+      if (Pl_Blt_Term_Eq(sora_err_word, sora_out_word))
+	merge_var_out_err = TRUE;
+    }
+  
   cmd = Pl_Rd_String_Check(cmd_word);
   arg = Pl_M_Create_Shell_Command(cmd);
 
   Pl_Flush_All_Streams();
-  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, &f_err);
+  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, (merge_var_out_err) ? &f_out : &f_err);
 
   /* If the command is not found we get ENOENT under Windows. 
    * Under Unix the information is only obtained at Pl_M_Get_Status(). */
@@ -1139,23 +1154,34 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   sprintf(pl_glob_buff, "exec_stream('%.1024s')", cmd);
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
-  Pl_Get_Integer(stm, stm_in_word);
+  if (stm_in == -2)
+    {
+      stm_in = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
+      if (!Pl_Get_Stream(stm_in, sora_in_word)) /* a var but could fail, e.g. if In == Out */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Input: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
-  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Pl_Get_Integer(stm, stm_out_word);
-
+  if (stm_out == -2)
+    {
+      stm_out = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
+      pl_stm_tbl[stm_out]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+      if (!Pl_Get_Stream(stm_out, sora_out_word)) /* a var but could fail, e.g. if In == Out */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Output: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
-  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Pl_Get_Integer(stm, stm_err_word);
+  if (stm_err == -2 && !merge_var_out_err)
+    {
+      stm_err = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
+      pl_stm_tbl[stm_err]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+      if (!Pl_Get_Stream(stm_err, sora_err_word)) /* a var but could fail, e.g. if In == Err */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Error: %d\n", stm);
 #endif
@@ -1237,8 +1263,8 @@ Pl_Fork_Prolog_1(WamWord pid_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
-	 WamWord writes_word, WamWord ready_writes_word,
-	 WamWord time_out_word)
+	    WamWord writes_word, WamWord ready_writes_word,
+	    WamWord time_out_word)
 {
 #if defined(_WIN32) && defined(NO_USE_SOCKETS)
 

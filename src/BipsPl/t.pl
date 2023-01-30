@@ -250,7 +250,63 @@ test(Goal) :-
 	close(Stream).
 
 s:-stream_property(X,alias(Y)), write(X-Y), nl, fail ; true.
-f:-open('/tmp/foo',write,X,[alias(foo), buffering(none)]), write(X-foo), nl.
+f:-open('/tmp/foo',read,X,[alias(foo), buffering(none)]), write(X-foo), nl.
 b:-open('/tmp/bar',write,X,[alias(bar), buffering(none)]), write(X-bar), nl.
+b1:-open('/tmp/bar1',write,X,[alias(bar1), buffering(none)]), write(X-bar1), nl.
 
+
+z:- exec('sort',foo,bar,bar1), closeall.
+
+z2(X,Y,Z):- exec('sort',X,Y,Z),write(X,'b\na\nz\ng'),close(X), r(Y), r(Z).
+
+z3(X,Y,Z):- exec('du -s /var/log',X,Y,Z), r(Y), r(Z).
+
+z4(S):-
+	b,
+	Y=bar,
+	Z=bar,
+	exec('sort',X,Y,Z, PID),
+	open('~/wordnet-prolog/wn_valid.pl',read,_,[alias(w)]),
+	repeat,
+	get_char(w, C),
+	(   C == end_of_file ; write(X,C), fail ), !,
+	close(w),
+	close(X),
+	wait(PID, S).
+
+
+r(S):-
+	write('--------------------------'(S)), nl,
+	repeat,
+	get_char(S, C),
+	(   C == end_of_file ; write(C), fail ), !,
+	write('--------------------------'), nl, nl.
+
+z1:- exec('sort',foo,bar,bar1),closeall.
+
+
+aff:-
+	current_stream(X),
+	write(X), nl,
+	fail.
+aff.
+
+
+closeall :-
+	current_stream(X),
+	close(X),
+	fail.
+
+closeall.
+
+
+
+test:-
+	open('/tmp/foo',read,X,[alias(foo)]), write(X-foo), nl.
+
+i:-
+	exec('info man',user_input, user_output, user_error).
+
+i(X):-
+	exec('info man',user_input, user_output, user_error, X).
 

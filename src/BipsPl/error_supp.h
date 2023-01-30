@@ -89,6 +89,7 @@ int pl_domain_stream_option;
 int pl_domain_stream_or_alias;
 int pl_domain_stream_position;
 int pl_domain_stream_property;
+int pl_domain_file_stream;
 int pl_domain_write_option;
 int pl_domain_order;
 int pl_domain_term_stream_or_alias;		/* for term_streams */
@@ -194,6 +195,7 @@ extern int pl_domain_stream_option;
 extern int pl_domain_stream_or_alias;
 extern int pl_domain_stream_position;
 extern int pl_domain_stream_property;
+extern int pl_domain_file_stream;
 extern int pl_domain_write_option;
 extern int pl_domain_order;
 extern int pl_domain_term_stream_or_alias;	/* for term_streams */

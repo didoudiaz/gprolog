@@ -129,10 +129,10 @@
 %   {\begin{CodeTwoCols}[#1]\texttt{#2} & {#3}\end{CodeTwoCols}}
 
 
-
+%BEGIN LATEX
 \newlength{\tmplg}
 \newcounter{colnbround}
-\newenvironment{TabularC}[1]%
+\newenvironment{TabuxlarC}[1]%
    {\setcounter{colnbround}{#1}
     \addtocounter{colnbround}{1}
     \setlength{\tmplg}{\linewidth/#1 - \tabcolsep*2 %
@@ -141,7 +141,7 @@
                       {|*{#1}{>{\raggedright\arraybackslash\hspace{0pt}}%
                          m{\the\tmplg}|}}}%
    {\end{tabular*}\par}
-
+%END LATEX
 
 % For use in tabular (parameter is column width)
 
