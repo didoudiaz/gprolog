@@ -426,7 +426,7 @@ predicate(popen/3,281,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(exec/5,299,static,private,monofile,built_in,[
+predicate(exec/5,302,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -451,7 +451,7 @@ predicate(exec/5,299,static,private,monofile,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec/5_$aux1'/1,299,static,private,monofile,local,[
+predicate('$exec/5_$aux1'/1,302,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -464,7 +464,7 @@ label(1),
     proceed]).
 
 
-predicate(exec/4,311,static,private,monofile,built_in,[
+predicate(exec/4,314,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -483,12 +483,12 @@ predicate(exec/4,311,static,private,monofile,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec'/5,319,static,private,monofile,built_in,[
+predicate('$exec'/5,322,static,private,monofile,built_in,[
     call_c('Pl_Exec_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(create_pipe/2,330,static,private,monofile,built_in,[
+predicate(create_pipe/2,333,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[create_pipe,2]),
@@ -504,7 +504,7 @@ predicate(create_pipe/2,330,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(fork_prolog/1,339,static,private,monofile,built_in,[
+predicate(fork_prolog/1,342,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[fork_prolog,1]),
@@ -516,7 +516,7 @@ predicate(fork_prolog/1,339,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$fork_prolog/1_$aux1'/1,339,static,private,monofile,local,[
+predicate('$fork_prolog/1_$aux1'/1,342,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -529,25 +529,25 @@ label(1),
     proceed]).
 
 
-predicate(select/5,350,static,private,monofile,built_in,[
+predicate(select/5,353,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[select,5]),
     call_c('Pl_Select_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(prolog_pid/1,357,static,private,monofile,built_in,[
+predicate(prolog_pid/1,360,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_pid,1]),
     call_c('Pl_Prolog_Pid_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(send_signal/2,364,static,private,monofile,built_in,[
+predicate(send_signal/2,367,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[send_signal,2]),
     call_c('Pl_Send_Signal_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(wait/2,371,static,private,monofile,built_in,[
+predicate(wait/2,374,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[wait,2]),
     call_c('Pl_Wait_2',[boolean],[x(0),x(1)]),
     proceed]).

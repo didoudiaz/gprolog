@@ -6,7 +6,7 @@
  * Descr.: operating system interface management                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -282,6 +282,9 @@ popen(Cmd, Mode, Stream) :-
 	set_bip_name(popen, 3),
 	'$get_open_stm'(Stream, Stm),
 	'$call_c_test'('Pl_Popen_3'(Cmd, Mode, Stm)).
+
+
+
 
 	  % Exec/4-5 use or not the PID
 	  % if Pid is not used, the process is detached
