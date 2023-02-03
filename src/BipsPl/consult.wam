@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog 1.5.0
 % file    : consult.pl
 
 
@@ -14,7 +14,7 @@ predicate('.'/2,52,static,private,monofile,built_in,[
     put_list(0),
     unify_local_value(x(2)),
     unify_local_value(x(1)),
-    put_meta_term(system,0),
+    put_meta_term(system,0,0),
     execute(consult/1)]).
 
 
