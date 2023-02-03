@@ -6,7 +6,7 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -130,7 +130,9 @@ static int nb_sig;
 
 static int Flag_Of_Permission(WamWord perm_word, Bool is_a_directory);
 
-static char *Get_Path_Name(WamWord path_name_word);
+static char *Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash);
+
+#define Get_Path_Name(p)  Get_Path_Name0(p, TRUE)
 
 static Bool Date_Time_To_Prolog(time_t *t, WamWord date_time_word);
 
@@ -330,39 +332,19 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
   char *path_name;
   Bool res;
   char *name;
-
-#ifdef _WIN32
-  PlLong h;
-  struct _finddata_t d;
-  static char buff[MAXPATHLEN];
-#else
   DIR *dir;
   struct dirent *cur_entry;
-#endif
-
 
   Pl_Check_For_Un_List(list_word);
 
   path_name = Get_Path_Name(path_name_word);
 
-#ifdef _WIN32
-  sprintf(buff, "%s\\*.*", path_name);
-  h = _findfirst(buff, &d);	/* instead of Win32 FindFirstFile since uses errno */
-  Os_Test_Error(h);
-#else
-  dir = opendir(path_name);
+  dir = opendir(path_name);	/* on windows: see opendir in ../EnginePl/arch_dep.c */
   Os_Test_Error_Null(dir);
-#endif
 
-#ifdef _WIN32
-  do
-    {
-      name = d.name;
-#else
   while ((cur_entry = readdir(dir)) != NULL)
     {
       name = cur_entry->d_name;
-#endif
       if (!Pl_Get_List(list_word) || !Pl_Unify_Atom(Pl_Create_Allocate_Atom(name)))
 	{
 	  res = FALSE;
@@ -371,18 +353,11 @@ Pl_Directory_Files_2(WamWord path_name_word, WamWord list_word)
 
       list_word = Pl_Unify_Variable();
     }
-#ifdef _WIN32
-  while (_findnext(h, &d) == 0);
-#endif
 
   res = Pl_Get_Nil(list_word);
 
 finish:
-#ifdef _WIN32
-  _findclose(h);
-#else
   closedir(dir);
-#endif
 
   return res;
 }
@@ -405,6 +380,88 @@ Pl_Rename_File_2(WamWord path_name1_word, WamWord path_name2_word)
 
   Os_Test_Error(rename(path_name1, path_name2));
 
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_COPY_FILE_2                                                          *
+ *                                                                         *
+ * We could use some OS-dependent utility to be faster, e.g.:              *
+ * on WinXX: use CopyFileA(src, dst, false);                               *
+ * on MacOS: copyfile(src, dst, NULL, COPYFILE_DATA);                      *
+ * on Linux: sendfile(dst_fd, src_fd, NULL, stat_buf.st_size);             *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
+{
+  char path_name1[MAXPATHLEN];
+  char *path_name2;
+  FILE *f_in = NULL, *f_out = NULL;
+  int is_dir;
+  char *base, *suffix;
+  int size_rd;
+  char buff[BUFSIZ];
+
+  strcpy(path_name1, Get_Path_Name(path_name1_word));
+  path_name2 = Get_Path_Name0(path_name2_word, FALSE);
+
+  if ((f_in = fopen(path_name1, "rb")) == NULL)
+    {
+      int err_no;
+    error:
+      err_no = errno;
+      if (f_in != NULL)
+	fclose(f_in);
+      if (f_out != NULL)
+	fclose(f_out);
+      errno = err_no;
+      Os_Test_Error(-1);
+    }
+
+  is_dir = Pl_M_Is_Dir_Name(path_name2, FALSE);
+  if (is_dir < 0)
+    goto error;
+  if (is_dir)
+    {
+      Pl_M_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
+      sprintf(path_name2 + strlen(path_name2), "/%s", base);
+    }
+
+  if ((f_out = fopen(path_name2, "wb")) == NULL)
+    goto error;
+
+  while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
+    {
+      int size_left = size_rd;
+      int try_wr = 0;
+      char *p = buff;
+      while(size_left > 0)
+	{
+	  int size_wr = fwrite(p, 1, size_left, f_out);
+	  if (size_wr > 0)
+	    {
+	      size_left -= size_wr;
+	      p += size_wr;
+	      continue;
+	    }
+	  
+	  if (size_wr == 0)
+	    errno = EAGAIN;
+
+	  if ((errno != EAGAIN && errno != EINTR) || ++try_wr >= 5)
+	    goto error;
+	}
+    }
+
+  if (size_rd < 0)
+    goto error;
+
+  fclose(f_in);
+  fclose(f_out);
+  
   return TRUE;
 }
 
@@ -567,7 +624,7 @@ Flag_Of_Permission(WamWord perm_word, Bool is_a_directory)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
-			       WamWord path_name_word)
+				  WamWord path_name_word)
 {
   char *path_name;
 
@@ -587,7 +644,7 @@ Pl_File_Prop_Absolute_File_Name_2(WamWord absolute_path_name_word,
  *-------------------------------------------------------------------------*/
 Bool
 Pl_File_Prop_Real_File_Name_2(WamWord real_path_name_word,
-			   WamWord path_name_word)
+			      WamWord path_name_word)
 {
   char *path_name = Get_Path_Name(path_name_word);
 
@@ -756,7 +813,7 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
-		 WamWord path_name_word)
+		    WamWord path_name_word)
 {
   char *dir;
   char *prefix;
@@ -1046,23 +1103,38 @@ Pl_Popen_3(WamWord cmd_word, WamWord mode_word, WamWord stm_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
-	  WamWord stm_err_word, WamWord pid_word)
+Pl_Exec_5(WamWord cmd_word, WamWord sora_in_word, WamWord sora_out_word,
+	  WamWord sora_err_word, WamWord pid_word)
+
+#define STM_TO_FILE(s) ((s == -3) ? M_SPAWN_REDIRECT_NULL : ((s < 0) ? M_SPAWN_REDIRECT_CREATE : (FILE *) pl_stm_tbl[s]->file))
+
 {
   char *cmd;
   char **arg;
-  int stm;
-  FILE *f_in, *f_out, *f_err;
+  int mask_or =  STREAM_CHECK_ACCEPT_VAR | STREAM_CHECK_ACCEPT_NULL | STREAM_CHECK_HAS_FILENO;
+  int stm_in = Pl_Get_Stream_Or_Alias(sora_in_word, STREAM_CHECK_INPUT | mask_or);
+  int stm_out = Pl_Get_Stream_Or_Alias(sora_out_word, STREAM_CHECK_OUTPUT | mask_or);
+  int stm_err = Pl_Get_Stream_Or_Alias(sora_err_word, STREAM_CHECK_OUTPUT | mask_or);
+  FILE *f_in = STM_TO_FILE(stm_in);
+  FILE *f_out = STM_TO_FILE(stm_out);
+  FILE *f_err = STM_TO_FILE(stm_err);
   int pid;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   int atom;
   char err[1024];
+  Bool merge_var_out_err = FALSE;
 
+  if (stm_err == -2 && stm_out == -2) /* check if both vars are the same (if yes merge out and err) */
+    {
+      if (Pl_Blt_Term_Eq(sora_err_word, sora_out_word))
+	merge_var_out_err = TRUE;
+    }
+  
   cmd = Pl_Rd_String_Check(cmd_word);
   arg = Pl_M_Create_Shell_Command(cmd);
 
   Pl_Flush_All_Streams();
-  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, &f_err);
+  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, (merge_var_out_err) ? &f_out : &f_err);
 
   /* If the command is not found we get ENOENT under Windows. 
    * Under Unix the information is only obtained at Pl_M_Get_Status(). */
@@ -1082,23 +1154,34 @@ Pl_Exec_5(WamWord cmd_word, WamWord stm_in_word, WamWord stm_out_word,
   sprintf(pl_glob_buff, "exec_stream('%.1024s')", cmd);
   atom = Pl_Create_Allocate_Atom(pl_glob_buff);
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
-  Pl_Get_Integer(stm, stm_in_word);
+  if (stm_in == -2)
+    {
+      stm_in = Pl_Add_Stream_For_Stdio_Desc(f_in, atom, STREAM_MODE_WRITE, TRUE, FALSE);
+      if (!Pl_Get_Stream(stm_in, sora_in_word)) /* a var but could fail, e.g. if In == Out */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Input: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
-  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Pl_Get_Integer(stm, stm_out_word);
-
+  if (stm_out == -2)
+    {
+      stm_out = Pl_Add_Stream_For_Stdio_Desc(f_out, atom, STREAM_MODE_READ, TRUE, FALSE);
+      pl_stm_tbl[stm_out]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+      if (!Pl_Get_Stream(stm_out, sora_out_word)) /* a var but could fail, e.g. if In == Out */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Output: %d\n", stm);
 #endif
 
-  stm = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
-  pl_stm_tbl[stm]->prop.eof_action = STREAM_EOF_ACTION_RESET;
-  Pl_Get_Integer(stm, stm_err_word);
+  if (stm_err == -2 && !merge_var_out_err)
+    {
+      stm_err = Pl_Add_Stream_For_Stdio_Desc(f_err, atom, STREAM_MODE_READ, TRUE, FALSE);
+      pl_stm_tbl[stm_err]->prop.eof_action = STREAM_EOF_ACTION_RESET;
+      if (!Pl_Get_Stream(stm_err, sora_err_word)) /* a var but could fail, e.g. if In == Err */
+	return FALSE;
+    }
 #ifdef DEBUG
   DBGPRINTF("Added Stream Error: %d\n", stm);
 #endif
@@ -1180,8 +1263,8 @@ Pl_Fork_Prolog_1(WamWord pid_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
-	 WamWord writes_word, WamWord ready_writes_word,
-	 WamWord time_out_word)
+	    WamWord writes_word, WamWord ready_writes_word,
+	    WamWord time_out_word)
 {
 #if defined(_WIN32) && defined(NO_USE_SOCKETS)
 
@@ -1209,8 +1292,8 @@ Pl_Select_5(WamWord reads_word, WamWord ready_reads_word,
     p = NULL;
   else
     {
-      t.tv_sec = (PlLong) (time_out / 1000);
-      t.tv_usec = (PlLong) (fmod(time_out, 1000) * 1000);
+      t.tv_sec = (long) (time_out / 1000);
+      t.tv_usec = (long) (fmod(time_out, 1000) * 1000);
       p = &t;
     }
 
@@ -1312,7 +1395,7 @@ Select_Init_Ready_List(WamWord list_word, fd_set *set,
       DEREF(Car(lst_adr), word, tag_mask);
 
       if (tag_mask == TAG_INT_MASK)
-	fd = UnTag_INT(word);
+	fd = (int) UnTag_INT(word);
       else
 	{
 	  stm = Pl_Get_Stream_Or_Alias(word, STREAM_CHECK_VALID);
@@ -1371,7 +1454,7 @@ Pl_Send_Signal_2(WamWord pid_word, WamWord signal_word)
   DEREF(signal_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)
     {
-      atom = UnTag_ATM(word);
+      atom = (int) UnTag_ATM(word);
       sig = -1;
       for (i = 0; i < nb_sig; i++)
 	if (tsig[i].atom == atom)
@@ -1433,16 +1516,16 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
 
 
 /*-------------------------------------------------------------------------*
- * GET_PATH_NAME                                                           *
+ * GET_PATH_NAME0                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static char *
-Get_Path_Name(WamWord path_name_word)
+Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash)
 {
   char *path_name;
 
   path_name = Pl_Rd_String_Check(path_name_word);
-  if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+  if ((path_name = Pl_M_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
     Pl_Err_Domain(pl_domain_os_path, path_name_word);
 
   return path_name;

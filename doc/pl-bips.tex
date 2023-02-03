@@ -1642,7 +1642,8 @@ dynamic. Internal system procedures whose name begins
 with \texttt{'\$'} are not found. A user-defined procedure is found
 even when it has no clauses. A user-defined procedure is not found if
 it has been abolished. To conform to the ISO reference, built-in predicates
-are not found except if the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched off \RefSP{set-prolog-flag/2}. This predicate is re-executable on
+are not found except if the \IdxPF{strict\_iso} \Idx{Prolog flag} is switched
+off \RefSP{set-prolog-flag/2}. This predicate is re-executable on
 backtracking.
 
 \begin{PlErrors}
@@ -1930,9 +1931,9 @@ stream to a source/sink (section above). A stream-term is a compound term of
 the form \texttt{'\$stream'(I)} where \texttt{I} is an integer.
 
 \SPart{Stream aliases}: any stream may be associated with a stream alias
-which is an atom which may be used to refer to that stream. The association
-can be done at open time or using \IdxPB{add\_stream\_alias/2}
-\RefSP{add-stream-alias/2}. Such an association automatically ends when the
+(an atom) which may be used to refer to that stream. The association
+can be done at open time or later using \IdxPB{set\_stream\_alias/2}
+\RefSP{set-stream-alias/2}. Such an association automatically ends when the
 stream is closed. A particular alias only refers to at most one stream at any
 one time. However, more than one alias can be associated with a stream. Most
 built-in predicates which have a stream-term as an input argument also accept
@@ -1946,14 +1947,22 @@ execution of every goal: the standard input stream which has the alias
 \IdxPKD{user\_error}. A goal which attempts to close either standard stream
 succeeds, but does not close the stream.
 
-\SPart{Current streams}: during execution there is a current input stream
-and a current output stream. By default, the current input and output
-streams are the standard input and output streams, but the built-in
-predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
-\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change them.
-When the current input stream is closed, the standard input stream becomes
-the current input stream. When the current output stream is closed, the
-standard output stream becomes the current output stream.
+\SPart{Current streams}: during execution there is a current input
+stream and a current output stream. By default, the current input and
+output streams are the standard input and output streams, but the
+built-in predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
+\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change
+them. These streams also have predefined aliases: \IdxPKD{current\_input}
+and \IdxPKD{current\_output}. 
+
+\SPart{Top-level and debugger aliases}: GNU Prolog provides predefined
+aliases for the streams used by the top-level
+(\IdxPKD{top\_level\_input}, \IdxPKD{top\_level\_output}) and by the
+debugger (\IdxPKD{debugger\_input}, \IdxPKD{debugger\_output}).
+
+When a stream associated with a predefined alias is closed, the alias is
+reassigned to its initial standard stream (either the standard input,
+output or error stream).
 
 \SPart{Text streams and binary streams}: a text stream is a sequence of
 characters. A text stream is also regarded as a sequence of lines where each
@@ -2296,14 +2305,18 @@ close(+stream\_or\_alias)
 
 \Description
 
-\texttt{close(SorA, Options)} closes the stream associated with the stream-term
-or alias \texttt{SorA}. If \texttt{SorA} is the standard input stream or the
-standard output stream \texttt{close/2} simply succeeds else the associated
-source/sink is physically closed. If \texttt{SorA} is the current input
-stream the current input stream becomes the standard input stream
-\IdxPK{user\_input}. If \texttt{SorA} is the current output stream the
-current output stream becomes the standard output stream
-\IdxPK{user\_output}.
+\texttt{close(SorA, Options)} physically closes the stream associated
+with the stream-term or alias \texttt{SorA}. If \texttt{SorA} is the
+standard input stream or the standard output or the standard error
+stream \texttt{close/2} succeeds without closing the stream (but
+user-defined aliases related to the closed stream are removed). If
+\texttt{SorA} is the current input stream the current input stream
+becomes the standard input stream \IdxPK{user\_input}. If
+\texttt{SorA} is the current output stream the current output stream
+becomes the standard output stream \IdxPK{user\_output}. More
+generally, the same occurs when closing a stream associated to a
+predefined alias: the alias is reassigned to the corresponding
+standard stream~\RefSP{Introduction:(Streams)}.
 
 \SPart{Close options}: \texttt{Options} is a list of close options. For the
 moment only one option is available:
@@ -2881,17 +2894,22 @@ by character until the required position is reached.
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{add\_stream\_alias/2}\label{add-stream-alias/2}}
+\subsubsection{\IdxPBD{set\_stream\_alias/2}, \label{set-stream-alias/2}
+		\IdxPBD{add\_stream\_alias/2}}
 
 \begin{TemplatesOneCol}
+set\_stream\_alias(+stream\_or\_alias, +atom)\\
 add\_stream\_alias(+stream\_or\_alias, +atom)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{add\_stream\_alias(SorA, Alias)} adds \texttt{Alias} as a new alias
+\texttt{set\_stream\_alias(SorA, Alias)} (re)assignes \texttt{Alias} as an alias
 to the stream associated with the stream-term or alias \texttt{SorA}.
+
+\texttt{add\_stream\_alias(SorA, Alias)} is similar except that it
+throws an error if the \texttt{Alias} is already in use (i.e. assigned to another stream).
 
 \begin{PlErrors}
 
@@ -2910,14 +2928,14 @@ to the stream associated with the stream-term or alias \texttt{SorA}.
 \ErrCond{\texttt{SorA} is not associated with an open stream}
 \ErrTerm{existence\_error(stream, SorA)}
 
-\ErrCond{\texttt{Alias} is already associated with an open stream}
+\ErrCond{\texttt{Alias} is already associated with an open stream (for \texttt{add\_stream\_alias/2})}
 \ErrTerm{permission\_error(add\_alias, source\_sink, alias(Alias))}
 
 \end{PlErrors}
 
 \Portability
 
-GNU Prolog predicate.
+GNU Prolog predicates.
 
 \subsubsection{\IdxPBD{current\_alias/2}}
 
@@ -4548,12 +4566,15 @@ Format sequence  & type of the argument & Description \\
 
 \hline\hline
 
-\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal number of characters to print using spaces on the right if needed (default: the length of the atom) \\
+\texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal
+                         number of characters to print using spaces on the right
+                         if needed (default: the length of the atom) \\
 
 \hline
 
 \texttt{\~{}Nc} & character code & print the character associated with the
-code. \texttt{N} is the number of times to print the character (default: 1)\\
+                                   code. \texttt{N} is the number of times to
+                                   print the character (default: 1)\\
 
 \hline
 
@@ -4568,40 +4589,42 @@ code. \texttt{N} is the number of times to print the character (default: 1)\\
                                \texttt{printf("\%f",Arg)} else
                                \texttt{printf("\%.Nf",Arg)}.
 \linebreak
-Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE}, \texttt{\~{}Ng} and \texttt{\~{}NG} \\
+                                     Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE},
+                                     \texttt{\~{}Ng} and \texttt{\~{}NG} \\
 
 \hline
 
 \texttt{\~{}Nd} & integer expression & print the argument. \texttt{N} is the
-number of digits after the decimal point. If \texttt{N} is 0 no
-decimal point is printed (default: 0)\\
+                                       number of digits after the decimal point.
+                                       If \texttt{N} is 0 no decimal point is printed (default: 0)\\
 
 \hline
 
 \texttt{\~{}ND} & integer expression & identical to \texttt{\~{}Nd} except
-that \texttt{','} separates groups of three digits to the left of the
-decimal point \\
+                                       that \texttt{','} separates groups of
+                                       three digits to the left of the
+                                       decimal point \\
 
 \hline
 
 \texttt{\~{}Nr} & integer expression & print the argument according to the
-radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8). The letters
-\texttt{a-z} denote digits $>$ 9 \\
+                                       radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8).
+                                       The letters \texttt{a-z} denote digits $>$ 9 \\
 
 \hline
 
 \texttt{\~{}NR} & integer expression & identical to \texttt{\~{}Nr} except
-that the letters \texttt{A-Z} denote digits $>$ 9 \\
+                                       that the letters \texttt{A-Z} denote digits $>$ 9 \\
 
 \hline
 
 \texttt{\~{}Ns} & character code list & print exactly \texttt{N} characters
-(default: the length of the list) \\
+                                        (default: the length of the list) \\
 
 \hline
 
 \texttt{\~{}NS} & character list & print exactly \texttt{N} characters
-(default: the length of the list) \\
+                                   (default: the length of the list) \\
 
 \hline
 
@@ -4610,22 +4633,22 @@ that the letters \texttt{A-Z} denote digits $>$ 9 \\
 \hline
 
 \texttt{\~{}k} & term & pass the argument to
-\IdxPB{write\_canonical/1} \RefSP{write-term/3} \\
+                        \IdxPB{write\_canonical/1} \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}p} & term & pass the argument to \IdxPB{print/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}q} & term & pass the argument to \IdxPB{writeq/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
 \texttt{\~{}w} & term & pass the argument to \IdxPB{write/1}
-\RefSP{write-term/3} \\
+                        \RefSP{write-term/3} \\
 
 \hline
 
@@ -4646,9 +4669,11 @@ of a line \\
 
 \hline
 
-\texttt{\%F} & atom, integer or float expression & interface to the C
-function \texttt{printf(3)} for outputting atoms (C string), integers and
-floating point numbers. \texttt{*} are also allowed. \\
+\texttt{\%F} & atom, integer or float expression & interface to the C function
+                                                   \texttt{printf(3)} for outputting
+                                                   atoms (C string), integers and
+                                                   floating point numbers.
+                                                   \texttt{*} are also allowed. \\
 
 \hline
 \end{tabular}
@@ -4680,9 +4705,13 @@ variable nor a character code}
 \ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
 \ErrTerm{domain\_error(stream\_or\_alias, SorA)}
 
-\ErrCond{an element \texttt{E} of Format is not a valid format control
+\ErrCond{an element \texttt{E} of \texttt{Format} is not a valid format control
 sequence}
 \ErrTerm{domain\_error(format\_control\_sequence, E)}
+
+\ErrCond{an element of the \texttt{Format} is of the form \texttt{\~{}Nr} or
+  \texttt{\~{}NR} but the radix \texttt{N} is not a valid radix}
+\ErrTerm{domain\_error(format\_control\_sequence, N)}
 
 \ErrCond{the \texttt{Arguments} list does not contain sufficient elements}
 \ErrTerm{domain\_error(non\_empty\_list, [])}
@@ -6749,6 +6778,7 @@ of \texttt{List1}.
 GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{length/2}}
+\label{length/2}
 
 \begin{TemplatesOneCol}
 length(?list, ?integer)
@@ -6767,6 +6797,10 @@ length(?list, ?integer)
 
 \ErrCond{\texttt{Length} is an integer $<$ 0}
 \ErrTerm{domain\_error(not\_less\_than\_zero, Length)}
+
+\ErrCond{\texttt{List} is neither a list nor a partial list and the
+\IdxPF{strict\_iso} \Idx{Prolog flag} is switched off \RefSP{set-prolog-flag/2}}
+\ErrTerm{type\_error(list, List)}
 
 \end{PlErrors}
 
@@ -7677,6 +7711,10 @@ character conversion activated ? & Y \\
 
 \hline
 
+\IdxPFD{show\_information} & \texttt{\underline{on}} / \texttt{off} & show informational messages ? & N \\
+
+\hline
+
 \IdxPFD{strict\_iso} & \texttt{\underline{on}} / \texttt{off} & strict ISO behavior ? & N \\
 
 \hline
@@ -7844,10 +7882,10 @@ other Prolog systems. When turned off the following relaxations apply:
   accepted and returns 39, the \Idx{escape sequence} \texttt{{\bs}s} (space) and
   \texttt{{\bs}e} (escape) are accepted.
 
-\item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor}, \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
+\item the following arithmetic rounding functions: \texttt{ceiling}, \texttt{floor},
+  \texttt{round}, \texttt{truncate} also accept integers \RefSP{Evaluation-of-an-arithmetic-expression}.
 
-\item \texttt{length/2} emits a \texttt{type\_error} if the first argument is not a list.
-
+\item \IdxPB{length/2} emits a \texttt{type\_error} if its first argument is not a list \RefSP{length/2}.
 \end{itemize}
 
 \begin{PlErrors}
@@ -7949,8 +7987,8 @@ current\_bip\_name(?atom, ?arity)
 \Description
 
 \texttt{current\_bip\_name(Functor, Arity)} succeeds if \texttt{Functor} and
-\texttt{Arity} correspond to the context of the error \RefSP{General-format-and-error-context} (if \texttt{Arity} $<$ 0 only \texttt{Functor} is
-significant).
+\texttt{Arity} correspond to the context of the error \RefSP{General-format-and-error-context}
+(if \texttt{Arity} $<$ 0 only \texttt{Functor} is significant).
 
 \begin{PlErrors}
 
@@ -7978,7 +8016,8 @@ read\_pl\_state\_file(+source\_sink)
 \Description
 
 \texttt{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
-information that influences the parsing of a term \RefSP{Term-input/output}. This allows a sub-process written in Prolog to read this
+information that influences the parsing of a term \RefSP{Term-input/output}.
+This allows a sub-process written in Prolog to read this
 file and then process any Prolog term as done by the parent process. This
 file can also be passed as argument of the \IdxK{--pl-state} option when
 invoking \IdxK{gplc} \RefSP{Using-the-compiler}. More precisely the
@@ -7990,8 +8029,9 @@ following elements are saved:
 
 \item the character conversion table \RefSP{char-conversion/2}.
 
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes}, \IdxPF{singleton\_warning}, \IdxPF{suspicious\_warning} and \IdxPF{multifile\_warning} \Idx{Prolog flag}s
-\RefSP{set-prolog-flag/2}.
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes},
+  \IdxPF{singleton\_warning}, \IdxPF{suspicious\_warning} and \IdxPF{multifile\_warning} \Idx{Prolog flag}s
+  \RefSP{set-prolog-flag/2}.
 
 \end{itemize}
 
@@ -8855,6 +8895,53 @@ rename\_file(+atom, +atom)
 whose pathname is \texttt{PathName1} to \texttt{PathName2}. See
 \IdxPB{absolute\_file\_name/2} for information about the syntax of
 \texttt{PathName1} and \texttt{PathName2} \RefSP{absolute-file-name/2}.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{PathName1} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{PathName1} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, PathName1)}
+
+\ErrCond{\texttt{PathName1} is an atom but not a valid pathname}
+\ErrTerm{domain\_error(os\_path, PathName1)}
+
+\ErrCond{\texttt{PathName2} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{PathName2} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, PathName2)}
+
+\ErrCond{\texttt{PathName2} is an atom but not a valid pathname}
+\ErrTerm{domain\_error(os\_path, PathName2)}
+
+\ErrCond{an operating system error occurs and value of the
+\texttt{os\_error} Prolog flag is \texttt{error}
+\RefSP{set-prolog-flag/2}}
+\ErrTerm{system\_error(\textit{atom explaining the error})}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxPBD{copy\_file/2}}
+
+\begin{TemplatesOneCol}
+copy\_file(+atom, +atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{copy\_file(PathName1, PathName2)} copies the file whose
+pathname is \texttt{PathName1} to \texttt{PathName2} (which can be a
+file or a directory, in which case the destination file is created
+inside that directory). See \IdxPB{absolute\_file\_name/2} for
+information about the syntax of \texttt{PathName1} and
+\texttt{PathName2} \RefSP{absolute-file-name/2}.
 
 \begin{PlErrors}
 

@@ -1,15 +1,15 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : throw.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/throw.pl').
 
 
-predicate(system:'$use_throw'/0,41,static,private,monofile,built_in,[
+predicate('$use_throw'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:'$throw'/4,48,static,private,monofile,built_in,[
+predicate('$throw'/4,48,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -31,7 +31,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate(system:'$unwind'/1,61,static,private,monofile,built_in,[
+predicate('$unwind'/1,61,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     put_integer(7,0),
@@ -43,7 +43,7 @@ predicate(system:'$unwind'/1,61,static,private,monofile,built_in,[
     fail]).
 
 
-predicate(system:'$throw_internal'/3,69,static,private,monofile,built_in,[
+predicate('$throw_internal'/3,69,static,private,monofile,built_in,[
     call_c('Pl_Call_Info_Bip_Name_1',[],[x(2)]),
     put_variable(x(2),4),
     put_variable(x(3),5),

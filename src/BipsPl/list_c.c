@@ -6,7 +6,7 @@
  * Descr.: list library  - C part                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include <errno.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -69,107 +70,7 @@ Prolog_Prototype(MEMBER_ALT, 0);
 Prolog_Prototype(REVERSE_ALT, 0);
 
 
-#if 1
-/*-------------------------------------------------------------------------*
- * Pl_APPEND_3                                                             *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
-{
-  WamWord word, tag_mask;
-  WamWord *adr;
-  int len1, len2, len3;
-  WamWord result_word;
-  WamWord *next_H;
 
-
-  for(;;)
-    {
-      DEREF(l1_word, word, tag_mask);
-      if (tag_mask != TAG_LST_MASK)
-	break;
-
-      adr = UnTag_LST(word);
-
-      DEREF(l3_word, word, tag_mask);
-      if (tag_mask == TAG_REF_MASK) /* as soon as L3 is a var, create the result and unify with L3 at the end only */
-	{
-	  result_word = Tag_LST(H);
-	  do {
-	    next_H = H + 2;
-	    *H++ = Car(adr);
-	    *H++ = Tag_LST(next_H);
-
-	    l1_word = Cdr(adr);
-
-	    DEREF(l1_word, word, tag_mask);
-	    adr = UnTag_LST(word);
-	  } while(tag_mask == TAG_LST_MASK);
-	  next_H = H - 1;
-	  *next_H = Make_Self_Ref(next_H);
-
-	  Pl_Unify(result_word, l3_word);
-
-	  l3_word = *next_H;
-	  break;
-	}
-      /* here L3 is not a var */
-
-      if (!Pl_Get_List(l3_word) || !Pl_Unify_Value(Car(adr)))
-	return FALSE;
-
-      l3_word = Pl_Unify_Variable();
-      l1_word = Cdr(adr);
-    }
-
-  if (word == NIL_WORD)
-    return Pl_Unify(l2_word, l3_word);
-
-  if (tag_mask != TAG_REF_MASK)
-    return FALSE;
-
-
-
-  /* L1 is a var, let's see L2 and L3 */
-
-  if ((len2 = Pl_List_Length(l2_word)) >= 0 &&
-      (len3 = Pl_List_Length(l3_word)) >= 0)
-    {		/* deterministic: L1 is the prefix of L3 with len = len3 - len2 */
-      if ((len1 = len3 - len2) < 0)
-	return FALSE;
-
-      while(len1-- > 0)
-	{
-	  DEREF(l3_word, word, tag_mask);
-	  adr = UnTag_LST(word);
-	  Pl_Get_List(l1_word);
-
-	  Pl_Unify_Value(Car(adr));
-	  l1_word = Pl_Unify_Variable();
-	  l3_word = Cdr(adr);
-	}
-
-      Pl_Get_Nil(l1_word); /* always succeeds */
-      return Pl_Unify(l2_word, l3_word);
-    }
-
-  /* L1 is a var, L2 / L3 are not 2 proper lists, check L3 */
-
-  DEREF(l3_word, word, tag_mask);
-  if (tag_mask == TAG_REF_MASK || tag_mask == TAG_LST_MASK) /* nondet case */
-    {
-      A(0) = l1_word;
-      A(1) = l2_word;
-      A(2) = l3_word;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(APPEND_ALT, 0), 3);
-    }
-
-  Pl_Get_Nil(l1_word); /* always succeeds */
-  return Pl_Unify(l2_word, l3_word);
-}
-
-#else  /* less efficient version */
 
 /*-------------------------------------------------------------------------*
  * Pl_APPEND_3                                                             *
@@ -240,7 +141,7 @@ Pl_Append_3(WamWord l1_word, WamWord l2_word, WamWord l3_word)
   Pl_Get_Nil(l1_word);
   return Pl_Unify(l2_word, l3_word);
 }
-#endif
+
 
 
 
@@ -440,11 +341,30 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 
       if (tag_mask == TAG_REF_MASK)
 	{
-	  if (n < 0)		/* non-deterministic case */
-	    break;
+	  if (n < 0)		/* both arguments are variables */
+	    {
+             /* (issue #20) what about length(L, L): Loop, failure or error ?
+              * failure is not compliant with procedural definition in the 
+              * Prolog Prologue:
+	      * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
+              * Not yet ISO but validated in Lexinton's minutes:
+              * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+	      *
+	      * loop and error are compliant. We here implement a resource_error
+	      * failure would be OK if associated to !strict_iso
+	      */
+#if 0
+	      if (word == n_word && !Flag_Value(strict_iso)) /* failure if strict_iso */
+		  return FALSE;
+#elif 1
+	      if (word == n_word) /* resource_error */
+		Pl_Err_Resource(pl_resource_finite_memory);
+#endif
+	      break;		/* non-deterministic case */
+	    }
 
 	  if (n == len)
-	      return Pl_Get_Nil(word); /* return is TRUE */
+	    return Pl_Get_Nil(word); /* return is TRUE */
 
 	  Pl_Get_List(word);
 	  Pl_Unify_Void(1);
@@ -455,13 +375,13 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
 
       if (tag_mask != TAG_LST_MASK)
 	{
-#if 1	/* length/2 tries to emit a type_error if not a list.
-	 * Only activated if strict_iso is on (see Issue #7) since the template is 
-	 * length(?term, ?integer) in the Prolog Prologue:
-	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
-	 * Not yet ISO but validated in Lexinton's minutes:
-	 * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
-         */
+#if 1	 /* length/2 tries to emit a type_error if not a list.
+	  * Only activated if strict_iso is on (see Issue #7) since the template is 
+	  * length(?term, ?integer) in the Prolog Prologue:
+	  * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/prologue#length
+	  * Not yet ISO but validated in Lexinton's minutes:
+	  * http://www.complang.tuwien.ac.at/ulrich/iso-prolog/LexingtonMinutes.txt
+          */
 	  if (!Flag_Value(strict_iso))
 	    Pl_Err_Type(pl_type_list, start_list_word);
 #endif
@@ -486,7 +406,7 @@ Pl_Length_2(WamWord start_list_word, WamWord n_word)
       list_word = Cdr(adr);
     }
 
-		/* non-deterministic case */
+  /* non-deterministic case */
   A(0) = list_word;
   A(1) = n_word;
   A(2) = Tag_INT(len);

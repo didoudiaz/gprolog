@@ -6,7 +6,7 @@
  * Descr.: operating system interface management                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -78,6 +78,13 @@ directory_files(PathName, List) :-
 rename_file(PathName1, PathName2) :-
 	set_bip_name(rename_file, 2),
 	'$call_c_test'('Pl_Rename_File_2'(PathName1, PathName2)).
+
+
+
+
+copy_file(PathName1, PathName2) :-
+	set_bip_name(copy_file, 2),
+	'$call_c_test'('Pl_Copy_File_2'(PathName1, PathName2)).
 
 
 
@@ -278,6 +285,15 @@ popen(Cmd, Mode, Stream) :-
 
 
 
+
+	  % Exec/4-5 use or not the PID
+	  % if Pid is not used, the process is detached
+	  %    (waitpid is called by C code)
+	  % If StreamIn/Out/Err are needed and files are large:
+	  %    do not detach (use Pid)
+	  %    read/write StreamIn/Out/Err
+	  %    use wait/2 to obtain status (and avoid Zombie process)
+	  %
           % exec mask in sys_var[0]:
           %     b0
           %     0/1
@@ -303,11 +319,12 @@ exec(Cmd, StreamIn, StreamOut, StreamErr) :-
 
 
 
-'$exec'(Cmd, StreamIn, StreamOut, StreamErr, Pid) :-
-	'$get_open_stm'(StreamIn, StmIn),
-	'$get_open_stm'(StreamOut, StmOut),
-	'$get_open_stm'(StreamErr, StmErr),
-	'$call_c_test'('Pl_Exec_5'(Cmd, StmIn, StmOut, StmErr, Pid)).
+'$exec'(Cmd, SorAIn, SorAOut, SorAErr, Pid) :-
+%	'$get_open_stm'(StreamIn, StmIn),
+%	'$get_open_stm'(StreamOut, StmOut),
+%	'$get_open_stm'(StreamErr, StmErr),
+%	'$call_c_test'('Pl_Exec_5'(Cmd, StmIn, StmOut, StmErr, Pid)).
+	'$call_c_test'('Pl_Exec_5'(Cmd, SorAIn, SorAOut, SorAErr, Pid)).
 
 
 

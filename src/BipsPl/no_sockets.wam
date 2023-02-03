@@ -1,9 +1,0 @@
-% compiler: GNU Prolog 1.5.0
-% file    : no_sockets.pl
-
-
-file_name('/home/diaz/GP/src/BipsPl/no_sockets.pl').
-
-
-predicate(system:'$use_sockets'/0,41,static,private,monofile,built_in,[
-    proceed]).

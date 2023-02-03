@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -190,6 +190,9 @@ Init_Stream_Supp(void)
   pl_atom_user_output = Pl_Create_Atom("user_output");
   pl_atom_user_error = Pl_Create_Atom("user_error");
 
+  pl_atom_current_input = Pl_Create_Atom("current_input");
+  pl_atom_current_output = Pl_Create_Atom("current_output");
+
   pl_atom_top_level_input = Pl_Create_Atom("top_level_input");
   pl_atom_top_level_output = Pl_Create_Atom("top_level_output");
 
@@ -223,12 +226,14 @@ Init_Stream_Supp(void)
   pl_atom_current = Pl_Create_Atom("current");
   pl_atom_eof = Pl_Create_Atom("eof");
 
+  pl_atom_null = Pl_Create_Atom("null");
+
   pl_le_prompt = "";
   pl_use_le_prompt = TRUE;
 
-  pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input,
-					      STREAM_MODE_READ, TRUE, TRUE);
 
+  
+  pl_stm_stdin = Pl_Add_Stream_For_Stdio_Desc(stdin, pl_atom_user_input, STREAM_MODE_READ, TRUE, TRUE);
 #ifndef NO_USE_LINEDIT
   if (pl_le_mode == LE_MODE_HOOK || (pl_le_mode == LE_MODE_TTY && isatty(0)))
     {
@@ -243,16 +248,12 @@ Init_Stream_Supp(void)
       pl_stream_use_linedit = TRUE;
     }
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin);
-  pl_stm_input = pl_stm_stdin;
+  
 
 
-
-  pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output,
-					       STREAM_MODE_WRITE, TRUE, TRUE);
-
+  pl_stm_stdout = Pl_Add_Stream_For_Stdio_Desc(stdout, pl_atom_user_output, STREAM_MODE_WRITE, TRUE, TRUE);
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
-		/* ok for both GUI and console EOM<->ANSI conversion */
+  /* ok for both GUI and console EOM<->ANSI conversion */
   pstm = pl_stm_tbl[pl_stm_stdout];
   pstm->prop.buffering = STREAM_BUFFERING_LINE;
   if (pl_le_hook_put_char && isatty(1))
@@ -261,16 +262,12 @@ Init_Stream_Supp(void)
   if (pl_le_hook_flush && isatty(1))
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout);
-  pl_stm_output = pl_stm_stdout;
 
 
 
-  pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error,
-					       STREAM_MODE_WRITE, TRUE, TRUE);
-
+  pl_stm_stderr = Pl_Add_Stream_For_Stdio_Desc(stderr, pl_atom_user_error, STREAM_MODE_WRITE, TRUE, TRUE);
 #if !defined(NO_USE_LINEDIT) && defined(_WIN32)
-		/* ok for both GUI and console EOM<->ANSI conversion */
+  /* ok for both GUI and console EOM<->ANSI conversion */
   pstm = pl_stm_tbl[pl_stm_stderr];
   pstm->prop.buffering = STREAM_BUFFERING_LINE;
   if (pl_le_hook_put_char && isatty(2))
@@ -279,17 +276,21 @@ Init_Stream_Supp(void)
   if (pl_le_hook_flush && isatty(2))
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
-  Pl_Add_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr);
-  pl_stm_error = pl_stm_stderr;
 
-  pl_stm_top_level_input = pl_stm_debugger_input = pl_stm_input;
-  pl_stm_top_level_output = pl_stm_debugger_output = pl_stm_output;
+  /* these aliases are initially set to stdin/out/err and can be changed by the user */
+  
+  pl_alias_user_input = Pl_Set_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin, TRUE);
+  pl_alias_user_output = Pl_Set_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout, TRUE);
+  pl_alias_user_error = Pl_Set_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr, TRUE);
 
-  Pl_Add_Alias_To_Stream(pl_atom_top_level_input, pl_stm_top_level_input);
-  Pl_Add_Alias_To_Stream(pl_atom_top_level_output, pl_stm_top_level_output);
+  pl_alias_current_input = Pl_Set_Alias_To_Stream(pl_atom_current_input, pl_stm_stdin, TRUE); 
+  pl_alias_current_output = Pl_Set_Alias_To_Stream(pl_atom_current_output, pl_stm_stdout, TRUE);
 
-  Pl_Add_Alias_To_Stream(pl_atom_debugger_input, pl_stm_debugger_input);
-  Pl_Add_Alias_To_Stream(pl_atom_debugger_output, pl_stm_debugger_output);
+  pl_alias_top_level_input = Pl_Set_Alias_To_Stream(pl_atom_top_level_input, pl_stm_stdin, TRUE);
+  pl_alias_top_level_output = Pl_Set_Alias_To_Stream(pl_atom_top_level_output, pl_stm_stdout, TRUE);
+
+  pl_alias_debugger_input = Pl_Set_Alias_To_Stream(pl_atom_debugger_input, pl_stm_stdin, TRUE);
+  pl_alias_debugger_output = Pl_Set_Alias_To_Stream(pl_atom_debugger_output, pl_stm_stdout, TRUE);
 }
 
 
@@ -363,7 +364,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
   if (force_eof_reset || isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
-  return Pl_Add_Stream(atom_path, (PlLong) f, prop,
+  return Pl_Add_Stream(atom_path, (PlLong) f, fileno(f), prop,
 		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -401,7 +402,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
+Init_Stream_Struct(int atom_file_name, PlLong file, int fileno, StmProp prop,
 		   StmFct fct_getc, StmFct fct_putc,
 		   StmFct fct_flush, StmFct fct_close,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
@@ -409,6 +410,7 @@ Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
 {
   pstm->atom_file_name = atom_file_name;
   pstm->file = file;
+  pstm->fileno = fileno;
   pstm->prop = prop;
   pstm->mirror = NULL;
   pstm->mirror_of = NULL;
@@ -443,7 +445,7 @@ Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
+Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
 	      StmFct fct_getc, StmFct fct_putc,
 	      StmFct fct_flush, StmFct fct_close,
 	      StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
@@ -459,7 +461,7 @@ Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 
 
   pstm = pl_stm_tbl[stm];
-  Init_Stream_Struct(atom_file_name, file, prop, fct_getc, fct_putc,
+  Init_Stream_Struct(atom_file_name, file, fileno, prop, fct_getc, fct_putc,
 		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
 		     pstm);
 
@@ -470,13 +472,16 @@ Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 
 
 /*-------------------------------------------------------------------------*
- * REMOVE_STREAM                                                           *
+ * PL_DELETE_STREAM                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Delete_Stream(int stm)
+Pl_Delete_Stream(int stm, Bool keep_stream)
 {
   Del_Aliases_Of_Stream(stm);
+
+  if (keep_stream)
+    return;
 
   Update_Mirrors_To_Del_Stream(stm);
 
@@ -535,18 +540,29 @@ Pl_Find_Stream_By_Alias(int atom_alias)
 
 
 /*-------------------------------------------------------------------------*
- * PL_ADD_ALIAS_TO_STREAM                                                  *
+ * PL_SET_ALIAS_TO_STREAM                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-Pl_Add_Alias_To_Stream(int atom_alias, int stm)
+AliasInf *
+Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
 {
   AliasInf *alias;
   AliasInf alias_info;
 
   alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
   if (alias != NULL)
-    return alias->stm == stm;	/* fail if assigned to another stream */
+    {
+      if (!reassign) /* return NULL if the alias is assigned to another stream */
+	return (alias->stm == stm) ? alias : NULL; 
+
+      alias->stm = stm;		/* reassign it */
+      if (alias->atom == pl_atom_current_input)
+	pl_stm_current_input = stm;
+      else if (alias->atom == pl_atom_current_output)
+	pl_stm_current_output = stm;
+
+      return alias;
+    }      
 
   Pl_Extend_Table_If_Needed(&pl_alias_tbl);
 
@@ -555,25 +571,7 @@ Pl_Add_Alias_To_Stream(int atom_alias, int stm)
 
   alias = (AliasInf *) Pl_Hash_Insert(pl_alias_tbl, (char *) &alias_info, FALSE);
 
-  return TRUE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_REASSIGN_ALIAS                                                       *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_Reassign_Alias(int atom_alias, int stm)
-{
-  AliasInf *alias;
-
-  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
-
-  if (alias != NULL)
-    alias->stm = stm;
+  return alias;
 }
 
 
@@ -583,7 +581,7 @@ Pl_Reassign_Alias(int atom_alias, int stm)
  * DEL_ALIASES_OF_STREAM                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
+static void
 Del_Aliases_Of_Stream(int stm)
 {
   HashScan scan;
@@ -591,8 +589,36 @@ Del_Aliases_Of_Stream(int stm)
 
   for (alias = (AliasInf *) Pl_Hash_First(pl_alias_tbl, &scan); alias;
        alias = (AliasInf *) Pl_Hash_Next(&scan))
-    if (alias->stm == stm)
+    {
+      if (alias->stm != stm)
+	continue;
+
+      if (alias->atom == pl_atom_user_input ||
+	  alias->atom == pl_atom_current_input ||
+	  alias->atom == pl_atom_top_level_input ||
+	  alias->atom == pl_atom_debugger_input)
+	{
+	  alias->stm = pl_stm_stdin;
+	  continue;
+	}
+      
+      if (alias->atom == pl_atom_user_output ||
+	  alias->atom == pl_atom_current_output ||
+	  alias->atom == pl_atom_top_level_output ||
+	  alias->atom == pl_atom_debugger_output)
+	{
+	  alias->stm = pl_stm_stdout;
+	  continue;
+	}
+      
+      if (alias->atom == pl_atom_user_error)
+	{
+	  alias->stm = pl_stm_stderr;
+	  continue;
+	}
+      
       Pl_Hash_Delete(pl_alias_tbl, alias->atom);
+    }
 }
 
 
@@ -788,7 +814,10 @@ Pl_Set_Stream_Buffering(int stm)
 /*-------------------------------------------------------------------------*
  * PL_GET_STREAM_OR_ALIAS                                                  *
  *                                                                         *
- * return the associated stm or -1 if not exist (test==STREAM_CHECK_VALID) *
+ * return the associated stm if exists or                                  *
+ *        -1 if does not exist and test == STREAM_CHECK_VALID              *
+ *        -2 if uninstantiated and STREAM_CHECK_ACCEPT_VAR is set          *
+ *        -3 if atom null and STREAM_CHECK_ACCEPT_NULL                     *
  *-------------------------------------------------------------------------*/
 int
 Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
@@ -798,12 +827,21 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
   WamWord *stc_adr;
   PlLong stm = 0;		/* only for the compiler (NB: defined as PlLong to check validity) */
   int perm_oper;
+  Bool accept_var = (test & STREAM_CHECK_ACCEPT_VAR) != 0;
+  Bool accept_null = (test & STREAM_CHECK_ACCEPT_NULL) != 0;
+  Bool has_fileno = (test & STREAM_CHECK_HAS_FILENO) != 0;
+
+  test &= 255;
 
 
   DEREF(sora_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)	/* alias ? */
     {
       atom = UnTag_ATM(word);
+
+      if (atom == pl_atom_null && accept_null)
+	return -3;
+      
       stm = Pl_Find_Stream_By_Alias(atom);
       goto next_test;
     }
@@ -814,13 +852,17 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
       DEREF(Arg(stc_adr, 0), word, tag_mask1);
       stm = UnTag_INT(word);
 
-      if (Functor_And_Arity(stc_adr) == stream_1 &&
-	  tag_mask1 == TAG_INT_MASK)
+      if (Functor_And_Arity(stc_adr) == stream_1 && tag_mask1 == TAG_INT_MASK)
 	goto next_test;
     }
 
   if (tag_mask == TAG_REF_MASK)
-    Pl_Err_Instantiation();
+    {
+      if (accept_var)
+	return -2;
+      
+      Pl_Err_Instantiation();
+    }
 
   Pl_Err_Domain(pl_domain_stream_or_alias, sora_word);
 
@@ -834,7 +876,10 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
       Pl_Err_Existence(pl_existence_stream, sora_word);
     }
 
-  if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
+ if (has_fileno && pl_stm_tbl[stm]->fileno < 0)
+    Pl_Err_Domain(pl_domain_file_stream, sora_word);
+    
+ if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
     goto ok;
 
   if (test == STREAM_CHECK_INPUT)
@@ -856,6 +901,19 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
 
  ok:
   return (int) stm;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_STREAM                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Stream(int stm, WamWord start_word)
+{		/* similar to WAM Pl_Get_XXX instructions */
+  return Pl_Get_Structure(pl_atom_stream, 1, start_word) && Pl_Unify_Integer(stm);
 }
 
 
@@ -990,7 +1048,7 @@ Pl_Stdio_Desc_Of_Stream(int stm)
   if (stm == pl_stm_stdin)		/* works also for stdin with linedit */
     return stdin;
 
-  if (pstm->fct_getc == (StmFct) fgetc)
+  if (pstm->fct_getc == (StmFct) fgetc) /* could also test pstm->fileno >= 0 */
     return (FILE *) (pstm->file);
 
   return NULL;
@@ -1842,7 +1900,7 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
   stm = Find_Free_Stream();
   pstm = pl_stm_tbl[stm];
 
-  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, prop,
+  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, -1, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
@@ -1875,7 +1933,7 @@ Pl_Delete_Str_Stream(int stm)
       Free(str_stream);
     }
 
-  Pl_Delete_Stream(stm);
+  Pl_Delete_Stream(stm, FALSE);
 }
 
 

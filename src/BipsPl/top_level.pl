@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -42,18 +42,26 @@
 
 
 top_level :-
+	(   current_prolog_flag(show_information, on) ->
+	    '$banner'(top_level_output),
+	    nl(top_level_output)
+	;   true
+	),
+	break.
+
+
+
+
+'$banner'(Stream) :-
 	current_prolog_flag(prolog_name, Name),
 	current_prolog_flag(prolog_version, Version),
 	current_prolog_flag(prolog_copyright, Copyright),
 	current_prolog_flag(address_bits, Bits),
 	current_prolog_flag(compiled_at, Date),
 	current_prolog_flag(c_cc, CC),
-	format(top_level_output, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
-	format(top_level_output, 'Compiled ~a with ~a~n', [Date, CC]),
-	format(top_level_output, '~a~n', [Copyright]),
-	nl,
-	g_assign('$top_level_cur_module', user),
-	break.
+	format(Stream, '~N~a ~a (~d bits)~n', [Name, Version, Bits]),
+	format(Stream, 'Compiled ~a with ~a~n', [Date, CC]),
+	format(Stream, '~a~n', [Copyright]).
 
 
 
@@ -158,6 +166,7 @@ break :-
 	;   write(top_level_output, Prompt)
 	),
 	flush_output(top_level_output),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C
 	'$read_query'(X, QueryVars),
 	(   '$sys_var_read'(12, 1) ->
 	    '$set_linedit_prompt'(UserPrompt)
@@ -353,7 +362,7 @@ break :-
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
 	'$catch_no_debug'('$consult2'(File, user), error(Err, _), true, system, 'command-line', -1),
 	nonvar(Err),
-	format('~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.
 	
 '$exec_cmd_line_consult_files'([_|LFile]) :-
@@ -378,7 +387,7 @@ break :-
 '$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
 	(   '$catch_no_debug'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), user, 'command-line', -1) ->
 	    true
-	;   format('~Nwarning: command-line goal ~q failed~n', [Goal])).
+	;   format(top_level_output, '~Nwarning: command-line goal ~q failed~n', [Goal])).
 
 
 '$exec_cmd1'(Goal) :-
@@ -387,5 +396,5 @@ break :-
 
 
 '$exec_cmd_err'(Goal, Err) :-
-	format('~Nwarning: command-line goal ~q caused exception: ~q~n', [Goal, Err]).
+	format(top_level_output, '~Nwarning: command-line goal ~q caused exception: ~q~n', [Goal, Err]).
 

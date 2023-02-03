@@ -6,7 +6,7 @@
  * Descr.: file consulting                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -107,13 +107,18 @@ consult(MFile) :-
 	'$call_c_test'('Pl_Consult_2'(TmpFile, PlFile)).
 
 /*
-'$consult3'(TmpFile,PlFile):-
+'$consult3'(TmpFile, PlFile):-
 	write_pl_state_file(TmpFile),
-	Args=['-w','--compile-msg','--pl-state',TmpFile,'-o',TmpFile,PlFile|End],
-        (current_prolog_flag(singleton_warning,on)
-            -> End=[]
-            ;  End=['--no-singl-warn']),
-	spawn(pl2wam,Args,0).
+	Args=['-w', '--pl-state', TmpFile, '-o', TmpFile, PlFile|End],
+        (   current_prolog_flag(singleton_warning, on) ->
+	    End = End1
+	;   End = ['--no-singl-warn'|End1]
+	),
+        (   current_prolog_flag(show_information, off) ->
+	    End1 = []
+	;   End1 = ['--compile-msg']
+	),
+	spawn(pl2wam, Args, 0).
 */
 
 

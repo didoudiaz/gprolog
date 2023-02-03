@@ -1,10 +1,49 @@
+Wed Dec  7 11:19:16 AM CET 2022
+
+	* add --quiet option to top-level command-line (do not display banner and info)
+	* add Prolog flag show_information (on/off)
+
+Mon Dec  5 15:36:38 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* add new prefedined stream aliases (current_input, current_output)
+	* add new built-in to reassign a stream alias (set_stream_alias/2)
+
+Wed Mar  9 17:41:41 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #23: add built-in predicate copy_file/2
+
+Fri Mar  4 16:42:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #10: missing int_overflow
+	* fix issue #22: math evaluation raises a float_overflow instead of int_overflow
+	* fix issue #21: bug in append/3
+	* port to RISC-V 64 bits/Linux - many thanks to
+	  Jasper Taylor <jasper@simulistics.com>
+
+Thu Feb 24 16:27:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)
+
+Thu Feb 24 11:55:00 CET 2022 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
+	* modify length/2 to make length(L, L) fail if the strict_iso flag is off (related to pr #19)
+	* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
+	* fix issue #4: directory_files/2 now uses native Win32 functions
+	* fix small problem when bootstrapping due to Makefiles
+	* fix format/2-3 to throw a domain error on invalid radix (pr #16)
+
+Fri Dec  3 02:42:24 CET 2021 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #9: format/2-3 now also accept a list of character for format
+
 Tue Oct 26 11:25:45 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
 	* fix problem in arm32 mapper when passing more than 8 double to a C function
 
 Thu Oct 21 15:45:07 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 
-	* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is on
+	* fix issue #7: length/2 now emits a type_error(list) only if the strict_iso flag is off
 
 Thu Oct 14 16:01:16 CEST 2021 <Daniel.Diaz@univ-paris1.fr>
 

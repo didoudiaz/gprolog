@@ -6,7 +6,7 @@
  * Descr.: translation file for arm 32 bits                                *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,14 +41,61 @@
 
 /* Supported arch: arm 32 bits (e.g. armv6l/armv7hf) on GNU/Linux
  *
- * ARM A32 instruction set                                                                                      
+ * ARM A32 instruction set
  * https://developer.arm.com/documentation/dui0801/k/A32-and-T32-Instructions?lang=en
+ *
+ * ABI
+ * https://developer.arm.com/documentation/ihi0042/latest
+ * https://docs.microsoft.com/en-us/cpp/build/overview-of-arm-abi-conventions?view=msvc-160
+ *
+ * Recall we need call-saved registers to map WAM registers.
+ *
+ * For temporaries (intermediat computations), we can use caller-saved freely.
+ * We can also use callee-save registers if we push/pop them in case of a C code (see Code_Start and C_Ret).
+ * This is not needed for Prolog code because it is surrounded by a global save/restore of machine registers
+ * (e.g. setjmp/longjmp). So, it is not costly.
+ *
+ * Reg callee-save?  Role in the procedure call standard
+ * -------------------------------------------------------
+ * r0       N        Argument 1 / result / scratch register 1
+ * r1       N        Argument 2 / result / scratch register 2
+ * r2       N        Argument 3 / scratch register 3
+ * r3       N        Argument 4 / scratch register 4
+ * r4       Y        Variable-register 1
+ * r5       Y        Variable-register 2
+ * r6       Y        Variable-register 3
+ * r7       Y        Frame Pointer (FP) for Thumb code (Linux) or Variable-register 4
+ * r8       Y        Variable-register 5
+ * r9       ?        Platform-dependent register. Can be:
+ *                     - variable register 6 (it is the case in Linux)
+ *                     - the static base (SB) in a position-independent data model or
+ *                     - the thread register (TR) in an environment with thread-local storage
+ * r10      Y        Variable-register 7
+ * r11      Y        Frame Pointer (FP) for ARM code or Variable-register 8
+ * r12               Intra-Procedure-call scratch register (IP)
+ * r13               Stack Pointer (SP)
+ * r14               Link Register (LR)
+ * r15               Program Counter (PC)
+ *
+ * On linux with Thumb code we can use: r4, r5, r6, r8, r9, r10, r11 for WAM registers.
+ *
+ * We need pl_reg_bank to be in a register. If not (i.e. no reg at all - see below) we use r10 here.
+ *
+ * We neeed E to be in a register, if not mapped we use r11 here. There are no enough registers
+ * available to ensure E is in a reg (due to prioriy in wam_archi.def), se we do not put r11 in
+ * machine.h to be sure it is free (we can assign it to E here).
+ *
+ * To load arguments of a call_c we need a temporary. No caller-save regs are available since
+ * r0-r3 are reserved for 4 first args. We use a callee-save for it (e.g. r4, see REG_TMP_CALL_C).
+ * Outside call_c we need another register, we can chose a caller-save (e.g. r3)
+ * which must be different from REG_TMP_CALL_C since both can be used simultaneously via
+ * Load_Store_Reg_Y().
  */
 
 
 
 
-/* pl_reg_bank is normally the first mapped register. If it is not mapped 
+/* pl_reg_bank is normally the first mapped register. If it is not mapped
  * it is because:
  *
  * 1) no registers are used (either none available or --disable-regs).
@@ -56,8 +103,8 @@
  *    (see ASM_REG_BANK)
  *
  * 2) or because NO_MACHINE_REG_FOR_REG_BANK is defined (debug only ?).
- *    In that case Load_Reg_Bank loads it in a callee-save register. 
- *    But this register must not be already used (mapped), 
+ *    In that case Load_Reg_Bank loads it in a callee-save register.
+ *    But this register must not be already used (mapped),
  *    so we here check no registers are used at all !
  */
 
@@ -86,19 +133,19 @@
 
 /* To load a 32 bits  immediate (constant or label) use the pseudo-instruction:
  *    ldr r, =immediate or address
- * the assembler tries to replace it by one instruction 
+ * the assembler tries to replace it by one instruction
  * (mov, mvn on armv6, movw/movt on armv7).
  *
  * Similarly to load a 64bis immediate (double) use the pseudo-instruction:
  *    vldr.64 r, =immediate (hexa representation)
  * the assembler tries to replace it by a vmov.
  *
- * If not possible, it places the constant in a literal pool and generates a 
+ * If not possible, it places the constant in a literal pool and generates a
  * pc-relative ldr instruction that reads the constant from the literal pool.
  * For this reson, the pool must not be too far else we obtain an error, e.g.:
  *    invalid literal constant: pool needs to be closer
  *    co-processor offset out of range
- * We can inform the assembler to force the emission of the pool with 
+ * We can inform the assembler to force the emission of the pool with
  *    .ltorg directive
  * We try to emit it ASAP (e.g. after a branching). We also use a mechanisme
  * to force the pool emission when a maximum number of call_c is reached.
@@ -117,6 +164,8 @@
 
 #define ASM_DOUBLE_DIRECTIV_PREFIX "0d"
 
+
+#define REG_TMP_CALL_C             "r4"
 
 #define BPW                        4
 #define MAX_ARGS_IN_REGS           4
@@ -241,7 +290,7 @@ Code_Start(CodeInf *c)
 
   if (!c->prolog)
     {
-      Inst_Printf("push", "{r4, lr}");
+      Inst_Printf("push", "{%s, lr}", REG_TMP_CALL_C);
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
     }
 
@@ -288,7 +337,7 @@ Emit_Pool(Bool after_call_c)
 
   if (after_call_c && ++call_c_since_emit_pool < MAX_CALL_C_BEFORE_EMIT_POOL)
     return;
-  
+
   if (after_call_c)		/* after a call to a C fct needs a branch over the pool */
     {
       Inst_Printf("b", "%s", Label_Gen_New(&lg_pool));
@@ -339,13 +388,24 @@ Nearest_Immediate(int target)
 void
 Increment_Reg(char *r, int int_val)
 {
-  /* Could also be something like
+  /* The general solution uses a loop to produce a sequence of add immediate.
+   *
+   * Using a LDR pseudo-instruction it is possible to produce
    *    ldr R, =int_val
-   *    add r, r, R    but which reg R to use ? 
-   * R cannot be r0, r3 (agrs), neither r4 (see BEFORE_ARG), 
-   * r5 is OK but ifremoved from the global registers in machine.h 
-   * and should be saved/restored since it is a callee-save reg (thus push/pop)
+   *    add r, r, R
+   * But we need a register R which cannot be r0-r3 (args), neither REG_TMP_CALL_C (see BEFORE_ARG).
+   * So, select a reg (here r12), ensure it is not in the global registers in machine.h
+   * and maybe push/pop it (remaining regs are all callee-save in arm32, r12 seems an exception).
+   * This is only worth if there is at least 2 add in the loop.
    */
+#ifdef USE_LDR_PSEUDO_OP_AND_POOL
+  if (Nearest_Immediate(int_val) != int_val) /* exclude cases which can be done with only 1 add (or int_val=0) */
+    {
+      Inst_Printf("ldr", "r12, =#%" PL_FMT_d, int_val);
+      Inst_Printf("add", "%s, %s, r12", r, r);
+      return;
+    }
+#endif
   while (int_val)
     {
       int close = Nearest_Immediate(int_val);
@@ -377,7 +437,7 @@ Load_Immediate(char *r, PlLong int_val)
 #else
 
 #if 0 /* 0-65535 allowable for mov in armv7 (not in armv6) */
-  int close = int_val & 65535; 
+  int close = int_val & 65535;
 #else
   int close;
 
@@ -457,9 +517,9 @@ Prep_CP(void)
 #ifdef MAP_REG_CP
   Load_Address(MAP_REG_CP, Label_Cont_New());
 #else
-  Load_Address("r2", Label_Cont_New());
+  Load_Address("r3", Label_Cont_New());
   Load_Reg_Bank();
-  Inst_Printf("str", "r2, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
+  Inst_Printf("str", "r3, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
 #endif
 }
 
@@ -556,7 +616,7 @@ void
 Move_From_Reg_X(int index)
 {
   Load_Reg_Bank();
-  Inst_Printf("ldr", "r2, [%s, #%d]", ASM_REG_BANK, index * BPW);
+  Inst_Printf("ldr", "r3, [%s, #%d]", ASM_REG_BANK, index * BPW);
 }
 
 
@@ -577,15 +637,15 @@ Load_Store_Reg_Y(char *ldr_str, char *r, int index)
     }
   else
     {
-      /* Needs another register R for the mov R, E. 
+      /* Needs another register R for the mov R, E.
        * In case of a ldr we can use the same destination register r.
        * In case of a str we cannot use r because it is the source register to store.
-       * We cannot use r0..r3, (call_c args) neither a gloal reg used in machine.h. 
-       * r4 is OK 
+       * We cannot use r0-r3, (args) neither a global register used in machine.h.
+       * NB: r4 is OK (even if used by BEFORE_ARG since only ldr is used in this case).
        */
-      Inst_Printf("mov", "r4, %s", asm_reg_e);
-      Increment_Reg("r4", offset);
-      Inst_Printf(ldr_str, "%s, [r4]", r);
+      Inst_Printf("mov", "%s, %s", REG_TMP_CALL_C, asm_reg_e);
+      Increment_Reg(REG_TMP_CALL_C, offset);
+      Inst_Printf(ldr_str, "%s, [%s]", r, REG_TMP_CALL_C);
     }
 }
 
@@ -599,7 +659,7 @@ Load_Store_Reg_Y(char *ldr_str, char *r, int index)
 void
 Move_From_Reg_Y(int index)
 {
-  Load_Store_Reg_Y("ldr", "r2", index);
+  Load_Store_Reg_Y("ldr", "r3", index);
 }
 
 
@@ -613,7 +673,7 @@ void
 Move_To_Reg_X(int index)
 {
   Load_Reg_Bank();
-  Inst_Printf("str", "r2, [%s, #%d]", ASM_REG_BANK, index * BPW);
+  Inst_Printf("str", "r3, [%s, #%d]", ASM_REG_BANK, index * BPW);
 }
 
 
@@ -626,7 +686,7 @@ Move_To_Reg_X(int index)
 void
 Move_To_Reg_Y(int index)
 {
-  Load_Store_Reg_Y("str", "r2", index);
+  Load_Store_Reg_Y("str", "r3", index);
 }
 
 
@@ -659,7 +719,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       in_reg = TRUE;					\
     }							\
   else							\
-    strcpy(r, "r9");
+    strcpy(r, REG_TMP_CALL_C);
 
 
 
@@ -865,9 +925,9 @@ Call_C_Arg_Foreign_D(int offset, Bool adr_of, int index)
 
   BEFORE_ARG_DOUBLE;
 
-  Inst_Printf("ldr", "r3, =pl_foreign_double");
-  Increment_Reg("r3", index * 8);
-  Inst_Printf("vldr.64", "%s, [r3]", r);
+  Inst_Printf("ldr", "%s, =pl_foreign_double", REG_TMP_CALL_C);
+  Increment_Reg(REG_TMP_CALL_C, index * 8);
+  Inst_Printf("vldr.64", "%s, [%s]", r, REG_TMP_CALL_C);
 
   AFTER_ARG_DOUBLE;
 
@@ -1072,7 +1132,7 @@ C_Ret(void)
   Inst_Printf("nop", "@ gcc is always right"); /* why ? */
 #endif
   Inst_Printf("add", "sp, #%d", RESERVED_STACK_SPACE);
-  Inst_Printf("pop", "{r4, pc}");
+  Inst_Printf("pop", "{%s, pc}", REG_TMP_CALL_C);
   Emit_Pool(FALSE);
 }
 

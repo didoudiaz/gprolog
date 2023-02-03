@@ -1,45 +1,45 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : file.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/file.pl').
 
 
-predicate(system:'$use_file'/0,41,static,private,monofile,built_in,[
+predicate('$use_file'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:absolute_file_name/2,44,static,private,monofile,built_in,[
+predicate(absolute_file_name/2,44,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[absolute_file_name,2]),
     call_c('Pl_Absolute_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:is_absolute_file_name/1,51,static,private,monofile,built_in,[
+predicate(is_absolute_file_name/1,51,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_absolute_file_name,1]),
     call_c('Pl_Is_Absolute_File_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:is_relative_file_name/1,58,static,private,monofile,built_in,[
+predicate(is_relative_file_name/1,58,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is_relative_file_name,1]),
     call_c('Pl_Is_Relative_File_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(system:decompose_file_name/4,65,static,private,monofile,built_in,[
+predicate(decompose_file_name/4,65,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[decompose_file_name,4]),
     call_c('Pl_Decompose_File_Name_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
-predicate(system:prolog_file_name/2,72,static,private,monofile,built_in,[
+predicate(prolog_file_name/2,72,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_name,2]),
     call_c('Pl_Prolog_File_Name_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:'$prolog_file_suffix'/1,79,static,private,monofile,built_in,[
+predicate('$prolog_file_suffix'/1,79,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[prolog_file_suffix,1]),
     call_c('Pl_Prolog_File_Suffix_1',[boolean],[x(0)]),
     proceed]).

@@ -1,105 +1,105 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : const_io.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/const_io.pl').
 
 
-predicate(system:'$use_const_io'/0,41,static,private,monofile,built_in,[
+predicate('$use_const_io'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:write_to_atom/2,46,static,private,monofile,built_in,[
+predicate(write_to_atom/2,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_to_atom,2]),
     call_c('Pl_Write_To_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_to_chars/2,50,static,private,monofile,built_in,[
+predicate(write_to_chars/2,50,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_to_chars,2]),
     call_c('Pl_Write_To_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_to_codes/2,54,static,private,monofile,built_in,[
+predicate(write_to_codes/2,54,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_to_codes,2]),
     call_c('Pl_Write_To_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:writeq_to_atom/2,61,static,private,monofile,built_in,[
+predicate(writeq_to_atom/2,61,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[writeq_to_atom,2]),
     call_c('Pl_Writeq_To_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:writeq_to_chars/2,65,static,private,monofile,built_in,[
+predicate(writeq_to_chars/2,65,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[writeq_to_chars,2]),
     call_c('Pl_Writeq_To_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:writeq_to_codes/2,69,static,private,monofile,built_in,[
+predicate(writeq_to_codes/2,69,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[writeq_to_codes,2]),
     call_c('Pl_Writeq_To_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_canonical_to_atom/2,76,static,private,monofile,built_in,[
+predicate(write_canonical_to_atom/2,76,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_canonical_to_atom,2]),
     call_c('Pl_Write_Canonical_To_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_canonical_to_chars/2,80,static,private,monofile,built_in,[
+predicate(write_canonical_to_chars/2,80,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_canonical_to_chars,2]),
     call_c('Pl_Write_Canonical_To_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_canonical_to_codes/2,84,static,private,monofile,built_in,[
+predicate(write_canonical_to_codes/2,84,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_canonical_to_codes,2]),
     call_c('Pl_Write_Canonical_To_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:display_to_atom/2,91,static,private,monofile,built_in,[
+predicate(display_to_atom/2,91,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[display_to_atom,2]),
     call_c('Pl_Display_To_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:display_to_chars/2,95,static,private,monofile,built_in,[
+predicate(display_to_chars/2,95,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[display_to_chars,2]),
     call_c('Pl_Display_To_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:display_to_codes/2,99,static,private,monofile,built_in,[
+predicate(display_to_codes/2,99,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[display_to_codes,2]),
     call_c('Pl_Display_To_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:print_to_atom/2,106,static,private,monofile,built_in,[
+predicate(print_to_atom/2,106,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print_to_atom,2]),
     call_c('Pl_Print_To_Atom_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:print_to_chars/2,110,static,private,monofile,built_in,[
+predicate(print_to_chars/2,110,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print_to_chars,2]),
     call_c('Pl_Print_To_Chars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:print_to_codes/2,114,static,private,monofile,built_in,[
+predicate(print_to_codes/2,114,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[print_to_codes,2]),
     call_c('Pl_Print_To_Codes_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(system:write_term_to_atom/3,121,static,private,monofile,built_in,[
+predicate(write_term_to_atom/3,121,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -115,7 +115,7 @@ predicate(system:write_term_to_atom/3,121,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:write_term_to_chars/3,127,static,private,monofile,built_in,[
+predicate(write_term_to_chars/3,127,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -131,7 +131,7 @@ predicate(system:write_term_to_chars/3,127,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:write_term_to_codes/3,133,static,private,monofile,built_in,[
+predicate(write_term_to_codes/3,133,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -147,25 +147,25 @@ predicate(system:write_term_to_codes/3,133,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:format_to_atom/3,142,static,private,monofile,built_in,[
+predicate(format_to_atom/3,142,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[format_to_atom,3]),
     call_c('Pl_Format_To_Atom_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:format_to_chars/3,146,static,private,monofile,built_in,[
+predicate(format_to_chars/3,146,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[format_to_chars,3]),
     call_c('Pl_Format_To_Chars_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:format_to_codes/3,150,static,private,monofile,built_in,[
+predicate(format_to_codes/3,150,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[format_to_codes,3]),
     call_c('Pl_Format_To_Codes_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(system:read_from_atom/2,157,static,private,monofile,built_in,[
+predicate(read_from_atom/2,157,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -178,7 +178,7 @@ predicate(system:read_from_atom/2,157,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_from_chars/2,162,static,private,monofile,built_in,[
+predicate(read_from_chars/2,162,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -191,7 +191,7 @@ predicate(system:read_from_chars/2,162,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_from_codes/2,167,static,private,monofile,built_in,[
+predicate(read_from_codes/2,167,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -204,7 +204,7 @@ predicate(system:read_from_codes/2,167,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_term_from_atom/3,175,static,private,monofile,built_in,[
+predicate(read_term_from_atom/3,175,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -226,7 +226,7 @@ predicate(system:read_term_from_atom/3,175,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_term_from_chars/3,181,static,private,monofile,built_in,[
+predicate(read_term_from_chars/3,181,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -248,7 +248,7 @@ predicate(system:read_term_from_chars/3,181,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_term_from_codes/3,187,static,private,monofile,built_in,[
+predicate(read_term_from_codes/3,187,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -270,7 +270,7 @@ predicate(system:read_term_from_codes/3,187,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_token_from_atom/2,196,static,private,monofile,built_in,[
+predicate(read_token_from_atom/2,196,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -283,7 +283,7 @@ predicate(system:read_token_from_atom/2,196,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_token_from_chars/2,201,static,private,monofile,built_in,[
+predicate(read_token_from_chars/2,201,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -296,7 +296,7 @@ predicate(system:read_token_from_chars/2,201,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(system:read_token_from_codes/2,206,static,private,monofile,built_in,[
+predicate(read_token_from_codes/2,206,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),

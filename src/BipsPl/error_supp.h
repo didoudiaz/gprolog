@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,6 +34,7 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#include <errno.h>
 
 
 /*---------------------------------*
@@ -88,6 +89,7 @@ int pl_domain_stream_option;
 int pl_domain_stream_or_alias;
 int pl_domain_stream_position;
 int pl_domain_stream_property;
+int pl_domain_file_stream;
 int pl_domain_write_option;
 int pl_domain_order;
 int pl_domain_term_stream_or_alias;		/* for term_streams */
@@ -95,6 +97,7 @@ int pl_domain_g_array_index;			/* for g_vars */
 int pl_domain_g_argument_selector;		/* for g_vars */
 int pl_domain_stream_seek_method;		/* for seek/4 */
 int pl_domain_format_control_sequence;		/* for format/2-3 */
+int pl_domain_radix;		        	/* for format/2-3 */
 int pl_domain_os_path;				/* for absolute_file_name/2 */
 int pl_domain_os_file_permission;		/* for file_permission/2 */
 int pl_domain_selectable_item;			/* for select_read/3 */
@@ -149,6 +152,7 @@ int pl_evaluation_zero_divisor;
 
 
 int pl_resource_print_object_not_linked; 	/* for print and format */
+int pl_resource_finite_memory;			/* e.g. for length(L, L) */
 int pl_resource_too_big_fd_constraint; 		/* for FD */
 
 
@@ -193,6 +197,7 @@ extern int pl_domain_stream_option;
 extern int pl_domain_stream_or_alias;
 extern int pl_domain_stream_position;
 extern int pl_domain_stream_property;
+extern int pl_domain_file_stream;
 extern int pl_domain_write_option;
 extern int pl_domain_order;
 extern int pl_domain_term_stream_or_alias;	/* for term_streams */
@@ -200,6 +205,7 @@ extern int pl_domain_g_array_index;		/* for g_vars */
 extern int pl_domain_g_argument_selector;	/* for g_vars */
 extern int pl_domain_stream_seek_method;	/* for seek/4 */
 extern int pl_domain_format_control_sequence;	/* for format/2-3 */
+extern int pl_domain_radix;			/* for format/2-3 */
 extern int pl_domain_os_path;			/* for absolute_file_name/2 */
 extern int pl_domain_os_file_permission; 	/* for file_permission/2 */
 extern int pl_domain_selectable_item; 		/* for select_read/3 */
@@ -256,7 +262,7 @@ extern int pl_evaluation_underflow;
 extern int pl_evaluation_zero_divisor;
 
 
-extern int resource_too_many_open_streams; 	/* for streams */
+extern int pl_resource_finite_memory;		/* e.g. for length(L, L) */
 extern int pl_resource_print_object_not_linked; /* for print and format */
 extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
@@ -290,7 +296,7 @@ WamWord Pl_Build_Pred_Indic_Error(PredInf *pred);
 
 void Pl_Unknown_Pred_Error(int module, int func, int arity);
 
-void Pl_Os_Error(int ret_val);
+void Pl_Os_Error(int err_no);
 
 void Pl_Err_Instantiation(void);
 
@@ -318,7 +324,7 @@ void Pl_Err_System(int pl_atom_error);
   do {						\
     if ((tst) == NULL)				\
       {						\
-	Pl_Os_Error(-1);			\
+	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
   } while(0)
@@ -329,7 +335,7 @@ void Pl_Err_System(int pl_atom_error);
     int _tst = (tst);				\
     if (_tst < 0)				\
       {						\
-	Pl_Os_Error(_tst);			\
+	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
   } while(0)

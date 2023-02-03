@@ -6,7 +6,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -156,6 +156,7 @@ extern int pl_domain_g_array_index;
 extern int pl_domain_g_argument_selector;
 extern int pl_domain_stream_seek_method;
 extern int pl_domain_format_control_sequence;
+extern int pl_domain_radix;
 extern int pl_domain_os_path;
 extern int pl_domain_os_file_permission;
 extern int pl_domain_selectable_item;
@@ -204,6 +205,7 @@ extern int pl_evluation_zero_divisor;
 
 
 extern int pl_resource_print_object_not_linked;
+extern int pl_resource_finite_memory;
 extern int pl_resource_too_big_fd_constraint;
 
 
@@ -473,13 +475,11 @@ PlBool Pl_Un_Proper_List_Check(int n, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Proper_List(int n, PlTerm *arg, PlTerm term);
 
-PlBool Pl_Un_Compound_Check(int func, int arity, PlTerm *arg,
-		       PlTerm term);
+PlBool Pl_Un_Compound_Check(int func, int arity, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Compound(int func, int arity, PlTerm *arg, PlTerm term);
 
-PlBool Pl_Un_Callable_Check(int func, int arity, PlTerm *arg,
-		       PlTerm term);
+PlBool Pl_Un_Callable_Check(int func, int arity, PlTerm *arg, PlTerm term);
 
 PlBool Pl_Un_Callable(int func, int arity, PlTerm *arg, PlTerm term);
 
@@ -780,6 +780,7 @@ typedef PlFIOArg FIOArg;
 #define domain_g_argument_selector pl_domain_g_argument_selector
 #define domain_stream_seek_method pl_domain_stream_seek_method
 #define domain_format_control_sequence pl_domain_format_control_sequence
+#define domain_radix pl_domain_radix
 #define domain_os_path pl_domain_os_path
 #define domain_os_file_permission pl_domain_os_file_permission
 #define domain_selectable_item pl_domain_selectable_item
@@ -829,6 +830,7 @@ typedef PlFIOArg FIOArg;
 
 
 #define resource_print_object_not_linked pl_resource_print_object_not_linked
+#define resource_finite_memory pl_resource_finite_memory
 #define resource_too_big_fd_constraint pl_resource_too_big_fd_constraint
 
 

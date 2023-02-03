@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -172,6 +172,7 @@ Error_Supp_Initializer(void)
   pl_domain_stream_or_alias = Pl_Create_Atom("stream_or_alias");
   pl_domain_stream_position = Pl_Create_Atom("stream_position");
   pl_domain_stream_property = Pl_Create_Atom("stream_property");
+  pl_domain_file_stream = Pl_Create_Atom("file_stream");
   pl_domain_write_option = Pl_Create_Atom("write_option");
   pl_domain_order = Pl_Create_Atom("order");
   pl_domain_term_stream_or_alias = Pl_Create_Atom("term_stream_or_alias");
@@ -181,7 +182,7 @@ Error_Supp_Initializer(void)
 				/* for g_vars */
   pl_domain_stream_seek_method = Pl_Create_Atom("stream_seek_method"); /* for seek/4 */
   pl_domain_format_control_sequence = Pl_Create_Atom("format_control_sequence");
-				/* for format/2-3 */
+  pl_domain_radix = Pl_Create_Atom("radix"); /* for format/2-3 */
   pl_domain_os_path = Pl_Create_Atom("os_path");/* for absolute_file_name/2 */
   pl_domain_os_file_permission = Pl_Create_Atom("os_file_permission");
 				/* for file_permission/2 */
@@ -242,6 +243,7 @@ Error_Supp_Initializer(void)
 
   pl_resource_print_object_not_linked = Pl_Create_Atom("print_object_not_linked");
 				/* for print and format */
+  pl_resource_finite_memory = Pl_Create_Atom("finite_memory"); /* e.g. for length(L, L) */
   if (pl_fd_init_solver)		/* FD solver linked */
     {
       pl_resource_too_big_fd_constraint = Pl_Create_Atom("too_big_fd_constraint");
@@ -608,9 +610,9 @@ Pl_Unknown_Pred_Error(int module, int func, int arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Os_Error(int ret_val)
+Pl_Os_Error(int err_no)
 {
-  char *err_str = Pl_M_Sys_Err_String(ret_val);
+  char *err_str = Pl_M_Sys_Err_String(err_no);
 
   if (Flag_Value(os_error) == PF_ERR_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));

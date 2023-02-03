@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -313,6 +313,13 @@ add_stream_alias(_, Alias) :-
 
 
 
+set_stream_alias(SorA, Alias) :-
+	set_bip_name(set_stream_alias, 2),
+	'$call_c_test'('Pl_Set_Stream_Alias_2'(SorA, Alias)).
+
+
+
+
 add_stream_mirror(SorA, Mirror) :-
 	set_bip_name(add_stream_mirror, 2),
 	'$call_c'('Pl_Add_Stream_Mirror_2'(SorA, Mirror)).
@@ -455,6 +462,8 @@ stream_property(Stream, Property) :-
 
 '$check_stream_prop'(type(_)).
 
+'$check_stream_prop'(file_no(_)).
+
 '$check_stream_prop'(reposition(_)).
 
 '$check_stream_prop'(eof_action(_)).
@@ -493,6 +502,9 @@ stream_property(Stream, Property) :-
 '$stream_property1'(type(Type), S) :-
 	'$call_c_test'('Pl_Stream_Prop_Type_2'(Type, S)).
 
+'$stream_property1'(file_no(FileNo), S) :-
+	'$call_c_test'('Pl_Stream_Prop_File_No_2'(FileNo, S)).
+
 '$stream_property1'(reposition(Reposition), S) :-
 	'$call_c_test'('Pl_Stream_Prop_Reposition_2'(Reposition, S)).
 
@@ -507,7 +519,6 @@ stream_property(Stream, Property) :-
 
 '$stream_property1'(end_of_stream(EndOfStream), S) :-
 	'$call_c_test'('Pl_Stream_Prop_End_Of_Stream_2'(EndOfStream, S)).
-
 
 
 

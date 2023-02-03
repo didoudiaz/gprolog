@@ -6,7 +6,7 @@
  * Descr.: translation file arm 64 bits (aarch64)                          *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -81,26 +81,24 @@
 #endif
 
 
-
-
-/* To load an immediate (constant or label) use the pseudo-instruction:
+/* As for arm32_any.c, we could use the ldr pseudo-instruction to load an 
+ * immediate (constant or label) :
  *    ldr, =immediate or address
- * the assembler replaces by a sequence of mov and movk
+ * The assembler rqeplaces it (e.g. by a sequence of mov and movk).
  *
- * However, as can also place the constant in a literal pool and generates a 
- * pc-relative ldr instruction that reads the constant from the literal pool.
- * For this reson, the pool must not be too far else we obtain an error, e.g.:
- *    Error: pc-relative load offset out of range
- * We can inform the assembler to force the emission of the pool with 
- *    .ltorg directive
- * We try to emit it ASAP (e.g. after a branching). We also use a mechanisme
- * to force the pool emission when a maximum number of call_c is reached.
+ * However, we experienced a lot of strange bugs on macos using ldr 
+ * pseudo-instructions on large (asm) sources (with around 10000 ldr pseudo-inst).
+ * We suspect the llvm assembler 'as' (also used by gcc since gas is llvm as).
+ * So we do not use it. 
+ * BTW: in most case it can be replaced by a mov (see Load_Immediate)
+ */
+
+
+/* Double constants are loaded as a 64-bit immediate
  */
 #if 1
-#define USE_LDR_PSEUDO_OP_AND_POOL
-#define MAX_CALL_C_BEFORE_EMIT_POOL 500
+#define DOUBLE_CST_AS_IMM64
 #endif
-
 
 
 
@@ -212,10 +210,6 @@ char asm_reg_e[32];
 int arg_reg_no;
 int arg_dbl_reg_no;
 
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-LabelGen lg_pool;
-#endif
-
 
 
 
@@ -262,10 +256,6 @@ Asm_Start(void)
   strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "x25");
-#endif
-
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  Label_Gen_Init(&lg_pool, "pool");
 #endif
 
   Label_Printf(".text");
@@ -350,36 +340,6 @@ Label(char *label)		/* only used for a local label */
 
 
 /*-------------------------------------------------------------------------*
- * EMIT_POOL                                                               *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Emit_Pool(Bool after_call_c)
-{
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  static int call_c_since_emit_pool = 0;
-
-  if (after_call_c && ++call_c_since_emit_pool < MAX_CALL_C_BEFORE_EMIT_POOL)
-    return;
-  
-  if (after_call_c)		/* after a call to a C fct needs a branch over the pool */
-    {
-      Inst_Printf("b", "%s", Label_Gen_New(&lg_pool));
-      Inst_Printf(".ltorg", "%s", "");
-      Label_Printf("%s:", Label_Gen_Get(&lg_pool));
-    }
-  else
-    {
-      Inst_Printf(".ltorg", "%s", "");
-    }
-  call_c_since_emit_pool = 0;
-#endif
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * NEAREST_IMMEDIATE                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -413,9 +373,9 @@ void
 Increment_Reg(char *r, int int_val)
 {
   /* Could also be something like
-   *    ldr x10, =int_val
+   *    Load_Immediate("x10", int_val)
    *    add r, r, x10
-   * but sometimes 1 instruction is possible
+   * but sometimes 1 instruction is possible with the code below
    */
   char *op = "add";
   int slice, shift = 0;
@@ -441,23 +401,76 @@ Increment_Reg(char *r, int int_val)
 
 
 /*-------------------------------------------------------------------------*
+ * IMMEDIATE_LSL_FOR_MOVZ                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+/* Test if int_val is an immediate constant that can be moved into a general by a MOVZ.
+   Returns the number of logical shift left (LSL) or -1 if impossible
+
+   got some information here:
+   https://github.com/espressif/binutils-esp32ulp/blob/master/opcodes/aarch64-opc.c
+   see function aarch64_wide_constant_p 
+*/
+int
+Immediate_LSL_For_MOVZ(PlULong int_val)
+{
+  if ((int_val & ((PlULong) 0xffff)) == int_val)
+    return 0;
+
+  if ((int_val & ((PlULong) 0xffff << 16)) == int_val)
+    return 16;
+
+  if ((int_val & ((PlULong) 0xffff << 32)) == int_val)
+    return 32;
+
+  if ((int_val & ((PlULong) 0xffff << 48)) == int_val)
+    return 48;
+
+  return -1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * LOAD_IMMEDIATE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 /* To see what is produced by gcc for an immediate constant use:
  * i=4095; echo "long foo() {return $i;}" | gcc -O2 -S -o- -xc - 
+ *
+ * See at the top of the file, comment about we abandoned ldr pseudo-instruction
+ * Instead we use synthetic mov instruction (see below)
  */
 void
 Load_Immediate(char *r, PlULong int_val)
 {
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  Inst_Printf("ldr", "%s, =%" PL_FMT_d, r, int_val);
-#else
+  /* Test if it is possible to use the synthetic asm MOV instruction: 
+   *   MOV reg, #imm64
+   * It generates a single MOVZ, MOVN or MOVI to load a 64-bit immediate value
+   * into register reg. For this the immediate has be to be created 
+   * by a single one of these 3 instructions. 
+   * In practice it is possible to encode in one MOV instruction immediate
+   * integers in the range [-65537..65537]. 
+   * Using LSL other values "far" can be encoded (see Immediate_LSL_For_MOVZ)
+   * (NB: we do not detect the case MOV can give rise to a MOVI)
+   */
+
+  if (Immediate_LSL_For_MOVZ(int_val) >= 0 || Immediate_LSL_For_MOVZ(~int_val) >= 0)
+    {
+      Inst_Printf("mov", "%s, #%" PL_FMT_d, r, int_val);
+      return;
+    }
+
+  /* If not possible (needs at least 2 inst), decompose it as a sequence of MOVZ and MOVK
+   * Could be improved for negative numbers as: encode -int_val followed by 0-(-int_val)
+   * SUB R, XZR, R   (XZR is a zero-register)
+   */
   int slice, shift = 0;
   Bool wipe = TRUE;
 
   if (comment)
-    Inst_Printf("", "# load %s = %" PL_FMT_u, r, int_val);
+    Inst_Printf("", "# LOAD %s = %" PL_FMT_d, r, int_val);
 
   while (int_val || wipe)
     {
@@ -475,7 +488,6 @@ Load_Immediate(char *r, PlULong int_val)
       int_val >>= 16;
       shift += 16;
     }
-#endif
 }
 
 
@@ -531,7 +543,6 @@ void
 Pl_Jump(char *label)
 {
   Inst_Printf("b", UN_EXT "%s", label);
-  Emit_Pool(FALSE);
 }
 
 
@@ -563,7 +574,6 @@ Prep_CP(void)
 void
 Here_CP(void)
 {
-  Emit_Pool(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -600,7 +610,6 @@ Pl_Fail(void)
   Inst_Printf("ldr", "x11, [x11, #-8]");
 #endif
   Inst_Printf("ret", "x11");	/* prefer ret to br since hints it is a function return and optimize branch prediction */
-  Emit_Pool(FALSE);
 }
 
 
@@ -620,7 +629,6 @@ Pl_Ret(void)
   Inst_Printf("ldr", "x11, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_CP);
   Inst_Printf("ret", "x11");
 #endif
-  Emit_Pool(FALSE);
 }
 
 
@@ -634,7 +642,6 @@ void
 Jump(char *label)
 {
   Inst_Printf("b", "%s", label);
-  Emit_Pool(FALSE);
 }
 
 
@@ -675,7 +682,7 @@ Load_Store_Reg_Y(char *ldr_str, char *r, int index)
        * We cannot use x0..x7, (call_c args) neither a gloal reg used in machine.h. 
        * x9 is OK 
        */
-#if 0
+#if 1
       Inst_Printf("mov", "x9, %s", asm_reg_e);
       Increment_Reg("x9", offset);
       Inst_Printf(ldr_str, "%s, [x9]", r);
@@ -764,6 +771,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 #define BEFORE_ARG_DOUBLE				\
 {                                                       \
   char r[32];						\
+  char *r_aux = "x9"; 					\
   Bool in_reg = FALSE;					\
 							\
   if (arg_dbl_reg_no < MAX_ARGS_DOUBLE_IN_REGS)		\
@@ -772,7 +780,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
       in_reg = TRUE;					\
     }							\
   else							\
-    strcpy(r, "x9");
+    strcpy(r, r_aux);
 
 
 
@@ -816,22 +824,10 @@ Call_C_Arg_Double(int offset, DoubleInf *d)
 {
   BEFORE_ARG_DOUBLE;
 
-#ifdef USE_LDR_PSEUDO_OP_AND_POOL
-#if defined(__clang__) || defined(M_darwin)
-   /* Bug in llvm asm parser: ldr pseudo instruction with a 64 immediate 
-    * needs an X reg (D reg is not accepted), while gas aarch64/linux accepts it !
-    * decompose via an ldr X reg, =imm64 + fmov 
-    * NB: we test __clang__ or M_darwin since on darwin as is provided by llvm 
-    * (even gcc-11 uses llvm as) 
-    */
+#ifdef DOUBLE_CST_AS_IMM64
+  Load_Immediate(r_aux, d->v.i64);
   if (in_reg)
-    {
-      Inst_Printf("ldr", "x9, =%" FMT64_d, d->v.i64);
-      Inst_Printf("fmov", "%s, x9", r);
-    }
-  else
-#endif
-    Inst_Printf("ldr", "%s, =%" FMT64_d, r, d->v.i64);
+    Inst_Printf("fmov", "%s, %s", r, r_aux);
 #else
   Load_Address("x9", d->symb);
   Inst_Printf("ldr", "%s, [x9]", r);
@@ -978,7 +974,6 @@ void
 Call_C_Invoke(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 {
   Inst_Printf("bl", UN_EXT "%s", fct_name);
-  Emit_Pool(TRUE);		/* only if too many call_c */
 }
 
 
@@ -1004,7 +999,6 @@ void
 Jump_Ret(void)
 {
   Inst_Printf("ret", "x0");
-  Emit_Pool(FALSE);
 }
 
 
@@ -1024,7 +1018,6 @@ Fail_Ret(void)
 #else
   Pl_Fail();
 #endif
-  Emit_Pool(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 
@@ -1163,7 +1156,6 @@ C_Ret(void)
   Inst_Printf("ldr", "x30, [sp]");
   Inst_Printf("add", "sp, sp, #%d", RESERVED_STACK_SPACE);
   Inst_Printf("ret", "%s", "");
-  Emit_Pool(FALSE);
 }
 
 
@@ -1227,7 +1219,7 @@ Dico_String_Stop(int nb)
 void
 Dico_Double_Start(int nb)
 {
-#ifndef USE_LDR_PSEUDO_OP_AND_POOL
+#ifndef DOUBLE_CST_AS_IMM64
   
 #ifdef M_darwin
   Inst_Printf(".section", "__TEXT,__literal8,8byte_literals");
@@ -1247,7 +1239,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-#ifndef USE_LDR_PSEUDO_OP_AND_POOL
+#ifndef DOUBLE_CST_AS_IMM64
 
   Label_Printf("%s:", d->symb);
   Inst_Printf(".long", "%d", d->v.i32[0]);

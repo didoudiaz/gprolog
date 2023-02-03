@@ -6,7 +6,7 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -60,7 +60,7 @@
 
 void Pl_Init_Machine(void);
 
-char *Pl_M_Sys_Err_String(int ret_val);
+char *Pl_M_Sys_Err_String(int err_no);
 
 PlLong Pl_M_User_Time(void);
 
@@ -88,12 +88,19 @@ char *Pl_M_Get_Working_Dir(void);
 
 Bool Pl_M_Set_Working_Dir(char *path);
 
+char *Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash);
+
 char *Pl_M_Absolute_Path_Name(char *src);
 
 Bool Pl_M_Is_Absolute_File_Name(char *path);
 
 char *Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, 
 			       char **base, char **suffix);
+
+Bool Pl_M_Path_Ends_With_Dir(char *path);
+
+int Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error);
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
@@ -138,7 +145,7 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #elif defined(M_arm32)
 
-	/* do not use r7 (frame pointer) */
+	/* do not use r7 (frame pointer in Thumb code) */
 #    define M_USED_REGS            {"r5", "r6", "r8", "r9", "r10", 0}
 
 #elif defined(M_arm64) && !defined(__clang__) /* clang/llvm do not yet handle Global Register Variables */
@@ -146,6 +153,11 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 	/* do not use x29 (frame pointer) */
 #    define M_USED_REGS            {"x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", 0}
 
+
+#elif defined(M_riscv64)
+
+	/* using s1-s5 causes problem with CTRL+C with -O3 */
+#    define M_USED_REGS            {/*"s1", "s2", "s3", "s4", "s5",*/ "s6", "s7", "s8", "s9", "s10", "s11", 0}
 
 #elif defined(M_x86_64) && !defined(_MSC_VER) && !defined(__clang__)
 

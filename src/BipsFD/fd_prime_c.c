@@ -6,7 +6,7 @@
  * Descr.: prime constraint management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -132,9 +132,8 @@ Compute_Prime_Range(void)
 
   i = 2;
   do
-    {
-      j = i;
-      while ((j += i) <= pl_vec_max_integer)
+    {				/* Sieve of Eratosthenes */
+      for(j = i * i; j <= pl_vec_max_integer; j += i)
 	Vector_Reset_Value(vec, j);
 
       j = i;

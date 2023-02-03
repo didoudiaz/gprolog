@@ -1,13 +1,30 @@
 Change in GNU Prolog version 1.5.1
 
+* add --quiet option to top-level command-line (do not display banner and info)
+* add Prolog flag show_information (on/off)
+* add new prefedined stream aliases (current_input, current_output)
+* add new built-in to reassign a stream alias (set_stream_alias/2)
+* port to RISC-V 64 bits/Linux - many thanks to
+  Jasper Taylor <jasper@simulistics.com>
+* fix issue #23: add built-in predicate copy_file/2
+* fix issue #10: missing int_overflow
+* fix issue #22: math evaluation raises a float_overflow instead of int_overflow
+* fix issue #21: bug in append/3
+* fix issue #17: CTRL+C as first action under top-level causes a segmentation fault
+* fix issue #20: length(L, L) raises an error instead of crashing (related to pr #19)
+* fix asm problems on macos/M1 with large sources (mapper arm64_any.c)
+* fix issue #4: directory_files/2 now uses native Win32 functions
+* fix small problem when bootstrapping due to Makefiles
+* fix format/2-3 to throw a domain error on invalid radix (pr #16)
+* fix issue #9: format/2-3 now also accept a list of character for format
 * fix problem in arm32 mapper when passing more than 8 double to a C function
-* fix issue #7: length/2 now emits a type_error(list) only if the strict_mode flag is on
+* fix issue #7: length/2 now emits a type_error(list) only if the strict_iso flag is off
 * fix infinite loop in debugger for multifile/dynamic predicates (issue #12)
 * improve Makefiles with patches sent by Keri Harris on July 2021
 
 Change in GNU Prolog version 1.5.0
 
-* Source repository moved to GiHub https://github.com/didoudiaz/gprolog
+* source repository moved to GiHub https://github.com/didoudiaz/gprolog
 * port to arm64 (aarch64)/darwin (new Apple M1/MacOS architecture)
 * port to arm64 (aarch64)/Linux (armv8) - many thanks to
   Jasper Taylor <jasper@simulistics.com>

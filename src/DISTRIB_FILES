@@ -11,24 +11,23 @@ gprolog.ico
 doc/README
 doc/Makefile
 doc/do_latex
-doc/[a-z][a-z-]?*.tex
-doc/[a-z][a-z]?*.sty
-doc/[a-z][a-z]?*.hva
-doc/[a-z][a-z]?*.fig
-doc/[a-z][a-z]?*.gif
-doc/[a-z][a-z]?*.eps
-doc/[a-z][a-z]?*.png
-doc/[a-z][a-z]?*.dvi
-doc/[a-z][a-z]?*.ps
-doc/[a-z][a-z]?*.pdf
-doc/[a-z][a-z]?*.chm
-doc/[a-z][a-z]?*.html
-doc/html_node/[a-z][a-z]?*.html
-doc/html_node/[a-z][a-z]?*.png
-doc/html_node/[a-z][a-z]?*.svg
-doc/html_node/[a-z][a-z]?*.hh[ckp]
-doc/html_node/[a-z][a-z]?*.tex
-doc/html_node/[a-z][a-z]?*.css
+doc/[a-z][a-z_-]?*.tex
+doc/[a-z][a-z_-]?*.sty
+doc/[a-z][a-z_-]?*.hva
+doc/[a-z][a-z_-]?*.fig
+doc/[a-z][a-z_-]?*.eps
+doc/[a-z][a-z_-]?*.png
+doc/[a-z][a-z_-]?*.dvi
+doc/[a-z][a-z_-]?*.ps
+doc/[a-z][a-z_-]?*.pdf
+doc/[a-z][a-z_-]?*.chm
+doc/[a-z][a-z_-]?*.html
+doc/html_node/[a-z][a-z_-]?*.html
+doc/html_node/[a-z][a-z_-]?*.png
+doc/html_node/[a-z][a-z_-]?*.svg
+doc/html_node/[a-z][a-z_-]?*.hh[ckp]
+doc/html_node/[a-z][a-z_-]?*.tex
+doc/html_node/[a-z][a-z_-]?*.css
 doc/html_node/README
 doc/html_node/hh_do_hhc_hhk
 
@@ -84,19 +83,19 @@ src/Win32/gp-vars-iss.txt.in
 src/Win32/addcrlf
 
 src/TopComp/Makefile.in
-src/TopComp/[a-z][a-z]?*.[ch]
+src/TopComp/[a-z][a-z_-]?*.[ch]
 
 src/Pl2Wam/Makefile.in
 src/Pl2Wam/OTHER_PL
 src/Pl2Wam/boot_cp
 src/Pl2Wam/check_boot
-src/Pl2Wam/[a-z][a-z]?*.pl
-src/Pl2Wam/[a-z][a-z]?*.wam
+src/Pl2Wam/[a-z][a-z_-]?*.pl
+src/Pl2Wam/[a-z][a-z_-]?*.wam
 src/Pl2Wam/swi_pl2wam
 src/Pl2Wam/sics_pl2wam
 
 src/Wam2Ma/Makefile.in
-src/Wam2Ma/[a-z][a-z]?*.[ch]
+src/Wam2Ma/[a-z][a-z_-]?*.[ch]
 
 src/Ma2Asm/MA_SYNTAX
 src/Ma2Asm/INLINED
@@ -105,14 +104,14 @@ src/Ma2Asm/[a-z][a-z0-9]?*.[ch]
 src/Ma2Asm/[a-z][a-z0-9]?*.ma
 src/Ma2Asm/FromC/Makefile
 src/Ma2Asm/FromC/Makefile.in
-src/Ma2Asm/FromC/[a-z][a-z]?*.[ch]
+src/Ma2Asm/FromC/[a-z][a-z_-]?*.[ch]
 
 src/Fd2C/FD_SYNTAX
 src/Fd2C/Makefile.in
-src/Fd2C/[a-z][a-z]?*.pl
+src/Fd2C/[a-z][a-z_-]?*.pl
 
 src/Linedit/Makefile.in
-src/Linedit/[a-z][a-z]?*.[ch]
+src/Linedit/[a-z][a-z_-]?*.[ch]
 
 src/W32GUICons/Makefile.in
 src/W32GUICons/[a-z][a-z0-9]?*.[ch]
@@ -120,27 +119,26 @@ src/W32GUICons/[a-z][a-z0-9]?*.rc
 
 src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in
-src/EnginePl/[a-z][a-z]?*.[ch]
-src/EnginePl/[a-z][a-z]?*.def
+src/EnginePl/[a-z][a-z_-]?*.[ch]
+src/EnginePl/[a-z][a-z_-]?*.def
 src/EnginePl/eng1*.s
 src/EnginePl/*SIGSEGV.c
 
+
 src/EngineFD/Makefile.in
-src/EngineFD/[a-z][a-z]?*.[ch]
-src/EngineFD/[a-z][a-z]?*.fd
+src/EngineFD/[a-z][a-z_-]?*.[ch]
+src/EngineFD/[a-z][a-z_-]?*.fd
 
 src/BipsPl/Makefile.in
 src/BipsPl/BYTE_CODE
-src/BipsPl/[a-z]??*.pl
-src/BipsPl/[a-z]??*.wam
-src/BipsPl/[a-z]??*.[ch]
-src/BipsPl/t.pl
+src/BipsPl/[a-z][a-z_-]?*.pl
+src/BipsPl/[a-z][a-z_-]?*.wam
+src/BipsPl/[a-z][a-z_-]?*.[ch]
 
 src/BipsFD/Makefile.in
-src/BipsFD/[a-z][a-z]?*.pl
-src/BipsFD/[a-z][a-z]?*.fd
-src/BipsFD/[a-z][a-z]?*.[ch]
-src/BipsFD/t.pl
-src/BipsFD/t_fd.fd
+src/BipsFD/[a-z][a-z_-]?*.pl
+src/BipsFD/[a-z][a-z_-]?*.fd
+src/BipsFD/[a-z][a-z_-]?*.[ch]
+
 
 

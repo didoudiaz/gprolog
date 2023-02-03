@@ -6,7 +6,7 @@
  * Descr.: formatted output management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -90,7 +90,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;
@@ -102,7 +102,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
     str = pl_atom_tbl[UnTag_ATM(word)].name;
   else
     {
-      strcpy(buff, Pl_Rd_Codes_Check(format_word));
+      strcpy(buff, Pl_Rd_Chars_Or_Codes_Check(format_word));
       str = buff;
     }
   Format(pstm, str, &args_word);
@@ -316,8 +316,10 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'R':
               x = Arg_Integer(&lst_adr);
 
-              if (!has_n || n < 2 || n > 36)
-                n = 8;
+              if (!has_n)
+                  n = 8;
+              else if (n < 2 || n > 36)
+                  Pl_Err_Domain(pl_domain_radix, Tag_INT(n));
 
               k = ((*format == 'r') ? 'a' : 'A') - 10;
 
@@ -369,7 +371,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'q':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
+                WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */

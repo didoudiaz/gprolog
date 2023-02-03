@@ -6,7 +6,7 @@
  * Descr.: translation file                                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2021 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -115,6 +115,10 @@
 #elif defined(M_arm64)
 
 #include "arm64_any.c"
+
+#elif defined(M_riscv64)
+
+#include "riscv64_any.c"
 
 #else
 
