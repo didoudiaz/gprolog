@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -863,7 +863,7 @@ int
 Spawn_Decode_Hex(char *arg[])
 {
   int pid, status;
-  FILE *f_out;
+  FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   static char buff[CMD_LINE_LENGTH];
 
   pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);

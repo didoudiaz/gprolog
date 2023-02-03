@@ -97,9 +97,8 @@ medium, provided this notice is preserved.
 % and to avoid vertical lines
 
 \newenvironment{PlErrorsNoTitle}%
-   {\par\begin{tabular}{p{}@{\quad}p{}}\hline}%
+   {\par\begin{tabular}{p{}@{\quad}l}\hline}%
    {\end{tabular}}
-
 
 
 

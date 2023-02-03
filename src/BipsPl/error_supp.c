@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -172,6 +172,7 @@ Error_Supp_Initializer(void)
   pl_domain_stream_or_alias = Pl_Create_Atom("stream_or_alias");
   pl_domain_stream_position = Pl_Create_Atom("stream_position");
   pl_domain_stream_property = Pl_Create_Atom("stream_property");
+  pl_domain_file_stream = Pl_Create_Atom("file_stream");
   pl_domain_write_option = Pl_Create_Atom("write_option");
   pl_domain_order = Pl_Create_Atom("order");
   pl_domain_term_stream_or_alias = Pl_Create_Atom("term_stream_or_alias");

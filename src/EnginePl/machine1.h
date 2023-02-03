@@ -6,7 +6,7 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -48,6 +48,12 @@
 
 
 #define M_ERROR_WIN32              -2 /* read GetLastError instead of errno */
+
+
+#define M_SPAWN_REDIRECT_CREATE    ((FILE *) 1)
+#define M_SPAWN_REDIRECT_NULL      ((FILE *) 2)
+/* other values means an existing stream (a FILE *) */
+
 
 
 

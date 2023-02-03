@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -226,6 +226,8 @@ Init_Stream_Supp(void)
   pl_atom_current = Pl_Create_Atom("current");
   pl_atom_eof = Pl_Create_Atom("eof");
 
+  pl_atom_null = Pl_Create_Atom("null");
+
   pl_le_prompt = "";
   pl_use_le_prompt = TRUE;
 
@@ -362,7 +364,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
   if (force_eof_reset || isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
-  return Pl_Add_Stream(atom_path, (PlLong) f, prop,
+  return Pl_Add_Stream(atom_path, (PlLong) f, fileno(f), prop,
 		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -400,7 +402,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
+Init_Stream_Struct(int atom_file_name, PlLong file, int fileno, StmProp prop,
 		   StmFct fct_getc, StmFct fct_putc,
 		   StmFct fct_flush, StmFct fct_close,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
@@ -408,6 +410,7 @@ Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
 {
   pstm->atom_file_name = atom_file_name;
   pstm->file = file;
+  pstm->fileno = fileno;
   pstm->prop = prop;
   pstm->mirror = NULL;
   pstm->mirror_of = NULL;
@@ -442,7 +445,7 @@ Init_Stream_Struct(int atom_file_name, PlLong file, StmProp prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
+Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
 	      StmFct fct_getc, StmFct fct_putc,
 	      StmFct fct_flush, StmFct fct_close,
 	      StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
@@ -458,7 +461,7 @@ Pl_Add_Stream(int atom_file_name, PlLong file, StmProp prop,
 
 
   pstm = pl_stm_tbl[stm];
-  Init_Stream_Struct(atom_file_name, file, prop, fct_getc, fct_putc,
+  Init_Stream_Struct(atom_file_name, file, fileno, prop, fct_getc, fct_putc,
 		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
 		     pstm);
 
@@ -811,7 +814,10 @@ Pl_Set_Stream_Buffering(int stm)
 /*-------------------------------------------------------------------------*
  * PL_GET_STREAM_OR_ALIAS                                                  *
  *                                                                         *
- * return the associated stm or -1 if not exist (test==STREAM_CHECK_VALID) *
+ * return the associated stm if exists or                                  *
+ *        -1 if does not exist and test == STREAM_CHECK_VALID              *
+ *        -2 if uninstantiated and STREAM_CHECK_ACCEPT_VAR is set          *
+ *        -3 if atom null and STREAM_CHECK_ACCEPT_NULL                     *
  *-------------------------------------------------------------------------*/
 int
 Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
@@ -821,12 +827,21 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
   WamWord *stc_adr;
   PlLong stm = 0;		/* only for the compiler (NB: defined as PlLong to check validity) */
   int perm_oper;
+  Bool accept_var = (test & STREAM_CHECK_ACCEPT_VAR) != 0;
+  Bool accept_null = (test & STREAM_CHECK_ACCEPT_NULL) != 0;
+  Bool has_fileno = (test & STREAM_CHECK_HAS_FILENO) != 0;
+
+  test &= 255;
 
 
   DEREF(sora_word, word, tag_mask);
   if (tag_mask == TAG_ATM_MASK)	/* alias ? */
     {
       atom = UnTag_ATM(word);
+
+      if (atom == pl_atom_null && accept_null)
+	return -3;
+      
       stm = Pl_Find_Stream_By_Alias(atom);
       goto next_test;
     }
@@ -837,13 +852,17 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
       DEREF(Arg(stc_adr, 0), word, tag_mask1);
       stm = UnTag_INT(word);
 
-      if (Functor_And_Arity(stc_adr) == stream_1 &&
-	  tag_mask1 == TAG_INT_MASK)
+      if (Functor_And_Arity(stc_adr) == stream_1 && tag_mask1 == TAG_INT_MASK)
 	goto next_test;
     }
 
   if (tag_mask == TAG_REF_MASK)
-    Pl_Err_Instantiation();
+    {
+      if (accept_var)
+	return -2;
+      
+      Pl_Err_Instantiation();
+    }
 
   Pl_Err_Domain(pl_domain_stream_or_alias, sora_word);
 
@@ -857,7 +876,10 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
       Pl_Err_Existence(pl_existence_stream, sora_word);
     }
 
-  if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
+ if (has_fileno && pl_stm_tbl[stm]->fileno < 0)
+    Pl_Err_Domain(pl_domain_file_stream, sora_word);
+    
+ if (test == STREAM_CHECK_VALID || test == STREAM_CHECK_EXIST)
     goto ok;
 
   if (test == STREAM_CHECK_INPUT)
@@ -879,6 +901,19 @@ Pl_Get_Stream_Or_Alias(WamWord sora_word, int test)
 
  ok:
   return (int) stm;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_GET_STREAM                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Get_Stream(int stm, WamWord start_word)
+{		/* similar to WAM Pl_Get_XXX instructions */
+  return Pl_Get_Structure(pl_atom_stream, 1, start_word) && Pl_Unify_Integer(stm);
 }
 
 
@@ -1013,7 +1048,7 @@ Pl_Stdio_Desc_Of_Stream(int stm)
   if (stm == pl_stm_stdin)		/* works also for stdin with linedit */
     return stdin;
 
-  if (pstm->fct_getc == (StmFct) fgetc)
+  if (pstm->fct_getc == (StmFct) fgetc) /* could also test pstm->fileno >= 0 */
     return (FILE *) (pstm->file);
 
   return NULL;
@@ -1865,7 +1900,7 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
   stm = Find_Free_Stream();
   pstm = pl_stm_tbl[stm];
 
-  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, prop,
+  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, -1, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,

@@ -6,7 +6,7 @@
  * Descr.: test - Prolog part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -242,15 +242,84 @@ p:-write(toto),nl.
 %foo:-write(a),write(b),nl.
 
 test(Goal) :-
-	open(foo, write, Stream),
+	open('/tmp/foo.out', write, Stream),
 	set_output(Stream),
+	set_stream_alias(Stream, user_error),
 %	set_error(Stream),
 	% redirect any output from Goal using implicit streams to file "foo"
 	call(Goal),
 	close(Stream).
 
-s:-stream_property(X,alias(Y)), write(X-Y), nl, fail ; true.
-f:-open('/tmp/foo',write,X,[alias(foo), buffering(none)]), write(X-foo), nl.
-b:-open('/tmp/bar',write,X,[alias(bar), buffering(none)]), write(X-bar), nl.
+tt :-	test((write(abc),nl,write(user_error,toto),nl)).
 
+
+
+f :- open('/tmp/foo', read, X, [alias(foo), buffering(none)]), write(X-foo), nl.
+b :- open('/tmp/bar', write, X, [alias(bar), buffering(none)]), write(X-bar), nl.
+b1 :- open('/tmp/bar1', write, X, [alias(bar1), buffering(none)]), write(X-bar1), nl.
+
+
+z :-	f, b, b1, exec('sort', foo, bar, bar1), closeall.
+
+
+z2 :-
+	exec('sort', X, Y, Z, PID), 
+	write(X, 'b\na\nz\ng'), 
+	close(X), r(Y), r(Z), 
+	wait(PID, _), 
+	closeall.
+
+z3 :-
+	exec('du -s /var/log', _, Y, Z), r(Y), r(Z), closeall.
+
+z4 :-
+	b, 
+	Y=bar, 
+	Z=bar, 
+	exec('sort', X, Y, Z, PID), 
+	write(executing(PID)), nl, 
+	open('~/wordnet-prolog/wn_valid.pl', read, _, [alias(w)]), 
+	repeat, 
+	get_char(w, C), 
+	(   C == end_of_file ; write(X, C), fail ), !, 
+	closeall, 
+	wait(PID, _).
+
+
+r(S) :-
+	write('--------------------------'(S)), nl, 
+	repeat, 
+	get_char(S, C), 
+	(   C == end_of_file ; write(C), fail ), !, 
+	write('--------------------------'), nl, nl.
+
+
+
+s  :-
+	stream_property(X, alias(Y)), write(X-Y), nl, fail ; true.
+
+aff :-
+	current_stream(X), 
+	write(X), nl, 
+	fail.
+aff.
+
+
+closeall  :-
+	current_stream(X), 
+	close(X), 
+	fail.
+
+closeall.
+
+
+
+test :-
+	open('/tmp/foo', read, X, [alias(foo)]), write(X-foo), nl.
+
+i :-
+	exec('info', user_input, user_output, user_error).
+
+i(X) :-
+	exec('info', user_input, user_output, user_error, X).
 

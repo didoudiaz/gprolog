@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -40,6 +40,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #include "gp_config.h"
@@ -106,9 +109,22 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-#if defined(_WIN32) && !defined(CYGWIN)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 static Bool Get_Windows_OS_Name(char *buff);
 #endif
+
+
+
+#if defined(__unix__) || defined(__CYGWIN__)
+#define TypeFD int
+#define NOT_AN_FD  -1
+#else
+#define TypeFD HANDLE
+#define NOT_AN_FD  INVALID_HANDLE_VALUE /* actually (void *) -1 */
+#endif
+
+static Bool Safe_Close(TypeFD fd);
+static TypeFD Open_Null_Device(Bool for_output);
 
 
 
@@ -533,19 +549,27 @@ Pl_M_Create_Shell_Command(char *cmd)
   static char *arg[4];
   char *p;
 
+  /* first test SHELL env. var. (works under windows with msys2, ...) */
+  if ((p = getenv("SHELL")) != NULL)
+    {
+      arg[0] = p;
+      arg[1] = "-c";
+    }
+  else
+    {
 #if defined(__unix__) || defined(__CYGWIN__)
 
-  arg[0] = ((p = getenv("SHELL")) != NULL) ? p : "/bin/sh";
-  arg[1] = "-c";
+      arg[0] = "/bin/sh";
+      arg[1] = "-c";
 
 #else
 
-  arg[0] = ((p = getenv("COMSPEC")) != NULL)
-    ? p : (pl_m_os_type == M_OS_WINDOWS_NT) ? "cmd.exe" : "c:\\command.com";
-  arg[1] = "/c";
+      arg[0] = ((p = getenv("COMSPEC")) != NULL) ? p : "cmd.exe";
+      arg[1] = "/c";
 
 #endif
-
+    }
+  
   if (cmd)
     {
       arg[2] = cmd;
@@ -691,6 +715,66 @@ Pl_M_Spawn(char *arg[])
 
 
 /*-------------------------------------------------------------------------*
+ * SAFE_CLOSE                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Safe_Close(TypeFD fd)
+{
+  int ret = 0;
+  
+  if (fd != NOT_AN_FD)
+    {
+#if defined(__unix__ ) || defined(__CYGWIN__)
+      while((ret = close(fd)) && errno == EINTR)
+	;
+#else
+      ret = !CloseHandle(fd);	/* windows: 0 on error, other on success -  reverse */
+#endif
+    }
+
+  return ret >= 0;		/* unix convention (0 on success, -1 on error) */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * OPEN_NULL_DEVICE                                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static TypeFD
+Open_Null_Device(Bool for_output)
+{
+  static TypeFD fd_null[2] = {NOT_AN_FD, NOT_AN_FD};
+  TypeFD fd = fd_null[for_output];
+
+  if (fd == NOT_AN_FD)
+    {
+#if defined(__unix__ ) || defined(__CYGWIN__)
+      fd = open("/dev/null", (for_output) ? O_WRONLY : O_RDONLY);
+#else
+      SECURITY_ATTRIBUTES sa;
+
+      sa.nLength = sizeof(sa);
+      sa.bInheritHandle = TRUE;	/* childinherits the handle */
+      sa.lpSecurityDescriptor = NULL;
+
+      fd = CreateFile("NUL", (for_output) ? GENERIC_WRITE : GENERIC_READ,
+		      FILE_SHARE_READ|FILE_SHARE_WRITE, &sa, OPEN_EXISTING, 0, NULL);
+
+#endif
+      fd_null[for_output] = fd;
+      
+    }
+
+  return fd;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_M_SPAWN_REDIRECT                                                     *
  *                                                                         *
  * Execute a command with arguments in arg[], (arg[0]=the name of the cmd) *
@@ -698,151 +782,143 @@ Pl_M_Spawn(char *arg[])
  * if arg[1]==(char *) 1 then arg[0] is considered as a command-line.      *
  * detach: 1 for a detached process (cannot obtain its status then).       *
  * f_in, f_out, f_err: ptrs to FILE * vars. if NULL not redirected,        *
- * f_out==f_err the 2 output streams are merged in f_out.                  *
+ *  *f_xxx can be:                                                         *
+ *    - a FILE * (existing file connected to child process)                *
+ *    - M_SPAWN_REDIRECT_NULL (to associate /dev/zero)                     *
+ *    - M_SPAWN_REDIRECT_CREATE (new file is created and *f_xxx is filled) *
+ * if *f_out != M_SPAWN_REDIRECT_CREATE && *f_out == *f_err the 2 output   *
+ *    streams are merged in f_out.                                         *
+ * To merge out and err where both are M_SPAWN_REDIRECT_CREATE, pass same  *
+ *    FILE * address (f_err == f_out).                                     *
  * In case of error return -1 if errno is set or else -2.                  *
  * In case of success, return 0 if detached or the pid else (the function  *
  * Pl_M_Get_Status() should be called later to avoid zombie processes).    *
  *-------------------------------------------------------------------------*/
 int
-Pl_M_Spawn_Redirect(char *arg[], int detach,
-		    FILE **f_in, FILE **f_out, FILE **f_err)
+Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f_err)
 {
+  FILE **file3[3] = { f_in, f_out, f_err };
+  Bool merge_out_err = (file3[2] && file3[1] &&
+			(file3[2] == file3[1] ||
+			 (*file3[2] != M_SPAWN_REDIRECT_CREATE && *file3[2] == *file3[1])));
 #if defined(__unix__ ) || defined(__CYGWIN__)
-  int pipe_in[2], pipe_out[2], pipe_err[2];
-  int pid, status;
 
-  fflush(stdout);
-  fflush(stderr);
+  TypeFD pipe3[3][2];
+  TypeFD fd;
+  int pid, status;
+  int i;
 
   if (arg[1] == (char *) 1)
     arg = Pl_M_Cmd_Line_To_Argv(arg[0], NULL);
 
-  if ((f_in && pipe(pipe_in)) ||
-      (f_out && pipe(pipe_out)) ||
-      (f_err && f_err != f_out && pipe(pipe_err)))
-    goto err;
+  for(i = 0; i < 3; i++)
+    {
+      if (file3[i] && (i != 2 || !merge_out_err))
+	{
+	  if (*file3[i] == M_SPAWN_REDIRECT_CREATE)
+	    {
+	      if (pipe(pipe3[i]))
+		goto err;
+	    }
+	  else
+	    {
+	      if (*file3[i] == M_SPAWN_REDIRECT_NULL)
+		fd = Open_Null_Device(i != 0);
+	      else
+		fd = fileno(*file3[i]);
+
+	      if (fd < 0)
+		goto err;
+	      /* below NOT_AN_FD can be replaced by fd since will be close after dup2 */
+	      pipe3[i][0] = (i == 0) ? fd : NOT_AN_FD;
+	      pipe3[i][1] = (i == 0) ? NOT_AN_FD : fd;	
+	    }
+	}
+    }
 
   pid = (int) fork();
   if (pid == -1)
     goto err;
 
-  if (pid == 0)			/* the child process */
+  if (pid == 0)			/* in the child process */
     {
-      if (!detach || fork() == 0)	/* pid needed ? */
-	{			/* nested fork to detach exec process to avoid zombie process */
-	  if (f_in && (close(pipe_in[1]) ||
-		       (pipe_in[0] != 0 &&
-			(dup2(pipe_in[0], 0) == -1 || close(pipe_in[0])))))
-	    goto err;
-
-	  if (f_out && (close(pipe_out[0]) ||
-			(pipe_out[1] != 1 &&
-			 (dup2(pipe_out[1], 1) == -1
-			  || close(pipe_out[1])))))
-	    goto err;
-
-	  if (f_err)
+      if (detach)		/* detach ? (yes if pid is needed) */
+	setsid();		/* detach to avoid zombie process */
+#if 0		 		/* uncomment to ensure the child will not acquire a terminal */
+      { int pid1;
+	if ((pid1 = fork()) < 0) /* create grandchild to ensure no terminal */
+	  goto err;
+	if (pid1 != 0)
+	  exit(0);		/* terminate child (only remains parent and grandchild) */
+      }
+#endif
+      for(i = 0; i < 3; i++)
+	{
+	  if (file3[i])
 	    {
-	      if (f_err != f_out)
+	      if (i != 2 || !merge_out_err)
 		{
-		  if (close(pipe_err[0]) ||
-		      (pipe_err[1] != 2 &&
-		       (dup2(pipe_err[1], 2) == -1 || close(pipe_err[1]))))
+		  TypeFD fd_for_me = pipe3[i][i != 0]; /* if i==0 use pipe[0] else pipe[1] (close the other) */
+		  TypeFD fd_unused = pipe3[i][i == 0];
+		      
+		  if ((fd_for_me != i && (dup2(fd_for_me, i) == -1 || !Safe_Close(fd_for_me)))
+		      || !Safe_Close(fd_unused))
 		    goto err;
 		}
-	      else if (dup2(1, 2) == -1)
-		goto err;
+	      else		/* here if redirect err on out */
+		{
+		  if (dup2(1, 2) == -1) 
+		    goto err;
+		}
 	    }
-
-	  execvp(arg[0], arg);	/* only returns on error */
-#ifdef DEBUG
-	  DBGPRINTF("ERROR EXEC errno=%d\n", errno);
-#endif
-	  exit((errno == ENOENT || errno == ENOTDIR) ? 126 : 127);
 	}
-      else
-	exit(0);		/* detatch: terminate child */
+
+      execvp(arg[0], arg);	/* only returns on error */
+#ifdef DEBUG
+      DBGPRINTF("ERROR EXEC errno=%d\n", errno);
+#endif
+      exit((errno == ENOENT || errno == ENOTDIR) ? 126 : 127);
     }
 
-  if (detach)			/* wait child termination */
+  /* in the parent */
+  if (detach)
     {
-      if (waitpid(pid, &status, 0) < 0)
+      if (waitpid(pid, &status, 0) < 0)			/* wait child termination */
 	goto err;
       pid = 0;
     }
 
-  if (f_in && (close(pipe_in[0]) ||
-	       (*f_in = fdopen(pipe_in[1], "wt")) == NULL))
-    goto err;
+  for(i = 0; i < 3; i++)
+    {
+      if (file3[i] && *file3[i] == M_SPAWN_REDIRECT_CREATE && (i != 2 || !merge_out_err))
+	{
+	  TypeFD fd_for_me = pipe3[i][i == 0];
+	  TypeFD fd_unused = pipe3[i][i != 0];
+	  char *mode = (i == 0) ? "wt" : "rt";
 
-  if (f_out && (close(pipe_out[1]) ||
-		(*f_out = fdopen(pipe_out[0], "rt")) == NULL))
-    goto err;
-
-  if (f_err && f_err != f_out &&
-      (close(pipe_err[1]) || (*f_err = fdopen(pipe_err[0], "rt")) == NULL))
-    goto err;
+	  if (!Safe_Close(fd_unused) || (*file3[i] = fdopen(fd_for_me, mode)) == NULL)
+	    goto err;
+	}
+    }
 
   return pid;			/* NB: if detach: pid = 0 */
 
-err:
+ err:
   return -1;
 
 #else
 
+  TypeFD pipe3[3][2] = { {NULL, NULL}, {NULL, NULL}, {NULL, NULL} };
+  TypeFD fd;
   int status;
   SECURITY_ATTRIBUTES sa = { 0 };
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
-  HANDLE pipe_in_r = NULL;
-  HANDLE pipe_in_w = NULL;
-  HANDLE pipe_out_r = NULL;
-  HANDLE pipe_out_w = NULL;
-  HANDLE pipe_err_r = NULL;
-  HANDLE pipe_err_w = NULL;
   static char buff[4096];
   char *cmd, *p;
   static char delim[2] = { '\0', '\0' };
   int i, n;
 
-  sa.nLength = sizeof(sa);
-  sa.bInheritHandle = TRUE;
-  sa.lpSecurityDescriptor = NULL;
-
-  if (f_in)
-    {
-      if (!CreatePipe(&pipe_in_r, &pipe_in_w, &sa, 0))
-	goto windows_err;
-      /* Ensure the write handle to the pipe for STDIN is not inherited. */
-      if (!SetHandleInformation(pipe_in_w, HANDLE_FLAG_INHERIT, 0))
-	goto windows_err;
-    }
-
-  if (f_out)
-    {
-      if (!CreatePipe(&pipe_out_r, &pipe_out_w, &sa, 0))
-	goto windows_err;
-      /* Ensure the read handle to the pipe for STDOUT is not inherited. */
-      if (!SetHandleInformation(pipe_out_r, HANDLE_FLAG_INHERIT, 0))
-	goto windows_err;
-    }
-
-  if (f_err && f_err != f_out)
-    {
-      if (!CreatePipe(&pipe_err_r, &pipe_err_w, &sa, 0))
-	goto windows_err;
-      /* Ensure the read handle to the pipe for STDERR is not inherited. */
-      if (!SetHandleInformation(pipe_err_r, HANDLE_FLAG_INHERIT, 0))
-	goto windows_err;
-    }
-
-  ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si);
-  si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW; /* not suer STARTF_USESHOWWINDOW is needed */
-  si.wShowWindow = SW_HIDE;
-  si.hStdInput = (f_in) ? pipe_in_r : GetStdHandle(STD_INPUT_HANDLE);
-  si.hStdOutput = (f_out) ? pipe_out_w : GetStdHandle(STD_OUTPUT_HANDLE);
-  si.hStdError = (f_err) ? ((f_err == f_out) ? pipe_out_w : pipe_err_w) : GetStdHandle(STD_ERROR_HANDLE);
   if (arg[1] == NULL || arg[1] == (char *) 1)
     cmd = arg[0];
   else
@@ -865,11 +941,57 @@ err:
 #ifdef DEBUG
   DBGPRINTF("   cmd=<%s>\n", cmd);
 #endif
-  /* Initially I put the flag DETACHED_PROCESS but under Win32 this creates a console window,
-   * so I put CREATE_NO_WINDOW. With DETACHED_PROCESS, the child does not inherit parent console.
+
+  sa.nLength = sizeof(sa);
+  sa.bInheritHandle = TRUE;	/* child inherits the handle */
+  sa.lpSecurityDescriptor = NULL;
+
+  for(i = 0; i < 3; i++)
+    {
+      if (file3[i] && (i != 2 || !merge_out_err))
+	{
+	  if (*file3[i] == M_SPAWN_REDIRECT_CREATE)
+	    {
+	      if (!CreatePipe(&(pipe3[i][0]), &(pipe3[i][1]), &sa, 0))
+		goto windows_err;
+
+	      /* Ensure the write (resp. read) handle to the pipe 
+	       * for STDIN (resp. STDOUT/STDERR) is not inherited. */
+	      if (!SetHandleInformation(pipe3[i][i == 0], HANDLE_FLAG_INHERIT, FALSE))
+		goto windows_err;
+	    }
+	  else
+	    {
+	      if (*file3[i] == M_SPAWN_REDIRECT_NULL)
+		fd = Open_Null_Device(i != 0);
+	      else
+		fd = (TypeFD) _get_osfhandle(fileno(*file3[i]));
+
+	      if (fd == NOT_AN_FD)
+		goto err;
+	      /* below NOT_AN_FD can be replaced by fd since will be close after dup2 */
+	      pipe3[i][0] = (i == 0) ? fd : NOT_AN_FD;
+	      pipe3[i][1] = (i == 0) ? NOT_AN_FD : fd;	
+	    }
+	}
+    }
+
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW; /* remove STARTF_USESHOWWINDOW if needed */
+  si.wShowWindow = SW_HIDE;
+  si.hStdInput = (f_in) ? pipe3[0][0] : GetStdHandle(STD_INPUT_HANDLE);
+  si.hStdOutput = (f_out) ? pipe3[1][1] : GetStdHandle(STD_OUTPUT_HANDLE);
+  si.hStdError = (f_err) ? ((merge_out_err) ? pipe3[1][1] : pipe3[2][1]) : GetStdHandle(STD_ERROR_HANDLE);
+
+
+  /* Initially, used the flag DETACHED_PROCESS but under Win32 this creates 
+   * a console window, so use CREATE_NO_WINDOW. With DETACHED_PROCESS, the 
+   * child does not inherit parent console.
    * If it is a console app, it creates a new console (thus visible).
-   * With CREATE_NO_WINDOW, a new console (conhost.exe) that doesn't have a window is created
-   * (this seems the better).
+   * With CREATE_NO_WINDOW, a new console (conhost.exe) that doesn't have a 
+   * window is created. This seems an acceptable trade-off but
+   * not fully satisfactory, eg. not OK with process needing a terminal (interactive).
    */
   if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE,
 		     (detach) ? CREATE_NO_WINDOW : 0, NULL, NULL, &si, &pi))
@@ -886,25 +1008,21 @@ err:
       goto windows_err;
     }
 
-  if ((f_in && !CloseHandle(pipe_in_r)) ||
-      (f_out && !CloseHandle(pipe_out_w)) ||
-      (f_err && f_err != f_out && !CloseHandle(pipe_err_w)))
-    goto windows_err;
+  for(i = 0; i < 3; i++)
+    {
+      if (file3[i] && *file3[i] == M_SPAWN_REDIRECT_CREATE && (i != 2 || !merge_out_err))
+	{
+	  TypeFD fd_for_me = pipe3[i][i == 0];
+	  TypeFD fd_unused = pipe3[i][i != 0];
+	  char *mode = (i == 0) ? "wt" : "rt";
 
-  if (f_in &&
-      (*f_in =
-       fdopen(_open_osfhandle((PlLong) pipe_in_w, _O_TEXT), "wt")) == NULL)
-    goto err;
+	  if (!Safe_Close(fd_unused))
+	    goto windows_err;
 
-  if (f_out &&
-      (*f_out =
-       fdopen(_open_osfhandle((PlLong) pipe_out_r, _O_TEXT), "rt")) == NULL)
-    goto err;
-
-  if (f_err && f_err != f_out &&
-      (*f_err =
-       fdopen(_open_osfhandle((PlLong) pipe_err_r, _O_TEXT), "rt")) == NULL)
-    goto err;
+	  if ((*file3[i] = fdopen(_open_osfhandle((PlLong) fd_for_me, _O_TEXT), mode)) == NULL)
+	    goto err;
+	}
+    }
 
   /* return (detach) ? 0 : (int) pi.hProcess;
    * JAT: Changed to use id rather than handle (64 bits) because of fixed bitness
@@ -912,10 +1030,10 @@ err:
    */
   return (detach) ? 0 : pi.dwProcessId;
 
-err:
+ err:
   return -1;
 
-windows_err:
+ windows_err:
   return M_ERROR_WIN32;
 #endif
 }
@@ -1003,8 +1121,7 @@ Pl_M_Mktemp(char *tmpl)
   static PlULong value;
   int count;
   struct stat buf;
-  static const char letters[] =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  static const char letters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 #ifndef TMP_MAX
 #define TMP_MAX 238328

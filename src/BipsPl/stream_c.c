@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management - C part                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -438,15 +438,8 @@ Pl_Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
 
   pstm->prop.text = text;
 #if defined(_WIN32) || defined(__CYGWIN__)
-  {
-    FILE *f;
-
-    f = Pl_Stdio_Desc_Of_Stream(stm);
-    if (f == NULL)
-      return;
-
-    setmode(fileno(f), (text) ? O_TEXT : O_BINARY);
-  }
+  if (pstm->fileno >= 0)
+    setmode(pstm->fileno, (text) ? O_TEXT : O_BINARY);
 #endif
 }
 
@@ -516,7 +509,7 @@ void
 Pl_Close_Stm(int stm, Bool force)
 {
   StmInf *pstm = pl_stm_tbl[stm];
-  int fd = 0;
+  int fd;
   Bool keep_stream;
 
   if (pstm->prop.special_close)
@@ -529,8 +522,7 @@ Pl_Close_Stm(int stm, Bool force)
   else
     {
       keep_stream = FALSE;
-      if (pstm->fct_close == fclose)
-	fd = fileno((FILE *) (pstm->file));
+      fd = pstm->fileno;	/* -1 if none */
 
       if (Pl_Stream_Close(pstm) != 0)
 	{
@@ -777,6 +769,25 @@ Pl_Stream_Prop_Type_2(WamWord type_word, WamWord stm_word)
   atom = (pl_stm_tbl[stm]->prop.text) ? pl_atom_text : pl_atom_binary;
 
   return Pl_Un_Atom_Check(atom, type_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_STREAM_PROP_FILE_NO                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Stream_Prop_File_No_2(WamWord file_no_word, WamWord stm_word)
+{
+  int stm;
+  int fd;
+
+  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  fd = pl_stm_tbl[stm]->fileno;
+
+  return fd >= 0 && Pl_Un_Integer_Check(fd, file_no_word);
 }
 
 
