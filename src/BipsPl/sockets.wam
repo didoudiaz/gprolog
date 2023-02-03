@@ -1,0 +1,136 @@
+% compiler: GNU Prolog 1.5.1
+% file    : sockets.pl
+
+
+file_name('/home/diaz/GP/src/BipsPl/sockets.pl').
+
+
+predicate('$use_sockets'/0,41,static,private,monofile,built_in,[
+    proceed]).
+
+
+predicate(socket/2,44,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket,2]),
+    call_c('Pl_Socket_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(socket_close/1,51,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_close,1]),
+    call_c('Pl_Socket_Close_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate(socket_bind/2,58,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_bind,2]),
+    call_c('Pl_Socket_Bind_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(socket_connect/4,65,static,private,monofile,built_in,[
+    allocate(5),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),3),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_connect,4]),
+    put_value(x(2),0),
+    put_variable(y(3),1),
+    call('$get_open_stm'/2),
+    put_value(y(2),0),
+    put_variable(y(4),1),
+    call('$get_open_stm'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_unsafe_value(y(3),2),
+    put_unsafe_value(y(4),3),
+    deallocate,
+    call_c('Pl_Socket_Connect_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate(socket_listen/2,74,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_listen,2]),
+    call_c('Pl_Socket_Listen_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(socket_accept/3,81,static,private,monofile,built_in,[
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),2),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_accept,3]),
+    put_value(x(1),0),
+    put_variable(y(2),1),
+    call('$get_open_stm'/2),
+    put_value(y(1),0),
+    put_variable(y(3),1),
+    call('$get_open_stm'/2),
+    put_value(y(0),0),
+    put_void(1),
+    put_unsafe_value(y(2),2),
+    put_unsafe_value(y(3),3),
+    deallocate,
+    call_c('Pl_Socket_Accept_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate(socket_accept/4,88,static,private,monofile,built_in,[
+    allocate(6),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[socket_accept,4]),
+    put_value(y(1),0),
+    call('$socket_accept/4_$aux1'/1),
+    put_value(y(2),0),
+    put_variable(y(4),1),
+    call('$get_open_stm'/2),
+    put_value(y(3),0),
+    put_variable(y(5),1),
+    call('$get_open_stm'/2),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_unsafe_value(y(4),2),
+    put_unsafe_value(y(5),3),
+    deallocate,
+    call_c('Pl_Socket_Accept_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate('$socket_accept/4_$aux1'/1,88,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    execute('$pl_err_uninstantiation'/1)]).
+
+
+predicate('$assoc_socket_streams'/3,101,static,private,monofile,built_in,[
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),2),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],['$assoc_socket_streams',3]),
+    put_value(x(1),0),
+    put_variable(y(2),1),
+    call('$get_open_stm'/2),
+    put_value(y(1),0),
+    put_variable(y(3),1),
+    call('$get_open_stm'/2),
+    put_value(y(0),0),
+    put_unsafe_value(y(2),1),
+    put_unsafe_value(y(3),2),
+    deallocate,
+    call_c('Pl_Assoc_Socket_Streams_3',[boolean],[x(0),x(1),x(2)]),
+    proceed]).
+
+
+predicate(hostname_address/2,110,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[hostname_address,2]),
+    call_c('Pl_Hostname_Address_2',[boolean],[x(0),x(1)]),
+    proceed]).

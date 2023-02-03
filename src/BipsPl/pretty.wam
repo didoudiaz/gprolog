@@ -1,0 +1,325 @@
+% compiler: GNU Prolog 1.5.1
+% file    : pretty.pl
+
+
+file_name('/home/diaz/GP/src/BipsPl/pretty.pl').
+
+
+predicate('$use_pretty'/0,41,static,private,monofile,built_in,[
+    proceed]).
+
+
+predicate(portray_clause/1,44,static,private,monofile,built_in,[
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),0),
+    put_value(y(0),0),
+    put_integer(1,1),
+    put_variable(y(1),2),
+    call('$portray_clause'/3),
+    put_value(y(0),0),
+    put_unsafe_value(y(1),1),
+    call_c('Pl_Portray_Clause_2',[],[x(0),x(1)]),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate(portray_clause/2,54,static,private,monofile,built_in,[
+    try_me_else(1),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(1),0),
+    put_integer(2,1),
+    put_variable(y(2),2),
+    call('$portray_clause'/3),
+    put_value(y(0),0),
+    put_value(y(1),1),
+    put_unsafe_value(y(2),2),
+    call_c('Pl_Portray_Clause_3',[],[x(0),x(1),x(2)]),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate('$portray_clause'/3,64,static,private,monofile,built_in,[
+    try_me_else(1),
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(x(2),0),
+    call('$get_current_B'/1),
+    put_atom(portray_clause,0),
+    put_value(y(1),1),
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    put_value(y(0),0),
+    call('$$portray_clause/3_$aux1'/1),
+    put_value(y(0),0),
+    call('$$portray_clause/3_$aux2'/1),
+    put_value(y(0),0),
+    call(name_singleton_vars/1),
+    put_value(y(0),0),
+    put_structure(exclude/1,2),
+    unify_list,
+    unify_local_value(y(0)),
+    unify_nil,
+    put_list(1),
+    unify_value(x(2)),
+    unify_nil,
+    call(bind_variables/2),
+    put_atom(portray_clause,0),
+    put_value(y(1),1),
+    deallocate,
+    call_c('Pl_Set_Bip_Name_2',[],[x(0),x(1)]),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    fail]).
+
+
+predicate('$$portray_clause/3_$aux2'/1,64,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(callable,0),
+    execute('$pl_err_type'/2)]).
+
+
+predicate('$$portray_clause/3_$aux1'/1,64,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate(name_singleton_vars/1,84,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_singleton_vars,1]),
+    call_c('Pl_Name_Singleton_Vars_1',[],[x(0)]),
+    proceed]).
+
+
+predicate(name_query_vars/2,91,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_query_vars,2]),
+    call_c('Pl_Name_Query_Vars_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(bind_variables/2,100,static,private,monofile,built_in,[
+    allocate(5),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[bind_variables,2]),
+    call('$set_bind_variables_defaults'/0),
+    put_value(y(1),0),
+    put_variable(y(2),1),
+    put_variable(y(3),2),
+    put_variable(y(4),3),
+    call('$get_bind_variables_options'/4),
+    put_value(y(0),0),
+    put_unsafe_value(y(2),1),
+    put_unsafe_value(y(3),2),
+    put_unsafe_value(y(4),3),
+    deallocate,
+    execute('$bind_variables'/4)]).
+
+
+predicate('$bind_variables'/4,107,static,private,monofile,built_in,[
+    call_c('Pl_Bind_Variables_4',[boolean],[x(0),x(1),x(2),x(3)]),
+    proceed]).
+
+
+predicate('$set_bind_variables_defaults'/0,113,static,private,monofile,built_in,[
+    put_integer(0,0),
+    put_integer(0,1),
+    execute('$sys_var_write'/2)]).
+
+
+predicate('$get_bind_variables_options'/4,119,static,private,monofile,built_in,[
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    put_value(y(0),0),
+    call('$check_list'/1),
+    put_atom('$bind_exclude',0),
+    put_nil(1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_atom('$bind_from',0),
+    put_integer(0,1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_atom('$bind_next',0),
+    put_void(1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_value(y(0),0),
+    call('$get_bind_variables_options1'/1),
+    put_atom('$bind_exclude',0),
+    put_value(y(1),1),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom('$bind_from',0),
+    put_value(y(2),1),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom('$bind_next',0),
+    put_value(y(3),1),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    deallocate,
+    proceed]).
+
+
+predicate('$get_bind_variables_options1'/1,130,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    switch_on_term(1,2,fail,4,fail),
+
+label(1),
+    try_me_else(3),
+
+label(2),
+    get_nil(0),
+    proceed,
+
+label(3),
+    trust_me_else_fail,
+
+label(4),
+    allocate(2),
+    get_list(0),
+    unify_variable(x(0)),
+    unify_variable(y(0)),
+    get_variable(y(1),1),
+    call('$get_bind_variables_options2'/1),
+    cut(y(1)),
+    put_value(y(0),0),
+    deallocate,
+    execute('$get_bind_variables_options1'/1)]).
+
+
+predicate('$get_bind_variables_options2'/1,137,static,private,monofile,built_in,[
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    execute('$pl_err_instantiation'/0),
+
+label(1),
+    retry_me_else(14),
+    switch_on_term(4,2,fail,fail,3),
+
+label(2),
+    switch_on_atom([(numbervars,11),(namevars,13)]),
+
+label(3),
+    switch_on_structure([(exclude/1,5),(from/1,7),(next/1,9)]),
+
+label(4),
+    try_me_else(6),
+
+label(5),
+    get_structure(exclude/1,0),
+    unify_variable(x(1)),
+    put_atom('$bind_exclude',0),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    allocate(1),
+    get_structure(from/1,0),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    put_atom('$bind_from',0),
+    put_value(y(0),1),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    allocate(1),
+    get_structure(next/1,0),
+    unify_variable(y(0)),
+    put_value(y(0),0),
+    call('$check_nonvar'/1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    put_atom('$bind_next',0),
+    put_value(y(0),1),
+    call_c('Pl_Blt_G_Link',[fast_call],[x(0),x(1)]),
+    deallocate,
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_atom(numbervars,0),
+    put_integer(0,0),
+    put_integer(0,1),
+    execute('$sys_var_write'/2),
+
+label(12),
+    trust_me_else_fail,
+
+label(13),
+    get_atom(namevars,0),
+    put_integer(0,0),
+    put_integer(1,1),
+    execute('$sys_var_write'/2),
+
+label(14),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(var_binding_option,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate(numbervars/1,164,static,private,monofile,built_in,[
+    allocate(1),
+    get_variable(y(0),0),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,1]),
+    call('$set_bind_variables_defaults'/0),
+    put_value(y(0),0),
+    put_nil(1),
+    put_integer(0,2),
+    put_void(3),
+    deallocate,
+    execute('$bind_variables'/4)]).
+
+
+predicate(numbervars/3,170,static,private,monofile,built_in,[
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,3]),
+    call('$set_bind_variables_defaults'/0),
+    put_value(y(0),0),
+    put_nil(1),
+    put_value(y(1),2),
+    put_value(y(2),3),
+    deallocate,
+    execute('$bind_variables'/4)]).
