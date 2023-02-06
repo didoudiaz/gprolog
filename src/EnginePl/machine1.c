@@ -757,7 +757,7 @@ Open_Null_Device(Bool for_output)
       SECURITY_ATTRIBUTES sa;
 
       sa.nLength = sizeof(sa);
-      sa.bInheritHandle = TRUE;	/* childinherits the handle */
+      sa.bInheritHandle = TRUE;	/* child inherits the handle */
       sa.lpSecurityDescriptor = NULL;
 
       fd = CreateFile("NUL", (for_output) ? GENERIC_WRITE : GENERIC_READ,
@@ -910,7 +910,7 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 
   TypeFD pipe3[3][2] = { {NULL, NULL}, {NULL, NULL}, {NULL, NULL} };
   TypeFD fd;
-  int status;
+  int pid, status;
   SECURITY_ATTRIBUTES sa = { 0 };
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
@@ -994,7 +994,7 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
    * not fully satisfactory, eg. not OK with process needing a terminal (interactive).
    */
   if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE,
-		     (detach) ? CREATE_NO_WINDOW : 0, NULL, NULL, &si, &pi))
+		     (detach) ? /*CREATE_NO_WINDOW|*/CREATE_BREAKAWAY_FROM_JOB : 0, NULL, NULL, &si, &pi))
     {
       status = GetLastError();
 #ifdef DEBUG
@@ -1024,12 +1024,35 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 	}
     }
 
-  /* return (detach) ? 0 : (int) pi.hProcess;
-   * JAT: Changed to use id rather than handle (64 bits) because of fixed bitness
-   * OpenProcess function may be needed else where to get handle back
+  /* Use id (pi.hProcess) rather than handle (pi.hProcess) which is 64 bits.
+   * OpenProcess can be used to get handle back
    */
-  return (detach) ? 0 : pi.dwProcessId;
+  pid = (int) pi.dwProcessId;
 
+  if (detach)
+    {
+#if 0
+      status = Pl_M_Get_Status(pid);
+      if (status == M_ERROR_WIN32)
+	goto windows_err;
+
+#else
+      HANDLE phandle = pi.hProcess;
+      HANDLE handleJob = CreateJobObject(NULL, NULL);
+      AssignProcessToJobObject(handleJob, pi.hProcess);
+
+      				/* wait child termination */
+      if (WaitForSingleObject(phandle, INFINITE) == WAIT_FAILED ||
+	  !GetExitCodeProcess(phandle, (LPDWORD) &status))
+	goto windows_err;
+#endif
+      CloseHandle(pi.hThread);
+      CloseHandle(pi.hProcess);
+      pid = 0;
+    }
+
+  return pid;			/* NB: if detach: pid = 0 */
+  
  err:
   return -1;
 
@@ -1069,8 +1092,8 @@ Pl_M_Get_Status(int pid)
 
 #elif defined(_WIN32)
 
-  /* JAT: See above
-   * DD (bug XP/Vista) HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
+  /* Use OpenProcess to get back handle from process id (see above).
+   * (bug on XP/Vista) HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
    */
   HANDLE phandle = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, 1, pid);
 

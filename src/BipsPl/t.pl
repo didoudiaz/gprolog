@@ -323,3 +323,5 @@ i :-
 i(X) :-
 	exec('info', user_input, user_output, user_error, X).
 
+m :-
+	exec(ls, null, user_output, null).
