@@ -202,7 +202,7 @@ Pl_LE_Initialize(void)
   if (!use_linedit)
     return (le_mode = LE_MODE_DEACTIVATED);
 
-   le_mode = LE_MODE_TTY;	/* default */
+  le_mode = LE_MODE_TTY;	/* default */
 
 
 #if defined(__unix__) || defined(__CYGWIN__)

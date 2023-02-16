@@ -74,7 +74,7 @@ void Pl_M_Set_Seed(int n);
 
 int Pl_M_Get_Seed(void);
 
-int Pl_M_Random_Integer(int n);
+PlLong Pl_M_Random_Integer(PlLong n);
 
 double Pl_M_Random_Float(double n);
 

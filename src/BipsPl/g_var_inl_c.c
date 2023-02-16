@@ -70,7 +70,7 @@ typedef struct gundo *PGUndo;
 
 typedef struct			/* Global variable element        */
 {				/* ------------------------------ */
-  int size;			/* <0:-array dim, 0:link, >0:copy */
+  PlLong size;			/* <0:-array dim, 0:link, >0:copy */
   WamWord val;			/* ptr to GVarElt or term or adr  */
   PGUndo undo;			/* ptr to 1st undo for this elem  */
 }
@@ -82,7 +82,7 @@ GVarElt;
 typedef struct gundo		/* Undo record                    */
 {				/* ------------------------------ */
   GVarElt *g_elem;		/* elem to restore (NULL=invalid) */
-  int save_size;		/* size to restore                */
+  PlLong save_size;		/* size to restore                */
   WamWord save_val;		/* value to restore               */
   PGUndo next;			/* chain to next undo entry       */
   PGUndo prev;			/* chain to previous undo entry   */
@@ -127,7 +127,7 @@ static void G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word);
 static void G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
 			   Bool backtrack, Bool copy);
 
-static GVarElt *G_Alloc_Array(GVarElt *g_elem, int new_size, Bool backtrack);
+static GVarElt *G_Alloc_Array(GVarElt *g_elem, PlLong new_size, Bool backtrack);
 
 static GTarget *Get_Target_From_Gvar(WamWord gvar_word);
 
@@ -145,8 +145,7 @@ static void G_Free_Element(GVarElt *g_elem, Bool reinit_undo);
 
 static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem);
 
-static void G_Trail_For_Backtrack(GVarElt *g_elem, int save_size,
-				  WamWord save_val);
+static void G_Trail_For_Backtrack(GVarElt *g_elem, PlLong  save_size, WamWord save_val);
 
 static void G_Untrail(int n, WamWord *arg_frame);
 
@@ -547,14 +546,13 @@ G_Assign(WamWord gvar_word, WamWord gval_word, Bool backtrack, Bool copy)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack,
-		 Bool copy)
+G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack, Bool copy)
 {
   WamWord word, tag_mask;
   WamWord *adr;
-  int size;
+  PlLong size;
   int atom;
-  int save_size;
+  PlLong save_size;
   WamWord save_val;
   int array_op;
 
@@ -625,7 +623,7 @@ static void
 G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word)
 {
   WamWord *adr;
-  int size;
+  PlLong size;
   GUndo *u;
 
   if (Pl_Term_Size(*g_arg) == 1 && Pl_Term_Size(word) == 1)
@@ -668,19 +666,17 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
 	       Bool backtrack, Bool copy)
 {
   WamWord word, tag_mask;
-  PlLong arity;
+  int arity;
   Bool same_init_value;
   WamWord init_word = 0;	/* init for the compiler */
   WamWord lst_word = 0;		/* init for the compiler */
-  PlLong new_size, size;
+  PlLong new_size, size, i;
   GVarElt *p;
-  int i;
 
   arity = Arity(stc_adr);
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);
-  new_size = (tag_mask == TAG_LST_MASK) ? Pl_List_Length(word) :
-    UnTag_INT(word);
+  new_size = (tag_mask == TAG_LST_MASK) ? Pl_List_Length(word) : UnTag_INT(word);
 
   if (!(new_size > 0 && ((tag_mask == TAG_INT_MASK && arity <= 2) ||
 			 (tag_mask == TAG_LST_MASK && arity == 1))))
@@ -771,11 +767,11 @@ G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
  * point to new cells (realloc can return a different starting address).   *
  *-------------------------------------------------------------------------*/
 static GVarElt *
-G_Alloc_Array(GVarElt *g_elem, int new_size, Bool backtrack)
+G_Alloc_Array(GVarElt *g_elem, PlLong new_size, Bool backtrack)
 {
   GVarElt *p, *p_new_end, *src, *dst;
   GUndo *u;
-  int old_size, i;
+  PlLong old_size, i;
 
   old_size = -g_elem->size;
   src = (GVarElt *) g_elem->val;
@@ -843,7 +839,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
   WamWord *arg_adr;
   GVarElt *g_elem, *g_end;
   GVarElt *p;
-  int i, j, size;
+  PlLong i, j, size;
   int new_size;
   PlLong index;
   GTarget *gt = &g_target;
@@ -1066,10 +1062,9 @@ Get_Int_From_Word(WamWord start_word)
 static void
 G_Free_Element(GVarElt *g_elem, Bool reinit_undo)
 {
-  int size;
+  PlLong size, i;
   GVarElt *p;
   GUndo *u;
-  int i;
 
   if (reinit_undo)
     {
@@ -1111,8 +1106,7 @@ G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
 {
   WamWord *adr;
   GVarElt *p;
-  int size;
-  int i;
+  PlLong size, i;
 
   size = dst_g_elem->size = src_g_elem->size;
   dst_g_elem->undo = NULL;
@@ -1162,7 +1156,7 @@ G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-G_Trail_For_Backtrack(GVarElt *g_elem, int save_size, WamWord save_val)
+G_Trail_For_Backtrack(GVarElt *g_elem, PlLong save_size, WamWord save_val)
 {
   WamWord arg_frame[1];
   GUndo *u = (GUndo *) Malloc(sizeof(GUndo));
@@ -1251,9 +1245,8 @@ static Bool
 G_Read_Element(GVarElt *g_elem, WamWord gval_word)
 {
   WamWord word;
-  int size = g_elem->size;
+  PlLong size = g_elem->size, i;
   GVarElt *p;
-  int i;
 
 
   if (size == 0)		/* a link: unify */
@@ -1304,7 +1297,7 @@ G_Array_Size(WamWord gvar_word, WamWord size_word)
   GTarget *gt = Get_Target_From_Gvar(gvar_word);
   GVarElt *g_elem = gt->g_elem;
   WamWord *g_arg = gt->g_arg;
-  int size;
+  PlLong size;
 
   Pl_Check_For_Un_Integer(size_word);
 
@@ -1364,7 +1357,7 @@ G_Set_Bit(WamWord gvar_word, WamWord bit_word)
   PlULong mask;
 
   adr = Get_Int_Addr_From_Gvar(gvar_word);
-  mask = 1 << (bit + TAG_SIZE_LOW);
+  mask = (PlULong) 1 << (bit + TAG_SIZE_LOW);
   *adr |= mask;
 }
 
@@ -1383,7 +1376,7 @@ G_Reset_Bit(WamWord gvar_word, WamWord bit_word)
   PlULong mask;
 
   adr = Get_Int_Addr_From_Gvar(gvar_word);
-  mask = 1 << (bit + TAG_SIZE_LOW);
+  mask = (PlULong) 1 << (bit + TAG_SIZE_LOW);
   *adr &= ~mask;
 }
 
@@ -1401,7 +1394,7 @@ G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word)
   PlULong val, mask;
 
   val = Get_Int_From_Gvar(gvar_word);
-  mask = 1 << (bit + TAG_SIZE_LOW);
+  mask = (PlULong) 1 << (bit + TAG_SIZE_LOW);
   return (val & mask) != 0;
 }
 
@@ -1419,7 +1412,7 @@ G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word)
   PlULong mask, val;
 
   val = Get_Int_From_Gvar(gvar_word);
-  mask = 1 << (bit + TAG_SIZE_LOW);
+  mask = (PlULong) 1 << (bit + TAG_SIZE_LOW);
   return (val & mask) == 0;
 }
 

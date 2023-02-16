@@ -78,8 +78,8 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
   if (returned_word == NOT_A_WAM_WORD)				\
     {								\
       Pl_Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
-		   ? Flag_Value(syntax_error)		\
-		   : SYS_VAR_SYNTAX_ERROR_ACTON);		\
+		      ? (int) Flag_Value(syntax_error)		\
+		      : SYS_VAR_SYNTAX_ERROR_ACTON);		\
       return FALSE;						\
     }								\
 								\
@@ -136,7 +136,7 @@ Pl_Read_Term_5(WamWord sora_word, WamWord term_word,
 	  pl_glob_dico_var[i] = Pl_Create_Allocate_Atom(pl_parse_dico_var[i].name);
 
 	  word = Pl_Put_Structure(ATOM_CHAR('='), 2);
-	  Pl_Unify_Atom(pl_glob_dico_var[i]);
+	  Pl_Unify_Atom((int) pl_glob_dico_var[i]);
 	  Pl_Unify_Value(pl_parse_dico_var[i].word);
 
 	  if (!Pl_Get_List(var_names_word) || !Pl_Unify_Value(word))
@@ -162,7 +162,7 @@ Pl_Read_Term_5(WamWord sora_word, WamWord term_word,
 	    pl_glob_dico_var[i] = Pl_Create_Allocate_Atom(pl_parse_dico_var[i].name);
 
 	  word = Pl_Put_Structure(ATOM_CHAR('='), 2);
-	  Pl_Unify_Atom(pl_glob_dico_var[i]);
+	  Pl_Unify_Atom((int) pl_glob_dico_var[i]);
 	  Pl_Unify_Value(pl_parse_dico_var[i].word);
 
 	  if (!Pl_Get_List(sing_names_word) || !Pl_Unify_Value(word))
@@ -464,8 +464,8 @@ Pl_Current_Char_Conversion_Alt_0(void)
 
   in_char_word = AB(B, 0);
   out_char_word = AB(B, 1);
-  c_in = AB(B, 2);
-  c_out = AB(B, 3);
+  c_in = (int) AB(B, 2);
+  c_out = (int) AB(B, 3);
 
   c_in1 = c_in;
   Find_Next_Char_Conversion(c_in1, c_out1);

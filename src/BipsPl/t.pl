@@ -280,7 +280,7 @@ z4 :-
 	write(executing(PID)), nl, 
 	open('~/wordnet-prolog/wn_valid.pl', read, _, [alias(w)]), 
 	repeat, 
-	get_char(w, C), 
+	get_char(w, C),
 	(   C == end_of_file ; write(X, C), fail ), !, 
 	closeall, 
 	wait(PID, _).
@@ -320,6 +320,8 @@ test :-
 i :-
 	exec('info', user_input, user_output, user_error).
 
-i(X) :-
-	exec('info', user_input, user_output, user_error, X).
+i(S) :-
+	exec('info', user_input, user_output, user_error, X), wait(X,S).
 
+m :-
+	exec(ls, null, user_output, null).

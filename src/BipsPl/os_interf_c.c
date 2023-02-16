@@ -402,7 +402,7 @@ Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
   FILE *f_in = NULL, *f_out = NULL;
   int is_dir;
   char *base, *suffix;
-  int size_rd;
+  size_t size_rd;
   char buff[BUFSIZ];
 
   strcpy(path_name1, Get_Path_Name(path_name1_word));
@@ -435,12 +435,12 @@ Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
 
   while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
     {
-      int size_left = size_rd;
+      size_t size_left = size_rd;
       int try_wr = 0;
       char *p = buff;
       while(size_left > 0)
 	{
-	  int size_wr = fwrite(p, 1, size_left, f_out);
+	  size_t size_wr = fwrite(p, 1, size_left, f_out);
 	  if (size_wr > 0)
 	    {
 	      size_left -= size_wr;

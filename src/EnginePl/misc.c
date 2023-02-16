@@ -88,7 +88,7 @@ Init_Dl_Malloc(void) {
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Malloc_Check(unsigned size, char *src_file, int src_line)
+Pl_Malloc_Check(size_t size, char *src_file, int src_line)
 {
   char *m = malloc(size);
 
@@ -106,7 +106,7 @@ Pl_Malloc_Check(unsigned size, char *src_file, int src_line)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file, int src_line)
+Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line)
 {
   char *m = calloc(nb, size);
 
@@ -124,7 +124,7 @@ Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file, int src_line)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line)
+Pl_Realloc_Check(char *ptr, size_t size, char *src_file, int src_line)
 {
   char *m = realloc(ptr, size);
 

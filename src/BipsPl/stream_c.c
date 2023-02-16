@@ -428,7 +428,7 @@ Pl_Set_Stream_Type_2(WamWord sora_word, WamWord is_text_word)
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
 
-  text = Pl_Rd_Integer_Check(is_text_word);
+  text = Pl_Rd_C_Int_Check(is_text_word);
   if ((unsigned) text == pstm->prop.text)
     return;
 
@@ -463,7 +463,7 @@ Pl_Set_Stream_Eof_Action_2(WamWord sora_word, WamWord action_word)
     Pl_Err_Permission(pl_permission_operation_modify,
 		      pl_permission_type_stream, sora_word);
 
-  pstm->prop.eof_action = Pl_Rd_Integer_Check(action_word);
+  pstm->prop.eof_action = Pl_Rd_C_Int_Check(action_word);
 }
 
 
@@ -482,7 +482,7 @@ Pl_Set_Stream_Buffering_2(WamWord sora_word, WamWord buff_mode_word)
   stm = Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_EXIST);
   pstm = pl_stm_tbl[stm];
 
-  pstm->prop.buffering = Pl_Rd_Integer_Check(buff_mode_word);
+  pstm->prop.buffering = Pl_Rd_C_Int_Check(buff_mode_word);
   Pl_Set_Stream_Buffering(stm);
 }
 
@@ -598,7 +598,7 @@ Bool
 Pl_Current_Stream_1(WamWord stm_word)
 {
   WamWord word, tag_mask;
-  int stm = 0;
+  PlLong stm = 0;
 
 
   DEREF(stm_word, word, tag_mask);	/* either an INT or a REF */
@@ -621,8 +621,7 @@ Pl_Current_Stream_1(WamWord stm_word)
     {
       A(0) = stm_word;
       A(1) = stm + 1;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_STREAM_ALT, 0),
-			  2);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_STREAM_ALT, 0), 2);
     }
 
   return Pl_Get_Integer(stm, stm_word);
@@ -644,7 +643,7 @@ Pl_Current_Stream_Alt_0(void)
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_STREAM_ALT, 0), 0);
 
   stm_word = AB(B, 0);
-  stm = AB(B, 1);
+  stm = (int) AB(B, 1);
 
   for (; stm <= pl_stm_last_used; stm++)
     if (pl_stm_tbl[stm])
@@ -679,7 +678,7 @@ Pl_Stream_Prop_File_Name_2(WamWord file_name_word, WamWord stm_word)
 {
   int stm;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   return Pl_Un_Atom_Check(pl_stm_tbl[stm]->atom_file_name, file_name_word);
 }
@@ -697,7 +696,7 @@ Pl_Stream_Prop_Mode_2(WamWord mode_word, WamWord stm_word)
   int stm;
   int atom = 0;			/* init for the compiler */
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   switch (pl_stm_tbl[stm]->prop.mode)
     {
@@ -729,7 +728,7 @@ Pl_Stream_Prop_Input_1(WamWord stm_word)
 {
   int stm;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   return pl_stm_tbl[stm]->prop.input;
 }
@@ -746,7 +745,7 @@ Pl_Stream_Prop_Output_1(WamWord stm_word)
 {
   int stm;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   return pl_stm_tbl[stm]->prop.output;
 }
@@ -764,7 +763,7 @@ Pl_Stream_Prop_Type_2(WamWord type_word, WamWord stm_word)
   int stm;
   int atom;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   atom = (pl_stm_tbl[stm]->prop.text) ? pl_atom_text : pl_atom_binary;
 
@@ -784,7 +783,7 @@ Pl_Stream_Prop_File_No_2(WamWord file_no_word, WamWord stm_word)
   int stm;
   int fd;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
   fd = pl_stm_tbl[stm]->fileno;
 
   return fd >= 0 && Pl_Un_Integer_Check(fd, file_no_word);
@@ -803,7 +802,7 @@ Pl_Stream_Prop_Reposition_2(WamWord reposition_word, WamWord stm_word)
   int stm;
   int atom;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   atom = (pl_stm_tbl[stm]->prop.reposition) ? pl_atom_true : pl_atom_false;
 
@@ -823,7 +822,7 @@ Pl_Stream_Prop_Eof_Action_2(WamWord eof_action_word, WamWord stm_word)
   int stm;
   int atom = 0;			/* init for the compiler */
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   switch (pl_stm_tbl[stm]->prop.eof_action)
     {
@@ -856,7 +855,7 @@ Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
   int stm;
   int atom = 0;			/* init for the compiler */
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
 #ifndef NO_USE_LINEDIT		/* if GUI: ask it for buffering */
   if (pl_stm_tbl[stm]->file == (PlLong) stdout && pl_le_hook_get_line_buffering)
@@ -899,7 +898,7 @@ Pl_Stream_Prop_End_Of_Stream_2(WamWord end_of_stream_word, WamWord stm_word)
   int stm;
   int atom = 0;			/* init for the compiler */
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   switch (Pl_Stream_End_Of_Stream(pl_stm_tbl[stm]))
     {
@@ -966,7 +965,7 @@ Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
   AliasInf *alias;
   AliasInf *save_alias;
 
-  stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
   DEREF(alias_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
@@ -998,11 +997,10 @@ Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
       A(3) = (WamWord) scan.cur_t;
       A(4) = (WamWord) scan.cur_p;
       A(5) = (WamWord) alias;
-      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_ALIAS_ALT, 0),
-			  6);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_ALIAS_ALT, 0), 6);
     }
 
-  Pl_Get_Atom(save_alias->atom, alias_word);
+  Pl_Get_Atom((int) save_alias->atom, alias_word);
   return TRUE;
 }
 
@@ -1025,7 +1023,7 @@ Pl_Current_Alias_Alt_0(void)
 
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_ALIAS_ALT, 0), 0);
 
-  stm = AB(B, 0);
+  stm = (int) AB(B, 0);
   alias_word = AB(B, 1);
   scan.endt = (char *) AB(B, 2);
   scan.cur_t = (char *) AB(B, 3);
@@ -1057,7 +1055,7 @@ Pl_Current_Alias_Alt_0(void)
   else
     Delete_Last_Choice_Point();
 
-  Pl_Get_Atom(save_alias->atom, alias_word);
+  Pl_Get_Atom((int) save_alias->atom, alias_word);
   return TRUE;
 }
 
@@ -1071,7 +1069,7 @@ Pl_Current_Alias_Alt_0(void)
 Bool
 Pl_Current_Mirror_2(WamWord stm_word, WamWord m_stm_word)
 {
-  int stm = Pl_Rd_Integer_Check(stm_word);	/* stm is a valid stream entry */
+  int stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
   StmInf *pstm = pl_stm_tbl[stm];
   StmLst *m = pstm->mirror;
 
@@ -1181,7 +1179,7 @@ Pl_Set_Stream_Position_2(WamWord sora_word, WamWord position_word)
 {
   WamWord word, tag_mask;
   WamWord p_word[4];
-  int p[4];
+  PlLong p[4];
   int i;
   int stm;
   StmInf *pstm;

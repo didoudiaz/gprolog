@@ -138,11 +138,13 @@ break :-
 '$reinit_after_exception' :-
 % g_read('$char_conv', CharConv),
 % set_prolog_flag(char_conversion, CharConv),
-	(   '$sys_var_read'(12, 1) ->
-	    g_read('$user_prompt', UserPrompt),
-	    '$set_linedit_prompt'(UserPrompt)
-	;   true
-	).
+	'$sys_var_read'(12, 1),
+	g_read('$user_prompt', UserPrompt),
+	atom(UserPrompt),
+	'$set_linedit_prompt'(UserPrompt),
+	fail.
+
+'$reinit_after_exception'.
 
 
 
@@ -232,7 +234,8 @@ break :-
 	Prompt = '| ?- ',
 	(   '$sys_var_read'(12, 1) ->
 	    write(top_level_output, Prompt)
-	;   true),
+	;   true
+	),
 	format(top_level_output, '~a.~n', [Goal]),
 	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
 
@@ -258,8 +261,7 @@ break :-
 	(   fail,                             % do not activate 'alt if vars'
 	    ToDispVars = [] ->
 	    true                              % no alt if only anonymous vars
-	;
-	    '$write_solution'(ToDispVars, B1, B),
+	;   '$write_solution'(ToDispVars, B1, B),
 	    (   B1 > B ->
 	        g_read('$all_solutions', f),          % fail for previous 'a'
 	        write(top_level_output, ' ? '),
@@ -356,9 +358,10 @@ break :-
 /* interface with command-line option consulting files */
 
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
-	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
-	nonvar(Err),
-	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+%	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+%	nonvar(Err),
+				%	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	'$exec_cmd_consult_file'(File),
 	fail.
 	
 '$exec_cmd_line_consult_files'([_|LFile]) :-
@@ -368,27 +371,59 @@ break :-
 '$exec_cmd_line_consult_files'(_).		% can be another term than []
 
 
+'$exec_cmd_consult_file'(File) :-
+	% BEWARE: do not remove this '$sys_var_write'(11, B),
+	% e.g. important for a commannd-line goal calling abort
+	'$get_current_B'(B),	% the current choice-point
+	'$sys_var_write'(11, B),
+	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	nonvar(Err),
+	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+	fail.
+
+'$exec_cmd_line_consult_file'(_).	% BEWARE: to create a choice-point
+
+
 /* interface with command-line options executing goals */
 
 '$exec_cmd_line_entry_goals'([Goal|LGoal]):-
-	!,
-	'$exec_cmd_line_goal'(Goal),
+	% (
+	% '$get_current_B'(B),   % the current choice-point
+	% '$sys_var_write'(11, B),
+				%   '$exec_cmd_line_goal'(Goal) ; true ), !,
+	'$exec_cmd_line_entry_goal'(Goal),
 	'$exec_cmd_line_entry_goals'(LGoal).
 
 '$exec_cmd_line_entry_goals'(_).		% can be another term than []
 
 
+'$exec_cmd_line_entry_goal'(Goal) :-
+	% BEWARE: do not remove this '$sys_var_write'(11, B),
+	% e.g. important for a commannd-line goal calling abort
+	'$get_current_B'(B),	% the current choice-point
+	'$sys_var_write'(11, B),
+	'$exec_cmd_line_goal'(Goal), !.
+
+'$exec_cmd_line_entry_goal'(_).	% BEWARE: create a choice-point (nothing actually fails)
 
 
-'$exec_cmd_line_goal'(Goal) :-		% called by top_level.c
+
+
+'$exec_cmd_line_goal'(Goal) :-		% also called by top_level_main.c for --init-goal
 	(   '$catch'('$exec_cmd1'(Goal), Err, '$exec_cmd_err'(Goal, Err), 'command-line', -1, false) ->
 	    true
-	;   format(top_level_output, '~Nwarning: command-line goal ~q failed~n', [Goal])).
+	;   format(top_level_output, '~Nwarning: command-line goal ~q failed~n', [Goal])
+	).
+
+
 
 
 '$exec_cmd1'(Goal) :-
 	read_term_from_atom(Goal, TermGoal, [end_of_term(eof)]),
+	'$call_c'('Pl_Save_Regs_For_Signal'),  % save some registers in case of CTRL+C (preventive)
 	'$call'(TermGoal, 'command-line', -1, false).
+
+
 
 
 '$exec_cmd_err'(Goal, Err) :-

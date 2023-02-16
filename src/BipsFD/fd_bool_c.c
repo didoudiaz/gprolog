@@ -288,7 +288,7 @@ Pl_Fd_Bool_Meta_3(WamWord le_word, WamWord re_word, WamWord op_word)
 
 
   DEREF(op_word, word, tag_mask);
-  op = UnTag_INT(op_word);
+  op = (int) UnTag_INT(op_word);
 
   h[0] = bool_tbl[op];		/* also works for NOT/1 */
   h[1] = le_word;
@@ -410,7 +410,7 @@ Simplify(int sign, WamWord e_word)
 
   if (tag_mask == TAG_INT_MASK)
     {
-      n = UnTag_INT(word);
+      n = (int) UnTag_INT(word);
       if ((unsigned) n > 1)
 	goto type_error;
 

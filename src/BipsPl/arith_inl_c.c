@@ -220,7 +220,7 @@ Pl_Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
   int cur_bip_arity;
 
   cur_bip_func = Pl_Rd_String_Check(func_word);
-  cur_bip_arity = Pl_Rd_Integer_Check(arity_word);
+  cur_bip_arity = (int) Pl_Rd_Integer_Check(arity_word);
   Pl_Set_C_Bip_Name(cur_bip_func, cur_bip_arity);
 }
 
@@ -857,7 +857,7 @@ Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
   if (vx != 1 && vy <= -1)
     Pl_Err_Type(pl_type_float, x);
 
-  double r = Integ_Pow(vx, vy);
+  double r = Integ_Pow((double) vx, (double) vy);
   PlLong p = Double_To_PlLong(r);
   return Tag_INT(p);
 }

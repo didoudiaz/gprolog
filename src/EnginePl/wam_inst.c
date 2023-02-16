@@ -1603,7 +1603,6 @@ Pl_Untrail(WamWord *low_adr)
   WamWord *adr;
   int nb;
 
-
   while (TR > low_adr)
     {
       word = Trail_Pop;
@@ -1620,14 +1619,14 @@ Pl_Untrail(WamWord *low_adr)
 	  break;
 
 	case TMV:
-	  nb = Trail_Pop;
+	  nb = (int) Trail_Pop;
 	  TR -= nb;
 	  Mem_Word_Cpy(adr, TR, nb);
 	  break;
 
 	default:		/* TFC */
 	  adr = (WamWord *) Trail_Pop; /* fct adr no longer word aligned */
-	  nb = Trail_Pop;
+	  nb = (int) Trail_Pop;
 	  TR -= nb;
 	  (*((int (*)()) adr)) (nb, TR);
 	}

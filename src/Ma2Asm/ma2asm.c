@@ -638,7 +638,7 @@ Switch_Equal(SwtInf *c)
 int
 Switch_Cmp_Int(SwtInf *c1, SwtInf *c2)
 {
-  return c1->int_val - c2->int_val;
+  return (int) (c1->int_val - c2->int_val);
 }
 
 
@@ -880,7 +880,7 @@ Parse_Arguments(int argc, char *argv[])
   if (file_name_out == NULL && file_name_in != NULL)
     {
       strcpy(str, file_name_in);
-      i = strlen(str);
+      i = (int) strlen(str);
       if (strcmp(str + i - 3, ".ma") == 0)
 	strcpy(str + i - 3, DEFAULT_OUTPUT_SUFFIX);
       else

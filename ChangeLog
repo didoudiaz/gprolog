@@ -1,4 +1,14 @@
-Wed Dec  7 11:19:16 AM CET 2022
+Fri Feb  3 18:03:50 CET 2023 <Daniel.Diaz@univ-paris1.fr>
+
+	* extend exec/4-5 to also accept provided streams + null
+
+Fri Dec  9 12:30:56 CET 2023 <Daniel.Diaz@univ-paris1.fr>
+
+	* fix bug in exec/4 under windows (bad stream redirection and child console not hidden)
+	* improve fd_prime/1 built-in
+	* add show_information Prolog flag (--quiet deactivate it)
+
+Wed Dec  7 11:19:16 CET 2022 <Daniel.Diaz@univ-paris1.fr>
 
 	* add --quiet option to top-level command-line (do not display banner and info)
 	* add Prolog flag show_information (on/off)

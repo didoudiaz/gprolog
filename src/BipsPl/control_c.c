@@ -75,7 +75,7 @@ Pl_Halt_If_No_Top_Level_1(WamWord exit_code_word)
   PredInf *pred;
   int x;
 
-  x = Pl_Rd_Integer_Check(exit_code_word);
+  x = (int) Pl_Rd_Integer_Check(exit_code_word);
 
   if (SYS_VAR_TOP_LEVEL == 0)	/* no top level running */
     Pl_Exit_With_Value(x);
@@ -98,7 +98,7 @@ Pl_Halt_If_No_Top_Level_1(WamWord exit_code_word)
 void
 Pl_Halt_1(WamWord exit_code_word)
 {
-  Pl_Exit_With_Value(Pl_Rd_Integer_Check(exit_code_word));
+  Pl_Exit_With_Value((int) Pl_Rd_Integer_Check(exit_code_word));
 }
 
 

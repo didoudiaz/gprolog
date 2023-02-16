@@ -425,7 +425,7 @@ Decode_Hexa_Line(char *str, char *format, int strict, int quote, int decode_aux)
 	{
 	  src = p;
 
-	  n = strlen(module);
+	  n = (int) strlen(module);
 	  if (n)
 	    module[n++] = ':';
 

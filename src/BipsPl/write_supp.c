@@ -934,7 +934,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
-      if (tag_mask == TAG_INT_MASK && (n = UnTag_INT(word)) >= 0)
+      if (tag_mask == TAG_INT_MASK && (n = (int) UnTag_INT(word)) >= 0)
 	{
 	  i = n % 26;
 	  j = n / 26;

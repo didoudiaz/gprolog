@@ -983,13 +983,13 @@ Generate_Tags(FILE *f, FILE *g)
  * optimizes things like Tag_Address(2, H + 1) with only 1 instruction (+ 6)
  * instead of 2 (1 for + 4, 1 for | TAG_STC_MASK)
  */
-  fprintf(g, "#define Tag_Address(tm, v)  \t((PlLong) (v) + (tm))\n");
+  fprintf(g, "#define Tag_Address(tm, v)\t((PlLong) (v) + (tm))\n");
 
   fprintf(g, "\n");
-  fprintf(g, "#define UnTag_Long_Int(w)    \t((PlLong) ((w) << %d) >> %d)\n",
+  fprintf(g, "#define UnTag_Long_Int(w) \t((PlLong) ((w) << %d) >> %d)\n",
           tag_size_high, tag_size);
 
-  fprintf(g, "#define UnTag_Short_Uns(w)\tUnTag_Long_Int(w)\n");
+  fprintf(g, "#define UnTag_Short_Uns(w)\t((int) UnTag_Long_Int(w))\n");
 
   fprintf(g, "#define UnTag_Address(w)  \t((WamWord *) ((w) & VALUE_MASK))\n");
 
@@ -1039,7 +1039,7 @@ Generate_Tags(FILE *f, FILE *g)
 
         case SHORT_UNS:
           if (tag[i].value <= 3)
-            fprintf(g, "((PlULong) (w) >> %d)\n", tag_size_low);
+            fprintf(g, "((int) ((PlULong) (w) >> %d))\n", tag_size_low);
           else
             fprintf(g, "UnTag_Short_Uns(w)\n");
           break;
@@ -1182,9 +1182,9 @@ Generate_Stacks(FILE *f, FILE *g)
   fprintf(fw_s, "  char *name;\n");
   fprintf(fw_s, "  char *desc;\n");
   fprintf(fw_s, "  char *env_var_name;\n");
-  fprintf(fw_s, "  PlLong *p_def_size;\t/* used for fixed_sizes */\n");
-  fprintf(fw_s, "  int default_size; \t/* in WamWords */\n");
-  fprintf(fw_s, "  int size;         \t/* in WamWords */\n");
+  fprintf(fw_s, "  PlLong *p_def_size;  \t/* used for fixed_sizes */\n");
+  fprintf(fw_s, "  PlLong default_size; \t/* in WamWords */\n");
+  fprintf(fw_s, "  PlLong size;         \t/* in WamWords */\n");
   fprintf(fw_s, "  WamWord *stack;\n");
   fprintf(fw_s, "}InfStack;\n\n\n");
 

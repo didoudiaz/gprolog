@@ -707,7 +707,7 @@ Pl_M_Spawn(char *arg[])
   */
   
 
-  return spawnvp(_P_WAIT, arg[0], (char *const *) arg);
+  return (int) spawnvp(_P_WAIT, arg[0], (char *const *) arg);
 #endif
 }
 
@@ -757,7 +757,7 @@ Open_Null_Device(Bool for_output)
       SECURITY_ATTRIBUTES sa;
 
       sa.nLength = sizeof(sa);
-      sa.bInheritHandle = TRUE;	/* childinherits the handle */
+      sa.bInheritHandle = TRUE;	/* child inherits the handle */
       sa.lpSecurityDescriptor = NULL;
 
       fd = CreateFile("NUL", (for_output) ? GENERIC_WRITE : GENERIC_READ,
@@ -780,7 +780,7 @@ Open_Null_Device(Bool for_output)
  * Execute a command with arguments in arg[], (arg[0]=the name of the cmd) *
  * a NULL must follow the last argument.                                   *
  * if arg[1]==(char *) 1 then arg[0] is considered as a command-line.      *
- * detach: 1 for a detached process (cannot obtain its status then).       *
+ * detach: 1 for a detached process (cannot obtain its status later).      *
  * f_in, f_out, f_err: ptrs to FILE * vars. if NULL not redirected,        *
  *  *f_xxx can be:                                                         *
  *    - a FILE * (existing file connected to child process)                *
@@ -790,7 +790,7 @@ Open_Null_Device(Bool for_output)
  *    streams are merged in f_out.                                         *
  * To merge out and err where both are M_SPAWN_REDIRECT_CREATE, pass same  *
  *    FILE * address (f_err == f_out).                                     *
- * In case of error return -1 if errno is set or else -2.                  *
+ * In case of error return -1 if errno is set or else -2 (win32).          *
  * In case of success, return 0 if detached or the pid else (the function  *
  * Pl_M_Get_Status() should be called later to avoid zombie processes).    *
  *-------------------------------------------------------------------------*/
@@ -910,7 +910,7 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 
   TypeFD pipe3[3][2] = { {NULL, NULL}, {NULL, NULL}, {NULL, NULL} };
   TypeFD fd;
-  int status;
+  int pid, status;
   SECURITY_ATTRIBUTES sa = { 0 };
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi = { 0 };
@@ -978,23 +978,24 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
-  si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW; /* remove STARTF_USESHOWWINDOW if needed */
-  si.wShowWindow = SW_HIDE;
+  si.dwFlags = STARTF_USESTDHANDLES;/* add STARTF_USESHOWWINDOW ? */
+  si.wShowWindow = SW_HIDE;	    /* if STARTF_USESHOWWINDOW is defined */
   si.hStdInput = (f_in) ? pipe3[0][0] : GetStdHandle(STD_INPUT_HANDLE);
   si.hStdOutput = (f_out) ? pipe3[1][1] : GetStdHandle(STD_OUTPUT_HANDLE);
   si.hStdError = (f_err) ? ((merge_out_err) ? pipe3[1][1] : pipe3[2][1]) : GetStdHandle(STD_ERROR_HANDLE);
 
 
   /* Initially, used the flag DETACHED_PROCESS but under Win32 this creates 
-   * a console window, so use CREATE_NO_WINDOW. With DETACHED_PROCESS, the 
-   * child does not inherit parent console.
-   * If it is a console app, it creates a new console (thus visible).
-   * With CREATE_NO_WINDOW, a new console (conhost.exe) that doesn't have a 
-   * window is created. This seems an acceptable trade-off but
-   * not fully satisfactory, eg. not OK with process needing a terminal (interactive).
+   * a console window. With DETACHED_PROCESS, the child does not inherit 
+   * parent console. If it is a console app, it creates a new (visible) console.
+   * A possibility is to use CREATE_NO_WINDOW, a new console (conhost.exe) 
+   * that doesn't have a window is created. This is OK in some cases but not
+   * OK with process needing a terminal (interactive).
+   *
+   * Now uses CREATE_BREAKAWAY_FROM_JOB + .
    */
   if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE,
-		     (detach) ? CREATE_NO_WINDOW : 0, NULL, NULL, &si, &pi))
+		     (detach) ? CREATE_BREAKAWAY_FROM_JOB : 0, NULL, NULL, &si, &pi))
     {
       status = GetLastError();
 #ifdef DEBUG
@@ -1024,12 +1025,32 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 	}
     }
 
-  /* return (detach) ? 0 : (int) pi.hProcess;
-   * JAT: Changed to use id rather than handle (64 bits) because of fixed bitness
-   * OpenProcess function may be needed else where to get handle back
+  /* Use id (pi.hProcess) rather than handle (pi.hProcess) which is 64 bits.
+   * OpenProcess can be used to get handle back
    */
-  return (detach) ? 0 : pi.dwProcessId;
+  pid = (int) pi.dwProcessId;
 
+  if (detach)
+    {
+      HANDLE h_job = CreateJobObject(NULL, NULL);
+      AssignProcessToJobObject(h_job, pi.hProcess);
+	/* wait for child termination */
+#if 0
+      status = Pl_M_Get_Status(pid);
+      if (status == M_ERROR_WIN32)
+	goto windows_err;
+#else
+      if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED ||
+	  !GetExitCodeProcess(pi.hProcess, (LPDWORD) &status))
+	goto windows_err;
+#endif
+      CloseHandle(pi.hThread);
+      CloseHandle(pi.hProcess);
+      pid = 0;
+    }
+
+  return pid;			/* NB: if detach: pid = 0 */
+  
  err:
   return -1;
 
@@ -1069,8 +1090,8 @@ Pl_M_Get_Status(int pid)
 
 #elif defined(_WIN32)
 
-  /* JAT: See above
-   * DD (bug XP/Vista) HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
+  /* Use OpenProcess to get back handle from process id (see above).
+   * (bug on XP/Vista) HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 1, pid);
    */
   HANDLE phandle = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, 1, pid);
 

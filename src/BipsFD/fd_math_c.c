@@ -79,7 +79,7 @@
 void
 Pl_Fd_Set_Full_Ac_Flag_1(WamWord full_ac_word)
 {
-  pl_full_ac = Pl_Rd_Integer(full_ac_word);
+  pl_full_ac = Pl_Rd_C_Int(full_ac_word);
 }
 
 

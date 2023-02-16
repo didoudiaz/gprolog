@@ -383,9 +383,9 @@ Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
 	}
 
       l_m = p.m;
-      l_nb_monom = pos - l_m;
+      l_nb_monom = (int) (pos - l_m);
       r_m = end;
-      r_nb_monom = neg - r_m;
+      r_nb_monom = (int) (neg - r_m);
 
 #ifdef DEBUG
       DBGPRINTF("l_nb_monom:%d   r_nb_monom:%d\n", l_nb_monom, r_nb_monom);
@@ -904,10 +904,10 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	    {
 	      n2 = UnTag_INT(word2);
 #ifdef GP_FD_POSITIVE_ONLY
-	      if ((n1 = Pl_Power(n1, n2)) < 0)
+	      if ((n1 = Pl_Power((unsigned) n1, (unsigned) n2)) < 0)
 		return FALSE;
 #else
-	      n1 = Pl_Power(n1, n2);
+	      n1 = Pl_Power((unsigned) n1, (unsigned) n2);
 #endif
 
 	      Add_Cst_To_Poly(p, sign, n1);

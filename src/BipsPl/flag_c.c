@@ -373,7 +373,7 @@ Pl_Sys_Var_Dec_1(WamWord var_word)
 void
 Pl_Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  pl_sys_var[Pl_Rd_Integer(var_word)] |= (1 << Pl_Rd_Integer(bit_word));
+  pl_sys_var[Pl_Rd_Integer(var_word)] |= ((PlULong) 1 << Pl_Rd_Integer(bit_word));
 }
 
 
@@ -386,22 +386,22 @@ Pl_Sys_Var_Set_Bit_2(WamWord var_word, WamWord bit_word)
 void
 Pl_Sys_Var_Reset_Bit_2(WamWord var_word, WamWord bit_word)
 {
-  pl_sys_var[Pl_Rd_Integer(var_word)] &= ~(1 << Pl_Rd_Integer(bit_word));
+  pl_sys_var[Pl_Rd_Integer(var_word)] &= ~((PlULong) 1 << Pl_Rd_Integer(bit_word));
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_SYS_VAR_SET_BIT_2                                                    *
+ * PL_SYS_VAR_GET_BIT_3                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Sys_Var_Get_Bit_3(WamWord var_word, WamWord bit_word, WamWord value_word)
 {
-  unsigned x;
+  PlULong x;
 
-  x = (pl_sys_var[Pl_Rd_Integer(var_word)] >> Pl_Rd_Integer(bit_word))  & 1;
+  x = (pl_sys_var[Pl_Rd_Integer(var_word)] >> Pl_Rd_Integer(bit_word)) & 1;
   return Pl_Un_Integer(x, value_word);
 }
 
@@ -420,7 +420,7 @@ Pl_Sys_Var_Put_2(WamWord var_word, WamWord term_word)
   int sv;
   int size;
 
-  sv = Pl_Rd_Integer(var_word);
+  sv = (int) Pl_Rd_Integer(var_word);
 
   word = pl_sys_var[sv];
   tag_mask = Tag_Mask_Of(word);
@@ -554,28 +554,28 @@ Pl_Write_Pl_State_File(WamWord file_word)
       FWRITE(pl_atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
     }
 
-  i = Flag_Value(double_quotes);
+  i = (int) Flag_Value(double_quotes);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(back_quotes);
+  i = (int) Flag_Value(back_quotes);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(char_conversion);
+  i = (int) Flag_Value(char_conversion);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(singleton_warning);
+  i = (int) Flag_Value(singleton_warning);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(suspicious_warning);
+  i = (int) Flag_Value(suspicious_warning);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(multifile_warning);
+  i = (int) Flag_Value(multifile_warning);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = Flag_Value(strict_iso);
+  i = (int) Flag_Value(strict_iso);
   FWRITE(&i, sizeof(i), 1, f);
 
-  i = SYS_VAR_SAY_GETC;
+  i = (int) SYS_VAR_SAY_GETC;
   FWRITE(&i, sizeof(i), 1, f);
 
   for (c = 0; c < 256; c++)
@@ -771,7 +771,7 @@ Pl_Environ_2(WamWord var_name_word, WamWord value_word)
 
 
   value = strchr(one_env, '=');
-  lg = value - one_env;
+  lg = (int) (value - one_env);
   var_name = pl_glob_buff;
 
   strncpy(var_name, one_env, lg);
@@ -820,7 +820,7 @@ Pl_Environ_Alt_0(void)
     }
 
   value = strchr(one_env, '=');
-  lg = value - one_env;
+  lg = (int) (value - one_env);
   var_name = pl_glob_buff;
 
   strncpy(var_name, one_env, lg);

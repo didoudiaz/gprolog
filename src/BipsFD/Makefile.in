@@ -1,6 +1,7 @@
 LIB_BIPS_FD   = @LIB_BIPS_FD@
 LIB_ENGINE_FD = @LIB_ENGINE_FD@
 GPLC          = @GPLC@
+PLFLAGS       = --no-redef-error
 CC            = @CC@ @CFLAGS_MACHINE@
 CFLAGS        = @CFLAGS@
 AR_RC         = @AR_RC@
@@ -25,7 +26,7 @@ OBJLIB  = fd_infos@OBJ_SUFFIX@ fd_infos_c@OBJ_SUFFIX@ \
 
 
 .pl@OBJ_SUFFIX@:
-	$(GPLC) -c $(GPLCFLAGS) --no-redef-error $*.pl
+	$(GPLC) -c $(PLFLAGS) $*.pl
 
 .fd@OBJ_SUFFIX@:
 	$(GPLC) -c -C '$(CFLAGS) $(CLFAGS_UNSIGNED_CHAR)' $*.fd

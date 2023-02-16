@@ -322,7 +322,7 @@ Byte_Code_Initializer(void)
   Op_In_Tbl("cut", CUT_X);
   Op_In_Tbl("soft_cut", SOFT_CUT_X);
 
-  nb_op = p - op_tbl;
+  nb_op = (int) (p - op_tbl);
 
   qsort(op_tbl, nb_op, sizeof(op_tbl[0]), (int (*)(const void *, const void *)) Compar_Inst_Code_Op);
 
@@ -402,9 +402,9 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
   PredInf *pred;
 
   func = Pl_Rd_Atom_Check(func_word);
-  arity = Pl_Rd_Integer_Check(arity_word);
+  arity = Pl_Rd_C_Int_Check(arity_word);
   pl_file = Pl_Rd_Atom_Check(pl_file_word);
-  pl_line = Pl_Rd_Integer_Check(pl_line_word);
+  pl_line = Pl_Rd_C_Int_Check(pl_line_word);
 
   if (Pl_Rd_Atom_Check(sta_dyn_word) == atom_dynamic)
     prop = MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC;
@@ -476,7 +476,7 @@ Pl_BC_Stop_Emit_0(void)
 {
   int i;
 
-  pl_byte_len = bc_sp - bc;
+  pl_byte_len = (int) (bc_sp - bc);
 
 #ifdef DEBUG
   DBGPRINTF("byte-code size:%d\n", pl_byte_len);
@@ -538,7 +538,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 
   op = Find_Inst_Code_Op(func);
 
-  size_bc = bc_sp - bc;
+  size_bc = (int) (bc_sp - bc);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
       bc_nb_block++;
@@ -559,7 +559,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case PUT_Y_UNSAFE_VALUE - 1:
     case MATH_LOAD_X_VALUE:
       BC1_XY(w) = BC_Arg_X_Or_Y(*arg_adr++, &op);
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
     case GET_ATOM:
@@ -572,14 +572,14 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 	  op++;
 	  nb_word = 2;
 	}
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
     case GET_INTEGER:
     case PUT_INTEGER:
       l = Pl_Rd_Integer(*arg_adr++);
       if (Fit_In_16bits(l))
-	BC1_Atom(w) = l;
+	BC1_Atom(w) = (int) l;
       else
 	{
 	  op++;
@@ -593,14 +593,14 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 	  nb_word = 3;
 #endif
 	}
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
     case GET_FLOAT:
     case PUT_FLOAT:
       nb_word = 3;
       cv.d = Pl_Rd_Float(*arg_adr++);
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       w1 = cv.u[0];
       w2 = cv.u[1];
       break;
@@ -609,7 +609,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case GET_LIST:
     case PUT_NIL:
     case PUT_LIST:
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
     case GET_STRUCTURE:
@@ -617,11 +617,11 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       nb_word = 2;
       w1 = BC_Arg_Func_Arity(*arg_adr++, &arity);
       BC1_Arity(w) = arity;
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
     case PUT_VOID:
-      BC1_X0(w) = Pl_Rd_Integer(*arg_adr);
+      BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
 
@@ -648,7 +648,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
     case UNIFY_INTEGER:
       l = Pl_Rd_Integer(*arg_adr++);
       if (Fit_In_24bits(l))
-	BC2_Int(w) = l;
+	BC2_Int(w) = (int) l;
       else
 	{
 	  op++;
@@ -672,7 +672,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 
     case UNIFY_VOID:
     case ALLOCATE:
-      BC2_Int(w) = Pl_Rd_Integer(*arg_adr);
+      BC2_Int(w) = Pl_Rd_C_Int(*arg_adr);
       break;
 
 
@@ -786,7 +786,7 @@ BC_Arg_X_Or_Y(WamWord arg_word, int *op)
   if (Functor(adr) != ATOM_CHAR('x'))
     (*op)++;			/* +1 for op when Y is involved */
 
-  return Pl_Rd_Integer(Arg(adr, 0));
+  return Pl_Rd_C_Int(Arg(adr, 0));
 }
 
 
@@ -806,7 +806,7 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
   stc_adr = UnTag_STC(word);
 
   DEREF(Arg(stc_adr, 1), word, tag_mask);	/* arity */
-  *arity = UnTag_INT(word);
+  *arity = (int) UnTag_INT(word);
 
   DEREF(Arg(stc_adr, 0), word, tag_mask);	/* functor */
   return UnTag_ATM(word);
@@ -927,7 +927,7 @@ BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
     *adr++ = *w++;
   while (--arity >= 0);		/* >=0 to also restore cut register */
 
-  debug_call = *w;
+  debug_call = (Bool) *w;
 
   codep = BC_Emulate_Clause(clause);
   return (codep) ? codep : Pl_BC_Emulate_Pred(glob_func, glob_dyn);

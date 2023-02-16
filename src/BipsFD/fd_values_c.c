@@ -317,7 +317,7 @@ Select_Value(WamWord *fdv_adr, int value_method)
       
     case METHOD_RANDOM_V:
       n = Nb_Elem(fdv_adr);
-      n = Pl_M_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
+      n = (int) Pl_M_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
       return Pl_Range_Ith_Elem(Range(fdv_adr), n + 1); /* Ith is in 1..nb_elem */
     }
 
@@ -339,7 +339,7 @@ Pl_Indomain_2(WamWord x_word, WamWord method_word)
   int value_method;
   int value;
 
-  value_method = Pl_Rd_Integer(method_word);
+  value_method = Pl_Rd_C_Int(method_word);
 
   Fd_Deref_Check_Fd_Var(x_word, word, tag_mask);
 
@@ -390,8 +390,8 @@ Pl_Indomain_Alt_0(void)
   SYS_VAR_FD_BCKTS++;
 
   fdv_adr = (WamWord *) (A(0) & ~1);
-  value_method = A(1);
-  value = A(2);
+  value_method = (int) A(1);
+  value = (int) A(2);
 
   if (value_method == METHOD_LIMITS_MIN)
     value_method = METHOD_LIMITS_MAX;
@@ -543,7 +543,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
   array++;
   end = array + n;
 
-  reorder = Pl_Rd_Integer_Check(reorder_word);
+  reorder = (Bool) Pl_Rd_Integer_Check(reorder_word);
 
   switch (Pl_Rd_Integer_Check(method_word))
     {
@@ -570,7 +570,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
     case METHOD_RANDOM:
       for (;;)
 	{
-	  i = Pl_M_Random_Integer(n);
+	  i = (int) Pl_M_Random_Integer(n);
 	  end--;
 	  n--;
 	  fdv_adr = array[i];
@@ -622,7 +622,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
   if (n > 50 && nb_ground >= n / 2)
     {
       n = n - nb_ground;
-      Trail_MV(array - 1, n + 1);
+      Trail_MV(array - 1, (int) (n + 1));
       array[-1] = (WamWord *) n;
       for (p = q = array; n; p++)
 	{

@@ -117,8 +117,8 @@ StmProp;
 
 typedef struct			/* Push Back stack                */
 {				/* ------------------------------ */
-  int buff[STREAM_PB_SIZE];	/* the buffer                     */
-  int *ptr;			/* pointer into the buffer        */
+  PlLong buff[STREAM_PB_SIZE];	/* the buffer                     */
+  PlLong *ptr;			/* pointer into the buffer        */
   int nb_elems;			/* # of elements in the buffer    */
 }
 PbStk;

@@ -223,7 +223,7 @@ Bool Pl_Sparse_Sparse_Test_Null_Inter(Range *range, Range *range1);
 void Pl_Err_Resource(int atom);
 
 /*---------------------------------*
- * Chunk Management Macros           *
+ * Chunk Management Macros         *
  *---------------------------------*/
 
 

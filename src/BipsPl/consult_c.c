@@ -76,7 +76,7 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   FILE *f_in = M_SPAWN_REDIRECT_CREATE;
   FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   FILE **pf_in;
-  PlLong save;
+  int save;
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;

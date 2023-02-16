@@ -123,7 +123,7 @@ Bool
 Pl_Fd_Min_2(WamWord fdv_word, WamWord min_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
@@ -145,7 +145,7 @@ Bool
 Pl_Fd_Max_2(WamWord fdv_word, WamWord max_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
@@ -168,7 +168,8 @@ Pl_Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *fdv_adr;
-  int x, end;
+  PlLong x;
+  int end;
 
   Pl_Check_For_Un_List(list_word);
 
@@ -228,7 +229,7 @@ Bool
 Pl_Fd_Size_2(WamWord fdv_word, WamWord size_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)

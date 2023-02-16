@@ -96,6 +96,8 @@ Main_Wrapper(int argc, char *argv[])
   int i;
   int new_argc = 0;
   char **new_argv;
+  WamWord *init_goal;
+  int nb_init_goal = 0;
   WamWord *entry_goal;
   int nb_entry_goal = 0;
   WamWord *consult_file;
@@ -111,6 +113,7 @@ Main_Wrapper(int argc, char *argv[])
   new_argv[new_argc++] = argv[0];
 
   consult_file = (WamWord *) Malloc(sizeof(WamWord) * argc);
+  init_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   entry_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
 
@@ -135,9 +138,7 @@ Main_Wrapper(int argc, char *argv[])
 	      if (++i >= argc)
 		Pl_Fatal_Error("Goal missing after --init-goal option");
 
-	      A(0) = Tag_ATM(Pl_Create_Atom(argv[i]));
-	      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
-	      Pl_Reset_Prolog();
+	      init_goal[nb_init_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      continue;
 	    }
 
@@ -191,6 +192,13 @@ Main_Wrapper(int argc, char *argv[])
 
   pl_os_argc = new_argc;
   pl_os_argv = new_argv;
+
+  for (i = 0; i < nb_init_goal; i++)
+    {
+      A(0) = init_goal[i];
+      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
+      Pl_Reset_Prolog();
+    }
 
   if (nb_consult_file)
     {

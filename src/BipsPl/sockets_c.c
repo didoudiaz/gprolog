@@ -179,7 +179,7 @@ Pl_Socket_2(WamWord domain_word, WamWord socket_word)
     sock = socket(AF_INET, SOCK_STREAM, proto);
 
 #ifdef _WIN32
-  Os_Test_Error(sock); /* NB: on error returns INVALID_SOCKET == -1 */
+  Os_Test_Error((int) sock); /* NB: on error returns INVALID_SOCKET == -1 */
   /*
    * Windows (by default) causes sockets to be inherited
    * by child processes.  Turn this off.
@@ -455,7 +455,7 @@ Pl_Socket_Accept_4(WamWord socket_word, WamWord client_word,
   l = sizeof(adr_in);
   sock = Pl_Rd_C_Int_Check(socket_word);
 
-  cli_sock = accept(sock, (struct sockaddr *) &adr_in, &l);
+  cli_sock = (int) accept(sock, (struct sockaddr *) &adr_in, &l);
 
   Os_Test_Error(cli_sock);
 

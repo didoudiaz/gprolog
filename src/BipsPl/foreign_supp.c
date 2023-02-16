@@ -233,7 +233,7 @@ void
 Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg)
 {
   Pl_Set_Last_Syntax_Error(file_name, err_line, err_col, err_msg);
-  Pl_Syntax_Error(Flag_Value(syntax_error));
+  Pl_Syntax_Error((int) Flag_Value(syntax_error));
 }
 
 
@@ -484,7 +484,7 @@ Pl_Type_Of_Term(WamWord start_word)
 
   DEREF(start_word, word, tag_mask);
 
-  return Tag_From_Tag_Mask(tag_mask);
+  return (int) Tag_From_Tag_Mask(tag_mask);
 }
 
 
