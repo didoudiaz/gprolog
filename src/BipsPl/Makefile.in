@@ -3,6 +3,8 @@ MAKE_LE_INTERF_OBJS  = @MAKE_LE_INTERF_OBJS@
 LIB_BIPS_PL          = @LIB_BIPS_PL@
 LIB_ENGINE_PL        = @LIB_ENGINE_PL@
 LIB_LINEDIT          = @LIB_LINEDIT@
+PL2WAM               = pl2wam
+PLFLAGS              = --no-redef-error
 GPLC                 = @GPLC@
 CC                   = @CC@ @CFLAGS_MACHINE@
 CFLAGS               = @CFLAGS@
@@ -78,8 +80,10 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 .SUFFIXES: @OBJ_SUFFIX@ .c .wam .pl $(SUFFIXES)
 
 
+#.pl.wam:
+#	$(GPLC) -W $(PLFLAGS) $*.pl
 .pl.wam:
-	$(GPLC) -W $(GPLCFLAGS) --no-redef-error $*.pl
+	$(PL2WAM) $(PLFLAGS) $*.pl
 
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam
@@ -164,7 +168,7 @@ consult.wam:     consult.pl
 control.wam:     control.pl
 expand.wam:      expand.pl
 debugger.wam:    debugger.pl
-	$(GPLC) -W $(GPLCFLAGS) --no-redef-error --fast-math debugger.pl
+	$(PL2WAM) $(PLFLAGS) --fast-math debugger.pl
 dec10io.wam:     dec10io.pl
 file.wam:        file.pl
 flag.wam:        flag.pl
@@ -197,8 +201,10 @@ write.wam:       write.pl
 src_rdr.wam:   	 src_rdr.pl
 
 check:
-	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo Bootstrap Prolog Bips OK
+	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK'
 
+check-i:
+	@../Pl2Wam/check_boot -i -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK [INTERPRETED MODE]'
 
 
 # test: read alone

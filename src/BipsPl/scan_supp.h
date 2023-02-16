@@ -76,8 +76,8 @@ typedef struct
   int punct;			/* for PUNCTUATION                      */
   PlLong int_num;		/* for INTEGER                          */
   double float_num;		/* for FLOAT                            */
-  int line;			/* source line of the pl_token          */
-  int col;			/* source column of the pl_token        */
+  PlLong line;			/* source line of the pl_token          */
+  PlLong col;			/* source column of the pl_token        */
 }
 TokInf;
 

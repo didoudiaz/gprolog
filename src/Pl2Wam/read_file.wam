@@ -3356,7 +3356,7 @@ predicate(error/2,1142,static,private,monofile,global,[
     put_value(y(0),0),
     call('$error/2_$aux1'/1),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate('$error/2_$aux1'/1,1142,static,private,monofile,local,[
@@ -3375,7 +3375,11 @@ label(1),
     proceed]).
 
 
-predicate(disp_msg/4,1154,static,private,monofile,global,[
+predicate(abandon_exec/0,1154,static,private,monofile,global,[
+    execute(abort/0)]).
+
+
+predicate(disp_msg/4,1160,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -3400,7 +3404,7 @@ predicate(disp_msg/4,1154,static,private,monofile,global,[
     execute(nl/0)]).
 
 
-predicate('$disp_msg/4_$aux1'/2,1154,static,private,monofile,local,[
+predicate('$disp_msg/4_$aux1'/2,1160,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3426,7 +3430,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_file_name/2,1171,static,private,monofile,global,[
+predicate(disp_file_name/2,1177,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -3464,7 +3468,7 @@ label(4),
     execute(format/2)]).
 
 
-predicate(disp_lines/1,1181,static,private,monofile,global,[
+predicate(disp_lines/1,1187,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(3,fail,fail,fail,1),
@@ -3506,7 +3510,7 @@ label(6),
     execute(format/2)]).
 
 
-predicate(disp_column/1,1190,static,private,monofile,global,[
+predicate(disp_column/1,1196,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -3526,11 +3530,11 @@ label(1),
     execute(write/1)]).
 
 
-predicate(exception/1,1202,static,private,monofile,global,[
+predicate(exception/1,1208,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
-    try_me_else(9),
-    switch_on_term(3,fail,fail,fail,1),
+    try_me_else(11),
+    switch_on_term(3,10,fail,fail,1),
 
 label(1),
     switch_on_structure([(error/2,2)]),
@@ -3593,7 +3597,7 @@ label(6),
     execute(error/2),
 
 label(7),
-    trust_me_else_fail,
+    retry_me_else(9),
 
 label(8),
     get_structure(error/2,0),
@@ -3611,6 +3615,13 @@ label(8),
     execute(error/2),
 
 label(9),
+    trust_me_else_fail,
+
+label(10),
+    get_atom(abandon_exec,0),
+    execute(abort/0),
+
+label(11),
     trust_me_else_fail,
     put_list(1),
     unify_local_value(x(0)),

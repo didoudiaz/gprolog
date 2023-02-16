@@ -83,9 +83,9 @@ static WamWord dollar_varname_1;
 static WamWord equal_2;
 
 static PlLong *singl_var_ptr;
-static int nb_singl_var;
+static PlLong nb_singl_var;
 
-static int nb_to_try;
+static PlLong nb_to_try;
 
 static WamWord *above_H;
 
@@ -111,7 +111,7 @@ static Bool Collect_Singleton(WamWord *adr);
 
 static int Var_Name_To_Var_Number(int atom);
 
-static void Exclude_A_Var_Number(int n);
+static void Exclude_A_Var_Number(PlLong n);
 
 static void Collect_Excluded_Rec(WamWord start_word);
 
@@ -626,7 +626,7 @@ Var_Name_To_Var_Number(int atom)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Exclude_A_Var_Number(int n)
+Exclude_A_Var_Number(PlLong n)
 {
   if (n >= 0 && n < MAX_VAR_IN_TERM)
     pl_glob_dico_var[n] = 1;
@@ -703,7 +703,8 @@ Collect_Excluded_Rec(WamWord start_word)
 static Bool
 Bind_Variable(WamWord *adr, WamWord word)
 {
-  int i, j;
+  int i;
+  PlLong j;
   char buff[16];
 
   while (pl_glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
@@ -716,14 +717,14 @@ Bind_Variable(WamWord *adr, WamWord word)
       return TRUE;
     }
 
-  i = nb_to_try % 26;
+  i = (int) nb_to_try % 26;
   j = nb_to_try / 26;
   nb_to_try++;
 
   buff[0] = 'A' + i;
 
   if (j)
-    sprintf(buff + 1, "%d", j);
+    sprintf(buff + 1, "%" PL_FMT_d, j);
   else
     buff[1] = '\0';
 

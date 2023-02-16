@@ -78,8 +78,8 @@ void
 Pl_Assert_5(WamWord head_word, WamWord body_word,
 	    WamWord asserta_word, WamWord check_perm_word, WamWord pl_file_word)
 {
-  Bool asserta = Pl_Rd_Integer(asserta_word);
-  Bool check_perm = Pl_Rd_Integer(check_perm_word);
+  Bool asserta = Pl_Rd_C_Int(asserta_word);
+  Bool check_perm = Pl_Rd_C_Int(check_perm_word);
   int pl_file = Pl_Rd_Atom(pl_file_word);
 
   last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta,
@@ -117,7 +117,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
       tag_mask != TAG_LST_MASK && tag_mask != TAG_STC_MASK)
     Pl_Err_Type(pl_type_callable, body_word);
 
-  for_what = Pl_Rd_Integer_Check(for_what_word);
+  for_what = Pl_Rd_C_Int_Check(for_what_word);
 
 #ifdef DEBUG
   DBGPRINTF("clause/2: arity: %d", arity);
@@ -301,7 +301,7 @@ Pl_Setarg_Of_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
-  int arg_no;
+  PlLong arg_no;
 
   arg_no = Pl_Rd_Integer(arg_no_word) - 1;
 

@@ -300,7 +300,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
   Bool infix_op;
   int cur_left = 0;
   int i;
-  int flag_value;
+  PlLong flag_value;
   WamWord term, term1;
   WamWord w[2];
   Bool left_is_op = FALSE;
@@ -347,7 +347,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	  goto a_name;
 	}
 
-      i = strlen(pl_token.name);
+      i = (int) strlen(pl_token.name);
       term = NIL_WORD;		/* faster than Pl_Put_Nil() */
       while (i--)
 	{
@@ -397,8 +397,8 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 #endif
 	  )
 	{
-	  int save_line = pl_token.line;
-	  int save_col = pl_token.col;
+	  PlLong save_line = pl_token.line;
+	  PlLong save_col = pl_token.col;
 
 	  Read_Next_Token(COMMA_ANY);
 	  if (pl_token.type == TOKEN_INTEGER)
@@ -769,7 +769,7 @@ Pl_Read_Atom(StmInf *pstm)
   if ((err_msg = Pl_Scan_Next_Atom(pstm)) != NULL)
     {
       Pl_Set_Last_Syntax_Error(pl_atom_tbl[pstm->atom_file_name].name,
-			    pl_token.line, pl_token.col, err_msg);
+			       pl_token.line, pl_token.col, err_msg);
       return NOT_A_WAM_WORD;
     }
 

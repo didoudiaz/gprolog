@@ -281,8 +281,8 @@ void Pl_Unset_C_Bip_Name(void);
 
 int Pl_Get_Current_Bip(int *arity);
 
-void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
-			   char *err_msg);
+void Pl_Set_Last_Syntax_Error(char *file_name, PlLong err_line, PlLong err_col,
+			      char *err_msg);
 
 void Pl_Syntax_Error(int flag_value);
 

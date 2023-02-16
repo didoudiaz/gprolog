@@ -256,7 +256,7 @@ Parser(int pass_no, int nb_passes)
 	if (strcmp(str_val, *in) == 0)
 	  break;
 
-      k = in - inst;
+      k = (int) (in - inst);
 
       /* ignore it in Pre_Pass() or long decl if Pre_Pass() done before */
       if ((Pre_Pass() && k != PL_CODE && k != C_CODE && k != LONG && *in != NULL) ||
@@ -638,7 +638,7 @@ Read_Index(void)
   Read_Token(INTEGER);
   Read_Token(k);
 
-  return int_val;
+  return (int) int_val;
 }
 
 

@@ -626,7 +626,7 @@ Bool						\
 name_args					\
 {						\
   WamWord *AF;					\
-  PlLong ret_val = TRUE;
+  Bool ret_val = TRUE;
 
 
 

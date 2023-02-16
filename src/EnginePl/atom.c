@@ -199,7 +199,7 @@ Pl_Init_Atom(void)
 int
 Pl_Create_Allocate_Atom(char *name)
 {
-  int len = strlen(name);
+  int len = (int) strlen(name);
   unsigned hash = Hash_String(name, len);
   AtomInf *patom = Locate_Atom(name, hash);
 
@@ -217,7 +217,7 @@ Pl_Create_Allocate_Atom(char *name)
 int
 Pl_Create_Atom(char *name)
 {
-  int len = strlen(name);
+  int len = (int) strlen(name);
   unsigned hash = Hash_String(name, len);
 
   AtomInf *patom = Locate_Atom(name, hash);
@@ -245,7 +245,7 @@ Add_Atom(char *name, int len, unsigned hash, AtomInf *patom, Bool allocate)
     Error_Table_Full();
 
   if (patom->name != NULL)
-    return patom - pl_atom_tbl;	/* already exists */
+    return (int) (patom - pl_atom_tbl);	/* already exists */
 
   if (allocate)
     name = Strdup(name);
@@ -322,7 +322,7 @@ finish:
   prop.op_mask = 0;
   patom->prop = prop;
 
-  return patom - pl_atom_tbl;
+  return (int) (patom - pl_atom_tbl);
 }
 
 
@@ -350,12 +350,12 @@ Pl_Create_Atom_Tagged(char *name)
 int
 Pl_Find_Atom(char *name)
 {
-  int len = strlen(name);
+  int len = (int) strlen(name);
   unsigned hash = Hash_String(name, len);
   AtomInf *patom;
 
   patom = Locate_Atom(name, hash);
-  return (patom == NULL || patom->name == NULL) ? -1 : patom - pl_atom_tbl;
+  return (patom == NULL || patom->name == NULL) ? -1 : (int) (patom - pl_atom_tbl);
 }
 
 
@@ -513,7 +513,7 @@ Pl_Gen_New_Atom(char *prefix)
       *str = gen_sym_chars[c];
       str[1] = '\0';
 
-      len =  str - gen_sym_buff + 1;
+      len =  (int) (str - gen_sym_buff + 1);
 
       hash = Hash_String(gen_sym_buff, len);
 

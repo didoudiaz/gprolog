@@ -1146,6 +1146,12 @@ error(Msg, LArg) :-
 	    fail
 	;   !
 	),
+	abandon_exec.
+
+
+
+
+abandon_exec :-
 	abort.
 
 
@@ -1213,6 +1219,9 @@ exception(error(existence_error(source_sink, File), _)) :-
 exception(error(permission_error(open, source_sink, File), _)) :-
 	!,
 	error('cannot open file ~a - permission error', [File]).
+
+exception(abandon_exec) :-
+	abort.
 
 exception(Err) :-
 	error('exception raised: ~q', [Err]).

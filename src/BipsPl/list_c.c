@@ -427,7 +427,7 @@ Bool
 Pl_Length_Alt_0(void)
 {
   WamWord list_word, n_word;
-  int len;
+  PlLong len;
 
   Pl_Delete_Choice_Point(3);
   list_word = A(0);

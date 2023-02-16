@@ -707,7 +707,7 @@ Pl_M_Spawn(char *arg[])
   */
   
 
-  return spawnvp(_P_WAIT, arg[0], (char *const *) arg);
+  return (int) spawnvp(_P_WAIT, arg[0], (char *const *) arg);
 #endif
 }
 

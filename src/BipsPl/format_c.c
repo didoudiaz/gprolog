@@ -248,7 +248,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                 Pl_Err_Representation(pl_representation_character_code);
 
               do
-                Pl_Stream_Putc(x, pstm);
+                Pl_Stream_Putc((int) x, pstm);
               while (--n > 0);
               break;
 
@@ -285,7 +285,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                 }
 
               sprintf(buff, "%" PL_FMT_d, x);
-              lg = strlen(buff) - n;
+              lg = (int) (strlen(buff) - n);
               if (lg <= 0)
                 {
                   Pl_Stream_Puts("0.", pstm);
@@ -333,7 +333,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               *p = '\0';
               do
                 {
-                  i = x % n;
+                  i = (int) (x % n);
                   x = x / n;
                   --p;
                   *p = (i < 10) ? i + '0' : i + k;

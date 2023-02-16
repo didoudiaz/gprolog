@@ -420,10 +420,10 @@ Pl_M_Get_Seed(void)
  *                                                                         *
  * return an integer x s.t. 0 <= x < n                                     *
  *-------------------------------------------------------------------------*/
-int
-Pl_M_Random_Integer(int n)
+PlLong
+Pl_M_Random_Integer(PlLong n)
 {
-  return (int) ((double) n * rand() / (RAND_MAX + 1.0));
+  return (PlLong) ((double) n * rand() / (RAND_MAX + 1.0));
 }
 
 
@@ -464,7 +464,7 @@ Pl_M_Host_Name_From_Name(char *host_name)
 #if defined(_WIN32) && !defined(__CYGWIN__) && defined(NO_USE_SOCKETS)
       if (GetComputerName(buff, &length) == 0)
 #else
-      if (gethostname(buff, length))
+	if (gethostname(buff, (int) length))
 #endif
         {
           strcpy(buff, "unknown host name");
@@ -912,7 +912,7 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
 	strcat(buff_dir, ".");
       else
 	{
-	  int len = strlen(buff_dir);		/* remove all trailing / */
+	  size_t len = strlen(buff_dir); 	/* remove all trailing / */
 	  while(--len >= dir_start_pos && Is_Dir_Sep(buff_dir[len]))
 	    ;
 
@@ -943,7 +943,7 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
 Bool
 Pl_M_Path_Ends_With_Dir(char *path)
 {
-  int len = strlen(path);
+  size_t len = strlen(path);
   return ((len > 1 && Is_Dir_Sep(path[len - 1])) ||
 	  (len > 2 && Is_Dir_Sep(path[len - 2]) && path[len - 1] == '.') ||
 	  (len > 3 && Is_Dir_Sep(path[len - 3]) && path[len - 2] == '.' && path[len - 1] == '.'));

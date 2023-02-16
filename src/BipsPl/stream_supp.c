@@ -1086,11 +1086,11 @@ Pl_Io_Fileno_Of_Stream(int stm)
 
 #ifndef NO_USE_LINEDIT
 
-#define SAVE_FOR_REENTRANCY				\
-{							\
-  int save_sys_var_option_mask = SYS_VAR_OPTION_MASK;	\
-  int save_last_read_line = pl_last_read_line;		\
-  int save_last_read_col = pl_last_read_col;
+#define SAVE_FOR_REENTRANCY					\
+{								\
+  int save_sys_var_option_mask = (int) SYS_VAR_OPTION_MASK;	\
+  PlLong save_last_read_line = pl_last_read_line;		\
+  PlLong save_last_read_col = pl_last_read_col;
 
 
 #define RESTORE_FOR_REENTRANCY				\
@@ -1330,7 +1330,7 @@ Pl_PB_Empty_Buffer(StmInf *pstm)
 int
 Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 {
-  int c;
+  PlLong c;
   PlLong file = pstm->file;
   Bool simulate;
 
@@ -1376,7 +1376,7 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 
   Update_Counters(pstm, c);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -1389,7 +1389,7 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 int
 Pl_Stream_Getc(StmInf *pstm)
 {
-  int c;
+  PlLong c;
   PlLong file = pstm->file;
 
   Before_Reading(pstm, file);
@@ -1412,7 +1412,7 @@ Pl_Stream_Getc(StmInf *pstm)
 
   Update_Counters(pstm, c);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -1457,7 +1457,7 @@ Pl_Stream_Ungetc(int c, StmInf *pstm)
 int
 Pl_Stream_Peekc(StmInf *pstm)
 {
-  int c;
+  PlLong c;
   PlLong file = pstm->file;
 
 
@@ -1471,7 +1471,7 @@ Pl_Stream_Peekc(StmInf *pstm)
       PB_Push(pstm->pb_char, c);
     }
 
-  return c;
+  return (int) c;
 }
 
 
@@ -1576,7 +1576,7 @@ Pl_Stream_Puts(char *str, StmInf *pstm)
       Update_Counters(pstm, c);
     }
 
-  return p - str;
+  return (int) (p - str);
 }
 
 
@@ -1606,7 +1606,7 @@ Pl_Stream_Printf(StmInf *pstm, char *format, ...)
       Update_Counters(pstm, c);
     }
 
-  return p - str;
+  return (int) (p - str);
 }
 
 
@@ -1765,7 +1765,7 @@ Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos)
   int c;
   int offset;
   Bool save_eof_reached;
-  int save_char_count, save_line_count, save_line_pos;
+  PlLong save_char_count, save_line_count, save_line_pos;
   int save_char_nb_elems;
 
 
@@ -1986,7 +1986,7 @@ Str_Stream_Getc(StrSInf *str_stream)
 static void
 Str_Stream_Putc(int c, StrSInf *str_stream)
 {
-  int size = str_stream->ptr - str_stream->buff;
+  int size = (int) (str_stream->ptr - str_stream->buff);
   int new_size;
 
 

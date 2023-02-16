@@ -462,7 +462,7 @@ Pl_Fd_Prolog_To_Fd_Var(WamWord arg_word, Bool pl_var_ok)
     }
 
   if (tag_mask == TAG_INT_MASK)
-    return Pl_Fd_New_Int_Variable(UnTag_INT(word));
+    return Pl_Fd_New_Int_Variable((int) UnTag_INT(word));
 
   if (tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(pl_type_fd_variable, word);
@@ -801,7 +801,7 @@ Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 
   Trail_Chains_If_Necessary(fdv_adr);
 
-  Chains_Mask(fdv_adr) |= (1 << chain_nb);
+  Chains_Mask(fdv_adr) |= ((WamWord) 1 << chain_nb);
 
   chain_adr = (&Chain_Min(fdv_adr) + chain_nb);
 
@@ -823,7 +823,7 @@ Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF)
 void
 Pl_Fd_Add_List_Dependency(WamWord *array, int chain_nb, WamWord *CF)
 {
-  int n = *array++;
+  PlLong n = *array++;
 
   while (n--)
     Pl_Fd_Add_Dependency((WamWord *) (*array++), chain_nb, CF);
@@ -1690,7 +1690,7 @@ Pl_Fd_Copy_Variable0(WamWord *dst_adr, WamWord *fdv_adr)
 
   Pl_Range_Copy(Range(dst_adr), Range(fdv_adr));
 
-  size = CS - dst_adr;
+  size = (int) (CS - dst_adr);
   CS = save_CS;
 
   return size;

@@ -118,7 +118,7 @@ typedef struct sr_file
   PSRFile next;			/* link to next file */
 				/* --- include stack information --- */
   Bool eof_reached;		/* is the EOF reached for this file ? */
-  int include_line;		/* line # this file includes a child file */
+  PlLong include_line;		/* line # this file includes a child file */
   PSRFile parent_file;		/* link to the parent file (includer) */
 } SRFile;
 
@@ -131,9 +131,9 @@ typedef struct sr_module
 {
   int atom_module_name;		/* module atom */
   int i_atom_file_def;		/* interface: file name of definition */
-  int i_line_def;		/* interface: line # of definition */
+  PlLong i_line_def;		/* interface: line # of definition */
   int b_atom_file_def;		/* body: file name of current body (or -1) */
-  int b_line_def;		/* body: line # of current body */
+  PlLong b_line_def;		/* body: line # of current body */
   SRDirect direct_lst;		/* list of directives (interface + body) */
   PSRModule next;		/* next module */
 } SRModule;
@@ -150,12 +150,12 @@ typedef struct
   SRFile *file_last;		/* queue of all files - last */
   SRFile *file_top;		/* stack of open files (top = current) */
   SRFile *next_to_reread;	/* NULL: in pass 1 or no more to reread */
-  int cur_l1, cur_l2;		/* position (lines) of last read term */
-  int char_count;		/* nb chars read in processed files */
-  int line_count;		/* nb lines read in processed files */
-  int error_count;		/* nb of errors emitted */
-  int warning_count;		/* nb of warnings emitted */
-  int out_sora_word;		/* SorA for writing (or NOT_A_WAM_WORD) */
+  PlLong cur_l1, cur_l2;	/* position (lines) of last read term */
+  PlLong char_count;		/* nb chars read in processed files */
+  PlLong line_count;		/* nb lines read in processed files */
+  PlLong error_count;		/* nb of errors emitted */
+  PlLong warning_count;		/* nb of warnings emitted */
+  WamWord out_sora_word;	/* SorA for writing (or NOT_A_WAM_WORD) */
   SRDirect direct_lst;		/* list of directives */
   SRModule *module_lst;		/* list of defined modules */
   SRModule *cur_module;		/* NULL or current module */
@@ -195,7 +195,7 @@ static void Exec_One_Directive(SROneDirect *o, int do_undo);
 static void Close_Current_Module(void);
 
 static StmInf *Write_Location(WamWord sora_word, WamWord list_word,
-			      int atom_file_name, int l1, int l2c);
+			      int atom_file_name, PlLong l1, PlLong l2c);
 
 static void Write_Message_Text(StmInf *pstm,  WamWord sora_word,
 			       WamWord type_word,
@@ -815,7 +815,8 @@ Pl_SR_Start_Module_3(WamWord module_name_word, WamWord interface_word,
     {
       if (interface)
 	{
-	  sprintf(pl_glob_buff, "module(%s) already found at %s:%d - directive ignored",
+	  sprintf(pl_glob_buff,
+		  "module(%s) already found at %s:%" PL_FMT_d " - directive ignored",
 		  pl_atom_tbl[atom_module_name].name,
 		  pl_atom_tbl[m->i_atom_file_def].name,
 		  m->i_line_def);
@@ -878,7 +879,8 @@ Pl_SR_Stop_Module_3(WamWord module_name_word, WamWord interface_word,
 
   if (interface != sr->interface || atom_module_name != m->atom_module_name)
     {
-      sprintf(pl_glob_buff, "directive mismatch wrt %s:%d - replaced by end_%s(%s)",
+      sprintf(pl_glob_buff,
+	      "directive mismatch wrt %s:%" PL_FMT_d " - replaced by end_%s(%s)",
 	      (sr->interface) ?
 	      pl_atom_tbl[m->i_atom_file_def].name :
 	      pl_atom_tbl[m->b_atom_file_def].name,
@@ -923,7 +925,7 @@ Bool
 Pl_SR_Current_Descriptor_1(WamWord desc_word)
 {
   WamWord word, tag_mask;
-  int desc = 0;
+  PlLong desc = 0;
 
   DEREF(desc_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
@@ -964,7 +966,7 @@ Bool
 Pl_SR_Current_Descriptor_Alt_0(void)
 {
   WamWord desc_word;
-  int desc;
+  PlLong desc;
 
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(SR_CURRENT_DESC_ALT, 0), 0);
 
@@ -1157,7 +1159,7 @@ Pl_SR_Get_Size_Counters_3(WamWord desc_word, WamWord chars_word,
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
   SRFile *file;
-  int char_count, line_count;
+  PlLong char_count, line_count;
 
   Pl_Check_For_Un_Integer(chars_word);
   Pl_Check_For_Un_Integer(lines_word);
@@ -1207,8 +1209,8 @@ Pl_SR_Set_Error_Counters_3(WamWord desc_word, WamWord errors_word,
 			   WamWord warnings_word)
 {
   SRInf *sr = Get_Descriptor(desc_word, FALSE);
-  int errors = Pl_Rd_Integer_Check(errors_word);
-  int warnings = Pl_Rd_Integer_Check(warnings_word);
+  PlLong errors = Pl_Rd_Integer_Check(errors_word);
+  PlLong warnings = Pl_Rd_Integer_Check(warnings_word);
 
   sr->error_count = errors;
   sr->warning_count = warnings;
@@ -1238,7 +1240,7 @@ static SRInf *
 Get_Descriptor(WamWord desc_word, Bool accept_none)
 {
   WamWord word, tag_mask;
-  int desc;
+  PlLong desc;
   int atom;
 
   if (accept_none)
@@ -1277,7 +1279,7 @@ Pl_SR_Write_Message_4(WamWord desc_word,
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
-  int l1, l2c;
+  PlLong l1, l2c;
   WamWord sora_word;
 
   if (sr)
@@ -1314,7 +1316,7 @@ Pl_SR_Write_Message_6(WamWord desc_word,
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
-  int l1, l2c;
+  PlLong l1, l2c;
   WamWord sora_word;
 
   if (sr)
@@ -1351,7 +1353,7 @@ Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
   SRInf *sr = Get_Descriptor(desc_word, TRUE);
   StmInf *pstm;
   int atom_file_name;
-  int l1, l2c;
+  PlLong l1, l2c;
   WamWord sora_word;
 
   if (!Pl_Blt_List(list_word))
@@ -1384,7 +1386,7 @@ Pl_SR_Write_Message_8(WamWord desc_word, WamWord list_word,
  *-------------------------------------------------------------------------*/
 static StmInf *
 Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
-	       int l1, int l2c)
+	       PlLong l1, PlLong l2c)
 
 {
   WamWord word, tag_mask;
@@ -1394,7 +1396,7 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   Bool first;
   SRInf *sr = cur_sr;
   SRFile *file = NULL;
-  int char_count;
+  PlLong char_count;
 
   stm = (sora_word == NOT_A_WAM_WORD)
     ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);

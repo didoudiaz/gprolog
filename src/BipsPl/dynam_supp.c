@@ -254,8 +254,8 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
-		       pl_stm_tbl[pl_stm_stdin]->line_count,
-		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+			  (int) pl_stm_tbl[pl_stm_stdin]->line_count,
+			  MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);

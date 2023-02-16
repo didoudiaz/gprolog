@@ -153,7 +153,7 @@ Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
 void
 Pl_Fd_Element_I(Range *i, WamWord *l)
 {
-  int n = *l;			/* I in 1..N in sparse mode */
+  int n = (int) (*l);			/* I in 1..N in sparse mode */
 
   Range_Init_Interval(i, 1, n);
   Pl_Range_Becomes_Sparse(i);
@@ -181,7 +181,7 @@ Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
     {
       for (j = i->min; j <= i->max; j++)
 	{
-	  val = l[j];
+	  val = (int) (l[j]);
 	  Vector_Set_Value(v->vec, val);
 	}
     }
@@ -189,7 +189,7 @@ Pl_Fd_Element_I_To_V(Range *v, Range *i, WamWord *l)
     {
       VECTOR_BEGIN_ENUM(i->vec, j);
 
-      val = l[j];
+      val = (int) (l[j]);
       Vector_Set_Value(v->vec, val);
 
       VECTOR_END_ENUM;
@@ -217,11 +217,11 @@ Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
   Vector_Allocate(i->vec);
   Pl_Vector_Empty(i->vec);
 
-  n = *l;
+  n = (int) (*l);
 
   for (j = 1; j <= n; j++)
     {
-      val = l[j];		/* val=Lj */
+      val = (int) (l[j]);		/* val=Lj */
       if (Pl_Range_Test_Value(v, val))
 	Vector_Set_Value(i->vec, j);
     }
@@ -239,7 +239,7 @@ Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
 void
 Pl_Fd_Element_Var_I(Range *i, WamWord *l)
 {
-  int n = *l;			/* I in 1..N in sparse mode */
+  int n = (int) (*l);			/* I in 1..N in sparse mode */
 
   Range_Init_Interval(i, 1, n);
   Pl_Range_Becomes_Sparse(i);
@@ -386,7 +386,7 @@ Bool
 Pl_Fd_Atleast(int n, WamWord **array, int v)
 {
   WamWord **p;
-  PlLong size = (PlLong) array[0];
+  int size = (int) (PlLong) (array[0]);
   int nb = size;
   int i;
 
@@ -431,7 +431,7 @@ Pl_Fd_Exactly(int n, WamWord **array, int v)
 {
   WamWord **p;
   WamWord word = Tag_INT(v);
-  PlLong size = (PlLong) array[0];
+  int size = (int) (PlLong) (array[0]);
   int nb1 = 0, nb2 = size;
   int i;
 

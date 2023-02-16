@@ -297,7 +297,7 @@ int PlLong_To_C_Int(PlLong x, WamWord start_word) {
 
 #endif
 
-  return x;
+  return (int) x;
 }
 
 
@@ -323,7 +323,7 @@ Pl_Rd_C_Int_Check(WamWord start_word)
 int
 Pl_Rd_C_Int(WamWord start_word)
 {
-  return PlLong_To_C_Int(Pl_Rd_Integer(start_word), start_word);
+  return (int) Pl_Rd_Integer(start_word);
 }
 
 
@@ -349,7 +349,7 @@ Pl_Rd_C_Int_Positive_Check(WamWord start_word)
 int
 Pl_Rd_C_Int_Positive(WamWord start_word)
 {
-  return PlLong_To_C_Int(Pl_Rd_Positive(start_word), start_word);
+  return (int) Pl_Rd_Positive(start_word);
 }
 
 
@@ -615,13 +615,13 @@ Pl_Rd_In_Char(WamWord start_word)
 int
 Pl_Rd_Code_Check(WamWord start_word)
 {
-  int c;
+  PlLong c;
 
   c = Pl_Rd_Integer_Check(start_word);
   if (!Is_Valid_Code(c))
     Pl_Err_Representation(pl_representation_character_code);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -634,7 +634,7 @@ Pl_Rd_Code_Check(WamWord start_word)
 int
 Pl_Rd_Code(WamWord start_word)
 {
-  return Pl_Rd_Integer(start_word);
+  return (int) Pl_Rd_Integer(start_word);
 }
 
 
@@ -647,13 +647,13 @@ Pl_Rd_Code(WamWord start_word)
 int
 Pl_Rd_In_Code_Check(WamWord start_word)
 {
-  int c;
+  PlLong c;
 
   c = Pl_Rd_Integer_Check(start_word);
   if (c != -1 && !Is_Valid_Code(c))
     Pl_Err_Representation(pl_representation_in_character_code);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -666,7 +666,7 @@ Pl_Rd_In_Code_Check(WamWord start_word)
 int
 Pl_Rd_In_Code(WamWord start_word)
 {
-  return Pl_Rd_Integer(start_word);
+  return (int) Pl_Rd_Integer(start_word);
 }
 
 
@@ -690,7 +690,7 @@ Pl_Rd_Byte_Check(WamWord start_word)
   if (tag_mask != TAG_INT_MASK || !Is_Valid_Byte(c))
     Pl_Err_Type(pl_type_byte, word);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -703,7 +703,7 @@ Pl_Rd_Byte_Check(WamWord start_word)
 int
 Pl_Rd_Byte(WamWord start_word)
 {
-  return Pl_Rd_Integer(start_word);
+  return (int) Pl_Rd_Integer(start_word);
 }
 
 
@@ -727,7 +727,7 @@ Pl_Rd_In_Byte_Check(WamWord start_word)
   if (tag_mask != TAG_INT_MASK || (c != -1 && !Is_Valid_Byte(c)))
     Pl_Err_Type(pl_type_in_byte, word);
 
-  return c;
+  return (int) c;
 }
 
 
@@ -740,7 +740,7 @@ Pl_Rd_In_Byte_Check(WamWord start_word)
 int
 Pl_Rd_In_Byte(WamWord start_word)
 {
-  return Pl_Rd_Integer(start_word);
+  return (int) Pl_Rd_Integer(start_word);
 }
 
 
@@ -2475,7 +2475,7 @@ Pl_Mk_Float(double value)
 WamWord
 Pl_Mk_Number(double value)
 {
-  int n;
+  PlLong n;
 
   n = (PlLong) value;
 

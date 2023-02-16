@@ -178,13 +178,13 @@
 
 #ifdef FD_INST_FILE
 
-WamWord pl_vec_size;
-WamWord pl_vec_max_integer;
+int pl_vec_size;
+int pl_vec_max_integer;
 
 #else
 
-extern WamWord pl_vec_size;
-extern WamWord pl_vec_max_integer;
+extern int pl_vec_size;
+extern int pl_vec_max_integer;
 
 #endif
 

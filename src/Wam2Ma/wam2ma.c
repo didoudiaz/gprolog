@@ -313,7 +313,7 @@ void Display_Help(void);
 
 #define LOAD_F_N_0(atom, n)   LOAD_ATOM_0(atom); LOAD_INTEGER(n)
 #define LOAD_F_N_1(atom, n)   LOAD_STR(str_##atom); LOAD_INTEGER(n);\
-                              f_n_no = Add_F_N_Tagged(str_##atom, n)
+                              f_n_no = Add_F_N_Tagged(str_##atom, (int) n)
 
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
 #define LOAD_F_N(atom, n)     LOAD_F_N_1(atom, n)
@@ -487,7 +487,7 @@ F_predicate(ArgVal arg[])
 
   atom_functor = BT_String_Add(&bt_atom, functor);
 
-  cur_arity = arity;
+  cur_arity = (int) arity;
   cur_sub_label = 0;
 
   if (strcmp(static_dynamic, "dynamic") == 0)
@@ -555,9 +555,9 @@ F_predicate(ArgVal arg[])
 
   cur_pred->module = atom_module;
   cur_pred->functor = atom_functor;
-  cur_pred->arity = arity;
+  cur_pred->arity = (int) arity;
   cur_pred->pl_file = cur_pl_file;
-  cur_pred->pl_line = pl_line;
+  cur_pred->pl_line = (int) pl_line;
   cur_pred->prop = prop;
   cur_pred->swt_tbl[0] = NULL;
   cur_pred->swt_tbl[1] = NULL;
@@ -578,7 +578,7 @@ F_predicate(ArgVal arg[])
    *    - it belongs to module 'user' or 'system'
    */
 
-  Encode_Hexa((local_symbol || module_user_system) ? NULL : module, functor, arity, buff_hexa + 1);
+  Encode_Hexa((local_symbol || module_user_system) ? NULL : module, functor, (int) arity, buff_hexa + 1);
   *buff_hexa = '&';
   cur_pred->hexa = strdup(buff_hexa);
 
@@ -620,7 +620,7 @@ F_directive(ArgVal arg[])
     }
 
   p->pl_file = cur_pl_file;
-  p->pl_line = pl_line;
+  p->pl_line = (int) pl_line;
   p->system = system;
   p->next = NULL;
 
@@ -650,7 +650,7 @@ F_ensure_linked(ArgVal arg[])
   while (nb_elem--)
     {
       LOAD_MP_N(m, p, n);
-      Encode_Hexa(m, p, n, buff_hexa);
+      Encode_Hexa(m, p, (int) n, buff_hexa);
       Inst_Printf("pl_jump", buff_hexa);
     }
 }
@@ -1185,7 +1185,7 @@ F_call(ArgVal arg[])
 {
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa(m, p, n, buff_hexa);
+  Encode_Hexa(m, p, (int) n, buff_hexa);
 
   Inst_Printf("pl_call", buff_hexa);
 }
@@ -1202,7 +1202,7 @@ F_execute(ArgVal arg[])
 {
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa(m, p, n, buff_hexa);
+  Encode_Hexa(m, p, (int) n, buff_hexa);
 
   Inst_Printf("pl_jump", buff_hexa);
 }
@@ -1361,7 +1361,7 @@ F_switch_on_atom(ArgVal arg[])
   Args1(INTEGER(nb_elem));
 
 
-  t = Create_Switch_Table(TBL_ATM, nb_elem);
+  t = Create_Switch_Table(TBL_ATM, (int) nb_elem);
 
   for (elem = t->elem; nb_elem--; elem++)
     {
@@ -1449,7 +1449,7 @@ F_switch_on_structure(ArgVal arg[])
   Args1(INTEGER(nb_elem));
 
 
-  t = Create_Switch_Table(TBL_STC, nb_elem);
+  t = Create_Switch_Table(TBL_STC, (int) nb_elem);
 
   for (elem = t->elem; nb_elem--; elem++)
     {
@@ -1582,7 +1582,7 @@ F_pragma_arity(ArgVal arg[])
    * This pragma adjusts the number of args to save in choice-points.
    */
 
-  cur_arity = a;	
+  cur_arity = (int) a;	
 
 }
 
@@ -1736,7 +1736,7 @@ F_call_c(ArgVal arg[])
 	      i++;
 	      top++;
 	      LOAD_INTEGER(aux_arity);
-	      Encode_Hexa(NULL, aux_functor, aux_arity, buff_hexa);
+	      Encode_Hexa(NULL, aux_functor, (int) aux_arity, buff_hexa);
 	      fprintf(file_out, "&%s", buff_hexa);
 	      adr_of = FALSE;
 	    }
@@ -2229,7 +2229,7 @@ Emit_One_Atom_Tagged(int no, char *str, void *info)
 int
 Add_F_N_Tagged(char *atom, int n)
 {
-  int l = strlen(atom);
+  int l = (int) strlen(atom);
 
   atom = (char *) realloc(atom, l + 5 + 1);
   sprintf(atom + l, "/%d", n);
@@ -2377,7 +2377,7 @@ Parse_Arguments(int argc, char *argv[])
   if (file_name_out == NULL && file_name_in != NULL)
     {
       strcpy(str, file_name_in);
-      i = strlen(str);
+      i = (int) strlen(str);
       if (strcmp(str + i - 4, ".wam") == 0)
 	strcpy(str + i - 4, DEFAULT_OUTPUT_SUFFIX);
       else

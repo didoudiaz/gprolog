@@ -158,7 +158,7 @@ Pl_Blt_Term_Gte(WamWord x, WamWord y)
 Bool FC
 Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
 {
-  int cmp;
+  PlLong cmp;
   char c;
   Bool res;
 
@@ -274,8 +274,8 @@ Pl_Blt_Functor(WamWord term_word, WamWord functor_word, WamWord arity_word)
 
   if (tag_functor == TAG_ATM_MASK && arity > 0)
     {
-      res = (Pl_Get_Structure(UnTag_ATM(functor_word), arity, term_word)) ?
-	Pl_Unify_Void(arity), TRUE : FALSE;
+      res = (Pl_Get_Structure(UnTag_ATM(functor_word), (int )arity, term_word)) ?
+	Pl_Unify_Void((int) arity), TRUE : FALSE;
       goto finish;
     }
 
@@ -487,13 +487,13 @@ Pl_Copy_Term_2(WamWord u_word, WamWord v_word)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
-	 WamWord undo_word)
+	    WamWord undo_word)
 {
   WamWord word, tag_mask;
   int func, arity;
   int undo;
   WamWord *arg_adr;
-  int arg_no;
+  PlULong arg_no;
 
   arg_adr = Pl_Rd_Compound_Check(term_word, &func, &arity);
   arg_no = Pl_Rd_Positive_Check(arg_no_word) - 1;
@@ -503,7 +503,7 @@ Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
   if (!undo && tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK)
     Pl_Err_Type(pl_type_atomic, word);	/* pl_type_atomic but float not allowed */
 
-  if ((unsigned) arg_no >= (unsigned) arity)
+  if (arg_no >= arity)		/* include arg_no < 0 since PlULong */
     return FALSE;
 
   if (undo)

@@ -87,7 +87,7 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
   name_word = pl_pi_name_word;
   arity_word = pl_pi_arity_word;
 
-  which_preds = Pl_Rd_Integer(which_preds_word);
+  which_preds = Pl_Rd_C_Int(which_preds_word);
 
   if (which_preds == 0 && !Flag_Value(strict_iso))
     which_preds = 1;
@@ -161,13 +161,13 @@ Pl_Current_Predicate_Alt_0(void)
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
-  which_preds = AB(B, 2);
+  which_preds = (int) AB(B, 2);
   scan.endt = (char *) AB(B, 3);
   scan.cur_t = (char *) AB(B, 4);
   scan.cur_p = (char *) AB(B, 5);
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
-  arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : UnTag_INT(arity_word);
+  arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : (int) UnTag_INT(arity_word);
 
 				/* here func or arity == -1 (or both) */
   all = (func == -1 && arity == -1);
@@ -216,7 +216,7 @@ Bool
 Pl_Pred_Prop_Static_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_DYNAMIC) == 0;
@@ -233,7 +233,7 @@ Bool
 Pl_Pred_Prop_Dynamic_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_DYNAMIC) != 0;
@@ -250,7 +250,7 @@ Bool
 Pl_Pred_Prop_Private_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_PUBLIC) == 0;
@@ -267,7 +267,7 @@ Bool
 Pl_Pred_Prop_Public_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_PUBLIC) != 0;
@@ -284,7 +284,7 @@ Bool
 Pl_Pred_Prop_Monofile_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_MULTIFILE) == 0;
@@ -301,7 +301,7 @@ Bool
 Pl_Pred_Prop_Multifile_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_MULTIFILE) != 0;
@@ -318,7 +318,7 @@ Bool
 Pl_Pred_Prop_User_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN) == 0;
@@ -335,7 +335,7 @@ Bool
 Pl_Pred_Prop_Built_In_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN) != 0;
@@ -352,7 +352,7 @@ Bool
 Pl_Pred_Prop_Built_In_Fd_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_BUILTIN_FD) != 0;
@@ -369,7 +369,7 @@ Bool
 Pl_Pred_Prop_Control_Construct_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_CONTROL_CONSTRUCT) != 0;
@@ -386,7 +386,7 @@ Bool
 Pl_Pred_Prop_Native_Code_2(WamWord func_word, WamWord arity_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && (pred->prop & MASK_PRED_NATIVE_CODE) != 0;
@@ -403,7 +403,7 @@ Bool
 Pl_Pred_Prop_Prolog_File_3(WamWord func_word, WamWord arity_word, WamWord pl_file_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && Pl_Un_Atom_Check(pred->pl_file, pl_file_word);
@@ -420,7 +420,7 @@ Bool
 Pl_Pred_Prop_Prolog_Line_3(WamWord func_word, WamWord arity_word, WamWord pl_line_word)
 {
   int func = Pl_Rd_Atom(func_word);
-  int arity = Pl_Rd_Integer(arity_word);
+  int arity = Pl_Rd_C_Int(arity_word);
   PredInf *pred = Pl_Lookup_Pred(func, arity);
 
   return pred != NULL && Pl_Un_Integer_Check(pred->pl_line, pl_line_word);
@@ -490,7 +490,7 @@ Pl_Set_Predicate_File_Info_3(WamWord pred_indic_word,
     return FALSE;
 
   pl_file = Pl_Rd_Atom_Check(pl_file_word);
-  pl_line = Pl_Rd_Integer_Check(pl_line_word);
+  pl_line = (int) Pl_Rd_Integer_Check(pl_line_word);
 
   if (pl_line < 0)
     return FALSE;
@@ -571,7 +571,7 @@ Pl_Pred_Without_Aux_4(WamWord name_word, WamWord arity_word,
   int func1, arity1;
 
   func = Pl_Rd_Atom_Check(name_word);
-  arity = Pl_Rd_Integer_Check(arity_word);
+  arity = (int) Pl_Rd_Integer_Check(arity_word);
 
   func1 = Pl_Pred_Without_Aux(func, arity, &arity1);
 
@@ -597,8 +597,8 @@ Pl_Make_Aux_Name_4(WamWord name_word, WamWord arity_word,
   int aux_name;
 
   func = Pl_Rd_Atom_Check(name_word);
-  arity = Pl_Rd_Integer_Check(arity_word);
-  aux_nb = Pl_Rd_Integer_Check(aux_nb_word);
+  arity = (int) Pl_Rd_Integer_Check(arity_word);
+  aux_nb = (int) Pl_Rd_Integer_Check(aux_nb_word);
 
   aux_name = Pl_Make_Aux_Name(func, arity, aux_nb);
 

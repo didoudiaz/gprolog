@@ -193,10 +193,9 @@ char *Pl_Range_To_String(Range *range);
  * Vector Management Macros        *
  *---------------------------------*/
 
-#define Word_No_And_Bit_No(w, b)   (((VecWord) (w) << WORD_SIZE_BITS)|\
-                                     (VecWord) (b))
+#define Word_No_And_Bit_No(w, b)   (int) (((VecWord) (w) << WORD_SIZE_BITS)| (VecWord) (b))
 #define Word_No(n)                 ((VecWord) (n) >> WORD_SIZE_BITS)
-#define Bit_No(n)                  ((n) & (((VecWord) 1 << WORD_SIZE_BITS)-1))
+#define Bit_No(n)                  ((VecWord) (n) & (((VecWord) 1 << WORD_SIZE_BITS)-1))
 
 
 

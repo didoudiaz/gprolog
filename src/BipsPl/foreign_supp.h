@@ -83,12 +83,12 @@ PlFIOArg;
 
 #ifdef FOREIGN_SUPP_FILE
 
-int pl_foreign_bkt_counter;
+PlLong pl_foreign_bkt_counter;
 char *pl_foreign_bkt_buffer;
 
 #else
 
-extern int pl_foreign_bkt_counter;
+extern PlLong pl_foreign_bkt_counter;
 extern char *pl_foreign_bkt_buffer;
 
 #endif

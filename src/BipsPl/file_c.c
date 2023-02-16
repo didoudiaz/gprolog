@@ -188,7 +188,7 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
     goto same;
 
   strcpy(pl_glob_buff, path1);
-  len = strlen(path1);
+  len = (int) strlen(path1);
 
   q = suffixes;
   do
