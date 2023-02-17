@@ -93,13 +93,13 @@ Pl_Statistics_0(void)
       if (used + free == 0)	/* ie. size=0 (e.g. cstr_stack) */
 	continue;
 
-      used /= 1024;
-      free /= 1024;
+      /* to avoid 49999 Kb and obtain 50000 Kb if this was set in wam_archi.def, use ONE up rounding */
+      used = used / 1024;
+      free = (free + 1023) / 1024;
 
       Pl_Stream_Printf(pstm, "   %-6s stack %10d Kb   %10d Kb   %10d Kb\n",
 		       pl_stk_tbl[i].name, used + free, used, free);
     }
-
 
 #if 1
   Pl_Stream_Printf(pstm, "   atom   table %10d atoms%10d atoms%10d atoms\n",
@@ -239,8 +239,7 @@ Pl_Statistics_Local_Stack_2(WamWord used_word, WamWord free_word)
     if (pl_stk_tbl[i].stack == Local_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -261,8 +260,7 @@ Pl_Statistics_Global_Stack_2(WamWord used_word, WamWord free_word)
     if (pl_stk_tbl[i].stack == Global_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -282,8 +280,7 @@ Pl_Statistics_Trail_Stack_2(WamWord used_word, WamWord free_word)
     if (pl_stk_tbl[i].stack == Trail_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -303,8 +300,7 @@ Pl_Statistics_Cstr_Stack_2(WamWord used_word, WamWord free_word)
     if (pl_stk_tbl[i].stack == Cstr_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
