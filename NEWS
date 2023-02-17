@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.5.1
 
+* increase default Prolog stack sizes and MAX_ATOMS
 * extend exec/4-5 to also accept provided streams + null
 * fix bug in exec/4 under windows (bad stream redirection and child console not hidden)
 * improve fd_prime/1 built-in

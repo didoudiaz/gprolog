@@ -121,10 +121,10 @@ typedef WamWord *WamWordP;
 
 @begin stacks
 
-@stack trail  "Trail Stack (undo)"        16384 TR          /* Trail  stack */
-@stack cstr   "Cstr Stack (constraints)"  16384 CS          /* Constraint stack */
-@stack global "Global Stack (heap)"       32768 H           /* Global stack */
-@stack local  "Local Stack (control)"     16384 Local_Top   /* Local  stack (after global) */
+@stack trail  "Trail Stack (undo)"	  50000 TR          /* Trail  stack */
+@stack cstr   "Cstr Stack (constraints)"  50000 CS          /* Constraint stack */
+@stack global "Global Stack (heap)"      100000 H           /* Global stack */
+@stack local  "Local Stack (control)"     50000 Local_Top   /* Local  stack (after global) */
 
 @end stacks
 
