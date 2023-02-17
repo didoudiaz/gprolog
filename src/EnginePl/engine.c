@@ -121,7 +121,8 @@ void Pl_Call_Compiled(CodePtr codep);   /* defined in engine1.c */
 int
 Pl_Start_Prolog(int argc, char *argv[])
 {
-  int i, x;
+  int i;
+  PlLong x;
   char *p;
   void (*copy_of_pl_init_stream_supp)() = Pl_Dummy_Ptr(pl_init_stream_supp);
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -156,7 +157,7 @@ Pl_Start_Prolog(int argc, char *argv[])
           p = (char *) getenv(pl_stk_tbl[i].env_var_name);
           if (p && *p)
             {
-              sscanf(p, "%d", &x);
+              x = strtol(p, &p, 0);
               pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
             }
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -176,7 +177,7 @@ Pl_Start_Prolog(int argc, char *argv[])
       p = (char *) getenv(ENV_VAR_MAX_ATOM);
       if (p && *p)
 	{
-	  sscanf(p, "%d", &x);
+	  x = strtol(p, &p, 0);
 	  pl_max_atom = x;
 	}
 #if defined(_WIN32) || defined(__CYGWIN__)

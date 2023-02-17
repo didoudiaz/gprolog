@@ -110,9 +110,9 @@
 #define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
 #define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
 
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, reached: %d Kb, environment variable used: %s)"
+#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb, environment variable used: %s)"
 
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb, reached: %d Kb - fixed size)"
+#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb - fixed size)"
 
 
 
@@ -734,8 +734,8 @@ Stack_Overflow_Err_Msg(int stk_nb)
 {
   InfStack *s = pl_stk_tbl + stk_nb;
   char *var = s->env_var_name;
-  int size = (int) s->size;
-  int usage = (int) (Stack_Top(stk_nb) - s->stack);
+  PlLong size = s->size;
+  PlLong usage = (Stack_Top(stk_nb) - s->stack);
   static char msg[256];
 
   if (s->stack == Global_Stack)
