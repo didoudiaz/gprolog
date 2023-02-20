@@ -135,8 +135,7 @@ Pl_Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-			  CodePtr codep)
+Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity, CodePtr codep)
 {
   PlLong key = Functor_Arity(func, arity);
 
@@ -964,8 +963,7 @@ Pl_Deallocate(void)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 CodePtr FC
-Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-	       CodePtr c_lst, CodePtr c_stc)
+Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int, CodePtr c_lst, CodePtr c_stc)
 {
   WamWord word, tag_mask;
   CodePtr codep;
