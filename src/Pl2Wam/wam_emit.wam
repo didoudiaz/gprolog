@@ -2,7 +2,7 @@
 % file    : wam_emit.pl
 
 
-file_name('/home/diaz/tmp/gprolog/src/Pl2Wam/wam_emit.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/Pl2Wam/wam_emit.pl').
 
 
 predicate(emit_code_init/2,102,static,private,monofile,global,[

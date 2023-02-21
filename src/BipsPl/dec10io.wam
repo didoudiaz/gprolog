@@ -2,7 +2,7 @@
 % file    : dec10io.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/dec10io.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/dec10io.pl').
 
 
 predicate('$use_dec10io'/0,41,static,private,monofile,built_in,[
@@ -179,7 +179,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$see/1_$aux1'/3,73,static,private,monofile,local,[
+predicate('$see/1_$aux1'/3,72,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     put_value(x(1),0),
@@ -256,7 +256,7 @@ predicate(seen/0,96,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$seen/0_$aux1'/2,97,static,private,monofile,local,[
+predicate('$seen/0_$aux1'/2,96,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     put_void(0),
@@ -298,7 +298,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$tell/1_$aux1'/3,107,static,private,monofile,local,[
+predicate('$tell/1_$aux1'/3,106,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     put_value(x(1),0),
@@ -375,7 +375,7 @@ predicate(told/0,130,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$told/0_$aux1'/2,131,static,private,monofile,local,[
+predicate('$told/0_$aux1'/2,130,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     put_void(0),
@@ -417,7 +417,7 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$append/1_$aux1'/3,140,static,private,monofile,local,[
+predicate('$append/1_$aux1'/3,139,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     put_value(x(1),0),
@@ -454,7 +454,7 @@ predicate(get0/1,155,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(get/1,162,static,private,monofile,built_in,[
+predicate(get/1,161,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -472,7 +472,7 @@ predicate(get/1,162,static,private,monofile,built_in,[
     execute('$get/1_$aux1'/3)]).
 
 
-predicate('$get/1_$aux1'/3,162,static,private,monofile,local,[
+predicate('$get/1_$aux1'/3,161,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -548,7 +548,7 @@ label(2),
     execute('$pl_err_type'/2)]).
 
 
-predicate('$$check_in_character_code/1_$aux1'/2,189,static,private,monofile,local,[
+predicate('$$check_in_character_code/1_$aux1'/2,188,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

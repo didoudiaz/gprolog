@@ -611,8 +611,8 @@ MAKEFLAGS=
 # Identity of this package.
 PACKAGE_NAME='gprolog'
 PACKAGE_TARNAME='gprolog'
-PACKAGE_VERSION='1.5.9'
-PACKAGE_STRING='gprolog 1.5.9'
+PACKAGE_VERSION='1.5.1'
+PACKAGE_STRING='gprolog 1.5.1'
 PACKAGE_BUGREPORT='bug-prolog@gnu.org'
 PACKAGE_URL='www.gprolog.org'
 
@@ -1356,7 +1356,7 @@ if test "$ac_init_help" = "long"; then
   # Omit some internal or obsolete options to make the list less imposing.
   # This message is too long to be a string in the A/UX 3.1 sh.
   cat <<_ACEOF
-\`configure' configures gprolog 1.5.9 to adapt to many kinds of systems.
+\`configure' configures gprolog 1.5.1 to adapt to many kinds of systems.
 
 Usage: $0 [OPTION]... [VAR=VALUE]...
 
@@ -1422,7 +1422,7 @@ fi
 
 if test -n "$ac_init_help"; then
   case $ac_init_help in
-     short | recursive ) echo "Configuration of gprolog 1.5.9:";;
+     short | recursive ) echo "Configuration of gprolog 1.5.1:";;
    esac
   cat <<\_ACEOF
 
@@ -2801,7 +2801,7 @@ pl_year()
     LC_ALL=C date '+%Y'
 }
 
-PROLOG_NAME='GNU Prolog'
+PROLOG_NAME='GNU Prolog/CX'
 PROLOG_DIALECT='gprolog-cx'
 PROLOG_VERSION=$PACKAGE_VERSION
 PROLOG_DATE=`pl_date`

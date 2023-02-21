@@ -2,7 +2,7 @@
 % file    : pl_error.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/pl_error.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/pl_error.pl').
 
 
 predicate(set_bip_name/2,42,static,private,monofile,built_in,[

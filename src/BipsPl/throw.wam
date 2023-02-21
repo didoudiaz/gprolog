@@ -2,7 +2,7 @@
 % file    : throw.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/throw.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/throw.pl').
 
 
 predicate('$use_throw'/0,41,static,private,monofile,built_in,[

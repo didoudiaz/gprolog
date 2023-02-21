@@ -2,7 +2,7 @@
 % file    : print.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/print.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/print.pl').
 
 
 predicate('$use_print'/0,41,static,private,monofile,built_in,[

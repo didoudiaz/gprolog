@@ -2,7 +2,7 @@
 % file    : write.pl
 
 
-file_name('/home/spa/.host/local/src/gprolog-ref/src/BipsPl/write.pl').
+file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/write.pl').
 
 
 predicate('$use_write'/0,41,static,private,monofile,built_in,[
