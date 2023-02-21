@@ -70,8 +70,8 @@ static unsigned Find_Expon_General(unsigned x, unsigned y, unsigned *pxn);
  * PL_POWER                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-PlLong
-Pl_Power(PlLong x, unsigned n)
+int
+Pl_Power(int x, unsigned n)
 {
   PlLong xn, xp;
 

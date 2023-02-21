@@ -54,7 +54,7 @@
 
 #define closest_to_zero(a,b) 	(((a<=0) && (b>=0)) ? (0) : ((b<0) ? (b) : (a)))
 
-PlLong Pl_Power(PlLong x, unsigned n);
+int Pl_Power(int x, unsigned n);
 
 unsigned Pl_Nth_Root_Dn(unsigned y, unsigned n);
 
