@@ -535,7 +535,7 @@ Pl_Fd_List_Int_To_Range(Range *range, WamWord list_word)
       
       val = Pl_Fd_Prolog_To_Value(Car(lst_adr));
 
-      Pl_Range_Set_Value(range, val);
+      Pl_Range_Set_Value(range, (int) val);
       n++;
 
       list_word = Cdr(lst_adr);

@@ -73,7 +73,6 @@ static unsigned Find_Expon_General(unsigned x, unsigned y, unsigned *pxn);
 PlLong
 Pl_Power(PlLong x, unsigned n)
 {
-
   PlLong xn, xp;
 
   if (n == 0 || x == 1)
@@ -96,8 +95,13 @@ Pl_Power(PlLong x, unsigned n)
       n >>= 1;
     }
 
-  if ((PlLong) xn < INTERVAL_MIN_INTEGER) return INTERVAL_MIN_INTEGER;
-  return ((PlLong) xn <= INTERVAL_MAX_INTEGER) ? xn : INTERVAL_MAX_INTEGER;
+  if (xn < INTERVAL_MIN_INTEGER)
+    return INTERVAL_MIN_INTEGER;
+
+  if (xn <= INTERVAL_MAX_INTEGER)
+    return (int) xn;
+
+  return INTERVAL_MAX_INTEGER;
 }
 
 
@@ -139,7 +143,7 @@ Pl_Nth_Root_Dn(unsigned y, unsigned n)
   do
     {
       old = new;
-      oldn1 = Pl_Power(old, n1);
+      oldn1 = Pl_Power(old, (unsigned) n1);
       new = (n1 * old + y / oldn1) / n;
     }
   while (new < old);
@@ -273,7 +277,6 @@ Pl_Find_Expon_Dn(unsigned x, unsigned y)
   if (x <= 1 || y == 0)
     return INTERVAL_MAX_INTEGER;
 
-
   n = Find_Expon_General(x, y, &xn);
 
   return n;
@@ -296,7 +299,6 @@ Pl_Find_Expon_Up(unsigned x, unsigned y)
   if (x <= 1 || y == 0)
     return INTERVAL_MAX_INTEGER;
 
-
   n = Find_Expon_General(x, y, &xn);
 
   return n + (y != xn);
@@ -318,7 +320,6 @@ Pl_Find_Expon_Exact(unsigned x, unsigned y)
 
   if (x <= 1 || y == 0)
     return INTERVAL_MAX_INTEGER;
-
 
   n = Find_Expon_General(x, y, &xn);
 
@@ -412,16 +413,16 @@ Pl_Full_Coeff_Power_Var(Range *y, int a, Range *n)
   else {				/* N is Sparse */
     Chunk *chunk = n->first;
     while (chunk!=NULL) {
-  		min_n = math_max(chunk->min, 0);
-    	an = Pl_Power(a, min_n);
-  		an0 = an;
-  		for (i = min_n; i <= chunk->max; i++) {
-    	  if (an0 >= INTERVAL_MAX_INTEGER || an0 <= INTERVAL_MIN_INTEGER)
-    	    return;
-    	  an = an0;
-    	  Pl_Range_Set_Value(y,an);
-    	  an0 *= a;
-  		}
+      min_n = math_max(chunk->min, 0);
+      an = Pl_Power(a, min_n);
+      an0 = an;
+      for (i = min_n; i <= chunk->max; i++) {
+	if (an0 >= INTERVAL_MAX_INTEGER || an0 <= INTERVAL_MIN_INTEGER)
+	  return;
+	an = an0;
+	Pl_Range_Set_Value(y, an);
+	an0 *= a;
+      }
       chunk = chunk->next;
     }
   }
@@ -446,13 +447,13 @@ Pl_Full_Find_Expon(Range *n, int a, Range *y)
     for (i = y->min; i <= y->max; i++) {
       e = Pl_Find_Expon_Exact(a, i);
       if (e >= 0) 
-				Pl_Range_Set_Value(n, e);
+	Pl_Range_Set_Value(n, e);
     }
   }
   else {			/* Y is Sparse */
     Chunk *chunk = y->first;
     while (chunk!=NULL) {
-			for (i = chunk->min; i <= chunk->max; i++) {
+      for (i = chunk->min; i <= chunk->max; i++) {
         e = Pl_Find_Expon_Exact(a, i);
         if (e >= 0)
           Pl_Range_Set_Value(n, e);
@@ -500,11 +501,11 @@ Pl_Full_Var_Power_Coeff(Range *y, Range *x, int a)
   else {			/* X is Sparse */
     Chunk *chunk = x->first;
     while (chunk!=NULL) {
-			for (i = chunk->min; i <= chunk->max; i++) {
-  			xa = Pl_Power(i, a);
-  			if (xa >= INTERVAL_MAX_INTEGER || xa <= INTERVAL_MIN_INTEGER)
-    			continue;
-  			Pl_Range_Set_Value(y, xa);
+      for (i = chunk->min; i <= chunk->max; i++) {
+	xa = Pl_Power(i, a);
+	if (xa >= INTERVAL_MAX_INTEGER || xa <= INTERVAL_MIN_INTEGER)
+	  continue;
+	Pl_Range_Set_Value(y, xa);
       }
       chunk = chunk->next;
     }
@@ -524,7 +525,7 @@ Pl_Full_Nth_Root(Range *x, Range *y, int a)
   int e;
   int i;
 
-	if (Is_Interval(y)) {		/* Y is Interval */
+  if (Is_Interval(y)) {		/* Y is Interval */
     for (i = y->min; i <= y->max; i++) {
       e = Pl_Nth_Root_Exact(i, a);
       if (e >= 0)
@@ -534,11 +535,11 @@ Pl_Full_Nth_Root(Range *x, Range *y, int a)
   else {			/* Y is Sparse */
     Chunk *chunk = y->first;
     while (chunk!=NULL) {
-			for (i = chunk->min; i <= chunk->max; i++) {
-			  e = Pl_Nth_Root_Exact(i, a);
-		    if (e >= 0)
-		      Pl_Range_Set_Value(x, e);
-		  }
+      for (i = chunk->min; i <= chunk->max; i++) {
+	e = Pl_Nth_Root_Exact(i, a);
+	if (e >= 0)
+	  Pl_Range_Set_Value(x, e);
+      }
       chunk = chunk->next;
     }
   }
@@ -572,13 +573,13 @@ Pl_Full_Var_Power_2(Range *y, Range *x)
   else {
     Chunk *chunk = x->first;
     while (chunk!=NULL) {
-			// -x^2 == x^2 (so make everything positive)
-			min_x = math_min(abs(closest_to_zero(chunk->min, chunk->max)), max_val);
-			max_x = math_min(math_max(abs(chunk->min), abs(chunk->max)), max_val);
-			for (i = min_x; i <= max_x; i++) {
-			  // i*i should be < MAX
-			  Pl_Range_Set_Value(y,i*i);
-			}
+      // -x^2 == x^2 (so make everything positive)
+      min_x = math_min(abs(closest_to_zero(chunk->min, chunk->max)), max_val);
+      max_x = math_min(math_max(abs(chunk->min), abs(chunk->max)), max_val);
+      for (i = min_x; i <= max_x; i++) {
+	// i*i should be < MAX
+	Pl_Range_Set_Value(y,i*i);
+      }
       chunk = chunk->next;
     }
   }
@@ -599,28 +600,28 @@ Pl_Full_Sqrt_Var(Range *x, Range *y)
 
   // take only positive y
   // don't take values > (x->max ** 2)
-  int max_val = (x->max < Pl_Sqrt_Up(INTERVAL_MAX_INTEGER)) ? (x->max * x->max) : INTERVAL_MAX_INTEGER;
+  int max_val = (x->max < (int) Pl_Sqrt_Up(INTERVAL_MAX_INTEGER)) ? (x->max * x->max) : INTERVAL_MAX_INTEGER;
   Set_To_Empty(x);
 
   if (Is_Interval(y)) {		/* Y is Interval */
     for (i = math_max(0,y->min); i <= math_max(0,math_min(max_val,y->max)); i++) {
-	  	e = Pl_Sqrt_Exact(i);
+      e = Pl_Sqrt_Exact(i);
       if (e >= 0) {
         Pl_Range_Set_Value(x, -e);
         Pl_Range_Set_Value(x, e);
-			}
+      }
     }
   }
   else {			/* Y is Sparse */
     Chunk *chunk = y->first;
     while (chunk!=NULL) {
-			for (i = math_max(0,chunk->min); i <= math_max(0,math_min(max_val,chunk->max)); i++) {
-  			e = Pl_Sqrt_Exact(i);
-		    if (e >= 0) {
-	        Pl_Range_Set_Value(x, -e);
-	        Pl_Range_Set_Value(x, e);
-				}
-		  }
+      for (i = math_max(0,chunk->min); i <= math_max(0,math_min(max_val,chunk->max)); i++) {
+	e = Pl_Sqrt_Exact(i);
+	if (e >= 0) {
+	  Pl_Range_Set_Value(x, -e);
+	  Pl_Range_Set_Value(x, e);
+	}
+      }
       chunk = chunk->next;
     }
   }
