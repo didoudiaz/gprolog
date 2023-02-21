@@ -6,7 +6,7 @@
  * Descr.: meta call info support                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -78,7 +78,7 @@ Pl_Save_Call_Info_3(WamWord func_word, WamWord arity_word,
   Bool debug_call;
 
   func = Pl_Rd_Atom(func_word);
-  arity = Pl_Rd_Integer(arity_word);
+  arity = Pl_Rd_C_Int(arity_word);
   debug_call = *Pl_Rd_String(debug_call_word) == 't';
 
   save_call_info = Call_Info(func, arity, debug_call);
@@ -95,7 +95,7 @@ Pl_Load_Call_Info_Arg_1(WamWord arg_no_word)
 {
   int arg_no;
 
-  arg_no = Pl_Rd_Integer(arg_no_word);
+  arg_no = Pl_Rd_C_Int(arg_no_word);
   A(arg_no) = Tag_INT(save_call_info);
 }
 

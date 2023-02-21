@@ -6,7 +6,7 @@
  * Descr.: mathematical support                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -383,9 +383,9 @@ Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
 	}
 
       l_m = p.m;
-      l_nb_monom = pos - l_m;
+      l_nb_monom = (int) (pos - l_m);
       r_m = end;
-      r_nb_monom = neg - r_m;
+      r_nb_monom = (int) (neg - r_m);
 
 #ifdef DEBUG
       DBGPRINTF("l_nb_monom:%d   r_nb_monom:%d\n", l_nb_monom, r_nb_monom);
@@ -895,7 +895,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	  if (Tag_Is_INT(word2))
 	    {
 	      n2 = UnTag_INT(word2);
-	      if ((n1 = Pl_Power(n1, n2)) < 0)
+	      if ((n1 = Pl_Power((unsigned) n1, (unsigned) n2)) < 0)
 		return FALSE;
 
 	      Add_Cst_To_Poly(p, sign, n1);

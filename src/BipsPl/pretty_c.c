@@ -6,7 +6,7 @@
  * Descr.: pretty print clause management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -83,9 +83,9 @@ static WamWord dollar_varname_1;
 static WamWord equal_2;
 
 static PlLong *singl_var_ptr;
-static int nb_singl_var;
+static PlLong nb_singl_var;
 
-static int nb_to_try;
+static PlLong nb_to_try;
 
 static WamWord *above_H;
 
@@ -111,7 +111,7 @@ static Bool Collect_Singleton(WamWord *adr);
 
 static int Var_Name_To_Var_Number(int atom);
 
-static void Exclude_A_Var_Number(int n);
+static void Exclude_A_Var_Number(PlLong n);
 
 static void Collect_Excluded_Rec(WamWord start_word);
 
@@ -156,7 +156,7 @@ Pl_Portray_Clause_3(WamWord sora_word, WamWord term_word, WamWord above_word)
   
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;
@@ -626,7 +626,7 @@ Var_Name_To_Var_Number(int atom)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Exclude_A_Var_Number(int n)
+Exclude_A_Var_Number(PlLong n)
 {
   if (n >= 0 && n < MAX_VAR_IN_TERM)
     pl_glob_dico_var[n] = 1;
@@ -703,8 +703,9 @@ Collect_Excluded_Rec(WamWord start_word)
 static Bool
 Bind_Variable(WamWord *adr, WamWord word)
 {
-  int i, j;
-  char buff[256];		/* FIXME: up from 16 */
+  int i;
+  PlLong j;
+  char buff[128];		/* cx: up from 32 */
 
   while (pl_glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
     nb_to_try++;
@@ -716,14 +717,14 @@ Bind_Variable(WamWord *adr, WamWord word)
       return TRUE;
     }
 
-  i = nb_to_try % 26;
+  i = (int) nb_to_try % 26;
   j = nb_to_try / 26;
   nb_to_try++;
 
   buff[0] = 'A' + i;
 
   if (j)
-    sprintf(buff + 1, "%d", j);
+    sprintf(buff + 1, "%" PL_FMT_d, j);
   else
     buff[1] = '\0';
 

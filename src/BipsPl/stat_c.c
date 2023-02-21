@@ -6,7 +6,7 @@
  * Descr.: statistics predicate management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -66,7 +66,7 @@ static PlLong last_real_time = 0;
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Stack_Size(int stack_nb, int *used, int *free);
+static void Stack_Size(int stack_nb, PlLong *used, PlLong *free);
 
 
 
@@ -79,7 +79,7 @@ void
 Pl_Statistics_0(void)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_stdout];
-  int used, free;
+  PlLong used, free;
   PlLong t[4], l[4];
   static char *n[4] = { "user", "system", "cpu", "real" };
   int i;
@@ -93,13 +93,13 @@ Pl_Statistics_0(void)
       if (used + free == 0)	/* ie. size=0 (e.g. cstr_stack) */
 	continue;
 
-      used /= 1024;
-      free /= 1024;
+      /* to avoid 49999 Kb and obtain 50000 Kb if this was set in wam_archi.def, use ONE up rounding */
+      used = used / 1024;
+      free = (free + 1023) / 1024;
 
       Pl_Stream_Printf(pstm, "   %-6s stack %10d Kb   %10d Kb   %10d Kb\n",
 		       pl_stk_tbl[i].name, used + free, used, free);
     }
-
 
 #if 1
   Pl_Stream_Printf(pstm, "   atom   table %10d atoms%10d atoms%10d atoms\n",
@@ -145,7 +145,7 @@ Bool
 Pl_Statistics_User_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
   PlLong user_time;
-  int since_start, since_last;
+  PlLong since_start, since_last;
 
   user_time = Pl_M_User_Time();
   since_start = user_time;
@@ -167,7 +167,7 @@ Bool
 Pl_Statistics_System_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
   PlLong system_time;
-  int since_start, since_last;
+  PlLong since_start, since_last;
 
   system_time = Pl_M_System_Time();
   since_start = system_time;
@@ -189,7 +189,7 @@ Bool
 Pl_Statistics_Cpu_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
   PlLong cpu_time;
-  int since_start, since_last;
+  PlLong since_start, since_last;
 
   cpu_time = Pl_M_User_Time() + Pl_M_System_Time();
   since_start = cpu_time;
@@ -211,7 +211,7 @@ Bool
 Pl_Statistics_Real_Time_2(WamWord since_start_word, WamWord since_last_word)
 {
   PlLong real_time;
-  int since_start, since_last;
+  PlLong since_start, since_last;
 
   real_time = Pl_M_Real_Time();
   since_start = real_time;
@@ -232,14 +232,14 @@ Pl_Statistics_Real_Time_2(WamWord since_start_word, WamWord since_last_word)
 Bool
 Pl_Statistics_Local_Stack_2(WamWord used_word, WamWord free_word)
 {
-  int i, used, free;
+  PlLong used, free;
+  int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Local_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -253,14 +253,14 @@ Pl_Statistics_Local_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Global_Stack_2(WamWord used_word, WamWord free_word)
 {
-  int i, used, free;
+  PlLong used, free;
+  int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Global_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -273,14 +273,14 @@ Pl_Statistics_Global_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Trail_Stack_2(WamWord used_word, WamWord free_word)
 {
-  int i, used, free;
+  PlLong used, free;
+  int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Trail_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -293,14 +293,14 @@ Pl_Statistics_Trail_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Cstr_Stack_2(WamWord used_word, WamWord free_word)
 {
-  int i, used, free;
+  PlLong used, free;
+  int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Cstr_Stack)
       Stack_Size(i, &used, &free);
 
-  return Pl_Un_Integer_Check(used, used_word) &&
-    Pl_Un_Integer_Check(free, free_word);
+  return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
 
 
@@ -325,7 +325,7 @@ Pl_Statistics_Atoms_2(WamWord used_word, WamWord free_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Stack_Size(int stack_nb, int *used, int *free)
+Stack_Size(int stack_nb, PlLong *used, PlLong *free)
 {
   *used = Stack_Top(stack_nb) - pl_stk_tbl[stack_nb].stack;
   *free = pl_stk_tbl[stack_nb].size - *used;

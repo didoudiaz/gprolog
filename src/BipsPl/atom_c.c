@@ -6,7 +6,7 @@
  * Descr.: atom manipulation management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -63,8 +63,8 @@
  *---------------------------------*/
 
 static Bool
-Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
-		 int b, int l, int a, int *b1, int *l1, int *a1);
+Compute_Next_BLA(PlLong mask, AtomInf *patom, AtomInf *psub_atom,
+		 PlLong b, PlLong l, PlLong a, PlLong *b1, PlLong *l1, PlLong *a1);
 
 
 
@@ -136,7 +136,7 @@ Bool
 Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
 {
   WamWord word, tag_mask;
-  int tag1, tag2, tag3;
+  WamWord tag1, tag2, tag3;
   AtomInf *patom1, *patom2, *patom3;
   char *str;
   int l;
@@ -261,7 +261,7 @@ Pl_Atom_Concat_Alt_0(void)
 
   name = patom3->name;
 
-  l = p - name;
+  l = (int) (p - name);
   MALLOC_STR(l);
   strncpy(str, name, l + 1);
   str[l] = '\0';
@@ -303,16 +303,16 @@ Pl_Atom_Concat_Alt_0(void)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
-	   WamWord after_word, WamWord sub_atom_word)
+	      WamWord after_word, WamWord sub_atom_word)
 {
   WamWord word, tag_mask;
   AtomInf *patom;
   AtomInf *psub_atom = NULL;	/* only for the compiler */
   int length;
   PlLong b, l, a;
-  int b1, l1, a1;
+  PlLong b1, l1, a1;
   Bool nondet;
-  int mask = 0;
+  PlLong mask = 0;
   char *str;
 
   patom = pl_atom_tbl + Pl_Rd_Atom_Check(atom_word);
@@ -398,8 +398,7 @@ Pl_Sub_Atom_5(WamWord atom_word, WamWord before_word, WamWord length_word,
   if (b < 0 || l < 0 || a < 0)
     return FALSE;
 
-  if (nondet
-      && Compute_Next_BLA(mask, patom, psub_atom, b, l, a, &b1, &l1, &a1))
+  if (nondet && Compute_Next_BLA(mask, patom, psub_atom, b, l, a, &b1, &l1, &a1))
     {				/* non deterministic case */
       A(0) = before_word;
       A(1) = length_word;
@@ -440,9 +439,9 @@ Pl_Sub_Atom_Alt_0(void)
   WamWord before_word, length_word, after_word, sub_atom_word;
   AtomInf *patom;
   AtomInf *psub_atom;
-  int b, l, a;
-  int b1, l1, a1;
-  int mask;
+  PlLong b, l, a;
+  PlLong b1, l1, a1;
+  PlLong mask;
   char *str;
 
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(SUB_ATOM_ALT, 0), 0);
@@ -497,8 +496,8 @@ Pl_Sub_Atom_Alt_0(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Compute_Next_BLA(int mask, AtomInf *patom, AtomInf *psub_atom,
-		 int b, int l, int a, int *b1, int *l1, int *a1)
+Compute_Next_BLA(PlLong mask, AtomInf *patom, AtomInf *psub_atom,
+		 PlLong b, PlLong l, PlLong a, PlLong *b1, PlLong *l1, PlLong *a1)
 {
   int length = patom->prop.length;
   char *str;
@@ -564,7 +563,7 @@ static int
 Create_Malloc_Atom(char *str)
 {
   int atom;
-  int nb = pl_nb_atom;
+  PlULong nb = pl_nb_atom;
 
   atom = Pl_Create_Atom(str);
   if (nb == pl_nb_atom)
@@ -803,7 +802,7 @@ Pl_Name_2(WamWord atomic_word, WamWord codes_word)
 
   str = Pl_Rd_Codes_Check(codes_word);
 
-  syn_flag = Flag_Value(syntax_error);
+  syn_flag = (int) Flag_Value(syntax_error);
   Flag_Value(syntax_error) = PF_ERR_FAIL;
 
   is_number = String_To_Number(str, word);	/* only fails on syn err */
@@ -879,7 +878,7 @@ String_To_Number(char *str, WamWord number_word)
 #if 0
     err:
 #endif
-      Pl_Syntax_Error(Flag_Value(syntax_error));
+      Pl_Syntax_Error((int) Flag_Value(syntax_error));
       return FALSE;
     }
 
@@ -900,7 +899,7 @@ Pl_Current_Atom_2(WamWord atom_word, WamWord hide_word)
   Bool hide;
   int atom;
 
-  hide = Pl_Rd_Integer_Check(hide_word);
+  hide = (Bool) Pl_Rd_Integer_Check(hide_word);
 
   DEREF(atom_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
@@ -942,8 +941,8 @@ Pl_Current_Atom_Alt_0(void)
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_ATOM_ALT, 0), 0);
 
   atom_word = AB(B, 0);
-  hide = AB(B, 1);
-  atom = AB(B, 2);
+  hide = (Bool) AB(B, 1);
+  atom = (int) AB(B, 2);
 
   for (;;)
     {

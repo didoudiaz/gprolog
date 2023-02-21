@@ -6,7 +6,7 @@
  * Descr.: hexadecimal decoding                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -490,7 +490,7 @@ Decode_Hexa_Line(char *str, char *format, int strict, int quote, int decode_aux)
 	{
 	  src = p;
 
-	  n = strlen(module);
+	  n = (int) strlen(module);
 	  if (n) {
 	    if (unit)		/* => context: use unit (module) arity */
 	      n += sprintf (module + n, "/%d", uarity);

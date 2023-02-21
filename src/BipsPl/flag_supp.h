@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable support - header file           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -117,21 +117,21 @@ FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong v
  * modifiable flags give rise to global variable pl_flag_xxx
  */
 
-#define NEW_FLAG_INTEGER(f, v) Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_INTEGER(f, v) Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ATOM_A(f, v)  Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_ATOM_A(f, v)  Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ATOM(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
+#define NEW_FLAG_R_ATOM(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
 
-#define NEW_FLAG_ROUND(f, v)   Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ROUND, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_ROUND(f, v)   Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ROUND, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_BOOL(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_BOOL, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_BOOL(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_BOOL, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ON_OFF(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ON_OFF, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_ON_OFF(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ON_OFF, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_ERR(f, v)     pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ERR, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_ERR(f, v)     pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ERR, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_QUOTES(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_QUOTES, v, NULL, NULL, NULL)
+#define NEW_FLAG_W_QUOTES(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_QUOTES, v, NULL, NULL, NULL)
 
 
 
@@ -187,8 +187,9 @@ FlagInf *pl_flag_double_quotes;
 FlagInf *pl_flag_multifile_warning;
 FlagInf *pl_flag_os_error;
 FlagInf *pl_flag_singleton_warning;
-FlagInf *pl_flag_strict_iso;
 FlagInf *pl_flag_suspicious_warning;
+FlagInf *pl_flag_show_information;
+FlagInf *pl_flag_strict_iso;
 FlagInf *pl_flag_syntax_error;
 FlagInf *pl_flag_unknown;
 
@@ -203,8 +204,9 @@ extern FlagInf *pl_flag_double_quotes;
 extern FlagInf *pl_flag_multifile_warning;
 extern FlagInf *pl_flag_os_error;
 extern FlagInf *pl_flag_singleton_warning;
-extern FlagInf *pl_flag_strict_iso;
 extern FlagInf *pl_flag_suspicious_warning;
+extern FlagInf *pl_flag_show_information;
+extern FlagInf *pl_flag_strict_iso;
 extern FlagInf *pl_flag_syntax_error;
 extern FlagInf *pl_flag_unknown;
 

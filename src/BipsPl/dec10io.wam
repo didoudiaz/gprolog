@@ -150,7 +150,7 @@ label(1),
     fail]).
 
 
-predicate(see/1,73,static,private,monofile,built_in,[
+predicate(see/1,72,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -210,7 +210,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(seeing/1,89,static,private,monofile,built_in,[
+predicate(seeing/1,88,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(4),
@@ -233,7 +233,7 @@ predicate(seeing/1,89,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(seen/0,97,static,private,monofile,built_in,[
+predicate(seen/0,96,static,private,monofile,built_in,[
     pragma_arity(1),
     get_current_choice(x(0)),
     allocate(3),
@@ -269,7 +269,7 @@ label(1),
     proceed]).
 
 
-predicate(tell/1,107,static,private,monofile,built_in,[
+predicate(tell/1,106,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -329,7 +329,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(telling/1,123,static,private,monofile,built_in,[
+predicate(telling/1,122,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(4),
@@ -352,7 +352,7 @@ predicate(telling/1,123,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(told/0,131,static,private,monofile,built_in,[
+predicate(told/0,130,static,private,monofile,built_in,[
     pragma_arity(1),
     get_current_choice(x(0)),
     allocate(3),
@@ -388,7 +388,7 @@ label(1),
     proceed]).
 
 
-predicate(append/1,140,static,private,monofile,built_in,[
+predicate(append/1,139,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -448,7 +448,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(get0/1,156,static,private,monofile,built_in,[
+predicate(get0/1,155,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get0,1]),
     call_c('Pl_Get_Code_1',[boolean],[x(0)]),
     proceed]).
@@ -493,13 +493,13 @@ label(1),
     proceed]).
 
 
-predicate(put/1,171,static,private,monofile,built_in,[
+predicate(put/1,170,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put,1]),
     call_c('Pl_Put_Code_1',[],[x(0)]),
     proceed]).
 
 
-predicate(skip/1,176,static,private,monofile,built_in,[
+predicate(skip/1,175,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(3),
@@ -524,7 +524,7 @@ predicate(skip/1,176,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$check_in_character_code'/1,186,static,private,monofile,built_in,[
+predicate('$check_in_character_code'/1,185,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -573,7 +573,7 @@ label(1),
     execute('$pl_err_representation'/1)]).
 
 
-predicate(tab/1,201,static,private,monofile,built_in,[
+predicate(tab/1,200,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),255),

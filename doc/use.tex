@@ -47,10 +47,12 @@ programs, to list them, to execute them and to debug them. The
 \SPart{Options}:
 
 \begin{CmdOptions}
-\IdxKD{--init-goal}  \Param{GOAL} & execute \Param{GOAL} before entering the top-level \\
+\IdxKD{--init-goal} \Param{GOAL} & execute \Param{GOAL} before entering the top-level \\
 \IdxKD{--consult-file} \Param{FILE} & consult \Param{FILE} inside the top-level \\
 \IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside the top-level \\
 \IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for the top-level \\
+
+\IdxKD{--quiet} & suppress informational messages (e.g. top-level banner) \\
 
 \IdxKD{--help} & print a help and exit \\
 
@@ -66,9 +68,9 @@ itself, i.e. to execute the built-in predicate
 
 \begin{Code}
 \begin{verbatim}
-GNU Prolog 1.5.0 (64 bits)
-Compiled May  3 2021, 16:36:43 with gcc
-Copyright (C) 1999-2022 Daniel Diaz
+GNU Prolog 1.5.1 (64 bits)
+Compiled Dec  7 2022, 10:56:46 with gcc
+Copyright (C) 1999-2023 Daniel Diaz
 
 | ?- 
 \end{verbatim}
@@ -76,6 +78,10 @@ Copyright (C) 1999-2022 Daniel Diaz
 
 The top-level is ready to execute your queries as explained in the next
 section.
+
+Note that the banner (and other informative messages) can be removed
+with the \IdxK{--quiet} option which turns off the
+\IdxPF{show\_information} \Idx{Prolog flag}.
 
 To quit the top-level type the end-of-file key sequence (\texttt{Ctl-D}) or
 its term representation: \texttt{end\_of\_file.} It is also possible to use
@@ -150,7 +156,7 @@ will produce the following:
 before
 GNU Prolog 1.5.0 (64 bits)
 Compiled May  3 2021, 16:36:43 with gcc
-Copyright (C) 1999-2022 Daniel Diaz
+Copyright (C) 1999-2023 Daniel Diaz
 
 inside
 | ?- append([a,b],[c,d],X).
@@ -273,7 +279,8 @@ the 2$^{nd}$ is an anonymous variable)}
 variable name \texttt{A} is introduced)}
 \end{CodeTwoCols}
 
-The top-level uses variable binding predicates \RefSP{Variable-naming/numbering}. To display the value of a variable, the top-level calls
+The top-level uses variable binding predicates \RefSP{Variable-naming/numbering}.
+To display the value of a variable, the top-level calls
 \IdxPB{write\_term/3} with the following option list:
 \texttt{[\AddPO{quoted}\texttt{quoted(true)},\AddPO{numbervars}\texttt{numbervars(false)},
 \AddPO{namevars}\texttt{namevars(true)}]} \RefSP{write-term/3}. A term of the
@@ -689,7 +696,7 @@ the following substrings:
 
 \begin{tabular}{ll}
 
-\texttt{no}          & do not activated linedit (should the only value of the variable) \\
+\texttt{no}          & do not activated linedit (should be the only value of the variable) \\
 \texttt{ansi=no}     & do not use ANSI escape sequence (unix only) \\
 \texttt{out=}$N$     & use the file descriptor $N$ for the output (unix only) \\
 \texttt{gui=no}      & even if compiled with the \Idx{GUI console} run in text mode (windows) \\

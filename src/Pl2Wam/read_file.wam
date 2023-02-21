@@ -3112,7 +3112,7 @@ predicate(error/2,1101,static,private,monofile,global,[
     put_value(y(0),0),
     call('$error/2_$aux1'/1),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate('$error/2_$aux1'/1,1101,static,private,monofile,local,[
@@ -3152,9 +3152,8 @@ predicate(disp_msg/4,1113,static,private,monofile,global,[
     put_value(y(2),0),
     put_value(y(3),1),
     call(format/2),
-    put_atom(user_output,0),
     deallocate,
-    execute(nl/1)]).
+    execute(nl/0)]).
 
 
 predicate('$disp_msg/4_$aux1'/2,1113,static,private,monofile,local,[
@@ -3286,8 +3285,8 @@ label(1),
 predicate(exception/1,1161,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
-    try_me_else(9),
-    switch_on_term(3,fail,fail,fail,1),
+    try_me_else(11),
+    switch_on_term(3,10,fail,fail,1),
 
 label(1),
     switch_on_structure([(error/2,2)]),
@@ -3350,7 +3349,7 @@ label(6),
     execute(error/2),
 
 label(7),
-    trust_me_else_fail,
+    retry_me_else(9),
 
 label(8),
     get_structure(error/2,0),
@@ -3368,6 +3367,13 @@ label(8),
     execute(error/2),
 
 label(9),
+    trust_me_else_fail,
+
+label(10),
+    get_atom(abandon_exec,0),
+    execute(abort/0),
+
+label(11),
     trust_me_else_fail,
     put_list(1),
     unify_local_value(x(0)),

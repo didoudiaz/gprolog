@@ -6,7 +6,7 @@
  * Descr.: operator table management - header file                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -45,8 +45,8 @@
 
 
 #define Make_Oper_Key(a, t)        (((PlULong) (a) << 2) | (t))
-#define Atom_Of_Oper(k)            ((PlULong) (k) >> 2)
-#define Type_Of_Oper(k)            ((PlULong) (k) & 3)
+#define Atom_Of_Oper(k)            ((int) ((PlULong) (k) >> 2))
+#define Type_Of_Oper(k)            ((int) ((PlULong) (k) & 3))
 
 
 
@@ -60,7 +60,7 @@
 
 
 
-#define Make_Op_Mask(type)         (1<<(type))
+#define Make_Op_Mask(type)         (1 << (type))
 
 
 

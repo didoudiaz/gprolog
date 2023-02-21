@@ -6,7 +6,7 @@
  * Descr.: list library  - C part                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -427,7 +427,7 @@ Bool
 Pl_Length_Alt_0(void)
 {
   WamWord list_word, n_word;
-  int len;
+  PlLong len;
 
   Pl_Delete_Choice_Point(3);
   list_word = A(0);

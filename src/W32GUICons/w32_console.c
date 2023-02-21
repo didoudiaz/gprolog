@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -232,8 +232,8 @@ static char buff_pathname[MAX_PATH];
 
 static int CallMain(void *unused);
 
-static int StartWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                        LPSTR lpCmdLine, INT nCmdShow);
+static WPARAM StartWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+			   LPSTR lpCmdLine, INT nCmdShow);
 
 static BOOL InitApplication(void);
 
@@ -429,7 +429,7 @@ CallMain(void *unused)
   return 0;
 }
 
-static int
+static WPARAM
 StartWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
   MSG msg;
@@ -713,13 +713,13 @@ SubClassEdit(HWND hwnd, UINT msg, WPARAM mp1, LPARAM mp2)
       if (hasCtrl && !hasAlt) /* only needed for ^space (for ^A mp1 is already 1, but not for ^space) */
         mp1 = KEY_CTRL(mp1);  /* we test !hasAlt because AltGr is the same as Ctrl+Alt */
 
-      del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint(mp1)) ? Delete_Selection() : 0;
+      del = (mp1 == '\b' || mp1 == KEY_CTRL('D') || isprint((int) mp1)) ? Delete_Selection() : 0;
 
       if (del && (mp1 == '\b' || mp1 == KEY_CTRL('D')) && --repeat == 0)
         return 0;
 
       while (repeat--)
-        Add_Char_To_Queue(mp1);
+        Add_Char_To_Queue((int) mp1);
 
       return 0;
     }
@@ -888,7 +888,7 @@ Toggle_Wrap_Mode(HWND hwnd)
   LockWindowUpdate(hwnd);       /* lock to avoid flicking */
 
   SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &start, (LPARAM) &end); // save selection
-  text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0) + 1; // + 1 for '\0'
+  text_size = (int) SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0) + 1; // + 1 for '\0'
   text = malloc(text_size); // for the '\0'
   if (text != NULL)
     {
@@ -1008,14 +1008,14 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
         }
 
 
-      nb_stk = (*fct_query_stack)(QUERY_STACK_GET_NB_OF_STACKS, 0);
+      nb_stk = (int) (*fct_query_stack)(QUERY_STACK_GET_NB_OF_STACKS, 0);
 
       for (i = 0; i < nb_stk; i++)
         {
           desc = (char *) (*fct_query_stack)(QUERY_STACK_GET_DESC, i);
           env_var_name = (char *) (*fct_query_stack)(QUERY_STACK_GET_ENV_VAR_NAME, i);
-          def_sz = (*fct_query_stack)(QUERY_STACK_GET_DEFAULT_SIZE, i);
-          cur_sz = (*fct_query_stack)(QUERY_STACK_GET_SIZE, i);
+          def_sz = (int) (*fct_query_stack)(QUERY_STACK_GET_DEFAULT_SIZE, i);
+          cur_sz = (int) (*fct_query_stack)(QUERY_STACK_GET_SIZE, i);
 
           SetDlgItemText(hwndDlg, stk[i].idc_desc, desc);
           SetDlgItemInt(hwndDlg, stk[i].idc_def_sz, def_sz, FALSE);
@@ -1034,7 +1034,7 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
       switch (LOWORD(wParam))
         {
         case IDOK:
-          nb_stk = (*fct_query_stack)(QUERY_STACK_GET_NB_OF_STACKS, 0);
+          nb_stk = (int) (*fct_query_stack)(QUERY_STACK_GET_NB_OF_STACKS, 0);
           for (i = 0; i < nb_stk; i++)
             {
               env_var_name = (char *) (*fct_query_stack)(QUERY_STACK_GET_ENV_VAR_NAME, i);
@@ -1169,7 +1169,7 @@ Get_Current_Word(int select_it)
   if (text != NULL)
     free(text);
 
-  text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0) + 1; // + 1 for '\0'
+  text_size = (int) SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0) + 1; // + 1 for '\0'
   text = malloc(text_size); // for the '\0'
   if (text == NULL)
     return "";
@@ -1491,7 +1491,7 @@ Get_CHM_Help_Path(char *path)
       if ((p = Get_Selected_Directory("Select the GNU Prolog directory", 0)) == NULL)
         return 0;
 
-      Write_Windows_Registry("RootPath", REG_SZ, p, strlen(p));
+      Write_Windows_Registry("RootPath", REG_SZ, p, (int) strlen(p));
     }
 
 #ifdef DEBUG                    /* to force display + remove path (debug) */
@@ -1728,7 +1728,7 @@ Flush_Buffer(void)
   int end;
 
 
-  n = wr_buffer_ptr - wr_buffer;
+  n = (int) (wr_buffer_ptr - wr_buffer);
   if (n > 0)
     {
       /* the n chararacters have to be written from ec_start + posit to ec_start + posit + n - 1
@@ -1741,8 +1741,8 @@ Flush_Buffer(void)
 
       dont_use_selection = 1; // acquire selection
 
-      max_size = SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
-      text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
+      max_size = (int) SendMessage(hwndEditControl, EM_GETLIMITTEXT, 0, 0);
+      text_size = (int) SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
 
       *wr_buffer_ptr = '\0';
 
@@ -1751,11 +1751,11 @@ Flush_Buffer(void)
       // check if enough space (reserve room of "\r\n")
       if (end >= max_size) // else delete n and write n: nothing change !
 	{
-	  int line = SendMessage(hwndEditControl, EM_LINEFROMCHAR, end - max_size, 0);
-	  int line_index = SendMessage(hwndEditControl, EM_LINEINDEX, line + 1, 0);
+	  int line = (int) SendMessage(hwndEditControl, EM_LINEFROMCHAR, end - max_size, 0);
+	  int line_index = (int) SendMessage(hwndEditControl, EM_LINEINDEX, line + 1, 0);
 	  SendMessage(hwndEditControl, EM_SETSEL, 0, line_index);
 	  SendMessage(hwndEditControl, EM_REPLACESEL, 0, (LPARAM) wr_buffer_ptr);  /* empty string to remove lines */
-	  text_size = SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
+	  text_size = (int) SendMessage(hwndEditControl, WM_GETTEXTLENGTH, 0, 0);
 	  SendMessage(hwndEditControl, EM_SETSEL, text_size, text_size);
 	  SendMessage(hwndEditControl, EM_GETSEL, (WPARAM) &ec_start, (WPARAM) &end); // re-init ec_start
 	}
@@ -1866,7 +1866,7 @@ W32GC_Displ(int n, char *str)
 DLLEXPORT void
 W32GC_Displ_Str(char *str)
 {
-  Display_Text(str, strlen(str));
+  Display_Text(str, (int) strlen(str));
 }
 
 

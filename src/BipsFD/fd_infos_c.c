@@ -6,7 +6,7 @@
  * Descr.: FD variable information management - C part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -86,7 +86,7 @@ Pl_Fd_Set_Vector_Max_1(WamWord max_word)
   PlLong max = Pl_Rd_Positive_Check(max_word);
   if (max > VECTOR_MAX_LIMIT)
     return FALSE;
-  Pl_Define_Vector_Size(max);
+  Pl_Define_Vector_Size((int) max);
   return TRUE;
 }
 
@@ -114,7 +114,7 @@ Bool
 Pl_Fd_Min_2(WamWord fdv_word, WamWord min_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
@@ -136,7 +136,7 @@ Bool
 Pl_Fd_Max_2(WamWord fdv_word, WamWord max_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)
@@ -159,7 +159,8 @@ Pl_Fd_Dom_2(WamWord fdv_word, WamWord list_word)
 {
   WamWord word, tag_mask;
   WamWord *fdv_adr;
-  int x, end;
+  PlLong x;
+  int end;
   int vec_elem;
 
   Pl_Check_For_Un_List(list_word);
@@ -215,7 +216,7 @@ Bool
 Pl_Fd_Size_2(WamWord fdv_word, WamWord size_word)
 {
   WamWord word, tag_mask;
-  int n;
+  PlLong n;
 
   Fd_Deref_Check_Fd_Var(fdv_word, word, tag_mask);
   if (tag_mask == TAG_INT_MASK)

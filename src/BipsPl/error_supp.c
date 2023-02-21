@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -69,8 +69,8 @@ static int c_bip_arity;
 
 
 static char *last_err_file = NULL;
-static int last_err_line;
-static int last_err_col;
+static PlLong last_err_line;
+static PlLong last_err_col;
 static char *last_err_msg;
 
 
@@ -172,6 +172,7 @@ Error_Supp_Initializer(void)
   pl_domain_stream_or_alias = Pl_Create_Atom("stream_or_alias");
   pl_domain_stream_position = Pl_Create_Atom("stream_position");
   pl_domain_stream_property = Pl_Create_Atom("stream_property");
+  pl_domain_file_stream = Pl_Create_Atom("file_stream");
   pl_domain_write_option = Pl_Create_Atom("write_option");
   pl_domain_order = Pl_Create_Atom("order");
   pl_domain_term_stream_or_alias = Pl_Create_Atom("term_stream_or_alias");
@@ -264,7 +265,7 @@ Pl_Set_Bip_Name_2(WamWord func_word, WamWord arity_word)
   arity = Pl_Rd_Integer_Check(arity_word);
   if (arity > MAX_ARITY)
     arity = -1;
-  cur_bip_arity = arity;
+  cur_bip_arity = (int) arity;
 
   Pl_Unset_C_Bip_Name();
 
@@ -415,7 +416,7 @@ Context_Error_String(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
+Pl_Set_Last_Syntax_Error(char *file_name, PlLong err_line, PlLong err_col,
 			 char *err_msg)
 {
   last_err_file = file_name;
@@ -460,9 +461,9 @@ Pl_Syntax_Error(int flag_value)
   char str[512];
 
   if (last_err_file == NULL || *last_err_file == '\0')
-    sprintf(str, "(char:%d) %s", last_err_col, last_err_msg);
+    sprintf(str, "(char:%" PL_FMT_d ") %s", last_err_col, last_err_msg);
   else
-    sprintf(str, "%s:%d (char:%d) %s", last_err_file,
+    sprintf(str, "%s:%" PL_FMT_d " (char:%" PL_FMT_d ") %s", last_err_file,
 	    last_err_line, last_err_col, last_err_msg);
 
   if (flag_value == PF_ERR_ERROR)
@@ -471,8 +472,8 @@ Pl_Syntax_Error(int flag_value)
   Update_Cur_From_C_Bip();
   if (flag_value == PF_ERR_WARNING)
     Pl_Stream_Printf(pl_stm_tbl[pl_stm_top_level_output],
-		  "warning: syntax error: %s (from %s)\n",
-		  str, Context_Error_String());
+		     "warning: syntax error: %s (from %s)\n",
+		     str, Context_Error_String());
 }
 
 

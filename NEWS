@@ -1,5 +1,14 @@
 Change in GNU Prolog version 1.5.1
 
+* increase default Prolog stack sizes and MAX_ATOMS
+* extend exec/4-5 to also accept provided streams + null
+* fix bug in exec/4 under windows (bad stream redirection and child console not hidden)
+* improve fd_prime/1 built-in
+* add show_information Prolog flag (--quiet deactivate it)
+* add --quiet option to top-level command-line (do not display banner and info)
+* add Prolog flag show_information (on/off)
+* add new prefedined stream aliases (current_input, current_output)
+* add new built-in to reassign a stream alias (set_stream_alias/2)
 * port to RISC-V 64 bits/Linux - many thanks to
   Jasper Taylor <jasper@simulistics.com>
 * fix issue #23: add built-in predicate copy_file/2

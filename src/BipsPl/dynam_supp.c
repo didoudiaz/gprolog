@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -174,7 +174,7 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *   - a forward  indexing   chain                                         *
  *   - a backward indexing   chain                                         *
  *   - the clause number                                                   *
- *   - the erase stamp (only if the clause is reased, DYN_STAMP_NONE else) *
+ *   - the erase stamp (only if the clause is erased, DYN_STAMP_NONE else) *
  *   - the pointer to the next erased clause (only if the clause is erased)*
  *   - the pointer to the byte-code (or NULL if the clause is interpreted) *
  *   - the size of the Prolog term                                         *
@@ -266,8 +266,8 @@ Pl_Add_Dynamic_Clause_CX(WamWord head_word, WamWord body_word, Bool asserta,
 
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
-		       pl_stm_tbl[pl_stm_stdin]->line_count,
-		       MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+			  (int) pl_stm_tbl[pl_stm_stdin]->line_count,
+			  MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
@@ -285,8 +285,7 @@ Pl_Add_Dynamic_Clause_CX(WamWord head_word, WamWord body_word, Bool asserta,
     dyn = Alloc_Init_Dyn_Info(pred, arity);
 
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key) : NO_INDEX;
 
 #ifdef DEBUG
   DBGPRINTF("\n");

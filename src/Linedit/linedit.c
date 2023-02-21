@@ -6,7 +6,7 @@
  * Descr.: line editor                                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -244,7 +244,7 @@ Pl_LE_Gets(char *str)
 
   if ((str = Pl_LE_FGets(str, big_size, NULL, 0)) != NULL)
     {
-      l = strlen(str) - 1;      /* for gets remove last \n */
+      l = (int) (strlen(str) - 1); /* for gets remove last \n */
       if (l >= 0 && str[l] == '\n')
         str[l] = '\0';
     }
@@ -278,7 +278,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
   size--;                       /* -1 for '\0' */
 
-  prompt_length = (prompt && display_prompt) ? strlen(prompt) : 0;
+  prompt_length = (prompt && display_prompt) ? (int) strlen(prompt) : 0;
 
   Pl_LE_Open_Terminal();
   global_str = str;
@@ -294,7 +294,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           goto return_is_read;
         }
       if (c == '\t')            /* '\t' on output would cause trouble */
-        for(n = Tab_To_Spaces(end - str); n; n--)
+        for(n = Tab_To_Spaces((int) (end - str)); n; n--)
           *end++ = ' ';
       else
         *end++ = c;
@@ -431,7 +431,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           while (p < pos)       /* add deleted part to clipboard */
             *q++ = *p++;
           *q = '\0';
-          n = pos - str;
+          n = (int) (pos - str);
           for (p = pos; p < end; p++)
             p[-n] = *p;
 
@@ -491,7 +491,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (c == KEY_ESC('W'))
             continue;
 
-          n = stop - start;
+          n = (int) (stop - start);
           for (p = stop; p < end; p++)
             p[-n] = *p;
 
@@ -573,7 +573,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           p = Skip(p, end, 1, +1);      /* skip separators */
           w = *pos;             /* prefix from p to pos */
           *pos = '\0';
-          p = Completion_Do_Match(p, pos - p, &rest_length);
+          p = Completion_Do_Match(p, (int) (pos - p), &rest_length);
           *pos = w;
           if (p == NULL)
             goto error;
@@ -592,7 +592,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_ESC('\t'):     /* transform a tab to spaces */
-          for (n = Tab_To_Spaces(pos - str); n; n--)
+          for (n = Tab_To_Spaces((int) (pos - str)); n; n--)
             if (!New_Char(' ', str, size, &pos, &end))
               goto error;
           continue;
@@ -622,7 +622,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           FORWD(end - pos, pos); /* go to EOL to avoid multi-line */
 	  /* truncation on the output */
 	  *end = '\0';
-	  History_Add_Line(str, end - str);
+	  History_Add_Line(str, (int) (end - str));
 	  if (end - str < size)   /* '\n' can be added */
 	    *end++ = '\n';
 	  *end = '\0';
@@ -634,7 +634,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || h_no == Hist_Start_Entry())
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
           Hist_Dec(h_no);
         write_hist_line:
           p = end;
@@ -652,7 +652,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || h_no == Hist_End_Entry())
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
           Hist_Inc(h_no);
           goto write_hist_line;
 
@@ -661,7 +661,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || pos == str)
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
         try_previous:
           if (h_no == Hist_Start_Entry())
             goto error;
@@ -683,7 +683,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || pos == str)
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
         try_next:
           if (Hist_Is_Empty() || h_no == Hist_End_Entry())
             goto error;
@@ -699,7 +699,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || h_no == Hist_Start_Entry())
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
           Hist_First(h_no);
           goto write_hist_line;
 
@@ -709,7 +709,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (Hist_Is_Empty() || h_no == Hist_End_Entry())
             goto error;
           *end = '\0';
-          History_Update_Line(str, end - str, h_no);
+          History_Update_Line(str, (int) (end - str), h_no);
           Hist_Last(h_no);
           goto write_hist_line;
 
@@ -770,7 +770,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           if (KBD_IS_NOT_EMPTY)
             continue;
 
-          n = pos - p;
+          n = (int) (pos - p);
           q = pos;
           BACKD(n);
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -881,7 +881,7 @@ Pl_LE_Get_Prompt_Length(void)
 int
 Pl_LE_Get_Current_Position(void)
 {
-  return global_pos - global_str;
+  return (int) (global_pos - global_str);
 }
 
 
@@ -1181,7 +1181,7 @@ Pl_LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg)
   int prefix_length, rest_length;
   char *str;
 
-  prefix_length = strlen(prefix);
+  prefix_length = (int) strlen(prefix);
 
   if (Completion_Do_Match(prefix, prefix_length, &rest_length) == NULL)
     return NULL;
@@ -1387,7 +1387,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-          "   linedit %-25s Copyright (C) 1999-2022 Daniel Diaz",
+          "   linedit %-25s Copyright (C) 1999-2023 Daniel Diaz",
           LINEDIT_VERSION);
   L(buff);
   L("");

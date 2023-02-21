@@ -1931,9 +1931,9 @@ stream to a source/sink (section above). A stream-term is a compound term of
 the form \texttt{'\$stream'(I)} where \texttt{I} is an integer.
 
 \SPart{Stream aliases}: any stream may be associated with a stream alias
-which is an atom which may be used to refer to that stream. The association
-can be done at open time or using \IdxPB{add\_stream\_alias/2}
-\RefSP{add-stream-alias/2}. Such an association automatically ends when the
+(an atom) which may be used to refer to that stream. The association
+can be done at open time or later using \IdxPB{set\_stream\_alias/2}
+\RefSP{set-stream-alias/2}. Such an association automatically ends when the
 stream is closed. A particular alias only refers to at most one stream at any
 one time. However, more than one alias can be associated with a stream. Most
 built-in predicates which have a stream-term as an input argument also accept
@@ -1947,14 +1947,22 @@ execution of every goal: the standard input stream which has the alias
 \IdxPKD{user\_error}. A goal which attempts to close either standard stream
 succeeds, but does not close the stream.
 
-\SPart{Current streams}: during execution there is a current input stream
-and a current output stream. By default, the current input and output
-streams are the standard input and output streams, but the built-in
-predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
-\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change them.
-When the current input stream is closed, the standard input stream becomes
-the current input stream. When the current output stream is closed, the
-standard output stream becomes the current output stream.
+\SPart{Current streams}: during execution there is a current input
+stream and a current output stream. By default, the current input and
+output streams are the standard input and output streams, but the
+built-in predicates \IdxPB{set\_input/1} \RefSP{set-input/1} and
+\IdxPB{set\_output/1} \RefSP{set-output/1} can be used to change
+them. These streams also have predefined aliases: \IdxPKD{current\_input}
+and \IdxPKD{current\_output}. 
+
+\SPart{Top-level and debugger aliases}: GNU Prolog provides predefined
+aliases for the streams used by the top-level
+(\IdxPKD{top\_level\_input}, \IdxPKD{top\_level\_output}) and by the
+debugger (\IdxPKD{debugger\_input}, \IdxPKD{debugger\_output}).
+
+When a stream associated with a predefined alias is closed, the alias is
+reassigned to its initial standard stream (either the standard input,
+output or error stream).
 
 \SPart{Text streams and binary streams}: a text stream is a sequence of
 characters. A text stream is also regarded as a sequence of lines where each
@@ -2297,14 +2305,18 @@ close(+stream\_or\_alias)
 
 \Description
 
-\texttt{close(SorA, Options)} closes the stream associated with the stream-term
-or alias \texttt{SorA}. If \texttt{SorA} is the standard input stream or the
-standard output stream \texttt{close/2} simply succeeds else the associated
-source/sink is physically closed. If \texttt{SorA} is the current input
-stream the current input stream becomes the standard input stream
-\IdxPK{user\_input}. If \texttt{SorA} is the current output stream the
-current output stream becomes the standard output stream
-\IdxPK{user\_output}.
+\texttt{close(SorA, Options)} physically closes the stream associated
+with the stream-term or alias \texttt{SorA}. If \texttt{SorA} is the
+standard input stream or the standard output or the standard error
+stream \texttt{close/2} succeeds without closing the stream (but
+user-defined aliases related to the closed stream are removed). If
+\texttt{SorA} is the current input stream the current input stream
+becomes the standard input stream \IdxPK{user\_input}. If
+\texttt{SorA} is the current output stream the current output stream
+becomes the standard output stream \IdxPK{user\_output}. More
+generally, the same occurs when closing a stream associated to a
+predefined alias: the alias is reassigned to the corresponding
+standard stream~\RefSP{Introduction:(Streams)}.
 
 \SPart{Close options}: \texttt{Options} is a list of close options. For the
 moment only one option is available:
@@ -2468,6 +2480,9 @@ the stream position is end-of-stream then \texttt{E} is unified with
 \texttt{at} else if the stream position is past-end-of-stream then \texttt{E}
 is unified with \texttt{past} else \texttt{E} is unified with \texttt{not}.
 
+\item \AddPPD{file\_no}\texttt{file\_no(FD)}: \texttt{FD} is the file descriptor
+of the stream (only available if the stream is associated to a POSIX-like file).
+
 \item \AddPPD{position}\texttt{position(P)}: \texttt{P} is the stream-position
 term associated with the current position.
 
@@ -2494,7 +2509,9 @@ term associated with the current position.
 
 \Portability
 
-ISO predicate. The \texttt{buffering/1} property is a GNU Prolog extension.
+ISO predicate. The \texttt{buffering/1}, \texttt{file\_name/1},
+\texttt{file\_no/1}, \texttt{mirror/1} properties are GNU Prolog
+extensions.
 
 \subsubsection{\IdxPBD{at\_end\_of\_stream/1},
                \IdxPBD{at\_end\_of\_stream/0}}
@@ -2882,17 +2899,22 @@ by character until the required position is reached.
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{add\_stream\_alias/2}\label{add-stream-alias/2}}
+\subsubsection{\IdxPBD{set\_stream\_alias/2}, \label{set-stream-alias/2}
+		\IdxPBD{add\_stream\_alias/2}}
 
 \begin{TemplatesOneCol}
+set\_stream\_alias(+stream\_or\_alias, +atom)\\
 add\_stream\_alias(+stream\_or\_alias, +atom)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{add\_stream\_alias(SorA, Alias)} adds \texttt{Alias} as a new alias
+\texttt{set\_stream\_alias(SorA, Alias)} (re)assignes \texttt{Alias} as an alias
 to the stream associated with the stream-term or alias \texttt{SorA}.
+
+\texttt{add\_stream\_alias(SorA, Alias)} is similar except that it
+throws an error if the \texttt{Alias} is already in use (i.e. assigned to another stream).
 
 \begin{PlErrors}
 
@@ -2911,14 +2933,14 @@ to the stream associated with the stream-term or alias \texttt{SorA}.
 \ErrCond{\texttt{SorA} is not associated with an open stream}
 \ErrTerm{existence\_error(stream, SorA)}
 
-\ErrCond{\texttt{Alias} is already associated with an open stream}
+\ErrCond{\texttt{Alias} is already associated with an open stream (for \texttt{add\_stream\_alias/2})}
 \ErrTerm{permission\_error(add\_alias, source\_sink, alias(Alias))}
 
 \end{PlErrors}
 
 \Portability
 
-GNU Prolog predicate.
+GNU Prolog predicates.
 
 \subsubsection{\IdxPBD{current\_alias/2}}
 
@@ -7694,6 +7716,10 @@ character conversion activated ? & Y \\
 
 \hline
 
+\IdxPFD{show\_information} & \texttt{\underline{on}} / \texttt{off} & show informational messages ? & N \\
+
+\hline
+
 \IdxPFD{strict\_iso} & \texttt{\underline{on}} / \texttt{off} & strict ISO behavior ? & N \\
 
 \hline
@@ -9562,30 +9588,42 @@ GNU Prolog predicate.
                \IdxPBD{exec/4}}
 
 \begin{TemplatesOneCol}
-exec(+atom, -stream, -stream, -stream, -integer)\\
-exec(+atom, -stream, -stream, -stream)
+exec(+atom, ?stream\_or\_alias, ?stream\_or\_alias, ?stream\_or\_alias, -integer)\\
+exec(+atom, ?stream\_or\_alias, ?stream\_or\_aliasm, ?stream\_or\_aliasm)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{exec(Command, StreamIn, StreamOut, StreamErr, Pid)} invokes a new
-default shell passing \texttt{Command} for execution and associates streams
-to standard streams of the created process. \texttt{StreamIn} is unified
-with the stream-term associated with the standard input stream of
-\texttt{Command} (it is an output stream). \texttt{StreamOut} is unified
-with the stream-term associated with the standard output stream of
-\texttt{Command} (it is an input stream). \texttt{StreamErr} is unified with
-the stream-term associated with the standard error stream of \texttt{Command}
-(it is an input stream). \texttt{Pid} is unified with the process identifier
-of the new process. This information is only useful if it is necessary to
-obtain the status of the execution using \texttt{wait/2} \RefSP{wait/2}.
-Until a call to \texttt{wait/2} is done the process remains in the system
-processes table (as a zombie process if terminated). For this reason, if the
-status is not needed it is preferable to use \texttt{exec/4}.
+\texttt{exec(Command, SorAIn, SorAOut, SorAErr)} invokes a new default
+shell passing \texttt{Command} for execution and associates streams to
+standard streams (input, output, error) of the created process. Each
+stream can be a variable or a stream term or alias. If a variable is
+given, a pipe is created: the variables is unified with the
+stream-term of the corresponding standard stream of
+\texttt{Command}. It is an output stream for \texttt{SorAIn}, an input
+stream for \texttt{SorAOut} and \texttt{SorAErr}). If a stream-term or
+alias is given, the corresponding file is passed to the
+\texttt{Command} (in this case \texttt{SorAIn} must be an input
+stream, \texttt{SorAOut} and \texttt{SorAErr} must be an output
+stream). In this case, the file should be a POSIX-like file (i.e. must
+have the \texttt{file\_no} property \RefSP{stream-property/2}).  For
+each stream it is also possible to pass \IdxK{null} to bind the
+\textit{null} stream : a stream which always returns EOF when read and
+has no effect when written (NB: \texttt{null} is considered as an
+alias in the error table below).
 
-\texttt{exec/4} is similar to \texttt{exec/5} but the process is removed
-from system processes as soon as it is terminated.
+Note that \texttt{exec/4} detaches the process and waits for its
+termination ; the process is thus removed from system processes table
+(classical process spawning).  On the other hand, \texttt{exec/5},
+unifies \texttt{Pid} with the process \textit{id} of the created
+process. This is useful either to obtain the exit status of the child
+process or when some pipes are used to communicate with the child
+process (see above). In both cases, \texttt{exec/5} must be followed by
+\texttt{wait/2} \RefSP{wait/2} to wait for the termination of the
+child process.  Until a call to \texttt{wait/2} is done the process
+remains in the system processes table (as a zombie process if
+terminated). 
 
 \begin{PlErrors}
 
@@ -9595,14 +9633,32 @@ from system processes as soon as it is terminated.
 \ErrCond{\texttt{Command} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Command)}
 
-\ErrCond{\texttt{StreamIn} is not a variable}
-\ErrTerm{uninstantiation\_error(StreamIn)}
+\ErrCond{\texttt{SorAIn} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorAIn)}
 
-\ErrCond{\texttt{StreamOut} is not a variable}
-\ErrTerm{uninstantiation\_error(StreamOut)}
+\ErrCond{\texttt{SorAOut} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorAOut)}
 
-\ErrCond{\texttt{StreamErr} is not a variable}
-\ErrTerm{uninstantiation\_error(StreamErr)}
+\ErrCond{\texttt{SorAErr} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorAErr)}
+
+\ErrCond{\texttt{SorAIn} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorAIn)}
+
+\ErrCond{\texttt{SorAIn} is an output stream}
+\ErrTerm{permission\_error(input, stream, SorAIn)}
+
+\ErrCond{\texttt{SorAOut} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorAOut)}
+
+\ErrCond{\texttt{SorAIn} is an input stream}
+\ErrTerm{permission\_error(output, stream, SorAOut)}
+
+\ErrCond{\texttt{SorAErr} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorAErr)}
+
+\ErrCond{\texttt{SorAErr} is an input stream}
+\ErrTerm{permission\_error(output, stream, SorAErr)}
 
 \ErrCond{\texttt{Pid} is not a variable}
 \ErrTerm{uninstantiation\_error(Pid)}

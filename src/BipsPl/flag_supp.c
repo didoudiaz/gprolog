@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable support                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -671,7 +671,7 @@ Pl_Current_Prolog_Flag_Alt_0(void)
 
   flag_word = AB(B, 0);
   value_word = AB(B, 1);
-  i = AB(B, 2);
+  i = (int) AB(B, 2);
   flag = flag_tbl + i;
 
   if (i + 1 == nb_flag)

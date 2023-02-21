@@ -6,7 +6,7 @@
  * Descr.: main file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,7 +38,7 @@
 
 pl2wam(Arg) :-
 	atom(Arg),
-	Arg \== [], !,			% to call easily inder top-level
+	Arg \== [], !,			% to call easily under the top-level
 	pl2wam([Arg]).
 
 pl2wam(LArg) :-
@@ -73,7 +73,7 @@ pl2wam1(LArg) :-
 	    display_counters,
 	    compile_msg_end(PlFile1, InBytes, InLines, OutBytes, OutLines)
 	;   format('~N\t~d error(s)~n', [ErrNb]),
-	    abort
+	    abandon_exec
 	).
 
 
@@ -289,7 +289,7 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_read(plfile, PlFile),
 	(   PlFile = '' ->
 	    format('no input file~n', []),
-	    abort
+	    abandon_exec
 	;   true
 	),
 	g_read(wamfile, WamFile).
@@ -312,13 +312,13 @@ cmd_line_arg1('--output', LArg, LArg1) :-
 	    sub_atom(WamFile, 0, 1, _, Prefix),
 	    Prefix \== (-)
 	;   format('FILE missing after --output option~n', []),
-	    abort
+	    abandon_exec
 	),
 	g_read(wamfile, WamFile0),
 	(   WamFile0 = '' ->
 	    true
 	;   format('output file already specified (~a)~n', [WamFile0]),
-	    abort
+	    abandon_exec
 	),
 	g_assign(wamfile, WamFile).
 
@@ -409,14 +409,14 @@ cmd_line_arg1('--help', LArg, LArg) :-
 cmd_line_arg1(Arg, _, _) :-
 	sub_atom(Arg, 0, 1, _, -),
 	format('unknown option ~a - try pl2wam --help~n', [Arg]),
-	abort.
+	abandon_exec.
 
 cmd_line_arg1(PlFile, LArg, LArg) :-
 	g_read(plfile, PlFile0),
 	(   PlFile0 = '' ->
 	    true
 	;   format('input file already specified (~a)~n', [PlFile0]),
-	    abort
+	    abandon_exec
 	),
 	g_assign(plfile, PlFile).
 

@@ -6,7 +6,7 @@
  * Descr.: write term support                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -255,7 +255,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 void
 Pl_Write(WamWord term_word)
 {
-  StmInf *pstm = pl_stm_tbl[pl_stm_output];
+  StmInf *pstm = pl_stm_tbl[pl_stm_current_output];
 
   Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
   /* like write/1 */
@@ -954,7 +954,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
-      if (tag_mask == TAG_INT_MASK && (n = UnTag_INT(word)) >= 0)
+      if (tag_mask == TAG_INT_MASK && (n = (int) UnTag_INT(word)) >= 0)
 	{
 	  i = n % 26;
 	  j = n / 26;
@@ -1257,7 +1257,7 @@ Pl_Get_Print_Stm_1(WamWord stm_word)
   int stm = Pl_Find_Stream_From_PStm(pstm_o);
 
   if (stm < 0)
-    stm = pl_stm_output;
+    stm = pl_stm_current_output;
 
   return Pl_Get_Integer(stm, stm_word);
 }

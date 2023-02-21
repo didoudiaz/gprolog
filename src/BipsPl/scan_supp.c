@@ -6,7 +6,7 @@
  * Descr.: scanner support                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -354,7 +354,7 @@ Scan_Number(StmInf *pstm, Bool integer_only)
       Read_Next_Char(pstm, TRUE);
     }
   while (c_type == DI);
-  lg = p - pl_token.name;
+  lg = (int) (p - pl_token.name);
 
   if (!integer_only &&		/* float if . and digit */
       c == '.' && isdigit(Pl_Scan_Peek_Char(pstm, TRUE)))
@@ -520,12 +520,12 @@ Scan_Quoted(StmInf *pstm)
   else if (c_type == DQ)
     {
       pl_token.type = TOKEN_STRING;
-      i = Flag_Value(double_quotes);
+      i = (int) Flag_Value(double_quotes);
     }
   else
     {
       pl_token.type = TOKEN_BACK_QUOTED;
-      i = Flag_Value(back_quotes);
+      i = (int) Flag_Value(back_quotes);
     }
 
   s = pl_token.name;
@@ -700,7 +700,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
       Read_Next_Char(pstm, convert);
       while ((p = strchr(f, c)) != NULL)
 	{
-	  i = p - f;
+	  i = (int) (p - f);
 	  if (i >= 16)
 	    i -= 6;
 	  x = x * radix + i;

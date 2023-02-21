@@ -6,7 +6,7 @@
  * Descr.: all solution collector management - C part                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -177,7 +177,7 @@ Pl_Free_Variables_4(WamWord templ_word, WamWord gen_word, WamWord gen1_word,
 
   arg = free_var_base = H;	/* array is in the heap */
   Pl_Treat_Vars_Of_Term(new_gen_word, TRUE, Free_Var);
-  nb_free_var = H - arg;
+  nb_free_var = (int) (H - arg);
 
   if (nb_free_var == 0)
     return FALSE;
@@ -396,13 +396,13 @@ Pl_Recover_Solutions_4(WamWord stop_word, WamWord handle_key_word,
   OneSol *s;
   Bool handle_key;
 
-  stop = Pl_Rd_Integer(stop_word);
+  stop = Pl_Rd_C_Int(stop_word);
   nb_sol = sol->sol_no - stop;
 
   if (nb_sol == 0)
     return Pl_Unify(list_word, tail_word);
 
-  handle_key = Pl_Rd_Integer(handle_key_word);
+  handle_key = Pl_Rd_C_Int(handle_key_word);
   key_var_ptr = pl_glob_dico_var;	/* pl_glob_dico_var: key vars */
 
 

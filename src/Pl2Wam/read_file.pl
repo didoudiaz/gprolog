@@ -6,7 +6,7 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -1105,6 +1105,12 @@ error(Msg, LArg) :-
 	    fail
 	;   !
 	),
+	abandon_exec.
+
+
+
+
+abandon_exec :-
 	abort.
 
 
@@ -1122,7 +1128,7 @@ disp_msg(MsgType, Column, Msg, LArg) :-
 	),
 	format('~a: ', [MsgType]),
 	format(Msg, LArg),
-	nl(user_output).
+	nl.
 
 
 
@@ -1172,6 +1178,9 @@ exception(error(existence_error(source_sink, File), _)) :-
 exception(error(permission_error(open, source_sink, File), _)) :-
 	!,
 	error('cannot open file ~a - permission error', [File]).
+
+exception(abandon_exec) :-
+	abort.
 
 exception(Err) :-
 	error('exception raised: ~q', [Err]).

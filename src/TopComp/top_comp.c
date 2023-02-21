@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -368,7 +368,7 @@ Compile_Files(void)
   FileInf *f;
   int stage;
   int stage_end;
-  int l;
+  size_t l;
   FILE *fd;
 
 
@@ -454,8 +454,7 @@ Compile_Files(void)
           goto free_work_file;
         }
 
-      if (f->type == FILE_C && stop_after >= FILE_ASM
-          && stop_after != FILE_FD)
+      if (f->type == FILE_C && stop_after >= FILE_ASM && stop_after != FILE_FD)
         {
           stage = FILE_ASM;     /* to generate the correct obj suffix */
           New_Work_File(f, stage, stop_after);
@@ -536,7 +535,7 @@ void
 Create_Output_File_Name(FileInf *f, char *buff)
 {
   char *p;
-  int l;
+  size_t l;
   static int counter = 0;
 
   for(p = file_name_out; *p; p++)
@@ -874,7 +873,7 @@ int
 Spawn_Decode_Hex(char *arg[])
 {
   int pid, status;
-  FILE *f_out;
+  FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   static char buff[CMD_LINE_LENGTH];
 
   pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);
@@ -1472,7 +1471,7 @@ Parse_Arguments(int argc, char *argv[])
 	    for (p = suffixes; *p; p++)
 	      if (strcasecmp(*p, f->suffix) == 0)
 		{
-		  f->type = p - suffixes;
+		  f->type = (int) (p - suffixes);
 		  break;
 		}
 	  }

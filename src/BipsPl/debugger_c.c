@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -139,7 +139,7 @@ static WamWord *Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name);
 
 static PlLong Read_An_Integer(int arg_nb);
 
-static void Print_Bank_Name_Offset(char *prefix, char *bank_name, int offset);
+static void Print_Bank_Name_Offset(char *prefix, char *bank_name, PlLong offset);
 
 static void Print_Wam_Word(WamWord *word_adr);
 
@@ -450,7 +450,7 @@ Find_Function(void)
   if (nb_read_arg == 0)
     return NULL;
 
-  lg = strlen(read_arg[0]);
+  lg = (int) strlen(read_arg[0]);
 
   for (i = 0; i < sizeof(cmd) / sizeof(InfCmd); i++)
     if (strncmp(cmd[i].name, read_arg[0], lg) == 0)
@@ -473,8 +473,8 @@ Write_Data_Modify(void)
 {
   WamWord *adr;
   char *bank_name;
-  int offset;
-  int nb;
+  PlLong offset;
+  PlLong nb;
   int incr = 1;
 
   if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
@@ -584,7 +584,7 @@ static Bool
 Where(void)
 {
   char *bank_name;
-  int offset;
+  PlLong offset;
   WamWord *adr;
 
   if ((adr = Read_Bank_Adr(FALSE, 1, &bank_name)) != NULL)
@@ -613,7 +613,7 @@ Dereference(void)
 {
   char *bank_name;
   char *stack_name;
-  int offset;
+  PlLong offset;
   WamWord word, tag_mask;
   WamWord word1, *d_adr;
   WamWord *adr;
@@ -668,7 +668,7 @@ static Bool
 Environment(void)
 {
   WamWord *adr;
-  int offset;
+  PlLong offset;
   char *stack_name;
   int i;
 
@@ -708,7 +708,7 @@ static Bool
 Backtrack(void)
 {
   WamWord *adr;
-  int offset;
+  PlLong offset;
   char *stack_name;
   int i;
   PredInf *pred;
@@ -800,7 +800,7 @@ Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name)
       return NULL;
     }
 
-  lg = strlen(read_arg[arg_nb]);
+  lg = (int) strlen(read_arg[arg_nb]);
 
   if (!only_stack)
     {
@@ -872,16 +872,16 @@ Read_An_Integer(int arg_nb)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Print_Bank_Name_Offset(char *prefix, char *bank_name, int offset)
+Print_Bank_Name_Offset(char *prefix, char *bank_name, PlLong offset)
 {
   char str[80];
-  int lg = strlen(prefix);
+  int lg = (int) strlen(prefix);
 
   if (lg)
     Pl_Stream_Printf(pstm_o, "%s", prefix);
 
-  sprintf(str, "%s[%d]", bank_name, offset);
-  lg += strlen(str);
+  sprintf(str, "%s[%" PL_FMT_d "]", bank_name, offset);
+  lg += (int) strlen(str);
 
   if (lg > BANK_NAME_OFFSET_LENGTH)
     lg = BANK_NAME_OFFSET_LENGTH;
@@ -1009,12 +1009,12 @@ Modify_Wam_Word(WamWord *word_adr)
   WamWord word;
   char *bank_name;
   WamWord *adr;
-  int offset;
+  PlLong offset;
   char str[80];
   char *comma;
   char *slash;
   char *p;
-  int i, j;
+  PlLong i, j;
 
   for (;;)
     {

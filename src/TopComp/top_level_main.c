@@ -6,7 +6,7 @@
  * Descr.: top-level command-line option checking                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -42,6 +42,7 @@
 #include "../EnginePl/engine_pl.h"
 #include "../BipsPl/c_supp.h"
 #include "../BipsPl/inl_protos.h"
+#include "../BipsPl/flag_supp.h"
 #include "copying.c"
 
 
@@ -95,6 +96,8 @@ Main_Wrapper(int argc, char *argv[])
   int i;
   int new_argc = 0;
   char **new_argv;
+  WamWord *init_goal;
+  int nb_init_goal = 0;
   WamWord *entry_goal;
   int nb_entry_goal = 0;
   WamWord *consult_file;
@@ -110,6 +113,7 @@ Main_Wrapper(int argc, char *argv[])
   new_argv[new_argc++] = argv[0];
 
   consult_file = (WamWord *) Malloc(sizeof(WamWord) * argc);
+  init_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   entry_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
   query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
 
@@ -134,9 +138,7 @@ Main_Wrapper(int argc, char *argv[])
 	      if (++i >= argc)
 		Pl_Fatal_Error("Goal missing after --init-goal option");
 
-	      A(0) = Tag_ATM(Pl_Create_Atom(argv[i]));
-	      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
-	      Pl_Reset_Prolog();
+	      init_goal[nb_init_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
 	      continue;
 	    }
 
@@ -167,6 +169,12 @@ Main_Wrapper(int argc, char *argv[])
 	      continue;
 	    }
 
+	  if (Check_Arg(i, "--quiet"))
+	    {
+	      Flag_Value(show_information) = 0;
+	      continue;
+	    }
+
 	  if (Check_Arg(i, "-h") || Check_Arg(i, "--help"))
 	    {
 	      Display_Help();
@@ -184,6 +192,13 @@ Main_Wrapper(int argc, char *argv[])
 
   pl_os_argc = new_argc;
   pl_os_argv = new_argv;
+
+  for (i = 0; i < nb_init_goal; i++)
+    {
+      A(0) = init_goal[i];
+      Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
+      Pl_Reset_Prolog();
+    }
 
   if (nb_consult_file)
     {
@@ -234,6 +249,7 @@ Display_Help(void)
   L("  --init-goal    GOAL         execute GOAL before entering the top-level");
   L("  --entry-goal   GOAL         execute GOAL inside the top-level");
   L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
+  L("  --quiet                     suppress informational messages (banner, ...)");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");

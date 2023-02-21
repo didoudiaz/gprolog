@@ -6,7 +6,7 @@
  * Descr.: parser support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -83,8 +83,8 @@ extern int pl_parse_nb_var;
 				/* defined as this to avoid to force the   */
 				/* inclusion of parse_supp.o if not needed */
 				/* (stream_supp.c uses pl_last_read_line/col) */
-int pl_last_read_line;
-int pl_last_read_col;
+PlLong pl_last_read_line;
+PlLong pl_last_read_col;
 
 
 

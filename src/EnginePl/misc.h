@@ -6,7 +6,7 @@
  * Descr.: miscellaneous operations - header file                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -54,12 +54,11 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Pl_Malloc_Check(unsigned size, char *src_file, int src_line);
+char *Pl_Malloc_Check(size_t size, char *src_file, int src_line);
 
-char *Pl_Calloc_Check(unsigned nb, unsigned size, char *src_file,
-		   int src_line);
+char *Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line);
 
-char *Pl_Realloc_Check(char *ptr, unsigned size, char *src_file, int src_line);
+char *Pl_Realloc_Check(char *ptr, size_t size, char *src_file, int src_line);
 
 char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 

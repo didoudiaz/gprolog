@@ -6,7 +6,7 @@
  * Descr.: stack hardware overflow detection (SIGSEGV)                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -110,9 +110,9 @@
 #define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
 #define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
 
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, reached: %d Kb, environment variable used: %s)"
+#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb, environment variable used: %s)"
 
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb, reached: %d Kb - fixed size)"
+#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb - fixed size)"
 
 
 
@@ -177,12 +177,11 @@ getpagesize(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void *
-Virtual_Mem_Alloc(void *addr, int length)
+Virtual_Mem_Alloc(void *addr, size_t length)
 {
 #if defined(_WIN32) || defined(__MSYS__)
 
-  addr = (void *) VirtualAlloc(addr, length,
-			       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+  addr = (void *) VirtualAlloc(addr, length, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 #elif defined(HAVE_MMAP)
 
@@ -228,7 +227,7 @@ Virtual_Mem_Alloc(void *addr, int length)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Virtual_Mem_Free(void *addr, int length)
+Virtual_Mem_Free(void *addr, size_t length)
 {
 #if defined(_WIN32) || defined(__MSYS__)
 
@@ -255,7 +254,7 @@ Virtual_Mem_Free(void *addr, int length)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Virtual_Mem_Protect(void *addr, int length)
+Virtual_Mem_Protect(void *addr, size_t length)
 {
   WamWord *end = (WamWord *) addr;
 #if defined(_WIN32) || defined(__MSYS__)
@@ -292,7 +291,7 @@ Virtual_Mem_Protect(void *addr, int length)
 void
 Pl_Allocate_Stacks(void)
 {
-  unsigned length = 0, stk_sz;
+  size_t length = 0, stk_sz;
   WamWord *addr;
   int i;
   WamWord *addr_to_try[] = {
@@ -735,8 +734,8 @@ Stack_Overflow_Err_Msg(int stk_nb)
 {
   InfStack *s = pl_stk_tbl + stk_nb;
   char *var = s->env_var_name;
-  int size = s->size;
-  int usage = Stack_Top(stk_nb) - s->stack;
+  PlLong size = s->size;
+  PlLong usage = (Stack_Top(stk_nb) - s->stack);
   static char msg[256];
 
   if (s->stack == Global_Stack)

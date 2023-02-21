@@ -6,7 +6,7 @@
  * Descr.: operator management - C part                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -116,16 +116,17 @@ void
 Pl_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
 {
   int atom_op;
-  PlLong prec;
+  PlLong prec0;
   int atom_specif;
   int i;
-  int type, left, right;
+  int type, prec, left, right;
 
 
   atom_op = Pl_Rd_Atom_Check(oper_word);
-  prec = Pl_Rd_Integer_Check(prec_word);
-  if (prec < 0 || prec > MAX_PREC)
+  prec0 = Pl_Rd_Integer_Check(prec_word);
+  if (prec0 < 0 || prec0 > MAX_PREC)
     Pl_Err_Domain(pl_domain_operator_priority, prec_word);
+  prec = (int) prec0;
 
   atom_specif = Pl_Rd_Atom_Check(specif_word);
 
@@ -298,7 +299,7 @@ Pl_Current_Op_Alt_0(void)
   if (Tag_Mask_Of(oper_word) == TAG_ATM_MASK)
     {
       atom = UnTag_ATM(oper_word);
-      op_mask = AB(B, 3);
+      op_mask = (int) AB(B, 3);
 
       for (i = PREFIX; i <= POSTFIX; i++)
 	if (op_mask & Make_Op_Mask(i))

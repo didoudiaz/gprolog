@@ -6,7 +6,7 @@
  * Descr.: machine dependent features - Header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -74,7 +74,7 @@ void Pl_M_Set_Seed(int n);
 
 int Pl_M_Get_Seed(void);
 
-int Pl_M_Random_Integer(int n);
+PlLong Pl_M_Random_Integer(PlLong n);
 
 double Pl_M_Random_Float(double n);
 

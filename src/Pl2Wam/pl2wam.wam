@@ -118,7 +118,7 @@ label(1),
     put_atom('~N\t~d error(s)~n',0),
     call(format/2),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate('$pl2wam1/1_$aux1'/5,50,static,private,monofile,local,[
@@ -857,7 +857,7 @@ predicate('$cmd_line_args/3_$aux1'/1,269,static,private,monofile,local,[
     put_nil(1),
     call(format/2),
     deallocate,
-    execute(abort/0),
+    execute(abandon_exec/0),
 
 label(1),
     trust_me_else_fail,
@@ -1194,7 +1194,7 @@ label(52),
     unify_nil,
     call(format/2),
     deallocate,
-    execute(abort/0),
+    execute(abandon_exec/0),
 
 label(53),
     trust_me_else_fail,
@@ -1229,7 +1229,7 @@ label(1),
     put_atom('input file already specified (~a)~n',0),
     call(format/2),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate('$cmd_line_arg1/3_$aux4'/0,398,static,private,monofile,local,[
@@ -1291,7 +1291,7 @@ label(1),
     put_atom('output file already specified (~a)~n',0),
     call(format/2),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate('$cmd_line_arg1/3_$aux1'/3,310,static,private,monofile,local,[
@@ -1319,7 +1319,7 @@ label(1),
     put_nil(1),
     call(format/2),
     deallocate,
-    execute(abort/0)]).
+    execute(abandon_exec/0)]).
 
 
 predicate(display_copying/0,428,static,private,monofile,global,[

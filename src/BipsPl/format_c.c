@@ -6,7 +6,7 @@
  * Descr.: formatted output management - C part                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -90,7 +90,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
-    ? pl_stm_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
+    ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];
 
   pl_last_output_sora = sora_word;
@@ -250,7 +250,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                 Pl_Err_Representation(pl_representation_character_code);
 
               do
-                Pl_Stream_Putc(x, pstm);
+                Pl_Stream_Putc((int) x, pstm);
               while (--n > 0);
               break;
 
@@ -287,7 +287,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                 }
 
               sprintf(buff, "%" PL_FMT_d, x);
-              lg = strlen(buff) - n;
+              lg = (int) (strlen(buff) - n);
               if (lg <= 0)
                 {
                   Pl_Stream_Puts("0.", pstm);
@@ -335,7 +335,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               *p = '\0';
               do
                 {
-                  i = x % n;
+                  i = (int) (x % n);
                   x = x / n;
                   --p;
                   *p = (i < 10) ? i + '0' : i + k;

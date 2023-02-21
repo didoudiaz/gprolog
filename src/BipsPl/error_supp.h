@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -89,6 +89,7 @@ int pl_domain_stream_option;
 int pl_domain_stream_or_alias;
 int pl_domain_stream_position;
 int pl_domain_stream_property;
+int pl_domain_file_stream;
 int pl_domain_write_option;
 int pl_domain_order;
 int pl_domain_term_stream_or_alias;		/* for term_streams */
@@ -194,6 +195,7 @@ extern int pl_domain_stream_option;
 extern int pl_domain_stream_or_alias;
 extern int pl_domain_stream_position;
 extern int pl_domain_stream_property;
+extern int pl_domain_file_stream;
 extern int pl_domain_write_option;
 extern int pl_domain_order;
 extern int pl_domain_term_stream_or_alias;	/* for term_streams */
@@ -279,8 +281,8 @@ void Pl_Unset_C_Bip_Name(void);
 
 int Pl_Get_Current_Bip(int *arity);
 
-void Pl_Set_Last_Syntax_Error(char *file_name, int err_line, int err_col,
-			   char *err_msg);
+void Pl_Set_Last_Syntax_Error(char *file_name, PlLong err_line, PlLong err_col,
+			      char *err_msg);
 
 void Pl_Syntax_Error(int flag_value);
 

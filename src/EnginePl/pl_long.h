@@ -6,7 +6,7 @@
  * Descr.: Wam long type definition                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,6 +38,7 @@
 #ifndef _PL_LONG_H
 #define _PL_LONG_H
 
+#include <stddef.h>		/* ensure size_t even if not used here... */
 #include <stdint.h>
 
 #include "gp_config.h"

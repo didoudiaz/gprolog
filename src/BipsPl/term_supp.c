@@ -6,7 +6,7 @@
  * Descr.: term support                                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -95,7 +95,8 @@ PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
   WamWord *u_arg_adr;
   int v_func, v_arity;
   WamWord *v_arg_adr;
-  int i, x;
+  int i;
+  PlLong x;
   double d1, d2;
 
   DEREF(start_u_word, u_word, u_tag_mask);
@@ -961,7 +962,7 @@ Pl_Get_Pred_Indicator(WamWord pred_indic_word, Bool must_be_ground, int *arity)
       if (arity1 > MAX_ARITY)
 	Pl_Err_Representation(pl_representation_max_arity);
 
-      *arity = arity1;
+      *arity = (int) arity1;
     }
 
   return func;

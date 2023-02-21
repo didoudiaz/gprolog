@@ -6,7 +6,7 @@
  * Descr.: file name management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2022 Daniel Diaz                                     *
+ * Copyright (C) 1999-2023 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -188,7 +188,7 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
     goto same;
 
   strcpy(pl_glob_buff, path1);
-  len = strlen(path1);
+  len = (int) strlen(path1);
 
   q = suffixes;
   do
