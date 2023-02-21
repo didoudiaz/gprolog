@@ -629,7 +629,7 @@ Scanner(int complex_atom)
 		    }
 		  else
 		    i = 8;
-		  i = strtol(cur_line_p, &p1, i);	/* stop on the closing \ */
+		  i = strtol(cur_line_p, &p1, (int) i);	/* stop on the closing \ */
 		  cur_line_p = p1 + 1;
 		  sprintf(p, "%03" PL_FMT_o, i);
 		  p += 3;

@@ -116,8 +116,7 @@ static Bool Link_Key_Var(WamWord *adr);
 
 
 
-static WamWord Group(WamWord all_sol_word, WamWord gl_key_word,
-		     WamWord *key_adr);
+static WamWord Group(WamWord all_sol_word, WamWord gl_key_word, WamWord *key_adr);
 
 
 
@@ -313,7 +312,7 @@ Free_Var(WamWord *adr)
  * there is a a bijection f from the variable of T1 to the variables of T2 *
  * such that T2 == f(T1).                                                  *
  * For instance f(A,g(B),A) is a variant of f(C,g(D),C) but f(A,B) is not a*
- * variant of f(C,D).                                                      *
+ * variant of f(C,C).                                                      *
  *                                                                         *
  * Since we use keysort we have to first transform two keys K1 and K2 that *
  * are variants to a same term K. This can be done by unifying (linking)   *
@@ -505,8 +504,7 @@ Link_Key_Var(WamWord *adr)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word,
-		     WamWord sol_word)
+Pl_Group_Solutions_3(WamWord all_sol_word, WamWord gl_key_word, WamWord sol_word)
 {
   WamWord word, tag_mask;
   WamWord key_word;

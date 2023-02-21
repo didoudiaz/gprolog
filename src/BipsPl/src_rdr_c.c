@@ -271,7 +271,7 @@ Pl_SR_Init_Open_2(WamWord desc_word, WamWord out_sora_word)
       sr->file_top = NULL;
     }
 
-  sr->mask = SYS_VAR_OPTION_MASK;
+  sr->mask = (int) SYS_VAR_OPTION_MASK;
 
   sr->file_first = NULL;
   sr->file_last = NULL;
