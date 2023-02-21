@@ -1,11 +1,3 @@
 #!/bin/sh
 
-prog=`basename "$0"`
-
-fullpath=`which $prog`
-dir=`dirname "$fullpath"`
-file_consult="$dir/all.pl"
-
-echo "[INTERPRETED MODE]: $prog $*"
-#echo "gprolog --quiet --init-goal \"['$file_consult'], halt\"" -- $*
-LINEDIT='gui=no' gprolog --quiet --init-goal "['$file_consult'], halt" -- $*
+LINEDIT='gui=no' gprolog --quiet --entry-goal '[w], halt' $*
