@@ -79,7 +79,7 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
     {								\
       Pl_Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
 		      ? (int) Flag_Value(syntax_error)		\
-		      : SYS_VAR_SYNTAX_ERROR_ACTON);		\
+		      : (int) SYS_VAR_SYNTAX_ERROR_ACTON);	\
       return FALSE;						\
     }								\
 								\

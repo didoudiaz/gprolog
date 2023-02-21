@@ -138,7 +138,7 @@ Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
   int n;
   int sort_type;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/2, 1=msort/2, 2=keysort/2 */
+  sort_type = (int) SYS_VAR_OPTION_MASK;/* 0=sort/2, 1=msort/2, 2=keysort/2 */
 
   arg = H;			/* array in the heap */
 
@@ -182,7 +182,7 @@ Pl_Sort_List_1(WamWord list_word)
   int n;
   int sort_type;
 
-  sort_type = SYS_VAR_OPTION_MASK;	/* 0=sort/1, 1=msort/1, 2=keysort/1 */
+  sort_type = (int) SYS_VAR_OPTION_MASK; /* 0=sort/1, 1=msort/1, 2=keysort/1 */
 
   arg = H;
 

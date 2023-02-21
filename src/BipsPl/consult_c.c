@@ -96,7 +96,7 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   ADD_ARG(multifile_warning, "--no-mult-warn");
 
 
-  save = SYS_VAR_SAY_GETC;
+  save = (int) SYS_VAR_SAY_GETC;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
   SYS_VAR_SAY_GETC = 1;
   pf_in = &f_in;
