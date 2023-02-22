@@ -6,6 +6,7 @@ PDFNAME=$(PREFIX).pdf
 HTMLNAME=$(PREFIX).html
 CHMNAME=$(PREFIX).chm
 
+LATEXMK_FLAGS=-norc -emulate-aux-dir -aux-directory=aux-
 
 # Images:
 #    .eps are needed for latex (and hevea)
@@ -86,7 +87,7 @@ logo.pdf: ../gprolog.ico
 pdf: $(PDFNAME)
 
 $(PDFNAME): $(TEX_SRC)  $(IMG_PDF)
-	latexmk -norc -pdf -aux-directory=aux-pdf $(MAIN)
+	latexmk $(LATEXMK_FLAGS)pdf -pdf $(MAIN)
 
 dvi: ps
 
@@ -94,7 +95,7 @@ dvi: ps
 ps: $(PSNAME)
 
 $(PSNAME):
-	latexmk -norc -ps -dvi -aux-directory=aux-ps $(MAIN)
+	latexmk $(LATEXMK_FLAGS)ps -ps -dvi $(MAIN)
 
 
 
@@ -114,8 +115,8 @@ $(CHMNAME): html_node/hh-$(PREFIX).hhp html_node/index.html
 	-(cd html_node; hhc hh-$(PREFIX).hhp; mv -f $(CHMNAME) ..) 2>/dev/null || exit 0
 
 clean:
-	latexmk -norc -c -aux-directory=aux-pdf $(MAIN)
-	latexmk -norc -c -aux-directory=aux-ps $(MAIN)
+	latexmk $(LATEXMK_FLAGS)pdf -c $(MAIN)
+	latexmk $(LATEXMK_FLAGS)ps  -c $(MAIN)
 	rm -rf $(PREFIX)*.htoc $(PREFIX)*.haux $(PREFIX)*.hind $(PREFIX)*.hrf
 
 

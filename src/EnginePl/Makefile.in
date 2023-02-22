@@ -46,7 +46,7 @@ wam_regs.h: pl_config@EXE_SUFFIX@ machine.h stacks_sigsegv.h wam_archi.def
 
 
 gp_config.h:
-	echo '*** run ./configure before make please ***'
+	echo '*** run ./configure before make please (see file INSTALL) ***'
 	exit 1
 
 
