@@ -1,0 +1,32 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: The GNU Prolog System
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - family-names: Diaz
+    given-names: Daniel
+    orcid: 'https://orcid.org/0000-0002-2700-2271'
+    email: didou.diaz@gmail.com
+repository-code: 'https://github.com/didoudiaz/gprolog'
+url: 'https://www.gprolog.org'
+abstract: >-
+  GNU Prolog is a general-purpose implementation of the
+  Prolog language. It provides a native-code compiler
+  producing standalone executables together with a
+  traditional top-level. GNU Prolog is higly comptatible
+  with the ISO standard for Prolog but also offers various
+  extensions. In particular, GNU Prolog includes an
+  extensible and high-performance finite domain constraint
+  solver. 
+keywords:
+  - Prolog
+  - native code compiler
+  - Constraint solving
+  - WAM
+license: GPL-3.0-or-later or LGPL-2.0-or-later
+version: 1.5.0
+date-released: '2021-07-08'
+doi: 10.5281/zenodo.7660532
