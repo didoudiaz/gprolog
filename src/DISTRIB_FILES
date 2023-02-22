@@ -5,6 +5,7 @@ ChangeLog
 NEWS
 PROBLEMS
 VERSION
+RELEASE_DATES
 
 gprolog.ico
 
@@ -49,9 +50,10 @@ examples/ExamplesC/??*.pl
 examples/ExamplesC/??*_c.c
 
 examples/ExamplesFD/Makefile
-examples/ExamplesFD/*.pl
-examples/ExamplesFD/*.fd
+examples/ExamplesFD/[a-z][a-z]*.pl
+examples/ExamplesFD/[a-z][a-z]*.fd
 
+src/.indent.pro
 src/.indent.pro
 src/Makefile.in
 src/DISTRIB_FILES
@@ -132,6 +134,7 @@ src/EngineFD/[a-z][a-z_-]?*.fd
 src/BipsPl/Makefile.in
 src/BipsPl/BYTE_CODE
 src/BipsPl/[a-z][a-z_-]?*.pl
+src/BipsPl/t.pl
 src/BipsPl/[a-z][a-z_-]?*.wam
 src/BipsPl/[a-z][a-z_-]?*.[ch]
 
@@ -141,3 +144,23 @@ src/BipsFD/[a-z][a-z_-]?*.fd
 src/BipsFD/[a-z][a-z_-]?*.[ch]
 
 
+.gitignore
+examples/ExamplesC/.gitignore
+examples/ExamplesFD/.gitignore
+examples/ExamplesPl/.gitignore
+doc/.gitignore
+doc/html_node/.gitignore
+src/Pl2Wam/.gitignore
+src/W32GUICons/.gitignore
+src/EnginePl/.gitignore
+src/Wam2Ma/.gitignore
+src/EngineFD/.gitignore
+src/Ma2Asm/FromC/.gitignore
+src/Ma2Asm/.gitignore
+src/Linedit/.gitignore
+src/BipsFD/.gitignore
+src/.gitignore
+src/TopComp/.gitignore
+src/BipsPl/.gitignore
+src/Win32/.gitignore
+src/Fd2C/.gitignore

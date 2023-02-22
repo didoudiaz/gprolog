@@ -61,7 +61,7 @@
 
 #define FILE_WAM_STACKS_H          "wam_stacks.h"
 
-#define FILE_GPROLOG_CST_H         "gprolog_cst.h"
+#define FILE_GPROLOG_CST_H         PROLOG_DIALECT "_cst.h"
 
 
 
