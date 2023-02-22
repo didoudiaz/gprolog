@@ -11,7 +11,6 @@ gprolog.ico
 
 doc/README
 doc/Makefile
-doc/do_latex
 doc/[a-z][a-z_-]?*.tex
 doc/[a-z][a-z_-]?*.sty
 doc/[a-z][a-z_-]?*.hva

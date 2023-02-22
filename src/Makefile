@@ -47,8 +47,13 @@ all: config
 	(cd Pl2Wam; $(MAKE) stage2)
 
 # config mainly creates gplc needed by other Makefiles (so we can use make -j)
-config:
+config: EnginePl/Makefile
 	cd EnginePl; $(MAKE) config
+
+EnginePl/Makefile:
+	echo '*** run ./configure before make please ***'
+	exit 1
+
 
 doc:
 	(cd ../doc; $(MAKE) all)
