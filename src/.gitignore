@@ -3,7 +3,6 @@ TO_OPTIMIZE
 CONF
 MSCONF
 VC_TODO
-Makefile
 LocalStuff
 Release
 TestsPl
