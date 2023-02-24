@@ -8,6 +8,11 @@
 /* Define added so that memory management can be separated */
 #define USE_MALLOC_FOR_CHUNKS
 
+#define S1(x) "[line:" #x "] "
+#define S2(x) S1(x)
+#define L S2(__LINE__)
+
+
 // Dummy method implementations to remain separated
 void Pl_Err_Resource(int atom) { }
 int Pl_Create_Atom(char *str) {	return 0; }
@@ -17,35 +22,35 @@ int Pl_Create_Atom(char *str) {	return 0; }
   	
 /* Altered version of minunit unit tests */
 #define unit_assert(message, test) 		\
-	do { 							\
-		tests_run++; 				\
-		if (!(test)) 				\
-			return message; 		\
-	} while (0)
-
-#define chunk_test(message, chunk, correct) \
-	do { 							\
+	do {					\
 		tests_run++;			\
-		test_message = check_chunk(chunk,correct);			\
-		if (test_message != NULL) 			\
-			return message;			\
+		if (!(test))			\
+			return L message;	\
 	} while (0)
 
-#define range_test(message, range, correct) \
+#define chunk_test(message, chunk, correct)			\
 	do { 							\
-		tests_run++;			\
-		test_message = check_range(range,correct);			\
+		tests_run++;					\
+		test_message = check_chunk(chunk,correct);	\
 		if (test_message != NULL) 			\
-			return message;			\
+			return L message;			\
 	} while (0)
 
-#define run_test(test, testname) 	\
+#define range_test(message, range, correct)			\
 	do { 							\
+		tests_run++;					\
+		test_message = check_range(range,correct);	\
+		if (test_message != NULL) 			\
+			return L message;			\
+	} while (0)
+
+#define run_test(test, testname)		\
+	do {					\
 		char *message = test(); 	\
-		methods_tested++; 			\
+		methods_tested++;		\
 		last_test = testname;		\
-		if (message) 				\
-			return message; 		\
+		if (message)			\
+			return message;		\
 	} while (0)
 
 int methods_tested = 0;
@@ -66,8 +71,63 @@ Range * create_range_old_mm(int min, int max) {
 }
 
 Range * create_range_old() {
-	return create_range_old_mm(INTERVAL_MIN_INTEGER,INTERVAL_MAX_INTEGER);
+  return create_range_old_mm(INTERVAL_MIN_INTEGER,INTERVAL_MAX_INTEGER);
 }
+
+
+/* parse a simple signed integer (recognize MIN and MAX) */
+int
+parse_integer0(char **p, char *full_str)
+{
+#define c (*p)
+
+  int n;
+  if (*c == '-') {
+    c++;
+    return -parse_integer0(p, full_str);
+  }
+  
+  if (strncmp(c, "MIN", 3) == 0) {
+    c += 3;
+    return INTERVAL_MIN_INTEGER;
+  }
+  
+  if (strncmp(c, "MAX", 3) == 0) {
+    c += 3;
+    return INTERVAL_MAX_INTEGER;
+  }
+
+  char *c0 = c;
+  n = (int) strtol(c, p, 0);
+  if (c == c0) {
+    printf("ERROR missing integer in %s at %s\n", full_str, c);
+    exit(1);
+  }
+  return n;
+#undef c
+}
+
+
+/* parse an integer and simple operations, i.e. INT { (+|-|*|/) INT } */
+int
+parse_integer(char **p, char *full_str)
+{
+#define c (*p)
+
+  int n = parse_integer0(p, full_str);
+  for(;;) {
+    switch(*c) {
+    case '-': c++; n -= parse_integer0(p, full_str); break;
+    case '+': c++; n += parse_integer0(p, full_str); break;
+    case '*': c++; n *= parse_integer0(p, full_str); break;
+    case '/': c++; n /= parse_integer0(p, full_str); break;
+    default:
+      return n;
+    }
+  }
+#undef c
+}
+
 
 /* for interval range use create_range_old_from_string("-5..5") */
 /* for sparse range use create_range_old_from_string("-5..5:7:10..20") */
@@ -79,79 +139,37 @@ Range * create_range(char *str) {
   /* Assume that the range is sparse and create chunks *
    * Set back to range if only one chunk exists        */
 
-  int min_number = INTERVAL_MAX_INTEGER + 1;
-  int value_sign = 1;
-  int current_number = 0;
   int is_range_interval = 1;
+  Chunk *first = NULL;
+  Chunk *last = NULL;;
+
+  char *c = str;
+  while(*c) {
+    Chunk *chk = Pl_Create_Interval_Chunk(0, 0);
+    if (first == NULL) {
+      first = chk;
+    } else {
+      chk->prev = last;
+      last->next = chk;
+    }
+    last = chk;
+    
+    last->min = last->max = parse_integer(&c, str);
+
+    if (strncmp(c, "..", 2) == 0) { /* an interval min..max */
+      c += 2;
+      last->max = parse_integer(&c, str);
+      /* nb max can be < min to have en empty interval */
+    }
+    if (*c == ':') {
+      c++;
+      /* Range will be sparse now */
+      is_range_interval = 0;
+    }
+  }
 
   Range *range = malloc(sizeof(Range));
-  Chunk *first = Pl_Create_Interval_Chunk(min_number,min_number);
-  Chunk *last = first;
-
-  char *c;
-  for (c = str; *c; ++c) {
-    if (*c == '-') value_sign = -1;
-    else if (*c == 'M') {
-      ++c; ++c;
-      if (*c == 'X') /* MAX */
-	current_number = INTERVAL_MAX_INTEGER;
-      else if (*c == 'N') /* MIN */
-	current_number = INTERVAL_MIN_INTEGER;
-    }
-    else if (*c >= '0' && *c <= '9') {
-      current_number = (current_number * 10) + (*c - '0');
-    } else if (*c == '.' || *c >= ':') {
-      current_number *= value_sign;
-      if (*c == '.') {
-	++c;
-	/* set minimum */
-	min_number = current_number;
-      } else {
-	/* Range will be sparse now */
-	is_range_interval = 0;
-
-	// An [n..n] interval
-	if (min_number == INTERVAL_MAX_INTEGER + 1)
-	  min_number = current_number;
-
-	/* Update the bounds of */
-	last->min = min_number;
-	last->max = current_number;
-
-	/* Set min_number back to its inital value */
-	min_number = INTERVAL_MAX_INTEGER + 1;
-
-	/* update the last */
-	last->next = Pl_Create_Interval_Chunk(min_number,min_number);
-	((Chunk*)last->next)->prev = last;
-	last = last->next;
-      }
-      value_sign = 1;
-      current_number = 0;
-
-    } else {
-      printf("ERROR: Unable to parse range: %s\n", str);
-    }
-  }
-  if (*--c != ':') {
-    current_number *= value_sign;
-
-    // An [n..n] interval
-    if (min_number == INTERVAL_MAX_INTEGER + 1)
-      min_number = current_number;
-
-    /* Update the bounds of */
-    last->min = min_number;
-    last->max = current_number;
-
-  } else {
-    /* get rid of last chunk */
-    last = last->prev;
-    last->next = NULL;
-  }
-
-  range->min = first->min;
-  range->max = last->max;
+  Range_Init_Interval(range, first->min, last->max);
 
   if (!is_range_interval) {
     range->first = first;
@@ -176,33 +194,33 @@ char * check_range(Range *range, char *str) {
 
   /* NULL check */
   if (range == NULL) {
-    sprintf(buff, "%d: Range is NULL instead of %s", __LINE__, new_str);
+    sprintf(buff, L "Range is NULL instead of %s", new_str);
   }
 	
   /* One Empty, one Not Empty */
   else if (Is_Empty(range) && Is_Not_Empty(test_range)) {
-    sprintf(buff, "%d: Range is Empty(%s) instead of Not Empty(%s)", __LINE__, Pl_Range_To_String(range), new_str);
+    sprintf(buff, L "Range is Empty(%s) instead of Not Empty(%s)", Pl_Range_To_String(range), new_str);
   } else if (Is_Not_Empty(range) && Is_Empty(test_range)) {
-    sprintf(buff, "%d: Range is Not Empty(%s) instead of Empty(%s)", __LINE__, Pl_Range_To_String(range), new_str);
+    sprintf(buff, L "Range is Not Empty(%s) instead of Empty(%s)", Pl_Range_To_String(range), new_str);
   }
   /* Both empty is OK */
   else if (Is_Empty(range) && Is_Empty(test_range)) {
     if (range->first != NULL || range->last != NULL) {
-      sprintf(buff, "%d: Empty Range contains Chunks (%s) instead of Empty(%s)", __LINE__, Pl_Range_To_String(range), new_str);
+      sprintf(buff, L "Empty Range contains Chunks (%s) instead of Empty(%s)", Pl_Range_To_String(range), new_str);
     }
     return NULL;
   }
 
   /* One sparse, one Interval */
   else if (Is_Interval(range) && Is_Sparse(test_range)) {
-    sprintf(buff, "%d: Range is Interval(%s) instead of Sparse(%s)", __LINE__, Pl_Range_To_String(range), new_str);
+    sprintf(buff, L "Range is Interval(%s) instead of Sparse(%s)", Pl_Range_To_String(range), new_str);
   } else if (Is_Sparse(range) && Is_Interval(test_range)) {
-    sprintf(buff, "%d: Range is Sparse(%s) instead of Interval(%s)", __LINE__, Pl_Range_To_String(range), new_str);
+    sprintf(buff, L "Range is Sparse(%s) instead of Interval(%s)", Pl_Range_To_String(range), new_str);
   }
   /* Both Interval*/
   else if (Is_Interval(range) && Is_Interval(test_range)) {
     if (range->min != test_range->min || range->max != test_range->max)
-      sprintf(buff, "%d: Interval Range is %s instead of %s", __LINE__, Pl_Range_To_String(range), new_str);
+      sprintf(buff, L "Interval Range is %s instead of %s", Pl_Range_To_String(range), new_str);
     else 
       return NULL; /* Interval Ranges are equal */
   }
@@ -222,14 +240,14 @@ char * check_range(Range *range, char *str) {
       c2 = c2->next;
     } 
     if (failure ||c1 != NULL || c2 != NULL) {
-      sprintf(buff, "%d: Sparse Range is %s instead of %s", __LINE__, Pl_Range_To_String(range), new_str);
+      sprintf(buff, L "Sparse Range is %s instead of %s", Pl_Range_To_String(range), new_str);
       return buff;
     }
 
     /* range->last is not set up correctly */
     if (range->last->min != test_range->last->min || 
 	range->last->min != test_range->last->min) {
-      sprintf(buff, "%d: Sparse Range is %s instead of %s", __LINE__, Pl_Range_To_String(range), new_str);
+      sprintf(buff, L "Sparse Range is %s instead of %s", Pl_Range_To_String(range), new_str);
       return buff;
     }
 
@@ -237,7 +255,7 @@ char * check_range(Range *range, char *str) {
     /* Check if the bounds of the range are updated properly*/
     if (range->min != test_range->min || range->first->min != test_range->first->min || 
 	range->max != test_range->max || range->last->max != test_range->last->max) {
-      sprintf(buff, "%d: Sparse Range bounds are [%d..%d] for %s instead of [%d..%d] for %s",__LINE__, 
+      sprintf(buff, L "Sparse Range bounds are [%d..%d] for %s instead of [%d..%d] for %s", 
 	      range->min, range->max, Pl_Range_To_String(range), test_range->min, test_range->max, new_str);
       return buff;
     }
@@ -247,18 +265,18 @@ char * check_range(Range *range, char *str) {
     c2 = test_range->first; 
     while (c1 != NULL && c2 != NULL) {
       if (c1->prev != NULL && c2->prev == NULL) {
-	sprintf(buff, "%d: Chunk prev: [%d..%d]<-[%d..%d] for %s instead of NULL<-[%d..%d] for %s", __LINE__, 
+	sprintf(buff, L "Chunk prev: [%d..%d]<-[%d..%d] for %s instead of NULL<-[%d..%d] for %s", 
 		((Chunk*)c1->prev)->min,((Chunk*)c1->prev)->max, c1->min, c1->max, Pl_Range_To_String(range), c2->min, c2->max, new_str);
 	return buff;
       } else if (c1->prev == NULL && c2->prev != NULL) {
-	sprintf(buff, "%d: Chunk prev: NULL<-[%d..%d] for %s instead of [%d..%d]<-[%d..%d] for %s", __LINE__, 
+	sprintf(buff, L "Chunk prev: NULL<-[%d..%d] for %s instead of [%d..%d]<-[%d..%d] for %s", 
 		c1->min, c1->max, Pl_Range_To_String(range), ((Chunk*)c2->prev)->min,((Chunk*)c2->prev)->max, c2->min, c2->max, new_str);
 	return buff;
       } 
       else if (c1->prev != NULL && c2->prev != NULL) {
 	if (((Chunk*)c1->prev)->min != ((Chunk*)c2->prev)->min ||
 	    ((Chunk*)c1->prev)->max != ((Chunk*)c2->prev)->max) {
-	  sprintf(buff, "%d: Chunk prev: [%d..%d]<-[%d..%d] for %s instead of [%d..%d]<-[%d..%d] for %s", __LINE__, 
+	  sprintf(buff, L "Chunk prev: [%d..%d]<-[%d..%d] for %s instead of [%d..%d]<-[%d..%d] for %s", 
 		  ((Chunk*)c1->prev)->min,((Chunk*)c1->prev)->max, c1->min, c1->max, Pl_Range_To_String(range), 
 		  ((Chunk*)c2->prev)->min,((Chunk*)c2->prev)->max, c2->min, c2->max, new_str);
 	  return buff;
@@ -274,7 +292,7 @@ char * check_range(Range *range, char *str) {
     }
   }
   else 
-    sprintf(buff, "%d: Undefined error: Range is %s instead of %s", __LINE__, Pl_Range_To_String(range), new_str);
+    sprintf(buff, L "Undefined error: Range is %s instead of %s", Pl_Range_To_String(range), new_str);
 
   return buff;
 }
@@ -284,9 +302,9 @@ char * check_range(Range *range, char *str) {
 char * check_chunk(Chunk *chunk, int min, int max) {
   static char buff[4096];
   if (chunk == NULL)
-    sprintf(buff, "%d: Chunk is NULL instead of [%d..%d]", __LINE__, min, max);
+    sprintf(buff, L "Chunk is NULL instead of [%d..%d]", min, max);
   else if (chunk->min != min || chunk->max != max) 
-    sprintf(buff, "%d: Chunk is [%d..%d] instead of [%d..%d]", __LINE__, chunk->min, chunk->max, min, max);
+    sprintf(buff, L "Chunk is [%d..%d] instead of [%d..%d]", chunk->min, chunk->max, min, max);
   else return NULL;
 
   return buff;
@@ -844,7 +862,7 @@ static char * test_Pl_Range_Inter() {
   Pl_Range_Inter(r,r1);
   range_test("Sparse with Sparse - Test 8",r,"20..25:30..40");
 
-  r = create_range("0..7:9..17:19..27:29..268435455"); 
+  r = create_range("0..7:9..17:19..27:29..MAX"); 
   r1 = create_range("6..8:10:12:14..15:17..19");
   Pl_Range_Inter(r,r1);
   range_test("Sparse with Sparse - Test 9",r,"6..7:10:12:14..15:17:19");
@@ -1116,7 +1134,7 @@ static char * test_Pl_Range_Mul_Value() {
   r->min = number;
   r->max = INTERVAL_MAX_INTEGER;
   Pl_Range_Mul_Value(r,2);
-  range_test("(MAX/2-4..MAX)*2", r, "268435446:268435448:268435450:268435452:268435454");
+  range_test("(MAX/2-4..MAX)*2", r, "MAX-8:MAX-6:MAX-4:MAX-2:MAX");
 
   // prevent underflow
   number = ((INTERVAL_MIN_INTEGER) / 2) + 4;
@@ -1124,7 +1142,7 @@ static char * test_Pl_Range_Mul_Value() {
   r->min = INTERVAL_MIN_INTEGER;
   r->max = number;
   Pl_Range_Mul_Value(r,2);
-  range_test("(MIN..MIN/2+4)*2", r, "-268435454:-268435452:-268435450:-268435448:-268435446");
+  range_test("(MIN..MIN/2+4)*2", r, "MIN:MIN+2:MIN+4:MIN+6:MIN+8");
 
   // two separate chunks
   r = create_range("20..22:30:100..101");
@@ -1233,11 +1251,11 @@ static char * test_Pl_Range_Add_Value() {
 
   r = create_range("-20..30");
   Pl_Range_Add_Value(r,INTERVAL_MAX_INTEGER);
-  range_test("(-20..30)+MAX", r, "268435435..268435455");
+  range_test("(-20..30)+MAX", r, "MAX-20..MAX");
 
   r = create_range("-20..30");
   Pl_Range_Add_Value(r,INTERVAL_MIN_INTEGER);
-  range_test("(-20..30)+MIN", r, "-268435455..-268435425");
+  range_test("(-20..30)+MIN", r, "MIN..MIN+30");
 
   /* Sparse 1 chunk */
   r = create_range("20..30:");
@@ -1262,17 +1280,17 @@ static char * test_Pl_Range_Add_Value() {
 
   r = create_range("-20..30:");
   Pl_Range_Add_Value(r,INTERVAL_MAX_INTEGER);
-  range_test("[-20..30]+MAX", r, "268435435..268435455:");
+  range_test("[-20..30]+MAX", r, "MAX-20..MAX:");
 
   r = create_range("-20..30:");
   Pl_Range_Add_Value(r,INTERVAL_MIN_INTEGER);
-  range_test("[-20..30]+MIN", r, "-268435455..-268435425:");
+  range_test("[-20..30]+MIN", r, "MIN..MIN+30:");
 	
 
   // tricky cases
-  r = create_range("-100..-80:-50..10:100..200:268435355..268435405:268435425..268435435");
+  r = create_range("-100..-80:-50..10:100..200:MAX-500..MAX-400:MAX-300..MAX-200:MAX-100..MAX");
   Pl_Range_Add_Value(r,50);
-  range_test("Chunks test", r, "-50..-30:0..60:150..250:268435405..268435455");
+  range_test("Chunks test", r, "-50..-30:0..60:150..250:MAX-500+50..MAX-400+50:MAX-300+50..MAX-200+50:MAX-100+50..MAX");
 
   return 0;
 }
@@ -1949,17 +1967,17 @@ static char * all_tests() {
 }
  
 int main(int argc, char **argv) {
-  char *result;
+  char *test_name_if_err;
   printf("FD tests (range implementation)\n");
-  result = all_tests();
+  test_name_if_err = all_tests();
   printf("Methods tested:  %d\n", methods_tested);
   printf("Total Tests run: %d\n", tests_run);
-  if (result != 0) {
-    printf("\nTEST FAIL: %s\n\n%s\n\nIn %s\n\n", result, test_message, last_test);
+  if (test_name_if_err != 0) {
+    printf("\nTEST FAIL: %s\n\n   %s\n   In %s\n\n", test_name_if_err, test_message, last_test);
   }
   else {
     printf("All FD tests passed\n");
   }
 
-  return result != 0;
+  return test_name_if_err != 0;
 }

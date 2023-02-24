@@ -2,7 +2,7 @@
 % file    : g_var_inl.pl
 
 
-file_name('C:/home/diaz/GP/src/BipsPl/g_var_inl.pl').
+file_name('/home/diaz/GP/src/BipsPl/g_var_inl.pl').
 
 
 predicate('$use_g_var_inl'/0,41,static,private,monofile,built_in,[

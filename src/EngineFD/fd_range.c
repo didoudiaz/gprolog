@@ -788,13 +788,13 @@ Pl_Range_Div_Value(Range *range, int n)
   }
 
   if (Is_Interval(range))	/* Interval */ {
-      // similar to DivDn and DivUp
-      int min_r = (n>0) ? range->min : range->max;
-      int max_r = (n>0) ? range->max : range->min;
+    // similar to DivDn and DivUp
+    int min_r = (n>0) ? range->min : range->max;
+    int max_r = (n>0) ? range->max : range->min;
 
-      range->min = ( ((min_r ^ n) >= 0) ? ((min_r / n) + (min_r % n != 0)) : (min_r / n) );
-      range->max = ( ((max_r ^ n) >= 0) ? (max_r / n) : ((max_r / n) - (max_r % n != 0)) );
-      return;
+    range->min = ( ((min_r ^ n) >= 0) ? ((min_r / n) + (min_r % n != 0)) : (min_r / n) );
+    range->max = ( ((max_r ^ n) >= 0) ? (max_r / n) : ((max_r / n) - (max_r % n != 0)) );
+    return;
   }
   /* Sparse */
   Pl_Sparse_Div_Value(range,n);
@@ -817,9 +817,9 @@ Pl_Range_Mod_Value(Range *range, int n)
 
   // Modulo also works for negative numbers
   if (Is_Interval(range))	/* Interval */
-  {
-    // are all values (0..n-1) or (-n+1..0) going to be set?
-    if (range->max - range->min + 1 >= abs(n)) {
+    {
+      // are all values (0..n-1) or (-n+1..0) going to be set?
+      if (range->max - range->min + 1 >= abs(n)) {
     	if (n>0) {
     	  range->min = 0;
     	  range->max = n-1;
@@ -828,60 +828,60 @@ Pl_Range_Mod_Value(Range *range, int n)
     	  range->max = 0;
     	}
     	return;
-    }
-
-    if (n > 0) {
-      // [-3..2] -> [0..2][n-3..n-1]
-      if (range->min < 0 && range->max >= 0) {
-        int tmp_min = range->min;
-        range->min = 0;
-        Pl_Range_Becomes_Sparse(range);
-        Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(n+tmp_min,n-1));
-        return;
       }
 
-      int a = Mod(range->min, n);
-      int b = Mod(range->max, n);
-      // [-4..-2] -> [a..b] or [0..b][a..n-1]
-      // [2..4]   -> [a..b] or [0..b][a..n-1]
-      if (a>b) {
-        range->min = 0;
-        range->max = b;
-        Pl_Range_Becomes_Sparse(range);
-        Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(a,n-1));
+      if (n > 0) {
+	// [-3..2] -> [0..2][n-3..n-1]
+	if (range->min < 0 && range->max >= 0) {
+	  int tmp_min = range->min;
+	  range->min = 0;
+	  Pl_Range_Becomes_Sparse(range);
+	  Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(n+tmp_min,n-1));
+	  return;
+	}
+
+	int a = Mod(range->min, n);
+	int b = Mod(range->max, n);
+	// [-4..-2] -> [a..b] or [0..b][a..n-1]
+	// [2..4]   -> [a..b] or [0..b][a..n-1]
+	if (a>b) {
+	  range->min = 0;
+	  range->max = b;
+	  Pl_Range_Becomes_Sparse(range);
+	  Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(a,n-1));
+	} else {
+	  range->min = a;
+	  range->max = b;
+	}
+
       } else {
-        range->min = a;
-        range->max = b;
-      }
+	// [-3..2] -> [n+1..n+2][-3..0]
+	if (range->min <= 0 && range->max > 0) {
+	  int tmp_min = range->min;
+	  range->min = n+1;
+	  range->max = n+range->max;
+	  Pl_Range_Becomes_Sparse(range);
+	  Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(tmp_min,0));
+	  return;
+	}
 
-    } else {
-      // [-3..2] -> [n+1..n+2][-3..0]
-      if (range->min <= 0 && range->max > 0) {
-        int tmp_min = range->min;
-        range->min = n+1;
-        range->max = n+range->max;
-        Pl_Range_Becomes_Sparse(range);
-        Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(tmp_min,0));
-        return;
-      }
+	int a = Mod(range->min, n);
+	int b = Mod(range->max, n);
+	// [-4..-2] -> [a..b] or [0..b][a..n-1]
+	// [2..4]   -> [a..b] or [0..b][a..n-1]
+	if (a>b) {
+	  range->min = n+1;
+	  range->max = b;
+	  Pl_Range_Becomes_Sparse(range);
+	  Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(a,0));
+	} else {
+	  range->min = a;
+	  range->max = b;
+	}
 
-      int a = Mod(range->min, n);
-      int b = Mod(range->max, n);
-      // [-4..-2] -> [a..b] or [0..b][a..n-1]
-      // [2..4]   -> [a..b] or [0..b][a..n-1]
-      if (a>b) {
-        range->min = n+1;
-        range->max = b;
-        Pl_Range_Becomes_Sparse(range);
-        Pl_Set_Chunk_At_End_Of_Range(range, Pl_Create_Interval_Chunk(a,0));
-      } else {
-        range->min = a;
-        range->max = b;
       }
-
+      return;
     }
-    return;
-  }
 
   /* Sparse */
   Pl_Sparse_Mod_Value(range,n);
@@ -928,10 +928,10 @@ Pl_Range_To_String(Range *range)
 
     if (chunk->min == chunk->max) {
       sprintf(buff + strlen(buff), "%d",
-        chunk->min);
+	      chunk->min);
     } else {
       sprintf(buff + strlen(buff), "%d%s%d",
-        chunk->min, WRITE_LIMITS_SEPARATOR, chunk->max);
+	      chunk->min, WRITE_LIMITS_SEPARATOR, chunk->max);
     }
 
     chunk = chunk->next;
@@ -947,7 +947,7 @@ Pl_Range_To_String(Range *range)
 }
 
 /*-------------------------------------------------------------------------*
- * CHUNKS    		                                                           *
+ * CHUNKS    		                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
@@ -998,12 +998,12 @@ Pl_Sparse_Test_Value(Range *range, int n) {
 
 void 
 Pl_Sparse_Set_Value(Range *range, int n) {
-	if (Is_Interval(range)) {
-		range->min = n;
-		range->max = n;
-		Pl_Range_Becomes_Sparse(range);
-		return;
-	}
+  if (Is_Interval(range)) {
+    range->min = n;
+    range->max = n;
+    Pl_Range_Becomes_Sparse(range);
+    return;
+  }
   Chunk *chunk = Pl_Get_Chunk_For_Value(range,n);
 
   // Interval Chunk
@@ -1012,7 +1012,7 @@ Pl_Sparse_Set_Value(Range *range, int n) {
   else if (n == chunk->min-1) chunk->min --;
   else if (n == chunk->max+1) chunk->max ++;
   /* Pl_Get_Chunk_For_Value returns a chunk > n, so check previous Chunk too*/
-  else if (chunk->prev != NULL && n == ((Chunk*)chunk->prev)->max+1) ((Chunk*)chunk->prev)->max ++;
+  else if (chunk->prev != NULL && n == chunk->prev->max+1) chunk->prev->max ++;
   else if (n < chunk->min) {
     /* There is no chunk that contains n, so create one */
     Chunk *new_chunk = Pl_Create_Interval_Chunk(n,n);
@@ -1023,19 +1023,19 @@ Pl_Sparse_Set_Value(Range *range, int n) {
     Pl_Set_Chunk_At_End_Of_Range(range,new_chunk);
   }
   // Remove Chunk if hole is filled in
-  if (chunk->prev != NULL && ((Chunk*)chunk->prev)->max + 1 >= chunk->min) {
-  	((Chunk*)chunk->prev)->max = chunk->max;
-  	Pl_Remove_Interval_Chunk(range,chunk);
+  if (chunk->prev != NULL && chunk->prev->max + 1 >= chunk->min) {
+    chunk->prev->max = chunk->max;
+    Pl_Remove_Interval_Chunk(range,chunk);
   }
-  else if (chunk->next != NULL && chunk->max + 1 >= ((Chunk*)chunk->next)->min) {
-  	((Chunk*)chunk->next)->min = chunk->min;
-  	Pl_Remove_Interval_Chunk(range,chunk);
+  else if (chunk->next != NULL && chunk->max + 1 >= chunk->next->min) {
+    chunk->next->min = chunk->min;
+    Pl_Remove_Interval_Chunk(range,chunk);
   }
 
   // update min and max
   if (Is_Not_Empty(range)) {
-	  range->min = range->first->min;
-	  range->max = range->last->max;
+    range->min = range->first->min;
+    range->max = range->last->max;
   }
 }
 
@@ -1067,7 +1067,7 @@ Pl_Sparse_Reset_Value(Range *range, int n) {
       // [chunk->prev][chunk][new_chunk][chunk->next]
       Chunk *new_chunk = Pl_Create_Interval_Chunk(n+1,chunk->max);
       chunk->max = n-1;
-      if (chunk->next != NULL) ((Chunk*)chunk->next)->prev = new_chunk;
+      if (chunk->next != NULL) chunk->next->prev = new_chunk;
       new_chunk->next = chunk->next;
       new_chunk->prev = chunk;
       chunk->next = new_chunk;
@@ -1213,7 +1213,7 @@ Pl_Set_Chunk_Before_Chunk(Range *range, Chunk *new_chunk, Chunk *old_chunk) {
   new_chunk->prev = old_chunk->prev;
   old_chunk->prev = new_chunk;
   if (new_chunk->prev != NULL)
-      ((Chunk*)new_chunk->prev)->next = new_chunk;
+    new_chunk->prev->next = new_chunk;
   else if (range->first == old_chunk) {
     range->first = new_chunk;
     range->min = new_chunk->min; // assuming correct ordering
@@ -1230,19 +1230,19 @@ Pl_Remove_Interval_Chunk(Range *range, Chunk *chunk) {
       Set_To_Empty(range);
     } else {
       // 1
-      range->first = (Chunk*) chunk->next;
+      range->first =  chunk->next;
       range->min = range->first->min;
       range->first->prev = NULL;
     }
   } else if (range->last == chunk) {
     // 3
-    range->last = (Chunk*) chunk->prev;
+    range->last =  chunk->prev;
     range->max = range->last->max;
     range->last->next = NULL;
   } else {
     // 2
-    ((Chunk*) chunk->prev)->next = chunk->next;
-    ((Chunk*) chunk->next)->prev = chunk->prev;
+    chunk->prev->next = chunk->next;
+    chunk->next->prev = chunk->prev;
   }
 }
 
@@ -1364,9 +1364,9 @@ Pl_Sparse_Div_Value(Range *range, int n) {
     } 
     else {
       if (n > 0) {
-        if (chunk->prev != NULL && chunk->min <= ((Chunk*)chunk->prev)->max+1) {
+        if (chunk->prev != NULL && chunk->min <= chunk->prev->max+1) {
           // update previous chunk and remove this one
-          ((Chunk*)chunk->prev)->max = chunk->max;
+          chunk->prev->max = chunk->max;
           Pl_Remove_Interval_Chunk(range,chunk);
         }
       } else {
@@ -1671,7 +1671,7 @@ Pl_Sparse_Next_Before(Range *range, int n) {
 
   if (chunk->min <= n && chunk->max >= n) return n;
   else if (chunk->min > n) {
-    if (chunk->prev!=NULL) return ((Chunk*)chunk->prev)->max;
+    if (chunk->prev!=NULL) return chunk->prev->max;
   } else {
     return chunk->max;
   }
@@ -1688,7 +1688,7 @@ Pl_Sparse_Next_After(Range *range, int n) {
   else if (chunk->min > n) {
     return chunk->min;
   } else { // chunk->max < n
-    if (chunk->next!=NULL) return ((Chunk*)chunk->next)->min;
+    if (chunk->next!=NULL) return chunk->next->min;
   }
 
   return INTERVAL_MIN_INTEGER-1;}

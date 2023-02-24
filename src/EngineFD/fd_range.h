@@ -49,12 +49,13 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct
+typedef struct chunk *ChunkPtr;
+typedef struct chunk
 {
   int min;
   int max;
-  void *prev;
-  void *next;
+  ChunkPtr prev;
+  ChunkPtr next;
 }
 Chunk;
 
