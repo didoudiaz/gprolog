@@ -3,8 +3,8 @@
 -bap 	/* blank line after every procedure body */
 -npcs 	/* no space between the name of the function and ( */
 -cs 	/* space after cast operator */
--l76 	/* normal line length */
--lc80 	/* comment line length */
+-l90 	/* normal line length */
+-lc90 	/* comment line length */
 	/* types */
 -T time_t
 -T size_t
