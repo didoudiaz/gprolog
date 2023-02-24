@@ -1,7 +1,7 @@
 #                               MAIN MAKEFILE
 #                               -------------
 
-ROOT_DIR       = /Users/diaz/GP
+ROOT_DIR       = /home/diaz/GP
 PKG_NAME       = gprolog-1.5.1
 
 INSTALL_DIR    = $(DESTDIR)/tmp/gprolog-1.5.1
@@ -51,9 +51,8 @@ config: EnginePl/Makefile
 	cd EnginePl; $(MAKE) config
 
 EnginePl/Makefile:
-	echo '*** run ./configure before make please ***'
+	echo '*** run ./configure before make please (see file INSTALL) ***'
 	exit 1
-
 
 doc:
 	(cd ../doc; $(MAKE) all)
