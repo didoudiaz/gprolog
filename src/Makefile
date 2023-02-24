@@ -163,6 +163,7 @@ check:
 	(cd Ma2Asm; $(MAKE) check) && \
 	(cd Pl2Wam; $(MAKE) check) && \
 	(cd BipsPl; $(MAKE) check) && \
+	(cd EngineFD; $(MAKE) check) && \
 	echo All tests succeeded
 
 check-i:
