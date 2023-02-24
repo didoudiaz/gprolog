@@ -56,7 +56,7 @@ static int inline mult(int a, int b)
 static int inline min_sqrt(int min_X, int min_N, int max_N){
    int sqrt = Pl_Sqrt_Up(min_N>0 ? min_N : 0);
    if (min_X <= - sqrt)
-	return (int) - Pl_Sqrt_Dn(max_N);
+	return - (int) Pl_Sqrt_Dn(max_N);
    else return sqrt;
 }
 
@@ -67,10 +67,13 @@ static int inline max_sqrt(int min_X, int min_N, int max_N){
    else return - sqrt;
 }
 
+#define Minus_Pl_Nth_Root_Dn(a,b) (-(int)Pl_Nth_Root_Dn(a,b))
+#define Minus_Pl_Nth_Root_Up(a,b) (-(int)Pl_Nth_Root_Up(a,b))
+
 static int inline min_root(int min_X, int min_Y, int max_Y, int A){
    int root = Pl_Nth_Root_Up(min_Y>0 ? min_Y : abs(closest_to_zero(min_Y,max_Y)) , A);
    if (min_X <= - root)
-	return (int) - Pl_Nth_Root_Dn(max_Y, A);
+	return - (int) Pl_Nth_Root_Dn(max_Y, A);
    else return root;
 }
 
@@ -540,12 +543,12 @@ pl_x_power_a_eq_y(fdv X, int A, fdv Y)                            /* here A > 2 
  start X in ite(is_even(A),
                 min_root(min(X), min(Y), max(Y), A),
                 ite(min(Y) < 0, 
-                    -Pl_Nth_Root_Dn(-min(Y), A), 
+                    Minus_Pl_Nth_Root_Dn(-min(Y), A), 
                     Pl_Nth_Root_Up(min(Y), A)))	
          .. ite(is_even(A), 
                 max_root(max(X), min(Y), max(Y), A),			
                 ite(max(Y) < 0, 
-                    -Pl_Nth_Root_Up(-max(Y), A), 
+                    Minus_Pl_Nth_Root_Up(-max(Y), A), 
                     Pl_Nth_Root_Dn(max(Y), A)))
 
  start Y in ite(min(X) < 0 && is_odd(A), 

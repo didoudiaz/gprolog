@@ -211,7 +211,7 @@ Pl_Fd_Element_V_To_I(Range *i, Range *v, WamWord *l)
   /* when V changes -> update I */
 
   Set_To_Empty(i);
-  n = *l;
+  n = (int) *l;
 
   for (j = 1; j <= n; j++) {
     val = (int) (l[j]);   /* val=Lj */
