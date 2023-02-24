@@ -71,6 +71,7 @@
 
 
 
+
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -378,8 +379,8 @@
 
 
 #define fd_load_range(r, fp)			\
-  R(r).first = NULL;        \
-  R(r).last = NULL;        \
+  R(r).first = NULL;        			\
+  R(r).last = NULL;        			\
   Pl_Range_Copy(&R(r), Frame_Range_Parameter(fp));
 
 
@@ -387,8 +388,8 @@
 
 #define fd_load_dom(r, fv)			\
   fdv_adr = Frame_Variable(fv);			\
-  R(r).first = NULL;        \
-  R(r).last = NULL;        \
+  R(r).first = NULL;        			\
+  R(r).last = NULL;        			\
   Pl_Range_Copy(&R(r), Range(fdv_adr));
 
 
@@ -413,8 +414,8 @@
 
 
 #define fd_range_empty(r)			\
-  R(r).first = NULL;        \
-  R(r).last = NULL;        \
+  R(r).first = NULL;        			\
+  R(r).last = NULL;        			\
   Set_To_Empty(&R(r));
 
 
@@ -499,8 +500,8 @@
 
 
 #define fd_range_copy(r, r1)			\
-  R(r).first = NULL;        \
-  R(r).last = NULL;        \
+  R(r).first = NULL;        			\
+  R(r).last = NULL;        			\
   Pl_Range_Copy(&R(r), &R(r1));
 
 
@@ -509,8 +510,8 @@
 #define fd_range_fct(fct_name, r, args)		\
 {						\
   void fct_name();				\
-  R(r).first = NULL;        \
-  R(r).last = NULL;        \
+  R(r).first = NULL;        			\
+  R(r).last = NULL;        			\
   fct_name(&R(r), args);			\
 }
 

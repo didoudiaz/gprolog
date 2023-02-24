@@ -70,6 +70,7 @@ Range;
 
 
 
+
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
@@ -101,6 +102,7 @@ Range;
 #   define WORD_SIZE_BITS          6
 
 #endif
+
 
 
 
@@ -153,6 +155,8 @@ void Pl_Range_Div_Value(Range *range, int n);
 void Pl_Range_Mod_Value(Range *range, int n);
 
 char *Pl_Range_To_String(Range *range);
+
+
 
 
 /*---------------------------------*

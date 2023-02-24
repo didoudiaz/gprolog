@@ -53,6 +53,7 @@
 #endif
 
 
+
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -815,7 +816,6 @@ Pl_Fd_New_Variable_Interval(int min, int max)
 {
   WamWord *fdv_adr;
 
-
 #ifdef DEBUG_CHECK_DATES_AND_QUEUE
   Trail_OV(&last_fdv_avr);	/* reserve a cell just before the FD var to link prev FD var (stack) */
   *CS = (WamWord) last_fdv_avr;
@@ -956,7 +956,7 @@ Check_Queue_Consistency(void)
       printf("Checking var:_%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
 #endif
       if (Is_Var_In_Queue(fdv_adr))
-        printf("ERROR QUEUE should be empty but contains var:_#%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
+	printf("ERROR QUEUE should be empty but contains var:_#%ld (%p)\n", Cstr_Offset(fdv_adr), fdv_adr);
 
       fdv_adr = prev;
     }
@@ -1039,13 +1039,14 @@ start:
 
   r = Range(fdv_adr);
 
-  if (!Pl_Range_Test_Value(r, n)) // done if n is not in range 
+  if (!Pl_Range_Test_Value(r, n))
     return TRUE;
 
-  if (Fd_Variable_Is_Ground(fdv_adr)) // tag value = INT? (otherwise FDV)
+  if (Fd_Variable_Is_Ground(fdv_adr))
     {
       return FALSE;
     }
+
   min = r->min;
   max = r->max;
 
@@ -1139,7 +1140,6 @@ Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
   min1 = Min(fdv_adr);
   max1 = Max(fdv_adr);
 
-
   min = math_max(min, min1);
   max = math_min(max, max1);
 
@@ -1161,6 +1161,8 @@ Pl_Fd_Tell_Interv_Interv(WamWord *fdv_adr, int min, int max)
 }
 
 
+
+
 /*-------------------------------------------------------------------------*
  * PL_FD_TELL_RANGE_RANGE                                                  *
  *                                                                         *
@@ -1171,7 +1173,6 @@ Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
   int nb_elem;
   int propag;
   WamWord *save_CS = CS;
-  
 
   // method is getting called with interval and sparse?
   if (Is_Sparse(range)) {
@@ -1195,7 +1196,6 @@ Pl_Fd_Tell_Range_Range(WamWord *fdv_adr, Range *range)
   } // otherwise, no chunk will be created (stay at interval)*/
 
   Pl_Range_Inter(range, Range(fdv_adr));
-
 
   CS = save_CS;
 
