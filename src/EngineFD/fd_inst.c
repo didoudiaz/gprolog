@@ -244,7 +244,6 @@ static void Clear_Queue(void);
 
 
 
-
 #define Trail_Chains_If_Necessary(fdv_adr)           		\
   do								\
     {								\
