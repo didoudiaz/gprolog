@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.5.1
 
+* improve compiler speed on large Prolog data bases
+  (speed up generation of indexing instructions switch_on_atom/integer/structure)
 * increase default Prolog stack sizes and MAX_ATOMS
 * extend exec/4-5 to also accept provided streams + null
 * fix bug in exec/4 under windows (bad stream redirection and child console not hidden)

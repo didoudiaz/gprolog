@@ -1,3 +1,8 @@
+Fri Mar 10 04:59:20 PM CET 2023
+
+	* improve compiler speed on large Prolog data bases
+	  (speed up generation of indexing instructions switch_on_atom/integer/structure)
+
 Fri Feb 17 11:08:35 CET 2023 <Daniel.Diaz@univ-paris1.fr>
 
 	* increase default Prolog stack sizes and MAX_ATOMS
