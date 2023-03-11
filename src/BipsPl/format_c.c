@@ -391,8 +391,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (pstm->line_pos == 0)
                 break;
             case 'n':
-              while (--n > 0)
+	      do
                 Pl_Stream_Putc('\n', pstm);
+	      while (--n > 0);
               break;
 
             case '?':
