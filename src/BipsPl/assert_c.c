@@ -82,8 +82,7 @@ Pl_Assert_5(WamWord head_word, WamWord body_word,
   Bool check_perm = Pl_Rd_C_Int(check_perm_word);
   int pl_file = Pl_Rd_Atom(pl_file_word);
 
-  last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta,
-				      check_perm, pl_file);
+  last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta, check_perm, pl_file);
 }
 
 

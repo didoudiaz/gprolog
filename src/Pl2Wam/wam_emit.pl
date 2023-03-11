@@ -252,22 +252,17 @@ emit_wam_code(WamInst, _, _) :-
 	dummy_instruction(WamInst, KeepVoidInst), !.
 
 emit_wam_code(WamInst, First, Stream) :-
-	WamInst = label(_), !,
 	(   var(First) ->
-	    Car = '[',
+	    put_char(Stream, '['),
 	    First = f
-	;   Car = (',')
+	;   put_char(Stream, ',')
 	),
-	format(Stream, '~a~n~n', [Car]),
-	emit_one_inst(WamInst, Stream).
-
-emit_wam_code(WamInst, First, Stream) :-
-	(   var(First) ->
-	    Car = '[',
-	    First = f
-	;   Car = (',')
+	nl(Stream),
+	(   WamInst = label(_) ->
+	    nl(Stream)
+	;   %put_char(Stream, '\t')  % select this to emit tabs instead of spaces
+	    write(Stream, '    ')
 	),
-	format(Stream, '~a~n    ', [Car]),
 	emit_one_inst(WamInst, Stream).
 
 
@@ -281,7 +276,8 @@ emit_one_inst(WamInst, Stream) :-
 	functor(WamInst, F, N),
 	writeq(Stream, F),
 	emit_args(0, N, WamInst, Stream),
-	write(Stream, ')').
+	put_char(Stream, ')').
+
 
 emit_args(N, N, _, _) :-
 	!.
@@ -296,14 +292,18 @@ emit_args(I, N, WamInst, Stream) :-
 	emit_one_arg(A, Stream),
 	emit_args(I1, N, WamInst, Stream).
 
+
 emit_one_arg([X|L], Stream) :-
 	length(L, N),		% split long lists
-	N > 30,
-	!,
+	N > 30, !,
 	put_char(Stream, '['),
 	line_position(Stream, P),
 	write_term(Stream, X, [quoted(true), priority(999)]),
-	emit_list(L, P, Stream).
+%	PrefixTab is P // 8,     % select this to emit tabs instead of spaces
+%	PrefixSpc is P mod 8,
+	PrefixTab = 0,
+	PrefixSpc = P,
+	emit_list(L, PrefixTab, PrefixSpc, Stream).
 
 emit_one_arg(A, Stream) :-
 	g_read(native_code, f),	    % if also wanted to .wam remove this line
@@ -329,13 +329,13 @@ emit_one_f_n(F/N, Stream) :-
 
 
 
-emit_list([], _, Stream) :-
+emit_list([], _, _, Stream) :-
 	put_char(Stream, ']').
 
-emit_list([X|L], P, Stream) :-
-	format(Stream, ',~n~*c', [P, 32]), % changed 0' to 32 for emacs highlighting
+emit_list([X|L], PrefixTab, PrefixSpc, Stream) :-
+	format(Stream, ',~n~*c~*c', [PrefixTab, 9, PrefixSpc, 32]), % changed 0' to 32 for emacs highlighting
 	write_term(Stream, X, [quoted(true), priority(999)]),
-	emit_list(L, P, Stream).
+	emit_list(L, PrefixTab, PrefixSpc, Stream).
 
 
 
@@ -383,7 +383,7 @@ bc_emit_lst_clause([], _).
 bc_emit_lst_clause([bc(Cl, WamCode)|LCompCl], Stream) :-
 	format(Stream, '~n~nclause(', []),
 	bc_emit_prolog_term(Stream, Cl),
-	write(Stream, ','),
+	put_char(Stream, ','),
 	emit_wam_code(WamCode, _, Stream),
 	format(Stream, ']).~n', []),
 	bc_emit_lst_clause(LCompCl, Stream).
@@ -399,5 +399,3 @@ bc_emit_prolog_term(Stream, Term) :- % create choice point for '$above'/1 write 
 	fail.
 
 bc_emit_prolog_term(_, _).
-
-

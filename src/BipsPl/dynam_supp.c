@@ -291,8 +291,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   H[1] = body_word;
 
   size = Pl_Term_Size(lst_h_b);
-  clause = (DynCInf *)
-    Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
+  clause = (DynCInf *) Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 
   Add_To_2Chain(&dyn->seq_chain, clause, TRUE, asserta);
 

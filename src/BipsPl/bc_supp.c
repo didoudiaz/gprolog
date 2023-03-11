@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include <string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -474,18 +475,23 @@ Pl_BC_Start_Emit_0(void)
 void
 Pl_BC_Stop_Emit_0(void)
 {
+  int pl_byte_code_len;		/* could be declared in bc_supp.h if needed elsewhere */
   int i;
+  
+  pl_byte_code_len = (int) (bc_sp - bc);
 
-  pl_byte_len = (int) (bc_sp - bc);
+  pl_byte_code = (unsigned *) Malloc(pl_byte_code_len * sizeof(BCWord));
 
-#ifdef DEBUG
-  DBGPRINTF("byte-code size:%d\n", pl_byte_len);
+#if 0
+  memcpy(pl_byte_code, bc, pl_byte_code_len * sizeof(BCWord));
+#else
+  for (i = 0; i < pl_byte_code_len; i++)
+    pl_byte_code[i] = bc[i].word;
 #endif
 
-  pl_byte_code = (unsigned *) Malloc(pl_byte_len * sizeof(BCWord));
-
-  for (i = 0; i < pl_byte_len; i++)
-    pl_byte_code[i] = bc[i].word;
+#ifdef DEBUG
+  DBGPRINTF("byte-code size:%d\n", pl_byte_code_len);
+#endif
 }
 
 
@@ -541,9 +547,8 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   size_bc = (int) (bc_sp - bc);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
-      bc_nb_block++;
-      bc = (BCWord *) Realloc((char *) bc,
-			      bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
+      bc_nb_block++; 
+      bc = (BCWord *) Realloc((char *) bc, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
       bc_sp = bc + size_bc;
     }
 

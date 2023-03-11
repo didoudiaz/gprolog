@@ -247,9 +247,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (!Is_Valid_Code(x))
                 Pl_Err_Representation(pl_representation_character_code);
 
-              do
+              while(n-- > 0)
                 Pl_Stream_Putc((int) x, pstm);
-              while (--n > 0);
               break;
 
             case 'e':
@@ -394,9 +393,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (pstm->line_pos == 0)
                 break;
             case 'n':
-              do
-                Pl_Stream_Putc('\n', pstm);
               while (--n > 0);
+                Pl_Stream_Putc('\n', pstm);
               break;
 
             case '?':
@@ -407,8 +405,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               continue;
 
             default:
-              Pl_Err_Domain(pl_domain_format_control_sequence,
-                            Tag_ATM(ATOM_CHAR(*format)));
+              Pl_Err_Domain(pl_domain_format_control_sequence, Tag_ATM(ATOM_CHAR(*format)));
             }
           format++;
         }

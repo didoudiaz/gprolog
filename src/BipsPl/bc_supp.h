@@ -49,16 +49,6 @@
  * Global Variables                *
  *---------------------------------*/
 
-#ifdef BC_SUPP_FILE
-
-int pl_byte_len;
-
-#else
-
-extern int pl_byte_len;
-
-#endif
-
 				/* defined as this to avoid to force the   */
 				/* inclusion of bc_supp.o if not needed    */
 				/* (dynam_supp.c uses pl_byte_code)        */
