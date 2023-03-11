@@ -548,7 +548,6 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
   WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
-  int i;
 
   /* pl_glob_dico_var: excluded var ? (0/1) 
    * mark var nb I already used to avoid to bind with '$VAR'(I) 

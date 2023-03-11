@@ -294,7 +294,6 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                   break;
                 }
 
-
               stop = (*format == 'D') ? lg % 3 : -1;
 
               if (stop == 0)
@@ -356,9 +355,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               break;
 
             case 'i':
-              do
+              while (--n > 0)
                 Read_Arg(&lst_adr);
-              while (--n > 0);
               break;
 
             case 'k':
@@ -370,7 +368,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'q':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-                WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
+			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */
@@ -393,7 +391,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (pstm->line_pos == 0)
                 break;
             case 'n':
-              while (--n > 0);
+              while (--n > 0)
                 Pl_Stream_Putc('\n', pstm);
               break;
 
