@@ -564,8 +564,7 @@ Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[])
 void
 Switch_Ret(int nb_swt, SwtInf swt[])
 {
-  qsort((void *) swt, nb_swt, sizeof(SwtInf),
-	(int (*)(const void *, const void *)) Switch_Cmp_Int);
+  qsort((void *) swt, nb_swt, sizeof(SwtInf), (int (*)(const void *, const void *)) Switch_Cmp_Int);
 
   Switch_Rec(0, nb_swt - 1, swt);
 }

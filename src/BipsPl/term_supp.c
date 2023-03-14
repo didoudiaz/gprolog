@@ -879,8 +879,7 @@ terminal_rec:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Term_Hash_4(WamWord start_word, WamWord depth_word, WamWord range_word, 
-	       WamWord hash_word)
+Pl_Term_Hash_4(WamWord start_word, WamWord depth_word, WamWord range_word, WamWord hash_word)
 {
   PlLong depth = Pl_Rd_Integer_Check(depth_word);
   PlLong range = Pl_Rd_Positive_Check(range_word);

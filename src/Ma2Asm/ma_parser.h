@@ -99,4 +99,4 @@ SwtInf;
 
 int Parse_Ma_File(char *file_name_in, int comment);
 
-void Syntax_Error(char *s);
+void Syntax_Error(char *format, ...) ATTR_PRINTF(1);

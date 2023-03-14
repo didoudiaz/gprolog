@@ -47,7 +47,8 @@
 typedef enum
 {				/* skip 256 to specify a given char */
   ATOM = 256,			/* an atom */
-  INTEGER,			/* an integer */
+  INTEGER,			/* a Prolog integer corresponding to a PlLong */
+  C_INT,			/* a sub type of INTEGER corresponding to a C int */
   FLOAT,			/* a double */
   X_Y,				/* x(X) or y(Y) */
   F_N,				/* a ATOM / INTEGER */
@@ -78,7 +79,7 @@ typedef double ArgVal;		/* to ensure double alignment */
 
 int Parse_Wam_File(char *file_name_in, int comment);
 
-void Syntax_Error(char *s);
+void Syntax_Error(char *format, ...) ATTR_PRINTF(1);
 
 
 

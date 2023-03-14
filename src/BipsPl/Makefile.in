@@ -204,7 +204,7 @@ check:
 	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK'
 
 check-i:
-	@../Pl2Wam/check_boot -i -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK [INTERPRETED MODE]'
+	@../Pl2Wam/check_boot -i -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK [EMULATED MODE]'
 
 
 # test: read alone

@@ -45,6 +45,8 @@
 #include <locale.h>
 
 
+#include "../EnginePl/gp_config.h" /* ensure ATTR_PRINTF */
+
 #include "wam_parser.h"
 #include "wam_protos.h"
 
@@ -58,7 +60,7 @@
 #define MAX_FCT_ARITY              10
 #define MAX_LINE_LEN               65536
 #define MAX_STR_LEN                32768
-#define MAX_ARGS                   65536 /* for big swith_on_... */
+#define MAX_ARGS                   1000000 /* for big swith_on_... */
 
 
 
@@ -85,8 +87,8 @@ ParseInf;
 
 ParseInf decl[] = {
   {"file_name", F_file_name, 1, {ATOM}},
-  {"directive", F_directive, 3, {INTEGER, ATOM, LIST_INST}},
-  {"predicate", F_predicate, 7, {MP_N, INTEGER, ATOM, ATOM, ATOM, ATOM, LIST_INST}},
+  {"directive", F_directive, 3, {C_INT, ATOM, LIST_INST}},
+  {"predicate", F_predicate, 7, {MP_N, C_INT, ATOM, ATOM, ATOM, ATOM, LIST_INST}},
   {"ensure_linked", F_ensure_linked, 1, {L1(MP_N)}},
   {NULL, NULL, 0, {0}}
 };
@@ -94,31 +96,31 @@ ParseInf decl[] = {
 
 
 ParseInf inst[] = {
-  {"get_variable", F_get_variable, 2, {X_Y, INTEGER}},
-  {"get_value", F_get_value, 2, {X_Y, INTEGER}},
-  {"get_atom", F_get_atom, 2, {ATOM, INTEGER}},
-  {"get_integer", F_get_integer, 2, {INTEGER, INTEGER}},
-  {"get_float", F_get_float, 2, {FLOAT, INTEGER}},
-  {"get_nil", F_get_nil, 1, {INTEGER}},
-  {"get_list", F_get_list, 1, {INTEGER}},
-  {"get_structure", F_get_structure, 2, {F_N, INTEGER}},
+  {"get_variable", F_get_variable, 2, {X_Y, C_INT}},
+  {"get_value", F_get_value, 2, {X_Y, C_INT}},
+  {"get_atom", F_get_atom, 2, {ATOM, C_INT}},
+  {"get_integer", F_get_integer, 2, {INTEGER, C_INT}},
+  {"get_float", F_get_float, 2, {FLOAT, C_INT}},
+  {"get_nil", F_get_nil, 1, {C_INT}},
+  {"get_list", F_get_list, 1, {C_INT}},
+  {"get_structure", F_get_structure, 2, {F_N, C_INT}},
 
-  {"put_variable", F_put_variable, 2, {X_Y, INTEGER}},
-  {"put_void", F_put_void, 1, {INTEGER}},
-  {"put_value", F_put_value, 2, {X_Y, INTEGER}},
-  {"put_unsafe_value", F_put_unsafe_value, 2, {X_Y, INTEGER}},
-  {"put_atom", F_put_atom, 2, {ATOM, INTEGER}},
-  {"put_integer", F_put_integer, 2, {INTEGER, INTEGER}},
-  {"put_float", F_put_float, 2, {FLOAT, INTEGER}},
-  {"put_nil", F_put_nil, 1, {INTEGER}},
-  {"put_list", F_put_list, 1, {INTEGER}},
-  {"put_structure", F_put_structure, 2, {F_N, INTEGER}},
-  {"put_meta_term", F_put_meta_term, 2, {ATOM, INTEGER}},
-  {"math_load_value", F_math_load_value, 2, {X_Y, INTEGER}},
-  {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, INTEGER}},
+  {"put_variable", F_put_variable, 2, {X_Y, C_INT}},
+  {"put_void", F_put_void, 1, {C_INT}},
+  {"put_value", F_put_value, 2, {X_Y, C_INT}},
+  {"put_unsafe_value", F_put_unsafe_value, 2, {X_Y, C_INT}},
+  {"put_atom", F_put_atom, 2, {ATOM, C_INT}},
+  {"put_integer", F_put_integer, 2, {INTEGER, C_INT}},
+  {"put_float", F_put_float, 2, {FLOAT, C_INT}},
+  {"put_nil", F_put_nil, 1, {C_INT}},
+  {"put_list", F_put_list, 1, {C_INT}},
+  {"put_structure", F_put_structure, 2, {F_N, C_INT}},
+  {"put_meta_term", F_put_meta_term, 2, {ATOM, C_INT}},
+  {"math_load_value", F_math_load_value, 2, {X_Y, C_INT}},
+  {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, C_INT}},
 
   {"unify_variable", F_unify_variable, 1, {X_Y}},
-  {"unify_void", F_unify_void, 1, {INTEGER}},
+  {"unify_void", F_unify_void, 1, {C_INT}},
   {"unify_value", F_unify_value, 1, {X_Y}},
   {"unify_local_value", F_unify_local_value, 1, {X_Y}},
   {"unify_atom", F_unify_atom, 1, {ATOM}},
@@ -127,7 +129,7 @@ ParseInf inst[] = {
   {"unify_list", F_unify_list, 0, {0}},
   {"unify_structure", F_unify_structure, 1, {F_N}},
 
-  {"allocate", F_allocate, 1, {INTEGER}},
+  {"allocate", F_allocate, 1, {C_INT}},
   {"deallocate", F_deallocate, 0, {0}},
 
   {"call", F_call, 1, {MP_N}},
@@ -135,22 +137,22 @@ ParseInf inst[] = {
   {"proceed", F_proceed, 0, {0}},
   {"fail", F_fail, 0, {0}},
 
-  {"label", F_label, 1, {INTEGER}},
+  {"label", F_label, 1, {C_INT}},
 
   {"switch_on_term", F_switch_on_term, 5, {LABEL, LABEL, LABEL, LABEL, LABEL}},
-  {"switch_on_atom", F_switch_on_atom, 1, {L2(ATOM, INTEGER)}},
-  {"switch_on_integer", F_switch_on_integer, 1, {L2(INTEGER, INTEGER)}},
-  {"switch_on_structure", F_switch_on_structure, 1, {L2(F_N, INTEGER)}},
+  {"switch_on_atom", F_switch_on_atom, 1, {L2(ATOM, C_INT)}},
+  {"switch_on_integer", F_switch_on_integer, 1, {L2(INTEGER, C_INT)}},
+  {"switch_on_structure", F_switch_on_structure, 1, {L2(F_N, C_INT)}},
 
-  {"try_me_else", F_try_me_else, 1, {INTEGER}},
-  {"retry_me_else", F_retry_me_else, 1, {INTEGER}},
+  {"try_me_else", F_try_me_else, 1, {C_INT}},
+  {"retry_me_else", F_retry_me_else, 1, {C_INT}},
   {"trust_me_else_fail", F_trust_me_else_fail, 0, {0}},
 
-  {"try", F_try, 1, {INTEGER}},
-  {"retry", F_retry, 1, {INTEGER}},
-  {"trust", F_trust, 1, {INTEGER}},
+  {"try", F_try, 1, {C_INT}},
+  {"retry", F_retry, 1, {C_INT}},
+  {"trust", F_trust, 1, {C_INT}},
 
-  {"pragma_arity", F_pragma_arity, 1, {INTEGER}},
+  {"pragma_arity", F_pragma_arity, 1, {C_INT}},
 
   {"get_current_choice", F_get_current_choice, 1, {X_Y}},
   {"cut", F_cut, 1, {X_Y}},
@@ -158,8 +160,7 @@ ParseInf inst[] = {
 
   {"call_c", F_call_c, 3, {ATOM, L1(ANY), L1(ANY)}},
 
-  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, INTEGER,
-					   L2(ATOM, ATOM)}},
+  {"foreign_call_c", F_foreign_call_c, 5, {ATOM, ATOM, F_N, C_INT, L2(ATOM, ATOM)}},
 
   {NULL, NULL, 0, {0}}
 };
@@ -332,14 +333,15 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
  * arguments are loaded in the array 'arg' as follows:                     *
  *                                                                         *
  * ATOM      : the (char *) pointing to a copy of the associated string    *
- * INTEGER   : the associated (int)                                        *
+ * INTEGER   : the associated (PlLong)                                     *
+ * C_INT     : the associated (int)                                        *
  * FLOAT     : the associated (double)                                     *
  * X_Y       : the (int) associated to the var no (Y vars from 5000)       *
- * F_N       : the loading of ATOM (F) and the loading of INTEGER (N)      *
+ * F_N       : the loading of ATOM (F) and the loading of C_INT (N)        *
  * MP_N      : the loading of ATOM (M) or NULL (no module) followed by F_N *
- *             the loading of ATOM (F) and the loading of INTEGER (N)      *
+ *             the loading of ATOM (F) and the loading of C_INT (N)        *
  * LABEL     : the associated (int) or -1 for 'fail'                       *
- * ANY       : the type of the arg (an INTEGER) and the loading of arg     *
+ * ANY       : the type of the arg (an C_INT) and the loading of arg       *
  * L1(T)     : an (int) n associated to the number of elements and         *
  *             n * the loading of T                                        *
  * L2(T1, T2): an (int) n associated to the number of elements and         *
@@ -363,6 +365,11 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
       Read_Token(INTEGER);
     load_integer:
       Add_Arg(*top, PlLong, int_val);
+      return;
+
+    case C_INT:
+      Read_Token(INTEGER);
+      Add_Arg(*top, int, int_val);
       return;
 
     case FLOAT:
@@ -427,7 +434,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
     case ANY:
       t1 = Scanner(1);
       top1 = *top;		/* to update type if needed */
-      Add_Arg(*top, PlLong, t1);
+      Add_Arg(*top, int, t1);
 
       if (t1 == INTEGER)
 	goto load_integer;
@@ -440,8 +447,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 
 				/* t1 is an ATOM */
 
-      if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' &&
-	  Peek_Char(0) == '(')
+      if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' && Peek_Char(0) == '(')
 	{
 	  Add_Arg(top1, PlLong, X_Y);
 	  goto load_x_y;
@@ -507,10 +513,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 static void
 Read_Token(int what)
 {
-  char str[80];
-  int k;
-
-  k = Scanner(what == ATOM);
+  int k = Scanner(what == ATOM);
 
   if (k == what)
     return;
@@ -537,8 +540,7 @@ Read_Token(int what)
       break;
 
     default:
-      sprintf(str, "%c expected", what);
-      Syntax_Error(str);
+      Syntax_Error("%c expected", what);
       break;
     }
 }
@@ -729,15 +731,21 @@ Peek_Char(int skip_spaces)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Syntax_Error(char *s)
+Syntax_Error(char *format, ...)
 {
+  va_list arg_ptr;
   char *p = cur_line_str + strlen(cur_line_str) - 1;
 
   if (*p == '\n')
     *p = '\0';
 
-  fprintf(stderr, "line %d: %s\n", cur_line_no, s);
-  fprintf(stderr, "%s\n", cur_line_str);
+  fprintf(stderr, "line %d: ", cur_line_no);
+
+  va_start(arg_ptr, format);
+  vfprintf(stderr, format, arg_ptr);
+  va_end(arg_ptr);
+
+  fprintf(stderr, "\n%s\n", cur_line_str);
 
   for (p = cur_line_str; p < beg_last_token; p++)
     if (!isspace(*p))
