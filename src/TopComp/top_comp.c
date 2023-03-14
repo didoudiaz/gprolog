@@ -265,7 +265,7 @@ int Find_File(char *file, char *suff, char *file_path, int ignore_error);
 
 char *Find_Suffix(char *suffixes, char *suffix);
 
-void Pl_Fatal_Error(char *format, ...);
+void Pl_Fatal_Error(char *format, ...) ATTR_PRINTF(1);
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -326,8 +326,7 @@ main(int argc, char *argv[])
 
   start_path = Get_Prolog_Path(argv[0], &devel_mode);
   if (start_path == NULL)
-    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s",
-                PROLOG_NAME, ENV_VARIABLE);
+    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s", PROLOG_NAME, ENV_VARIABLE);
 
   strcat(cmd_cc.opt, CFLAGS_MACHINE " " CFLAGS_REGS CC_COMPILE_OPT);
 

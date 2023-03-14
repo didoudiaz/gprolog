@@ -38,7 +38,7 @@
 
 #define MAX_VAR_NAME_LENGTH        1024
 
-#define MAX_VAR_IN_TERM            32768
+#define MAX_VAR_IN_TERM            (1024 * 1024)
 
 #define MAX_SYS_VARS               256
 

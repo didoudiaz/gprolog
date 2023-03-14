@@ -1127,7 +1127,13 @@ Cmp_Ret_And_Int(PlLong int_val)
 void
 Jump_If_Equal(char *label)
 {
+#if 0
   Inst_Printf("beq", "%s", label);
+#else
+  Inst_Printf("bne", "%s", Label_Cont_New());
+  Inst_Printf("b", "%s", label);
+  Label_Printf("%s:", Label_Cont_Get());
+#endif
 }
 
 

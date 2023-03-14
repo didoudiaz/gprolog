@@ -577,81 +577,66 @@ label(6),
     proceed,
 
 label(7),
-    retry_me_else(8),
-    allocate(3),
+    trust_me_else_fail,
+    allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),2),
-    put_value(y(0),0),
-    get_structure(label/1,0),
-    unify_void(1),
-    cut(x(3)),
     put_value(x(1),0),
-    put_variable(y(2),1),
+    put_value(y(1),1),
     call('$emit_wam_code/3_$aux1'/2),
     put_value(y(1),0),
-    put_atom('~a~n~n',1),
-    put_list(2),
-    unify_local_value(y(2)),
-    unify_nil,
-    call(format/3),
+    call(nl/1),
     put_value(y(0),0),
     put_value(y(1),1),
-    deallocate,
-    execute(emit_one_inst/2),
-
-label(8),
-    trust_me_else_fail,
-    allocate(3),
-    get_variable(y(0),0),
-    get_variable(y(1),2),
-    put_value(x(1),0),
-    put_variable(y(2),1),
     call('$emit_wam_code/3_$aux2'/2),
-    put_value(y(1),0),
-    put_atom('~a~n    ',1),
-    put_list(2),
-    unify_local_value(y(2)),
-    unify_nil,
-    call(format/3),
     put_value(y(0),0),
     put_value(y(1),1),
     deallocate,
     execute(emit_one_inst/2)]).
 
 
-predicate('$emit_wam_code/3_$aux2'/2,264,static,private,monofile,local,[
+predicate('$emit_wam_code/3_$aux2'/2,254,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
-    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    get_structure(label/1,0),
+    unify_void(1),
     cut(x(2)),
-    get_atom('[',1),
-    get_atom(f,0),
-    proceed,
+    put_value(x(1),0),
+    execute(nl/1),
 
 label(1),
     trust_me_else_fail,
-    get_atom(',',1),
-    proceed]).
+    put_value(x(1),0),
+    put_atom('    ',1),
+    execute(write/2)]).
 
 
 predicate('$emit_wam_code/3_$aux1'/2,254,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
+    allocate(1),
+    get_variable(y(0),0),
+    put_value(y(0),0),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     cut(x(2)),
-    get_atom('[',1),
+    put_value(x(1),0),
+    put_atom('[',1),
+    call(put_char/2),
+    put_value(y(0),0),
     get_atom(f,0),
+    deallocate,
     proceed,
 
 label(1),
     trust_me_else_fail,
-    get_atom(',',1),
-    proceed]).
+    put_value(x(1),0),
+    put_atom(',',1),
+    execute(put_char/2)]).
 
 
-predicate(emit_one_inst/2,276,static,private,monofile,global,[
+predicate(emit_one_inst/2,271,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -681,10 +666,10 @@ label(1),
     put_value(y(1),0),
     put_atom(')',1),
     deallocate,
-    execute(write/2)]).
+    execute(put_char/2)]).
 
 
-predicate(emit_args/4,286,static,private,monofile,global,[
+predicate(emit_args/4,282,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -718,7 +703,7 @@ label(1),
     execute(emit_args/4)]).
 
 
-predicate('$emit_args/4_$aux1'/2,289,static,private,monofile,local,[
+predicate('$emit_args/4_$aux1'/2,285,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -735,7 +720,7 @@ label(1),
     execute(put_char/2)]).
 
 
-predicate(emit_one_arg/2,299,static,private,monofile,global,[
+predicate(emit_one_arg/2,296,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -770,11 +755,12 @@ predicate(emit_one_arg/2,299,static,private,monofile,global,[
     unify_value(x(3)),
     unify_nil,
     call(write_term/3),
+    put_integer(0,1),
+    put_unsafe_value(y(5),2),
     put_value(y(1),0),
-    put_unsafe_value(y(5),1),
-    put_value(y(2),2),
+    put_value(y(2),3),
     deallocate,
-    execute(emit_list/3),
+    execute(emit_list/4),
 
 label(1),
     retry_me_else(2),
@@ -839,7 +825,7 @@ label(5),
     execute(format/3)]).
 
 
-predicate(emit_list/3,332,static,private,monofile,global,[
+predicate(emit_list/4,332,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -847,7 +833,7 @@ label(1),
 
 label(2),
     get_nil(0),
-    put_value(x(2),0),
+    put_value(x(3),0),
     put_atom(']',1),
     execute(put_char/2),
 
@@ -855,21 +841,26 @@ label(3),
     trust_me_else_fail,
 
 label(4),
-    allocate(4),
+    allocate(5),
     get_list(0),
     unify_variable(y(0)),
     unify_variable(y(1)),
     get_variable(y(2),1),
     get_variable(y(3),2),
-    put_value(y(3),0),
-    put_atom(',~n~*c',1),
+    get_variable(y(4),3),
+    put_value(y(4),0),
+    put_atom(',~n~*c~*c',1),
     put_list(2),
     unify_local_value(y(2)),
+    unify_list,
+    unify_integer(9),
+    unify_list,
+    unify_local_value(y(3)),
     unify_list,
     unify_integer(32),
     unify_nil,
     call(format/3),
-    put_value(y(3),0),
+    put_value(y(4),0),
     put_value(y(0),1),
     put_structure(quoted/1,4),
     unify_atom(true),
@@ -884,8 +875,9 @@ label(4),
     put_value(y(1),0),
     put_value(y(2),1),
     put_value(y(3),2),
+    put_value(y(4),3),
     deallocate,
-    execute(emit_list/3)]).
+    execute(emit_list/4)]).
 
 
 predicate(emit_ensure_linked/0,343,static,private,monofile,global,[
@@ -1071,7 +1063,7 @@ label(4),
     call(bc_emit_prolog_term/2),
     put_value(y(3),0),
     put_atom(',',1),
-    call(write/2),
+    call(put_char/2),
     put_value(y(1),0),
     put_void(1),
     put_value(y(3),2),

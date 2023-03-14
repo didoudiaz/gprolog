@@ -482,7 +482,7 @@ terminal_rec:
  *-------------------------------------------------------------------------*/
 void
 Pl_Copy_Contiguous_Term(WamWord *dst_adr, WamWord *src_adr)
-#define Old_Adr_To_New_Adr(adr)  ((dst_adr)+((adr)-(src_adr)))
+#define Old_Adr_To_New_Adr(adr)  ((dst_adr) + ((adr) - (src_adr)))
 {
   WamWord word, *adr;
   WamWord *q;
@@ -626,7 +626,7 @@ Pl_Acyclic_Term_1(WamWord start_word)
 /*-------------------------------------------------------------------------*
  * PL_ACYCLIC_TERM_1                                                       *
  *                                                                         *
- * This is implemented in linear time markink each sub-term (LST or STC)   *
+ * This is implemented in linear time marking each sub-term (LST or STC)   *
  * with a special mark (NB we cannot use NOT_A_WAM_WORD, <REF,0> since it  * 
  * would be dereferenced. So we use <LST,0>                                *
  *                                                                         *
@@ -879,8 +879,7 @@ terminal_rec:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Term_Hash_4(WamWord start_word, WamWord depth_word, WamWord range_word, 
-	       WamWord hash_word)
+Pl_Term_Hash_4(WamWord start_word, WamWord depth_word, WamWord range_word, WamWord hash_word)
 {
   PlLong depth = Pl_Rd_Integer_Check(depth_word);
   PlLong range = Pl_Rd_Positive_Check(range_word);

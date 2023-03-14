@@ -59,7 +59,7 @@
 #define MAX_LINE_LEN               65536
 #define MAX_STR_LEN                32768
 #define MAX_ARGS                   128
-#define MAX_SWITCH_CASES           65536
+#define MAX_SWITCH_CASES           1000000
 
 
 
@@ -157,6 +157,8 @@ static int Read_Optional_Index(void);
 static int Read_Token(int what);
 
 static int Scanner(void);
+
+static void Skip_Rest_Of_Line(void);
 
 
 
@@ -261,7 +263,7 @@ Parser(int pass_no, int nb_passes)
       /* ignore it in Pre_Pass() or long decl if Pre_Pass() done before */
       if ((Pre_Pass() && k != PL_CODE && k != C_CODE && k != LONG && *in != NULL) ||
 	  (pass_no > 1 && k == LONG)) {
-	*cur_line_p = '\0';	/* skip rest of line */
+	Skip_Rest_Of_Line();
 	continue;
       }
 
@@ -605,6 +607,8 @@ Read_Switch(void)
 
       Read_Token('=');
       Read_Token(IDENTIFIER);
+      if (nb_swt >= MAX_SWITCH_CASES)
+	Syntax_Error("Too big switch_ret, max cases: %d", MAX_SWITCH_CASES);
       swt[nb_swt].int_val = int_val;
       swt[nb_swt].label = strdup(str_val);
 
@@ -664,13 +668,9 @@ Read_Optional_Index(void)
 static int
 Read_Token(int what)
 {
-  char str[80];
-  int k;
+  int k = Scanner();
 
-  k = Scanner();
-
-  if (k == what || (what == X_REG && k == Y_REG)
-      || (what == FL_ARRAY && k == FD_ARRAY))
+  if (k == what || (what == X_REG && k == Y_REG) || (what == FL_ARRAY && k == FD_ARRAY))
     return k;
 
   switch (what)
@@ -700,8 +700,7 @@ Read_Token(int what)
       break;
 
     default:
-      sprintf(str, "%c expected", what);
-      Syntax_Error(str);
+      Syntax_Error("%c expected", what);
       break;
     }
 
@@ -726,7 +725,7 @@ Scanner(void)
 
   for (;;)
     {
-      while (isspace(*cur_line_p))
+      while (isspace(*cur_line_p) || *cur_line_p == '\\') /* a \ should be followed by \n (not tested) for a line continuation */
 	cur_line_p++;
 
       if (*cur_line_p != '\0' && *cur_line_p != ';')
@@ -844,19 +843,54 @@ Scanner(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_SYNTAX_ERROR                                                         *
+ * SKIP                                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Skip_Rest_Of_Line(void)
+{
+  char *p;
+
+  /* useful for pass 1 to ignore instructions (keep decl only) */
+  while((p = strrchr(cur_line_p, '\\')) != NULL)
+    {
+      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
+	{
+	}
+
+      if (feof(file_in))
+	*cur_line_str = '\0';
+
+      cur_line_no++;
+      cur_line_p = cur_line_str;
+    }
+
+  *cur_line_p = '\0';		/* ignore this line  */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SYNTAX_ERROR                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Syntax_Error(char *s)
+Syntax_Error(char *format, ...)
 {
+  va_list arg_ptr;
   char *p = cur_line_str + strlen(cur_line_str) - 1;
 
   if (*p == '\n')
     *p = '\0';
 
-  fprintf(stderr, "line %d: %s\n", cur_line_no, s);
-  fprintf(stderr, "%s\n", cur_line_str);
+  fprintf(stderr, "line %d: ", cur_line_no);
+
+  va_start(arg_ptr, format);
+  vfprintf(stderr, format, arg_ptr);
+  va_end(arg_ptr);
+
+  fprintf(stderr, "\n%s\n", cur_line_str);
 
   for (p = cur_line_str; p < beg_last_token; p++)
     if (!isspace(*p))
