@@ -84,7 +84,7 @@
 /* As for arm32_any.c, we could use the ldr pseudo-instruction to load an 
  * immediate (constant or label) :
  *    ldr, =immediate or address
- * The assembler rqeplaces it (e.g. by a sequence of mov and movk).
+ * The assembler replaces it (e.g. by a sequence of mov and movk).
  *
  * However, we experienced a lot of strange bugs on macos using ldr 
  * pseudo-instructions on large (asm) sources (with around 10000 ldr pseudo-inst).
@@ -138,7 +138,8 @@
  *    Seems always PIC code 
  *    (on linux use .LANCHORn labels to optimize loadings in the same region ?)
  *
- *    A local symbol is only visible in the source.
+ *    A local symbol is only visible in the source. In addition, symbols beginning with L (or .L)
+ *    are not put in the symbol table.
  *    Some instructions only work with a local symbol, e.g. bgt label (label must be local)
  *    Due to RISC approach, an address is loaded (PC-relative) with 2 instructions 
  *          loading the page (page size = 4KB) with adrp (p stands for 'page')
@@ -162,14 +163,17 @@
  *    External symbols are indirectly addressed via GOT (using @GOTPAGE and @GOTPAGEOFF)
  *
  * Specific to arm64/darwin:
- *    An external symbol always starts with _   
- *    (local labels DO NOT begin with _ but a code local symbol can begin with _)
+ *    An external symbol always starts with _
+ *    (local labels DO NOT begin with _ but other code local symbols can begin with _)
  *    Local symbols are addressed using @PAGE and @PAGEOFF
  *    External symbols are indirectly addressed via GOT (using @GOTPAGE and @GOTPAGEOFF)
  *    NB: a code local symbol can be addressed via the GOT (we do not use this however).
  *
  * All _FMT macros use %s%s for the underscore + symbol 
  * (even if we know there is no _ under arm64/linux) 
+ *
+ * Recall that symbols beginning with .L (L under darwin) are local symbols which do not
+ * appear in the symbol table.
  */
 
 #ifdef M_darwin
@@ -229,13 +233,28 @@ void Init_Mapper(void)
   mi.comment_prefix = "#";
 
 #ifdef M_darwin
+  /* clang-as issue #61475 (https://github.com/llvm/llvm-project/issues/61475)
+   * pb when loading far away local symbol address (for large souce files, e.g. wordnet).
+   * Until it is fixed don't use local prefixes
+   * In practice, no problem for string which are only referenced at the end)
+   * of the object by the initialize to be put in atoms (at or ta).
+   * Nor for double constants which are loaded as immediate (with DOUBLE_CST_AS_IMM64) 
+   */
+
+#if 1				/* remove when bug is fixed */
+  mi.local_symb_prefix = "Z";	/* put something here else Scope_Of_Symbol will not detect it is local */
+#else
   mi.local_symb_prefix = "L";
+#endif
   mi.string_symb_prefix = "L.str.";
   mi.double_symb_prefix =  "LCPI";
+
 #else
+
   mi.local_symb_prefix = ".L";
   mi.string_symb_prefix = ".LC";
   mi.double_symb_prefix = ".LCD";
+
 #endif
 
   mi.strings_need_null = FALSE;
@@ -303,7 +322,7 @@ Code_Start(CodeInf *c)
   Label_Printf("%s", "");
   Label_Printf(UN_EXT "%s:", c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
       Inst_Printf("str", "x30, [sp]"); /* save lr (x30) */
@@ -407,7 +426,7 @@ Increment_Reg(char *r, int int_val)
 /* Test if int_val is an immediate constant that can be moved into a general by a MOVZ.
    Returns the number of logical shift left (LSL) or -1 if impossible
 
-   got some information here:
+   Some information here:
    https://github.com/espressif/binutils-esp32ulp/blob/master/opcodes/aarch64-opc.c
    see function aarch64_wide_constant_p 
 */
@@ -498,21 +517,22 @@ Load_Immediate(char *r, PlULong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Address(char *r, char *addr)
+Load_Address(char *r, char *name)
 {
-  int scope = Scope_Of_Symbol(addr);
+  CodeType code;
+  Bool global;
+  code = Scope_Of_Symbol(name, &global);
 
-  if (scope > 0)
-    {				/* 1 for local code, 2 for local data (long) */
-      char *un = (scope == 1) ? UN_EXT : "";
-
-      Inst_Printf("adrp", "%s, " PAGE_FMT, r, un, addr);
-      Inst_Printf("add", "%s, %s, " PAGEOFF_FMT, r, r, un, addr);
+  if (!global) /* On darwin could be: if (code == CODE_TYPE_LABEL || code == CODE_TYPE_NONE) */
+    {	    /* On darwin we use _ for code (even for a local code), except for label to avoid Dico lookup */
+      char *un = (code != CODE_TYPE_NONE && code != CODE_TYPE_LABEL) ? UN_EXT : "";
+      Inst_Printf("adrp", "%s, " PAGE_FMT, r, un, name);
+      Inst_Printf("add", "%s, %s, " PAGEOFF_FMT, r, r, un, name);
     }
   else
     {
-      Inst_Printf("adrp", "%s, " GOT_PAGE_FMT, r, UN_EXT, addr);
-      Inst_Printf("ldr", "%s, [%s, " GOT_PAGEOFF_FMT "]", r, r, UN_EXT, addr);
+      Inst_Printf("adrp", "%s, " GOT_PAGE_FMT, r, UN_EXT, name);
+      Inst_Printf("ldr", "%s, [%s, " GOT_PAGEOFF_FMT "]", r, r, UN_EXT, name);
     }
 }
 

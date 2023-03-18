@@ -144,7 +144,7 @@ double dbl_val;
 
 static void Parser(int pass_no, int nb_passes);
 
-static int Read_If_Global(Bool initializer);
+static int Read_If_Global(Bool initializer_accepted);
 
 static void Read_Function(void);
 
@@ -271,9 +271,8 @@ Parser(int pass_no, int nb_passes)
 	{
 	case PL_CODE:
 	  Stop_Previous_Code();
-	  cur_code.prolog = TRUE;
+	  cur_code.type = CODE_TYPE_PROLOG;
 	  cur_code.global = Read_If_Global(FALSE);
-	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
 	  if (Pre_Pass())
@@ -288,16 +287,15 @@ Parser(int pass_no, int nb_passes)
 
 	case C_CODE:
 	  Stop_Previous_Code();
-	  cur_code.prolog = FALSE;
+	  cur_code.type = CODE_TYPE_C;
 	  cur_code.global = Read_If_Global(!initializer_defined);
-	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
 	  if (cur_code.global == 2)
 	    {
 	      initializer_defined = TRUE;
+	      cur_code.type = CODE_TYPE_INITIALIZER;
 	      cur_code.global = FALSE;
-	      cur_code.initializer = TRUE;
 	      if (!Pre_Pass())
 		Declare_Initializer(cur_code.name);
 	    }
@@ -452,8 +450,7 @@ Parser(int pass_no, int nb_passes)
 	    {
 	      CodeInf c_lab;
 	      c_lab.name = strdup(str_val);
-	      c_lab.prolog = FALSE;
-	      c_lab.initializer = FALSE;
+	      c_lab.type = CODE_TYPE_LABEL;
 	      c_lab.global = FALSE;
 	      Read_Token(':');
 	      if (Pre_Pass())
@@ -474,7 +471,7 @@ Parser(int pass_no, int nb_passes)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Read_If_Global(Bool initializer)
+Read_If_Global(Bool initializer_accepted)
 {
   if (Scanner() != IDENTIFIER)
     goto err;
@@ -485,11 +482,11 @@ Read_If_Global(Bool initializer)
   if (strcmp(str_val, "global") == 0)
     return 1;
 
-  if (initializer && strcmp(str_val, "initializer") == 0)
+  if (initializer_accepted && strcmp(str_val, "initializer") == 0)
     return 2;
 
 err:
-  if (!initializer)
+  if (!initializer_accepted)
     Syntax_Error("local / global expected");
   else
     Syntax_Error("local / global / initializer expected");

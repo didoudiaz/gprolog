@@ -31,6 +31,7 @@ inst ::=	'pl_jump' pl_name	Prolog jump to a predicate
                                        move returned value
 	|	'switch_ret' '(' swt_arg '=' label ',' ...)
 					switch on returned value else 'pl_fail'
+					NB: use \ before newline to break a too long line
 
 	|	'c_ret'			C return
 

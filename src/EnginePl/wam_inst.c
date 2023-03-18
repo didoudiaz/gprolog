@@ -130,6 +130,23 @@ Pl_Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_SWT_INT_ELEMENT                                               *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Pl_Create_Swt_Int_Element(SwtTbl t, int size, PlLong val, CodePtr codep)
+{
+  SwtInf *swt = Locate_Swt_Element(t, size, val);
+
+  swt->key = val;
+  swt->codep = codep;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_CREATE_SWT_STC_ELEMENT                                               *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1111,18 +1128,37 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 
 
 
-
 /*-------------------------------------------------------------------------*
- * PL_SWITCH_ON_INTEGER                                                    *
+ * PL_SWITCH_ON_INTEGER / PL_SWITCH_ON_INTEGER_DICHOT                      *
  *                                                                         *
  * switch_on_integer always occurs after a switch_on_term, thus A(0) is    *
  * dereferenced and has been updated with its deref word.                  *
- * Simply return the integer since the switch is done by the assembly code.*
+ *                                                                         *
+ * 2 versions: basic or via binary search (dichotomy) see wam2ma.c         *
+ *                                                                         *
+ * Basic version: similar to switch_on_atom:                               *
+ * Look in the hash table t and return the adr of the corresponding code.  *
+ *                                                                         *
+ * Dichotomy: simply return the integer since the switch is done by the    *
+ * assembly code.                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
+CodePtr FC
+Pl_Switch_On_Integer(SwtTbl t, int size)
+{
+  SwtInf *swt;
+
+  swt = Locate_Swt_Element(t, size, (PlLong) UnTag_INT(A(0)));
+
+  return (swt->codep) ? swt->codep : ALTB(B);
+}
+
+
+
+
 PlLong FC
-Pl_Switch_On_Integer(void)
+Pl_Switch_On_Integer_For_Dichotomy(void)
 {
   return UnTag_INT(A(0));
 }

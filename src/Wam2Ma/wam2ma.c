@@ -64,6 +64,13 @@
 #define USE_TAGGED_CALLS_FOR_WAM_FCTS
 #endif
 
+/* basic switch_on_integer with hash table (as switch_on_atom) 
+ * or else with binary search (dichotomy) via swicth_ret MA instruction
+ */
+#if 1
+#define SWT_INT_DICHOTOMY
+#endif
+
 
 
 
@@ -128,7 +135,9 @@ typedef struct swt_tbl
   enum
   {
     TBL_ATM,			/* key: atom */
-    TBL_INT,			/* key: n (used if SWT_INT_NO_OPT) */
+#ifndef SWT_INT_DICHOTOMY
+    TBL_INT,			/* key: n */
+#endif
     TBL_STC			/* key: atom/n */
   }
   type;
@@ -1283,28 +1292,23 @@ F_switch_on_term(ArgVal arg[])
   switch(mask)			/* some specialized functions */
     {
     case LVAR | LATM:
-      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm(%s,%s)",
-		  l[0], l[1]);
+      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm(%s,%s)", l[0], l[1]);
       break;
 
     case LVAR | LSTC:
-      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Stc(%s,%s)",
-		  l[0], l[4]);
+      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Stc(%s,%s)", l[0], l[4]);
       break;
 
     case LVAR | LATM | LLST:
-      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm_Lst(%s,%s,%s)",
-		  l[0], l[1], l[3]);
+      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm_Lst(%s,%s,%s)", l[0], l[1], l[3]);
       break;
 
     case LVAR | LATM | LSTC:
-      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm_Stc(%s,%s,%s)",
-		  l[0], l[1], l[4]);
+      Inst_Printf("call_c", FAST "Pl_Switch_On_Term_Var_Atm_Stc(%s,%s,%s)", l[0], l[1], l[4]);
       break;
 
     default:
-      Inst_Printf("call_c", FAST "Pl_Switch_On_Term(%s,%s,%s,%s,%s)",
-		  l[0], l[1], l[2], l[3], l[4]);
+      Inst_Printf("call_c", FAST "Pl_Switch_On_Term(%s,%s,%s,%s,%s)", l[0], l[1], l[2], l[3], l[4]);
       break;
     }
 
@@ -1368,8 +1372,7 @@ F_switch_on_atom(ArgVal arg[])
       elem->label = label;
     }
 
-  Inst_Printf("call_c", FAST "Pl_Switch_On_Atom(st(%d),%d)",
-	      nb_swt_tbl - 1, t->nb_elem);
+  Inst_Printf("call_c", FAST "Pl_Switch_On_Atom(st(%d),%d)", nb_swt_tbl - 1, t->nb_elem);
   Inst_Printf("jump_ret", "");
 }
 
@@ -1383,7 +1386,7 @@ F_switch_on_atom(ArgVal arg[])
 void
 F_switch_on_integer(ArgVal arg[])
 {
-#ifdef SWT_INT_NO_OPT
+#ifndef SWT_INT_DICHOTOMY	/* basic switch_on_integer */
   SwtTbl *t;
   SwtElt *elem;
 
@@ -1413,7 +1416,7 @@ F_switch_on_integer(ArgVal arg[])
   DEF_LABEL(l);
   Args1(C_INT(nb_elem));
 
-  Inst_Printf("call_c", FAST "Pl_Switch_On_Integer()");
+  Inst_Printf("call_c", FAST "Pl_Switch_On_Integer_For_Dichotomy()");
   Inst_Printf("switch_ret", NULL);	/* NULL to avoid newline */
   c = '(';
   for(i = 0; i < nb_elem; i++)
@@ -1463,8 +1466,7 @@ F_switch_on_structure(ArgVal arg[])
       elem->label = label;
     }
 
-  Inst_Printf("call_c", FAST "Pl_Switch_On_Structure(st(%d),%d)",
-	      nb_swt_tbl - 1, t->nb_elem);
+  Inst_Printf("call_c", FAST "Pl_Switch_On_Structure(st(%d),%d)", nb_swt_tbl - 1, t->nb_elem);
   Inst_Printf("jump_ret", "");
 }
 
@@ -1585,7 +1587,6 @@ F_pragma_arity(ArgVal arg[])
    */
 
   cur_arity = (int) a;	
-
 }
 
 
@@ -1904,8 +1905,7 @@ F_foreign_call_c(ArgVal arg[])
       c = F_Array_Letter(n);
 
       s_dup = (mode[i] == FOREIGN_MODE_IN || mode[i] == FOREIGN_MODE_IN_OUT) &&
-	(n == FOREIGN_TYPE_CHARS || n == FOREIGN_TYPE_CODES) &&
-	--nb_c_str != 0;
+	(n == FOREIGN_TYPE_CHARS || n == FOREIGN_TYPE_CODES) && --nb_c_str != 0;
 
       switch (mode[i])
 	{
@@ -1927,8 +1927,7 @@ F_foreign_call_c(ArgVal arg[])
 	case FOREIGN_MODE_OUT:
 	  complex_jump_ret = 1;	/* arg to unif. complex jump_ret */
 	  if (n != FOREIGN_TYPE_TERM)
-	    Inst_Printf("call_c", "Pl_Check_For_Un_%s(X(%d))",
-			foreign_tbl[n], i);
+	    Inst_Printf("call_c", "Pl_Check_For_Un_%s(X(%d))", foreign_tbl[n], i);
 	  break;
 
 	case FOREIGN_MODE_IN_OUT:
@@ -1938,8 +1937,7 @@ F_foreign_call_c(ArgVal arg[])
 			"&Pl_Rd_%s_Check,%d)", (c == 'L') + s_dup,	/* 0,1 or 2 if strdup */
 			i, foreign_tbl[n], fio_arg_index++);
 	  else
-	    Inst_Printf("call_c", "Pl_Foreign_Rd_IO_Arg(1,X(%d),0,%d)", i,
-			fio_arg_index++);
+	    Inst_Printf("call_c", "Pl_Foreign_Rd_IO_Arg(1,X(%d),0,%d)", i, fio_arg_index++);
 	  Inst_Printf("move_ret", "FL(%d)", i);
 	  break;
 	}
@@ -1985,8 +1983,7 @@ F_foreign_call_c(ArgVal arg[])
 	{
 	case FOREIGN_MODE_OUT:
 	  if (n != FOREIGN_TYPE_TERM)
-	    Inst_Printf("call_c", "Pl_Un_%s(F%c(%d),X(%d))",
-			foreign_tbl[n], c, i, i);
+	    Inst_Printf("call_c", "Pl_Un_%s(F%c(%d),X(%d))", foreign_tbl[n], c, i, i);
 	  else
 	    Inst_Printf("call_c", FAST "Pl_Unify(X(%d),FL(%d))", i, i);
 	  Inst_Printf("fail_ret", "");
@@ -2094,7 +2091,8 @@ Emit_Obj_Initializer(void)
 				t->tbl_no, t->nb_elem, (t->elem[j].atom)->no, l);
 		  }
 		break;
-#ifdef SWT_INT_NO_OPT
+
+#ifndef SWT_INT_DICHOTOMY	/* basic switch_on_integer */
 	      case TBL_INT:
 		for (j = 0; j < t->nb_elem; j++)
 		  {
@@ -2105,6 +2103,7 @@ Emit_Obj_Initializer(void)
 		  }
 		break;
 #endif
+
 	      default:
 		for (j = 0; j < t->nb_elem; j++)
 		  {
@@ -2326,8 +2325,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 	      if (++i >= argc)
 		{
-		  fprintf(stderr, "FILE missing after %s option\n",
-			  argv[i - 1]);
+		  fprintf(stderr, "FILE missing after %s option\n", argv[i - 1]);
 		  exit(1);
 		}
 
@@ -2353,15 +2351,13 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  fprintf(stderr, "unknown option %s - try wam2ma --help\n",
-		  argv[i]);
+	  fprintf(stderr, "unknown option %s - try wam2ma --help\n", argv[i]);
 	  exit(1);
 	}
 
       if (file_name_in != NULL)
 	{
-	  fprintf(stderr, "input file already specified (%s)\n",
-		  file_name_in);
+	  fprintf(stderr, "input file already specified (%s)\n", file_name_in);
 	  exit(1);
 	}
       file_name_in = argv[i];

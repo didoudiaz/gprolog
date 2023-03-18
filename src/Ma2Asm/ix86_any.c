@@ -347,7 +347,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
 #ifdef M_darwin
       Inst_Printf("pushl", "%s", DARWIN_PB_REG);
@@ -598,11 +598,12 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
 
 
 #ifdef __GNUC__			/* ignore r_aux/r_eq_r_aux not always used */
-#pragma GCC diagnostic push
+//#pragma GCC diagnostic push
 #ifdef __clang__
 #pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #endif
 #pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 
@@ -627,7 +628,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
     }
 
 #ifdef __GNUC__
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic pop
 #endif
 
 

@@ -316,7 +316,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       /* Save callee-saved registers. However, don't explicitly
          preserve %r12-%r15 since they are already handled as global

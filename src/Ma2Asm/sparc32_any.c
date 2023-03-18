@@ -187,7 +187,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     Inst_Printf("save", "%%sp, -104, %%sp");
 }
 
