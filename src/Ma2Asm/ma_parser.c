@@ -127,9 +127,11 @@ int keep_source_lines;
 FILE *file_in;
 
 int cur_line_no;
+int cur_effective_line_no;
 char cur_line_str[MAX_LINE_LEN];
 char *cur_line_p;
 char *beg_last_token;
+int nb_effective_lines;
 
 char str_val[MAX_STR_LEN];
 PlLong int_val;
@@ -187,10 +189,17 @@ Parse_Ma_File(char *file_name_in, int comment)
 
   for(i = 1; i <= nb_passes; i++)
     {
-      if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1)
+      if (i == 2)
 	{
-	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
-	  return 0;
+	  if (fseek(file_in, 0, SEEK_SET) == -1)
+	    {
+	      fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
+	      return 0;
+	    }
+#ifdef DEBUG
+	  printf("lines %d: effective lines: %d\n", cur_line_no, cur_effective_line_no);
+#endif
+	  Init_Mapper();  /* Allow to adapt parameters wrt pre-pass (e.g. nb_effective_lines) */
 	}
 
       keep_source_lines = comment;
@@ -200,6 +209,8 @@ Parse_Ma_File(char *file_name_in, int comment)
 
       if (ret_val != 0)
 	return 0;
+
+      nb_effective_lines = cur_effective_line_no;
     }
 
   if (file_in != stdin)
@@ -244,7 +255,8 @@ Parser(int pass_no, int nb_passes)
   cur_line_p = cur_line_str;
   cur_line_str[0] = '\0';
   cur_line_no = 0;
-
+  cur_effective_line_no = 0;
+  
   for (;;)
     {
       k = Scanner();
@@ -275,6 +287,7 @@ Parser(int pass_no, int nb_passes)
 	  cur_code.global = Read_If_Global(FALSE);
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
+	  cur_code.line_no = cur_effective_line_no;
 	  if (Pre_Pass())
 	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
@@ -291,7 +304,8 @@ Parser(int pass_no, int nb_passes)
 	  cur_code.global = Read_If_Global(!initializer_defined);
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
-	  if (cur_code.global == 2)
+	  cur_code.line_no = cur_effective_line_no;
+	  if (cur_code.global == 2) /* initializer ? */
 	    {
 	      initializer_defined = TRUE;
 	      cur_code.type = CODE_TYPE_INITIALIZER;
@@ -450,11 +464,12 @@ Parser(int pass_no, int nb_passes)
 	    {
 	      CodeInf c_lab;
 	      c_lab.name = strdup(str_val);
+	      c_lab.line_no = cur_effective_line_no;
 	      c_lab.type = CODE_TYPE_LABEL;
 	      c_lab.global = FALSE;
 	      Read_Token(':');
 	      if (Pre_Pass())
-		Decl_Code(&c_lab); /* record label (considered as C code) */
+		Decl_Code(&c_lab); /* record label */
 	      else
 		Label(str_val);
 	    }
@@ -732,25 +747,24 @@ Scanner(void)
 	{
 	}
 
-
       if (feof(file_in))
 	return 0;
 
       cur_line_no++;
       cur_line_p = cur_line_str;
 
-      if (keep_source_lines)
-	{
-	  while (isspace(*cur_line_p))
-	    cur_line_p++;
+      while (isspace(*cur_line_p))
+	cur_line_p++;
 
-	  if (*cur_line_p)
-	    {
-	      p = cur_line_p + strlen(cur_line_p) - 1;
-	      if (*p == '\n')
-		*p = '\0';
-	      Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
-	    }
+      if (*cur_line_p != ';')	/* effective line (not only composed of a comment) */
+	cur_effective_line_no++;
+
+      if (keep_source_lines && *cur_line_p)
+	{
+	  p = cur_line_p + strlen(cur_line_p) - 1;
+	  if (*p == '\n')
+	    *p = '\0';
+	  Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
 	}
     }
 

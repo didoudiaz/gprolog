@@ -508,6 +508,37 @@ Scope_Of_Symbol(char *name, Bool *global)
 
 
 /*-------------------------------------------------------------------------*
+ * IS_SYMBOL_CLOSE_ENOUGH                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Is_Symbol_Close_Enough(char *name, int dist_max)
+{
+  CodeInf *c;
+  int line_def;
+  int dist;
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  if (name == NULL || strcmp(name, "fail")) /* fail is created at start of asm file (not in bt_dico) */
+    line_def = 0;
+  else if ((c = Get_Code_Infos(name)) != NULL)
+    line_def = c->line_no;
+  else
+    line_def = nb_effective_lines;
+  
+  dist = abs(line_def - cur_effective_line_no);
+
+  return dist < dist_max;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * CALL_C                                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -734,7 +765,6 @@ void
 Label_Printf(char *label, ...)
 {
   va_list arg_ptr;
-
 
   va_start(arg_ptr, label);
 

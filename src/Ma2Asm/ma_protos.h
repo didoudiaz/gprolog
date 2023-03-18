@@ -89,6 +89,7 @@ CodeType;
 typedef struct
 {
   char *name;			/* name of predicate/fct (label) */
+  int line_no;			/* effective line (not counting comment lines) of its definition */
   CodeType type;		/* type of code */
   Bool global;			/* is it global ? */
 }
@@ -167,6 +168,8 @@ LabelGen;
 #ifndef MA_PARSER_FILE
 
 extern int reload_e;
+extern int cur_effective_line_no; /* current */
+extern int nb_effective_lines;	  /* total (at end of first pass) */
 
 #endif
 
@@ -213,6 +216,9 @@ CodeInf *Get_Code_Infos(char *name);
 LongInf *Get_Long_Infos(char *name);
 
 CodeType Scope_Of_Symbol(char *name, Bool *global);
+
+Bool Is_Symbol_Close_Enough(char *name, int dist_max);
+
 
 
 void Label_Gen_Init(LabelGen *g, char *prefix);

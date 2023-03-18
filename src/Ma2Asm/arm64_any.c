@@ -101,6 +101,19 @@
 #endif
 
 
+/* The conditional branching (be immX, bne immX,...) cannot branch too far.
+ * The offset = immX * 4. X is 19 bits (26 bits for unconditional). 
+ * We use a simple measure: we count the "distance" between the instruction and
+ * the location of the label in terms of MA source (effective) lines between the 
+ * current instruction and the label (see ma_parser.c)
+ */
+#define MAX_DIST_BRANCH               10000
+
+/* see bug in local_symb_prefix explained below */
+#define MAX_LINES_NO_BUG_LOCAL_SYMBOL 1000000
+
+
+
 
 /*---------------------------------*
  * Constants                       *
@@ -233,6 +246,7 @@ void Init_Mapper(void)
   mi.comment_prefix = "#";
 
 #ifdef M_darwin
+
   /* clang-as issue #61475 (https://github.com/llvm/llvm-project/issues/61475)
    * pb when loading far away local symbol address (for large souce files, e.g. wordnet).
    * Until it is fixed don't use local prefixes
@@ -240,12 +254,11 @@ void Init_Mapper(void)
    * of the object by the initialize to be put in atoms (at or ta).
    * Nor for double constants which are loaded as immediate (with DOUBLE_CST_AS_IMM64) 
    */
+  if (nb_effective_lines > MAX_LINES_NO_BUG_LOCAL_SYMBOL) 			/* remove when bug is fixed */
+    mi.local_symb_prefix = "Z";	/* put something (not "") else Scope_Of_Symbol will not detect it is local */
+  else
+    mi.local_symb_prefix = "L";	/* normal local symbol prefix */
 
-#if 1				/* remove when bug is fixed */
-  mi.local_symb_prefix = "Z";	/* put something here else Scope_Of_Symbol will not detect it is local */
-#else
-  mi.local_symb_prefix = "L";
-#endif
   mi.string_symb_prefix = "L.str.";
   mi.double_symb_prefix =  "LCPI";
 
@@ -1032,13 +1045,15 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("cmp", "x0, #0");
-  Inst_Printf("bne", "%s", Label_Cont_New());
-#if 0				/* see Asm_Start() */
-  Inst_Printf("b", "fail");
-#else
-  Pl_Fail();
-#endif
-  Label_Printf("%s:", Label_Cont_Get());
+
+  if (Is_Symbol_Close_Enough("fail", MAX_DIST_BRANCH))
+    Inst_Printf("b", "fail");	/* see Asm_Start() */
+  else
+    {
+      Inst_Printf("bne", "%s", Label_Cont_New());
+      Pl_Fail();
+      Label_Printf("%s:", Label_Cont_Get());
+    }
 }
 
 
@@ -1147,13 +1162,16 @@ Cmp_Ret_And_Int(PlLong int_val)
 void
 Jump_If_Equal(char *label)
 {
-#if 0
-  Inst_Printf("beq", "%s", label);
-#else
-  Inst_Printf("bne", "%s", Label_Cont_New());
-  Inst_Printf("b", "%s", label);
-  Label_Printf("%s:", Label_Cont_Get());
-#endif
+  if (Is_Symbol_Close_Enough(label, MAX_DIST_BRANCH))
+    {
+      Inst_Printf("beq", "%s ;short branch", label);
+    }
+  else
+    {
+      Inst_Printf("bne", "%s", Label_Cont_New());
+      Inst_Printf("b", "%s", label);
+      Label_Printf("%s:", Label_Cont_Get());
+    }
 }
 
 
