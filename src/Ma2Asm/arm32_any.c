@@ -288,7 +288,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       Inst_Printf("push", "{%s, lr}", REG_TMP_CALL_C);
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
@@ -459,17 +459,17 @@ Load_Immediate(char *r, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Address(char *r, char *addr)
+Load_Address(char *r, char *name)
 {
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  Inst_Printf("ldr", "%s, =%s", r, addr);
+  Inst_Printf("ldr", "%s, =%s", r, name);
 #else
   /* Direct address loading only works over a certain range -- to avoid
    * limits we have to include address as a literal... */
   Inst_Printf("ldr", "%s, %s-4", r, Label_Gen_New(&lg_addr));
   Inst_Printf("b", Label_Gen_Get(&lg_addr));
   Emit_Pool(FALSE);
-  Inst_Printf(".word", "%s", addr);
+  Inst_Printf(".word", "%s", name);
   Label_Printf("%s:", Label_Gen_Get(&lg_addr));
 #endif
 }

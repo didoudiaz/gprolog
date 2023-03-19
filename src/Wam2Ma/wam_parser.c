@@ -214,7 +214,7 @@ static char Peek_Char(int skip_spaces);
  * PARSE_MAM_FILE                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+Bool
 Parse_Wam_File(char *file_name_in, int comment)
 {
   int ret_val;
@@ -226,7 +226,7 @@ Parse_Wam_File(char *file_name_in, int comment)
   else if ((file_in = fopen(file_name_in, "rt")) == NULL)
     {
       fprintf(stderr, "cannot open input file %s\n", file_name_in);
-      return 0;
+      return FALSE;
     }
 
   cur_line_p = cur_line_str;

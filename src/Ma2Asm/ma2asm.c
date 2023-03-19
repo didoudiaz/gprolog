@@ -438,19 +438,20 @@ Get_Long_Infos(char *name)
  * SCOPE_OF_SYMBOL                                                         *
  *                                                                         *
  * Need a pre-pass.                                                        *
- * Returns 0: global symbol, 1: local code, 2: other local symbol (long,..)*
+ * global: a global symbol ? (else local)                                  *
+ * Return: type of code (or CODE_TYPE_NONE)                                *
  *-------------------------------------------------------------------------*/
 
-/* A symbol not defined (not encountered neither as code nor long) can be:
+/* A symbol not defined (not seen as code, local label, long) can be:
  * - foreign_long, foreign_double (thus external)
  * - an external predicate or C function (e.g. function associated to a WAM 
  *   instruction like Get_Integer() or Pl_Un_Term() which is generated when 
  *   compiling foreign directive).
- * - a local label (for branching) or local symbol (strings, double constants)
- * Only the last case is local and we know it begins with . or L
+ * - a local symbol (strings, double constants)
+ * Only the last case is local and we know it begins with . or a machine prefix (e.g. L)
  */
-int
-Scope_Of_Symbol(char *name)
+CodeType
+Scope_Of_Symbol(char *name, Bool *global)
 {
   CodeInf *c;
   LongInf *l;
@@ -460,20 +461,83 @@ Scope_Of_Symbol(char *name)
     printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
 #endif
 
-  /* test local symbols first since they are not recoded in bt_code/bt_long */
-
-  if (*name == '.' || strncmp(name, mi.local_symb_prefix, strlen(mi.local_symb_prefix)) == 0)
-    return 2;
-
   c = Get_Code_Infos(name);
   if (c)
-    return (c->global) ? 0 : 1;
+    {
+      *global = c->global;
+      return c->type;
+    }
 
   l = Get_Long_Infos(name);
   if (l)
-    return (l->global) ? 0 : 2;
+    {
+#ifdef DEBUG
+      printf("Long: %s  %d\n", name, l->global);
+#endif
+      *global = l->global;
+      return CODE_TYPE_NONE;
+    }
 
-  return 0;			/* not defined, considered as global (code/data) */
+#define Has_Prefix(p) (*p && strncmp(name, p, strlen(p)) == 0)
+
+  /* test other local symbols (not recorded in bt_code/bt_long, e.g. strings) */
+  if (*name == '.' ||
+      Has_Prefix(mi.local_symb_prefix) ||
+      Has_Prefix(mi.string_symb_prefix) ||
+      Has_Prefix(mi.double_symb_prefix))
+    {
+#ifdef DEBUG
+      printf(".local: %s   (mi.local_symb_prefix: <%s>)\n", name, mi.local_symb_prefix);
+#endif
+      *global = FALSE; /* local symbols associated to string, double */
+      return CODE_TYPE_NONE;
+    }
+
+#ifdef DEBUG
+    printf("NOT FOUND: %s\n", name);
+#endif
+  
+  /* not defined, thus (external) global symbol, cannot be more precide
+   * most of the time it is a code (Get_Integer) but can be a data (foreign_long/double) 
+   */
+  *global = TRUE;
+  return CODE_TYPE_C;	
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_SYMBOL_CLOSE_ENOUGH                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Is_Symbol_Close_Enough(char *name, int dist_max)
+{
+  CodeInf *c;
+  int line_def;
+  int dist;
+
+#ifdef DEBUG
+  if (!mi.needs_pre_pass)
+    printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
+#endif
+
+  /* see ma_parser.c for info on approx inst line */
+  if (name == NULL || strcmp(name, "fail") == 0) /* fail is created at start of asm file (not in bt_dico) */
+    line_def = 0;
+  else if ((c = Get_Code_Infos(name)) != NULL)
+    line_def = c->approx_inst_line;
+  else
+    line_def = nb_appox_inst_line;
+#if 0
+  if (strcmp(name, "Zpred1_1459") == 0)
+  //if (cur_line_no > 141360 && cur_line_no < 141370)
+    printf("%s: line_def: %d  cur_line_no: %d  cur_approx_inst_line: %d\n", name, line_def, cur_line_no, cur_approx_inst_line);
+#endif
+  dist = abs(line_def - cur_approx_inst_line);
+
+  return dist < dist_max;
 }
 
 
@@ -706,7 +770,6 @@ void
 Label_Printf(char *label, ...)
 {
   va_list arg_ptr;
-
 
   va_start(arg_ptr, label);
 

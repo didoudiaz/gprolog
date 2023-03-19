@@ -178,7 +178,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (c->prolog)
+  if (c->type == CODE_TYPE_PROLOG)
     {
       /* prolog code does not need any stack space */
       Inst_Printf(".frame", "$sp,0,$31");

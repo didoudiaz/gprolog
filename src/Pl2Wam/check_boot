@@ -1,6 +1,6 @@
 #!/bin/sh
 
-interp=0
+emul=0
 
 do_diff() {
     diff --ignore-space-change -I '^%' -I '^file_name[(]' $1 $2 || \
@@ -14,12 +14,26 @@ copy_files() {
     done
 }
 
+
 rm_make() {
     rm -f $*
-    [ "$interp" = 1 ] && mkflags='PL2WAM=pl2wam_interp'
-    #[ "$interp" = 1 ] && echo CHECK IN INTERPRETED Mode with make $mkflags
+    [ "$emul" = 1 ] && mkflags='PL2WAM=pl2wam_emul'
+    #[ "$emul" = 1 ] && echo CHECK IN EMULATED Mode with make $mkflags
     make $mkflags >/tmp/make.log 2>&1 || (echo /tmp/make.log ; exit 1)
+    fix_wam $*
     #make $mkflags || exit 1
+}
+
+
+fix_wam() {
+    OLD="^file_name('.*diaz/.*/\(src/[PB].*\.pl').\)"
+    NEW="file_name('/home/diaz/GP/\1"
+
+    for i in $*; do
+	#echo "$i"
+	tr -d '\r' <"$i" | sed "s!$OLD!$NEW!" >/tmp/"$i"
+	cmp -s "$i" /tmp/"$i" || cp /tmp/"$i" "$i"
+    done
 }
 
 
@@ -30,23 +44,26 @@ verify_files() {
     done
 }
 
+
 do_all_bootstrap() {
     copy_files $* || exit 1
     rm_make $* || exit 1
     verify_files $* || exit 1
 }
 
+
 usage() {
-    echo 'Usage check_boot -c [FILES]  save FILES (.wam) to .wam1)'
-    echo '      check_boot -m [FILES]  rm FILES (.wam) and make (rebuild)'
-    echo '      check_boot -v [FILES]  verify FILES (.wam) vs .wam1'
+    echo 'Usage check_boot -c [FILES]  save FILES .wam to .wam1'
+    echo '      check_boot -m [FILES]  rm FILES .wam and make (rebuild)'
+    echo '      check_boot -v [FILES]  verify FILES .wam vs .wam1'
     echo '      check_boot -a [FILES]  do all (copy, make, verify)'
     echo
-    echo 'Pass -i as first argument to run pl2wam in interpreted mode'
+    echo 'Pass -e as first argument to run pl2wam in emulreted mode'
 }
 
-if [ "$1" = '-i' ]; then
-   interp=1
+
+if [ "$1" = '-e' ]; then
+   emul=1
    shift
 fi
  

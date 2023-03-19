@@ -348,8 +348,7 @@ void FC Pl_Allocate(int n);
 
 void FC Pl_Deallocate(void);
 
-CodePtr FC Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-			     CodePtr c_lst, CodePtr c_stc);
+CodePtr FC Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int, CodePtr c_lst, CodePtr c_stc);
 CodePtr FC Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm);
 CodePtr FC Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc);
 CodePtr FC Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst);
@@ -357,7 +356,8 @@ CodePtr FC Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c
 
 CodePtr FC Pl_Switch_On_Atom(SwtTbl t, int size);
 
-PlLong FC Pl_Switch_On_Integer(void);
+CodePtr FC Pl_Switch_On_Integer(SwtTbl t, int size);
+PlLong FC Pl_Switch_On_Integer_For_Dichotomy(void);
 
 CodePtr FC Pl_Switch_On_Structure(SwtTbl t, int size);
 

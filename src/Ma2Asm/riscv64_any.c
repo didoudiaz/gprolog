@@ -230,11 +230,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (c->prolog)
-    {
-      /* prolog code does not need any stack space */
-    }
-  else
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       /* for c code we need to save some registers */
       Inst_Printf("sd", "ra, -8(sp)");

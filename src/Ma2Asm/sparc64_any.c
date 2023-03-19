@@ -226,7 +226,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     Delay_Printf("save", "%%sp, -192, %%sp");
 
   pic_helper_ready = FALSE;

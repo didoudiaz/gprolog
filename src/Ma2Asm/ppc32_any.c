@@ -202,7 +202,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       Inst_Printf("mr", R(12) ", " R(1));
       Inst_Printf("addi", R(1) ", " R(1) ", -%d", MAX_C_ARGS_IN_C_CODE * 4);

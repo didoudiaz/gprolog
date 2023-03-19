@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/bool.h"
 
 /*---------------------------------*
  * Constants                       *
@@ -77,7 +78,7 @@ typedef double ArgVal;		/* to ensure double alignment */
  * Function Prototypes             *
  *---------------------------------*/
 
-int Parse_Wam_File(char *file_name_in, int comment);
+Bool Parse_Wam_File(char *file_name_in, int comment);
 
 void Syntax_Error(char *format, ...) ATTR_PRINTF(1);
 

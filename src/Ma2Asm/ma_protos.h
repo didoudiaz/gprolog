@@ -50,6 +50,15 @@
  * Type Definitions                *
  *---------------------------------*/
 
+  /* The following prefixes (e.g. local_symb_prefix) are for local symbols NOT put in 
+   * the objec's symbol table. Indeed, even if local (not visible outside the file),
+   * a symbol can be put in the object (e.g. for debugging purpose).
+   * Classically, local labels (for internal branching), string and constants are
+   * not reflected in the object.
+   * The convention (in gas), is to use a L prefix (.L, L), but alternatives can
+   * exist depending on the target.
+   */
+
 typedef struct
 {
   Bool can_produce_pic_code;
@@ -66,11 +75,22 @@ MapperInf;
 
 
 
+typedef enum
+{
+  CODE_TYPE_PROLOG,
+  CODE_TYPE_C,
+  CODE_TYPE_INITIALIZER,
+  CODE_TYPE_LABEL,
+  CODE_TYPE_NONE		/* use as specific value in Scope_Of_Symbol */
+}
+CodeType;
+
+
 typedef struct
 {
   char *name;			/* name of predicate/fct (label) */
-  Bool prolog;			/* is it prolog ? (or C code which can be an initializer) */
-  Bool initializer;		/* is it an initializer (implies !prolog) */
+  int approx_inst_line;		/* approx inst line of its definition (see ma_parser.c) */
+  CodeType type;		/* type of code */
   Bool global;			/* is it global ? */
 }
 CodeInf;
@@ -143,11 +163,14 @@ LabelGen;
  * Global Variables                *
  *---------------------------------*/
 
-	  /* defined in ma_parser.c */
+	  /* defined in ma2asm.c */
 
 #ifndef MA_PARSER_FILE
 
 extern int reload_e;
+extern int cur_line_no;
+extern int cur_approx_inst_line; /* current */
+extern int nb_appox_inst_line;	 /* total (at end of first pass) */
 
 #endif
 
@@ -156,7 +179,7 @@ extern int reload_e;
 extern Bool comment;
 extern Bool pic_code;
 extern MapperInf mi;
-extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
+extern LabelGen lg_cont;	/* used by macros Label_Cont_XXX() below */
 
 #endif
 
@@ -193,7 +216,10 @@ CodeInf *Get_Code_Infos(char *name);
 
 LongInf *Get_Long_Infos(char *name);
 
-int Scope_Of_Symbol(char *name);
+CodeType Scope_Of_Symbol(char *name, Bool *global);
+
+Bool Is_Symbol_Close_Enough(char *name, int dist_max);
+
 
 
 void Label_Gen_Init(LabelGen *g, char *prefix);
