@@ -89,7 +89,7 @@ CodeType;
 typedef struct
 {
   char *name;			/* name of predicate/fct (label) */
-  int line_no;			/* effective line (not counting comment lines) of its definition */
+  int approx_inst_line;		/* approx inst line of its definition (see ma_parser.c) */
   CodeType type;		/* type of code */
   Bool global;			/* is it global ? */
 }
@@ -168,8 +168,9 @@ LabelGen;
 #ifndef MA_PARSER_FILE
 
 extern int reload_e;
-extern int cur_effective_line_no; /* current */
-extern int nb_effective_lines;	  /* total (at end of first pass) */
+extern int cur_line_no;
+extern int cur_approx_inst_line; /* current */
+extern int nb_appox_inst_line;	 /* total (at end of first pass) */
 
 #endif
 
@@ -178,7 +179,7 @@ extern int nb_effective_lines;	  /* total (at end of first pass) */
 extern Bool comment;
 extern Bool pic_code;
 extern MapperInf mi;
-extern LabelGen lg_cont; /* used by macros Label_Cont_XXX() below */
+extern LabelGen lg_cont;	/* used by macros Label_Cont_XXX() below */
 
 #endif
 

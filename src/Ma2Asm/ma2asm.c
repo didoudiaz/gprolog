@@ -523,14 +523,19 @@ Is_Symbol_Close_Enough(char *name, int dist_max)
     printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
 #endif
 
-  if (name == NULL || strcmp(name, "fail")) /* fail is created at start of asm file (not in bt_dico) */
+  /* see ma_parser.c for info on approx inst line */
+  if (name == NULL || strcmp(name, "fail") == 0) /* fail is created at start of asm file (not in bt_dico) */
     line_def = 0;
   else if ((c = Get_Code_Infos(name)) != NULL)
-    line_def = c->line_no;
+    line_def = c->approx_inst_line;
   else
-    line_def = nb_effective_lines;
-  
-  dist = abs(line_def - cur_effective_line_no);
+    line_def = nb_appox_inst_line;
+#if 0
+  if (strcmp(name, "Zpred1_1459") == 0)
+  //if (cur_line_no > 141360 && cur_line_no < 141370)
+    printf("%s: line_def: %d  cur_line_no: %d  cur_approx_inst_line: %d\n", name, line_def, cur_line_no, cur_approx_inst_line);
+#endif
+  dist = abs(line_def - cur_approx_inst_line);
 
   return dist < dist_max;
 }

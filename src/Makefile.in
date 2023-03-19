@@ -166,10 +166,10 @@ check:
 	(cd EngineFD; $(MAKE) check) && \
 	echo All tests succeeded
 
-check-i:
+check-e:
 	. ./SETVARS; \
-	(cd Pl2Wam; $(MAKE) check-i) && \
-	(cd BipsPl; $(MAKE) check-i) && \
+	(cd Pl2Wam; $(MAKE) check-e) && \
+	(cd BipsPl; $(MAKE) check-e) && \
 	echo All tests succeeded
 
 # --- CLEAN --- #

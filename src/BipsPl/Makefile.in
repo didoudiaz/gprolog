@@ -203,8 +203,8 @@ src_rdr.wam:   	 src_rdr.pl
 check:
 	@../Pl2Wam/check_boot -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK'
 
-check-i:
-	@../Pl2Wam/check_boot -i -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK [EMULATED MODE]'
+check-e:
+	@../Pl2Wam/check_boot -e -a [a-z][a-z_-]*.wam && echo 'Bootstrap Prolog Bips OK [EMULATED MODE]'
 
 
 # test: read alone

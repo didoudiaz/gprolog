@@ -68,8 +68,8 @@ wam_emit.wam:   wam_emit.pl
 check:
 	@./check_boot -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK'
 
-check-i:
-	@./check_boot -i -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [EMULATED MODE]'
+check-e:
+	@./check_boot -e -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [EMULATED MODE]'
 
 
 swi_pl2wam: swilib.pl $(PLS)

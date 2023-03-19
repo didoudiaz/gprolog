@@ -104,13 +104,13 @@
 /* The conditional branching (be immX, bne immX,...) cannot branch too far.
  * The offset = immX * 4. X is 19 bits (26 bits for unconditional). 
  * We use a simple measure: we count the "distance" between the instruction and
- * the location of the label in terms of MA source (effective) lines between the 
+ * the location of the label in terms of MA source approx inst lines between the 
  * current instruction and the label (see ma_parser.c)
  */
-#define MAX_DIST_BRANCH               10000
+#define MAX_DIST_BRANCH                   10000
 
 /* see bug in local_symb_prefix explained below */
-#define MAX_LINES_NO_BUG_LOCAL_SYMBOL 1000000
+#define MAX_INST_LINE_NO_BUG_LOCAL_SYMBOL 100000
 
 
 
@@ -254,7 +254,7 @@ void Init_Mapper(void)
    * of the object by the initialize to be put in atoms (at or ta).
    * Nor for double constants which are loaded as immediate (with DOUBLE_CST_AS_IMM64) 
    */
-  if (nb_effective_lines > MAX_LINES_NO_BUG_LOCAL_SYMBOL) 			/* remove when bug is fixed */
+  if (nb_appox_inst_line > MAX_INST_LINE_NO_BUG_LOCAL_SYMBOL) /* remove when bug is fixed */
     mi.local_symb_prefix = "Z";	/* put something (not "") else Scope_Of_Symbol will not detect it is local */
   else
     mi.local_symb_prefix = "L";	/* normal local symbol prefix */
@@ -291,10 +291,9 @@ Asm_Start(void)
 #endif
 
   Label_Printf(".text");
-#if 0				/* see Fail_Ret() */
+
   Label("fail");
   Pl_Fail();
-#endif
 }
 
 
@@ -1047,7 +1046,7 @@ Fail_Ret(void)
   Inst_Printf("cmp", "x0, #0");
 
   if (Is_Symbol_Close_Enough("fail", MAX_DIST_BRANCH))
-    Inst_Printf("b", "fail");	/* see Asm_Start() */
+    Inst_Printf("beq", "fail");	/* see Asm_Start() */
   else
     {
       Inst_Printf("bne", "%s", Label_Cont_New());
@@ -1163,9 +1162,7 @@ void
 Jump_If_Equal(char *label)
 {
   if (Is_Symbol_Close_Enough(label, MAX_DIST_BRANCH))
-    {
-      Inst_Printf("beq", "%s ;short branch", label);
-    }
+    Inst_Printf("beq", "%s", label);
   else
     {
       Inst_Printf("bne", "%s", Label_Cont_New());

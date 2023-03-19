@@ -81,7 +81,8 @@ enum
   SWITCH_RET,
   C_CODE,
   C_RET,
-  LONG
+  LONG,
+  LABEL
 };
 
 
@@ -98,7 +99,7 @@ enum
 char *inst[] = {
   "pl_code", "pl_jump", "prep_cp", "here_cp", "pl_call", "pl_fail",
   "pl_ret", "jump", "move", "call_c", "jump_ret", "fail_ret", "move_ret",
-  "switch_ret", "c_code", "c_ret", "long", NULL };
+  "switch_ret", "c_code", "c_ret", "long", NULL }; /* NULL corresponds to a label def (LABEL) */
 
 
 Bool reload_e;
@@ -127,15 +128,34 @@ int keep_source_lines;
 FILE *file_in;
 
 int cur_line_no;
-int cur_effective_line_no;
+int cur_approx_inst_line;
 char cur_line_str[MAX_LINE_LEN];
 char *cur_line_p;
 char *beg_last_token;
-int nb_effective_lines;
+int nb_appox_inst_line;
 
 char str_val[MAX_STR_LEN];
 PlLong int_val;
 double dbl_val;
+
+
+
+
+/* About approx_inst_line: the goal is to provide a measure to take into
+ * account some limitations of target processors (e.g. on arm, conditional
+ * branching have a limit on the offset, see arm64_any.c). As MA is quite 
+ * low-level (on average one MA instruction give rise to N asm instruction), 
+ * the idea is to count the number of MA instructions. There is normally, 
+ * 1 MA inst per line (but counting lines is not a good idea since some line
+ * can be blank, some can be split with a final \ and some con only contain 
+ * a comment). We thus count MA instructions (including directives, ...).
+ * For the switch_ret instruction (which can be very large), we also count 
+ * the number of pairs (value,label) since each will give rise to asm inst. 
+ * BTW: we could do the same for call_c (adding the number of arguments) but
+ * there is in general too much arguments. 
+ * This mechanism needs a pre-pass and provides a sufficient approximation 
+ * in practice (see usage in ma2asm.c / arm64_any.c).
+ */
 
 
 
@@ -169,7 +189,7 @@ static void Skip_Rest_Of_Line(void);
  * PARSE_MA_FILE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+Bool
 Parse_Ma_File(char *file_name_in, int comment)
 {
   int ret_val;
@@ -184,7 +204,7 @@ Parse_Ma_File(char *file_name_in, int comment)
   else if ((file_in = fopen(file_name_in, "rt")) == NULL)
     {
       fprintf(stderr, "cannot open input file %s\n", file_name_in);
-      return 0;
+      return FALSE;
     }
 
   for(i = 1; i <= nb_passes; i++)
@@ -194,12 +214,9 @@ Parse_Ma_File(char *file_name_in, int comment)
 	  if (fseek(file_in, 0, SEEK_SET) == -1)
 	    {
 	      fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
-	      return 0;
+	      return FALSE;
 	    }
-#ifdef DEBUG
-	  printf("lines %d: effective lines: %d\n", cur_line_no, cur_effective_line_no);
-#endif
-	  Init_Mapper();  /* Allow to adapt parameters wrt pre-pass (e.g. nb_effective_lines) */
+	  Init_Mapper();  /* Allow to adapt parameters wrt pre-pass (e.g. nb_appox_inst_line) */
 	}
 
       keep_source_lines = comment;
@@ -208,15 +225,13 @@ Parse_Ma_File(char *file_name_in, int comment)
 	Parser(i, nb_passes);
 
       if (ret_val != 0)
-	return 0;
-
-      nb_effective_lines = cur_effective_line_no;
+	return FALSE;
     }
 
   if (file_in != stdin)
     fclose(file_in);
 
-  return 1;
+  return TRUE;
 }
 
 
@@ -244,7 +259,7 @@ Parser(int pass_no, int nb_passes)
 {
   Bool inside_code = FALSE;
   Bool initializer_defined = FALSE;
-  CodeInf cur_code;		/* some init for the compiler */
+  CodeInf cur_code, c_lab;
   LongInf l;
   char **in;
   int k, i;
@@ -255,7 +270,7 @@ Parser(int pass_no, int nb_passes)
   cur_line_p = cur_line_str;
   cur_line_str[0] = '\0';
   cur_line_no = 0;
-  cur_effective_line_no = 0;
+  cur_approx_inst_line = 0;
   
   for (;;)
     {
@@ -272,12 +287,22 @@ Parser(int pass_no, int nb_passes)
 
       k = (int) (in - inst);
 
-      /* ignore it in Pre_Pass() or long decl if Pre_Pass() done before */
-      if ((Pre_Pass() && k != PL_CODE && k != C_CODE && k != LONG && *in != NULL) ||
-	  (pass_no > 1 && k == LONG)) {
-	Skip_Rest_Of_Line();
-	continue;
-      }
+      
+      cur_approx_inst_line++; /* count 1 for each MA inst (could be more precise, e.g. 0 for label, ...) */
+      if (Pre_Pass())
+	{			/* special case in in pre-pass */
+	  if (k != PL_CODE && k != C_CODE && k != LONG && k != SWITCH_RET && k != LABEL)
+	    {
+	    ignore_eol:
+	      Skip_Rest_Of_Line();
+	      continue;
+	    }
+	}
+      else if (pass_no > 1)		/* special case in second pass */
+	{
+	  if (k == LONG)		/* ignore long decl (treated in pre-pass)  */
+	    goto ignore_eol;
+	}
 
       switch (k)
 	{
@@ -287,7 +312,7 @@ Parser(int pass_no, int nb_passes)
 	  cur_code.global = Read_If_Global(FALSE);
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
-	  cur_code.line_no = cur_effective_line_no;
+	  cur_code.approx_inst_line = cur_approx_inst_line;
 	  if (Pre_Pass())
 	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
@@ -304,7 +329,7 @@ Parser(int pass_no, int nb_passes)
 	  cur_code.global = Read_If_Global(!initializer_defined);
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
-	  cur_code.line_no = cur_effective_line_no;
+	  cur_code.approx_inst_line = cur_approx_inst_line;
 	  if (cur_code.global == 2) /* initializer ? */
 	    {
 	      initializer_defined = TRUE;
@@ -422,7 +447,9 @@ Parser(int pass_no, int nb_passes)
 
 	case SWITCH_RET:
 	  Read_Switch();
-	  Switch_Ret(nb_swt, swt);
+	  if (!Pre_Pass())
+	    Switch_Ret(nb_swt, swt);
+	  cur_approx_inst_line += nb_swt;/* count separately each pair (value=label) */
 	  break;
 
 	case C_RET:
@@ -459,23 +486,28 @@ Parser(int pass_no, int nb_passes)
 	  Decl_Long(&l);	/* a malloc+copy done by Decl_Long */
 	  break;
 
-	default:		/* label: */
-	  if (*in == NULL)
-	    {
-	      CodeInf c_lab;
-	      c_lab.name = strdup(str_val);
-	      c_lab.line_no = cur_effective_line_no;
-	      c_lab.type = CODE_TYPE_LABEL;
-	      c_lab.global = FALSE;
-	      Read_Token(':');
-	      if (Pre_Pass())
-		Decl_Code(&c_lab); /* record label */
-	      else
-		Label(str_val);
-	    }
+	case LABEL:		/* label: */
+	  c_lab.name = strdup(str_val);
+	  c_lab.approx_inst_line = cur_approx_inst_line;
+	  c_lab.type = CODE_TYPE_LABEL;
+	  c_lab.global = FALSE;
+	  Read_Token(':');
+	  if (Pre_Pass())
+	    Decl_Code(&c_lab); /* record label */
+	  else
+	    Label(str_val);
+	  break;
+
+	default:		/* should never occurs */
+	  Syntax_Error("Unhandled MA element (token id: %d)", k);
 	}
     }
   Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
+  nb_appox_inst_line = cur_approx_inst_line;
+#ifdef DEBUG
+  if (pass_no == 1)
+    printf("lines %d: approx inst: %d\n", cur_line_no, cur_approx_inst_line);
+#endif
 }
 
 
@@ -736,8 +768,8 @@ Scanner(void)
 
 
   for (;;)
-    {
-      while (isspace(*cur_line_p) || *cur_line_p == '\\') /* a \ should be followed by \n (not tested) for a line continuation */
+    {				/* a \ should be followed by \n (not tested) for a line continuation */
+      while (isspace(*cur_line_p) || *cur_line_p == '\\')
 	cur_line_p++;
 
       if (*cur_line_p != '\0' && *cur_line_p != ';')
@@ -753,19 +785,19 @@ Scanner(void)
       cur_line_no++;
       cur_line_p = cur_line_str;
 
-      while (isspace(*cur_line_p))
-	cur_line_p++;
+      if (keep_source_lines)
+        {
+          while (isspace(*cur_line_p))
+            cur_line_p++;
 
-      if (*cur_line_p != ';')	/* effective line (not only composed of a comment) */
-	cur_effective_line_no++;
-
-      if (keep_source_lines && *cur_line_p)
-	{
-	  p = cur_line_p + strlen(cur_line_p) - 1;
-	  if (*p == '\n')
-	    *p = '\0';
-	  Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
-	}
+          if (*cur_line_p)
+            {
+              p = cur_line_p + strlen(cur_line_p) - 1;
+              if (*p == '\n')
+                *p = '\0';
+              Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
+            }
+        }
     }
 
   beg_last_token = cur_line_p;
