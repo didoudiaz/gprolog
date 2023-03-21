@@ -343,16 +343,21 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("ld", "ra, -8(%s)", MAP_REG_B);
+      Inst_Printf("ld", "ra, -8(%s)", MAP_REG_B);
 #else
-  Load_Reg_Bank();
-  Offset_Load(SCRATCH, asm_reg_bank, MAP_OFFSET_B);
-  Inst_Printf("ld", "ra, -8(%s)", SCRATCH);
+      Load_Reg_Bank();
+      Offset_Load(SCRATCH, asm_reg_bank, MAP_OFFSET_B);
+      Inst_Printf("ld", "ra, -8(%s)", SCRATCH);
 #endif
-  Inst_Printf("jr", "ra");
+      Inst_Printf("jr", "ra");
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -388,6 +393,9 @@ Jump(char *label)
 {
   Inst_Printf("j", "%s", label);
 }
+
+
+
 
 /*-------------------------------------------------------------------------*
  * MOVE_FROM_REG_X                                                         *
@@ -779,7 +787,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("bne", "a0, x0, %s", Label_Cont_New());
-  Pl_Fail();
+  Pl_Fail(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 

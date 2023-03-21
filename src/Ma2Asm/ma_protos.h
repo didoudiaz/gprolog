@@ -199,6 +199,8 @@ void Declare_Initializer(char *initializer_fct);
 
 void Decl_Code(CodeInf *c);
 
+void Decl_Label(char *name, int approx_inst_line);
+
 void Decl_Long(LongInf *l);
 
 void Call_C(char *fct_name, Bool fc, int nb_args, int nb_args_in_words, ArgInf arg[]);
@@ -272,7 +274,7 @@ void Here_CP(void);
 
 void Pl_Call(char *label);
 
-void Pl_Fail(void);
+void Pl_Fail(Bool prefer_inline);
 
 void Pl_Ret(void);
 

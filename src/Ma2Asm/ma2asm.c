@@ -177,6 +177,12 @@ main(int argc, char *argv[])
   
   Asm_Start();
 
+  /* always define a fail label.
+   * Could be in the middle of the file for targets with
+   * limits on branching offsets (needs a pre-pass) */
+  Label("fail");		
+  Pl_Fail(2);			/* 2 to force inline (not a preference) */
+
   if (!Parse_Ma_File(file_name_in, comment))
     {
       fprintf(stderr, "Translation aborted\n");
@@ -354,6 +360,27 @@ Decl_Code(CodeInf *c)
 		/* name: strdup done by the parser */
   c1 = (CodeInf *) &BT_String_Add(&bt_code, c->name)->info;
   *c1 = *c;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * DECL_LABEL                                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+
+/* declare labels which can be far (see Is_Symbol_Close_Enough) */
+
+void				/* called if pre_pass AND by mappers */
+Decl_Label(char *name, int approx_inst_line)
+{
+  CodeInf c_lab;
+  c_lab.name = strdup(name);
+  c_lab.approx_inst_line = approx_inst_line;
+  c_lab.type = CODE_TYPE_LABEL;
+  c_lab.global = FALSE;
+  Decl_Code(&c_lab);
 }
 
 
@@ -629,7 +656,9 @@ void
 Switch_Ret(int nb_swt, SwtInf swt[])
 {
   qsort((void *) swt, nb_swt, sizeof(SwtInf), (int (*)(const void *, const void *)) Switch_Cmp_Int);
-
+#if 0
+  printf("SWITCH_RET with %d entries  at approx: %d\n", nb_swt, cur_approx_inst_line);
+#endif
   Switch_Rec(0, nb_swt - 1, swt);
 }
 
@@ -650,27 +679,31 @@ Switch_Rec(int start, int stop, SwtInf swt[])
     {
     case 1:
       Switch_Equal(swt + start);
-      Pl_Fail();
+      Pl_Fail(FALSE);
       break;
 
     case 2:
       Switch_Equal(swt + start);
       Switch_Equal(swt + stop);
-      Pl_Fail();
+      Pl_Fail(FALSE);
       break;
 
     case 3:
       Switch_Equal(swt + start);
       Switch_Equal(swt + start + 1);
       Switch_Equal(swt + stop);
-      Pl_Fail();
+      Pl_Fail(FALSE);
       break;
 
     default:
       mid = (start + stop) / 2;
       Switch_Equal(swt + mid);
       strcpy(lab_cont, Label_Cont_New());
-      Jump_If_Greater(lab_cont);
+      Decl_Label(lab_cont, cur_approx_inst_line + mid);
+#if 0      
+      printf(" label for mid: %d (%ld) \t-> %s at approx inst: %d\n", mid, swt[mid].int_val, lab_cont, cur_approx_inst_line + mid);
+#endif
+      Jump_If_Greater(lab_cont); /* comes after a Switch_Equal (thus Cmp_Ret_And_Int is done) */
       Switch_Rec(start, mid - 1, swt);
       Label(lab_cont);
       Switch_Rec(mid + 1, stop, swt);

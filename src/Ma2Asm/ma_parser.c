@@ -259,7 +259,7 @@ Parser(int pass_no, int nb_passes)
 {
   Bool inside_code = FALSE;
   Bool initializer_defined = FALSE;
-  CodeInf cur_code, c_lab;
+  CodeInf cur_code;
   LongInf l;
   char **in;
   int k, i;
@@ -368,7 +368,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case PL_FAIL:
-	  Pl_Fail();
+	  Pl_Fail(TRUE);
 	  reload_e = TRUE;
 	  break;
 
@@ -487,19 +487,15 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case LABEL:		/* label: */
-	  c_lab.name = strdup(str_val);
-	  c_lab.approx_inst_line = cur_approx_inst_line;
-	  c_lab.type = CODE_TYPE_LABEL;
-	  c_lab.global = FALSE;
 	  Read_Token(':');
 	  if (Pre_Pass())
-	    Decl_Code(&c_lab); /* record label */
+	    Decl_Label(str_val, cur_approx_inst_line); /* record label */
 	  else
 	    Label(str_val);
 	  break;
 
 	default:		/* should never occurs */
-	  Syntax_Error("Unhandled MA element (token id: %d)", k);
+	  Syntax_Error("Unhandled MA element (pseudo:%s token id: %d)", str_val, k);
 	}
     }
   Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
