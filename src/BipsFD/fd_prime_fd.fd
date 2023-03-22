@@ -36,17 +36,22 @@
  *-------------------------------------------------------------------------*/
 
 
+%{
+void Pl_Prime_Range(Range *r);
+void Pl_Not_Prime_Range(Range *r);
+%}
+
 pl_prime_x(fdv X)
 
 {
- start X in Pl_Prime_Range(0)
+ start X in Pl_Prime_Range()
 }
 
 
 pl_not_prime_x(fdv X)
 
 {
- start X in Pl_Not_Prime_Range(0)
+ start X in Pl_Not_Prime_Range()
 }
 
 

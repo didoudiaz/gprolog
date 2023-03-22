@@ -68,7 +68,7 @@ static WamWord minus_2;
 static PlLong Keysort_Cmp(WamWord u_word, WamWord v_word);
 
 static int Merge_Sort(WamWord *base, WamWord *aux, int n,
-		      Bool keep_dup, PlLong (*cmp) ());
+		      Bool keep_dup, PlLong (*cmp) (WamWord u_word, WamWord v_word));
 
 
 
@@ -159,8 +159,7 @@ Pl_Sort_List_2(WamWord list1_word, WamWord list2_word)
   if (n == 1)
     return Pl_Unify(list1_word, list2_word);
 
-  n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
+  n = Merge_Sort(arg, arg + n, n, sort_type, (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
 
   /* n can have changed here (if dup removed) */
 
@@ -198,8 +197,7 @@ Pl_Sort_List_1(WamWord list_word)
   if (n <= 1)
     return;
 
-  n = Merge_Sort(arg, arg + n, n, sort_type,
-		 (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
+  n = Merge_Sort(arg, arg + n, n, sort_type, (sort_type != 2) ? Pl_Term_Compare : Keysort_Cmp);
   /* n can have changed here (if dup removed) */
   /* update in-place the list */
   do
@@ -243,7 +241,7 @@ Keysort_Cmp(WamWord u_word, WamWord v_word)
  * elements of the array (2 WamWords) and classically returns <0, 0, >0.   *
  *-------------------------------------------------------------------------*/
 static int
-Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, PlLong (*cmp) ())
+Merge_Sort(WamWord *base, WamWord *aux, int n, Bool keep_dup, PlLong (*cmp) (WamWord u_word, WamWord v_word))
 {
   WamWord *l1, *l2;
   int n1, n2;

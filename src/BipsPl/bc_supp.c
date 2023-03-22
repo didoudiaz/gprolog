@@ -227,7 +227,7 @@ static int BC_Arg_Func_Arity(WamWord arg_word, int *arity);
 
 WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
 
-static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w);
+static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last);
 
 static WamCont BC_Emulate_Clause(DynCInf *clause);
 
@@ -894,7 +894,7 @@ start:
   A(arity + 1) = debug_call;
 
   clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-				(PlLong (*)()) BC_Emulate_Pred_Alt,
+				(ScanFct) BC_Emulate_Pred_Alt,
 				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
   if (clause == NULL)
     goto fail;
@@ -919,7 +919,7 @@ fail:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
+BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 {
   DynPInf *dyn;
   int arity;
@@ -932,7 +932,7 @@ BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
 
   do
     *adr++ = *w++;
-  while (--arity >= 0);		/* >=0 to also restore cut register */
+  while (--arity >= 0);		/* >= 0 to also restore cut register */
 
   debug_call = (Bool) *w;
 

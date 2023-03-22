@@ -60,6 +60,7 @@
 #define Frame_Variable(fv)         ((WamWord *)(AF[fv]))
 #define Frame_Range_Parameter(fp)  ((Range *)  (AF[fp]))
 #define Frame_Term_Parameter(fp)   ((int)      (AF[fp]))
+#define Frame_Any_Parameter(fp)    ((WamWord)  (AF[fp]))
 #define Frame_List_Parameter(fp)   ((WamWord *)(AF[fp]))
 
 
@@ -112,6 +113,12 @@
 
 
 
+#define fd_any_in_a_frame(arg, offset)		\
+  AF[offset] = (WamWord) fd_##arg;
+
+
+
+
 #define fd_range_in_a_frame(arg, offset)			\
   AF[offset] = (WamWord) Pl_Fd_Prolog_To_Range(fd_##arg);
 
@@ -120,18 +127,6 @@
 
 #define fd_fdv_in_a_frame(arg, offset)				\
   AF[offset] = (WamWord) Pl_Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
-
-
-
-
-#define fd_fdv_in_a_frame(arg, offset)				\
-  AF[offset] = (WamWord) Pl_Fd_Prolog_To_Fd_Var(fd_##arg, TRUE);
-
-
-
-
-#define fd_any_in_a_frame(arg, offset)		\
-  AF[offset] = (WamWord) fd_##arg;
 
 
 
@@ -166,11 +161,11 @@
 
 
 
-#define fd_call_internal(fct_name)			\
-  if (!fct_name(AF))					\
-    {							\
-      ret_val = FALSE;					\
-      goto lab_exit;					\
+#define fd_call_internal(fct_name)		\
+  if (!fct_name(AF))				\
+    {						\
+      ret_val = FALSE;				\
+      goto lab_exit;				\
     }
 
 
@@ -178,14 +173,14 @@
 
 #define fd_call_internal_and_test_switch_simple(fct_name)	\
 {								\
-  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);		\
+  CstrFct fct = (CstrFct) (fct_name(AF));			\
 								\
-  if (fct == (PlLong (*)()) FALSE)				\
+  if (fct == (CstrFct) FALSE)					\
     {								\
       ret_val = FALSE;						\
       goto lab_exit;						\
     }								\
-  if (fct != (PlLong (*)()) TRUE)/* FD switch case triggered */	\
+  if (fct != (CstrFct) TRUE) /* FD switch case triggered */	\
     {								\
       if ((*fct) (AF) == FALSE)					\
 	{							\
@@ -200,14 +195,14 @@
 
 #define fd_call_internal_and_test_switch(fct_name)		\
 {								\
-  PlLong (*fct) () = (PlLong (*)()) fct_name(AF);		\
+  CstrFct fct = (CstrFct) (fct_name(AF));			\
 								\
-  if (fct == (PlLong (*)()) FALSE)				\
+  if (fct == (CstrFct) FALSE)					\
     {								\
       ret_val = FALSE;						\
       goto lab_exit;						\
     }								\
-  if (fct != (PlLong (*)()) TRUE)/* FD switch case triggered */	\
+  if (fct != (CstrFct) TRUE) /* FD switch case triggered */	\
     {								\
       if ((*fct) (AF) == FALSE)					\
 	{							\
@@ -233,10 +228,10 @@
 
 	  /* Install instructions */
 
-#define fd_create_c_frame(fct_name, tell_fv, optim2)			   \
-  CF = Pl_Fd_Create_C_Frame(fct_name, AF, 				   \
-                         (tell_fv == -1) ? NULL : Frame_Variable(tell_fv), \
-                         optim2);
+#define fd_create_c_frame(fct_name, tell_fv, optim2)			      \
+  CF = Pl_Fd_Create_C_Frame(fct_name, AF, 				      \
+			    (tell_fv == -1) ? NULL : Frame_Variable(tell_fv), \
+			    optim2);
 
 
 
@@ -362,7 +357,7 @@
 
 #define fd_test_switch_condition(t, fct_name)	\
   if (t)					\
-    {						\
+    { /* return adr of fct to execute */	\
       ret_val = (PlLong) fct_name;		\
       goto lab_exit;				\
     }
@@ -507,13 +502,13 @@
 
 
 
-#define fd_range_fct(fct_name, r, args)		\
+#define fd_range_fct(r, fct)			\
 {						\
-  void fct_name();				\
   R(r).first = NULL;        			\
   R(r).last = NULL;        			\
-  fct_name(&R(r), args);			\
+  fct;						\
 }
+
 
 
 
@@ -522,6 +517,11 @@
 #define fd_load_int(var_name, fp)		\
   var_name = Frame_Term_Parameter(fp);
 
+
+
+
+#define fd_load_any(var_name, fp)		\
+  var_name = Frame_Any_Parameter(fp);
 
 
 
@@ -593,19 +593,6 @@
 
 
 
-#define arg_1(a1)                                 a1
-#define arg_2(a1, a2)                             a1, a2
-#define arg_3(a1, a2, a3)                         a1, a2, a3
-#define arg_4(a1, a2, a3, a4)                     a1, a2, a3, a4
-#define arg_5(a1, a2, a3, a4, a5)                 a1, a2, a3, a4, a5
-#define arg_6(a1, a2, a3, a4, a5, a6)             a1, a2, a3, a4, a5, a6
-#define arg_7(a1, a2, a3, a4, a5, a6, a7)         a1, a2, a3, a4, a5, a6, a7
-#define arg_8(a1, a2, a3, a4, a5, a6, a7, a8)     a1, a2, a3, a4, a5, a6, a7, a8
-#define arg_9(a1, a2, a3, a4, a5, a6, a7, a8, a9) a1, a2, a3, a4, a5, a6, a7, a8, a9
-
-
-
-
 #define range_arg(r)              &R(r)	/* by address */
 
 
@@ -670,6 +657,12 @@ fct_name(WamWord *AF)				\
 
 #define fd_local_value_var(var_name)		\
   int var_name;
+
+
+
+
+#define fd_local_any_var(var_name)		\
+  WamWord var_name;
 
 
 

@@ -395,8 +395,8 @@ void FC Pl_Delete_Choice_Point3(void);
 void FC Pl_Delete_Choice_Point4(void);
 
 
-void Pl_Defeasible_Open();
-void Pl_Defeasible_Undo();
+void Pl_Defeasible_Open(void);
+void Pl_Defeasible_Undo(void);
 void Pl_Defeasible_Close(Bool undo_before);
 
 

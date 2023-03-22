@@ -78,7 +78,7 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef Bool (*CmpFct) ();
+typedef Bool (*CmpFct) (WamWord *last_fdv_adr, WamWord *new_fdv_adr);
 
 
 

@@ -80,7 +80,7 @@ Bool Is_Partial_List(WamWord start_word);
 Bool Is_List_Or_Partial(WamWord start_word);
 
 Bool Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var,
-			   Bool (*fct) ());
+			   Bool (*fct) (WamWord *adr, WamWord word));
 
 int Pl_List_Length(WamWord start_word);
 

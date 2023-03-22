@@ -156,9 +156,9 @@ unsigned* __security_cookie;
  * Global Variables                *
  *---------------------------------*/
 
-static char *(*fct_get_separators)();
-static int (*fct_get_prompt_length)();
-static PlLong (*fct_query_stack)();
+static char *(*fct_get_separators)(void);
+static int (*fct_get_prompt_length)(void);
+static PlLong (*fct_query_stack)(QueryStackCmd cmd, int stack_no);
 
 static unsigned int queue[EDIT_FIELD_SIZE];
 static int queue_start, queue_end;
@@ -324,7 +324,7 @@ DLLEXPORT void W32GC_Backd(int n);
 DLLEXPORT int W32GC_Confirm_Box(char *titre, char *msg);
 
 
-static BOOL Launched_From_Command_Line();
+static BOOL Launched_From_Command_Line(void);
 static HWND Find_Text_Console_Handle(void);
 static void Show_Text_Console(int show);
 
@@ -396,8 +396,8 @@ DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
  *    So NULL is really OK.
  */
 DLLEXPORT int
-W32GC_Start_Window(char *(*get_separators)(), int (*get_prompt_length)(),
-                   PlLong (*query_stack)())
+W32GC_Start_Window(char *(*get_separators)(void), int (*get_prompt_length)(void),
+                   PlLong (*query_stack)(QueryStackCmd cmd, int stack_no))
 {
   DWORD tid;
 
@@ -1434,8 +1434,7 @@ Show_Help(char *word)
       ((inst = LoadLibrary("hhctrl.ocx")) == NULL ||
        (HtmlHelp = (FHH) GetProcAddress(inst, "HtmlHelpA")) == NULL))
     {
-      MessageBox(NULL, "Error loading hhctrl.ocx / HtmlHelpA", "Error",
-                 MB_OK);
+      MessageBox(NULL, "Error loading hhctrl.ocx / HtmlHelpA", "Error", MB_OK);
       return;
     }
 #endif
@@ -1572,13 +1571,13 @@ Add_Char_To_Queue(int c)
 
 
 DLLEXPORT int
-W32GC_Kbd_Is_Not_Empty()
+W32GC_Kbd_Is_Not_Empty(void)
 {
   return !Queue_Is_Empty();
 }
 
 DLLEXPORT int
-W32GC_Get_Char0()
+W32GC_Get_Char0(void)
 {
   int result;
 
@@ -1880,7 +1879,7 @@ W32GC_Erase(int n)
 
 
 DLLEXPORT void
-W32GC_Emit_Beep()
+W32GC_Emit_Beep(void)
 {
   if (beep_on_error)
     PlaySound("SystemAsterisk", NULL, SND_ALIAS | SND_ASYNC);
@@ -1993,7 +1992,7 @@ Find_Text_Console_Handle(void)
  * If cursor in 0,0 launched from a separate screen. */
 
 static int
-Launched_From_Command_Line()
+Launched_From_Command_Line(void)
 {
   HANDLE h_stdout;
   CONSOLE_SCREEN_BUFFER_INFO csbi;

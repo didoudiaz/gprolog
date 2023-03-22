@@ -411,7 +411,7 @@ typedef struct _excp_lst
 
 /* Provided by arch_dep.c */
 
-int Pl_Win_Error_To_Errno();
+int Pl_Win_Error_To_Errno(void);
 
 /* see unix <dirent.h> */
 

@@ -71,30 +71,31 @@ enum {
 
 /* overwritten if needed to customize linedit */
 
-void (*pl_le_hook_start) ();
+void (*pl_le_hook_start) (int silent);
 
 				/* is it mandatory to define a hook ? */
-void (*pl_le_hook_put_char) ();	/* mandatory */
-int (*pl_le_hook_get_char0) ();	/* mandatory */
-void (*pl_le_hook_emit_beep) ();
-void (*pl_le_hook_ins_mode) ();
+void (*pl_le_hook_put_char) (int c);	/* mandatory */
+int (*pl_le_hook_get_char0) (void);	/* mandatory */
+void (*pl_le_hook_emit_beep) (void);
+void (*pl_le_hook_ins_mode) (int ins_mode);
 
-void (*pl_le_hook_screen_size) ();	/* mandatory */
-int (*pl_le_hook_kbd_is_not_empty) ();	/* mandatory */
+void (*pl_le_hook_screen_size) (int *row, int *col);	/* mandatory */
+int (*pl_le_hook_kbd_is_not_empty) (void);	/* mandatory */
 
-void (*pl_le_hook_backd) ();
-void (*pl_le_hook_forwd) ();
-void (*pl_le_hook_displ) ();
-void (*pl_le_hook_displ_str) ();
-void (*pl_le_hook_erase) ();
+void (*pl_le_hook_backd) (int n);
+void (*pl_le_hook_forwd) (int n, char *str);
+void (*pl_le_hook_displ) (int n, char *str);
+void (*pl_le_hook_displ_str) (char *str);
+void (*pl_le_hook_erase) (int n);
 
 				/* functions not used by linedit itself */
-void (*pl_le_hook_set_line_buffering) ();
-int (*pl_le_hook_get_line_buffering) ();
-void (*pl_le_hook_flush) ();
-int (*pl_le_hook_confirm_box) ();
-void (*pl_le_hook_message_box) ();
-void (*pl_le_hook_exit_process) ();
+void (*pl_le_hook_set_line_buffering) (int is_buffered);
+int (*pl_le_hook_get_line_buffering) (void);
+void (*pl_le_hook_flush) (FILE *f);
+
+int (*pl_le_hook_confirm_box) (char *title, char *msg);
+void (*pl_le_hook_message_box) (char *title, char *msg, int type);
+void (*pl_le_hook_exit_process) (int ret_val);
 
 
 #ifdef LE_DEFINE_HOOK_MACROS

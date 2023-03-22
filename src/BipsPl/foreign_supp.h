@@ -106,16 +106,15 @@ void Pl_Foreign_Update_Choice(CodePtr codep_alt, int arity, int choice_size);
 
 CodePtr Pl_Foreign_Jump_Ret(CodePtr codep);
 
-PlFIOArg *Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word,
-			       PlLong (*rd_fct) (), int fio_arg_index);
+PlFIOArg *Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (WamWord word),
+			       int fio_arg_index);
 
-Bool Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
+Bool Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (PlLong val, WamWord word), PlFIOArg *fa,
 			  WamWord start_word);
 
 
 
-void Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col,
-			  char *err_msg);
+void Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_msg);
 
 
 

@@ -72,7 +72,7 @@
 typedef struct
 {
   char *keyword;
-  void (*fct) ();
+  void (*fct) (ArgVal arg[]);
   int nb_args;
   ArgTyp arg_type[MAX_FCT_ARITY];
 }
@@ -558,7 +558,7 @@ Scanner(int complex_atom)
   char *p, *p1;
   PlLong i;
   double d;
-  double strtod();
+  double strtod(const char *nptr, char **endptr);
 
 
   for (;;)

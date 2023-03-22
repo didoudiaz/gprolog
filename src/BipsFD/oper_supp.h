@@ -82,6 +82,11 @@ void Pl_Full_Var_Power_Coeff(Range *y, Range *x, int a);
 
 void Pl_Full_Nth_Root(Range *x, Range *y, int a);
 
+void Pl_Full_Var_Power_2(Range *y, Range *x);
+
+void Pl_Full_Sqrt_Var(Range *x, Range *y);
+
 void Full_Max_Cst_Var(Range *z, int a, Range *x);
 
 void Full_Min_Cst_Var(Range *z, int a, Range *x);
+

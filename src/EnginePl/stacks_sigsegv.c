@@ -81,6 +81,11 @@
 #endif
 #endif
 
+#ifdef __GNUC__
+#if defined(__clang__) && __clang_major__ > 14
+#pragma GCC diagnostic ignored "-Wdeprecated-non-prototype"
+#endif
+#endif
 
 
 #if 0

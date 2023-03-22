@@ -138,13 +138,15 @@
 
 	  /* Constraint Frame */
 
+typedef PlLong (*CstrFct) (WamWord *af);
+
 #define CONSTRAINT_FRAME_SIZE      3
 
 #define OFFSET_OF_OPTIM_POINTER    1	/* this offset must correspond to >>> */
 
 #define AF_Pointer(cf)             (*(WamWord **)    &(cf[0]))
 #define Optim_Pointer(cf)          (*(PlULong **)    &(cf[1]))	/* >>> this cell */
-#define Cstr_Address(cf)           (*(PlLong (**)()) &(cf[2]))
+#define Cstr_Address(cf)           (*(CstrFct *) &(cf[2]))
 
 
 
@@ -194,8 +196,7 @@ WamWord *Pl_Fd_New_Variable_Range(Range *r);
 
 WamWord *Pl_Fd_New_Int_Variable(int n);
 
-WamWord *Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF,
-			      WamWord *fdv_adr, Bool optim2);
+WamWord *Pl_Fd_Create_C_Frame(CstrFct cstr_fct, WamWord *AF, WamWord *fdv_adr, Bool optim2);
 
 void Pl_Fd_Add_Dependency(WamWord *fdv_adr, int chain_nb, WamWord *CF);
 

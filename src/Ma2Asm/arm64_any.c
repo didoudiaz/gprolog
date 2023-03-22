@@ -291,9 +291,6 @@ Asm_Start(void)
 #endif
 
   Label_Printf(".text");
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -632,16 +629,21 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("ldr", "x11, [" MAP_REG_B ", #-8]");
+      Inst_Printf("ldr", "x11, [" MAP_REG_B ", #-8]");
 #else
-  Load_Reg_Bank();
-  Inst_Printf("ldr", "x11, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
-  Inst_Printf("ldr", "x11, [x11, #-8]");
+      Load_Reg_Bank();
+      Inst_Printf("ldr", "x11, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
+      Inst_Printf("ldr", "x11, [x11, #-8]");
 #endif
-  Inst_Printf("ret", "x11");	/* prefer ret to br since hints it is a function return and optimize branch prediction */
+      Inst_Printf("ret", "x11");	/* prefer ret to br since hints it is a function return and optimize branch prediction */
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -1044,15 +1046,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("cmp", "x0, #0");
-
-  if (Is_Symbol_Close_Enough("fail", MAX_DIST_BRANCH))
-    Inst_Printf("beq", "fail");	/* see Asm_Start() */
-  else
-    {
-      Inst_Printf("bne", "%s", Label_Cont_New());
-      Pl_Fail();
-      Label_Printf("%s:", Label_Cont_Get());
-    }
+  Jump_If_Equal("fail");
 }
 
 
@@ -1181,7 +1175,14 @@ Jump_If_Equal(char *label)
 void
 Jump_If_Greater(char *label)
 {
-  Inst_Printf("bgt", "%s", label);
+  if (Is_Symbol_Close_Enough(label, MAX_DIST_BRANCH))
+    Inst_Printf("bgt", "%s", label);
+  else
+    {
+      Inst_Printf("ble", "%s", Label_Cont_New());
+      Inst_Printf("b", "%s", label);
+      Label_Printf("%s:", Label_Cont_Get());
+    }
 }
 
 

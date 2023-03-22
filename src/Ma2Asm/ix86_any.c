@@ -224,9 +224,6 @@ Asm_Start(void)
 #endif
 
   Inst_Printf(".text", "%s", "");
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -483,14 +480,19 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("jmp", "*-4(%s)", asm_reg_b);
+      Inst_Printf("jmp", "*-4(%s)", asm_reg_b);
 #else
-  Inst_Printf("movl", "%s, %%eax", asm_reg_b);
-  Inst_Printf("jmp", "*-4(%%eax)");
+      Inst_Printf("movl", "%s, %%eax", asm_reg_b);
+      Inst_Printf("jmp", "*-4(%%eax)");
 #endif
+    }
+  else
+    Jump("fail");
 }
 
 
