@@ -61,7 +61,7 @@ static PlLong *base_var_ptr;
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Collect_Variable(WamWord *adr);
+static Bool Collect_Variable(WamWord *adr, WamWord var_word);
 
 static Bool Check_Variable(WamWord *adr, WamWord var_word);
 
@@ -613,7 +613,7 @@ Pl_Term_Variables_2(WamWord start_word, WamWord list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Collect_Variable(WamWord *adr)
+Collect_Variable(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
 

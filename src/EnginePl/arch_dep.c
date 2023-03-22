@@ -71,7 +71,7 @@
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Win_Error_To_Errno()
+Pl_Win_Error_To_Errno(void)
 {
   switch(GetLastError())
     {

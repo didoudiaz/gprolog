@@ -1589,7 +1589,7 @@ Pl_Delete_Choice_Point4(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Defeasible_Open()
+Pl_Defeasible_Open(void)
 {
   Pl_Create_Choice_Point0(NULL);
 }
@@ -1602,7 +1602,7 @@ Pl_Defeasible_Open()
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Defeasible_Undo()
+Pl_Defeasible_Undo(void)
 {
   Pl_Update_Choice_Point0(NULL);
 }
@@ -1662,7 +1662,7 @@ Pl_Untrail(WamWord *low_adr)
 	  adr = (WamWord *) Trail_Pop; /* fct adr no longer word aligned */
 	  nb = (int) Trail_Pop;
 	  TR -= nb;
-	  (*((int (*)()) adr)) (nb, TR);
+	  (*((int (*)(int, WamWord *)) adr)) (nb, TR);
 	}
     }
 }

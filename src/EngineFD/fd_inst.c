@@ -174,8 +174,8 @@ static PlULong optim2_date_always = DATE_ALWAYS; /* must be considered as == all
 
 
 
-void (*pl_fd_init_solver) () = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
-void (*pl_fd_reset_solver) () = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
+void (*pl_fd_init_solver) (void) = Pl_Fd_Init_Solver0;	/* overwrite var of if_no_fd.c */
+void (*pl_fd_reset_solver) (void) = Pl_Fd_Reset_Solver0;	/* overwrite var of if_no_fd.c */
 
 
 
@@ -765,8 +765,7 @@ Pl_Fd_Prolog_To_Array_Fdv(WamWord list_word, Bool pl_var_ok)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamWord *
-Pl_Fd_Create_C_Frame(PlLong (*cstr_fct) (), WamWord *AF, WamWord *fdv_adr,
-		     Bool optim2)
+Pl_Fd_Create_C_Frame(CstrFct cstr_fct , WamWord *AF, WamWord *fdv_adr, Bool optim2)
 {
   WamWord *CF = CS;
 
@@ -1352,7 +1351,7 @@ Pl_Fd_After_Add_Cstr(Bool result_of_tell)
   PlULong date = DATE;		/* local copy for efficiency */
   PlULong *pdate;
   WamWord *AF;
-  PlLong (*fct) ();
+  CstrFct fct;
 
   if (!result_of_tell)
     {
@@ -1397,16 +1396,16 @@ Pl_Fd_After_Add_Cstr(Bool result_of_tell)
 		fct = Cstr_Address(CF);
 		AF = AF_Pointer(CF);
 
-		fct = (PlLong (*)()) (*fct) (AF);
+		fct = (CstrFct) (*fct) (AF);
 
-		if (fct == (PlLong (*)()) FALSE)
+		if (fct == (CstrFct) FALSE)
 		  {
 		  failure:
 		    Queue_Next_Fdv_Adr(dummy_fd_var) = BP; /* update begin of remaining queue */
 		    goto clear_queue;
 		  }
-#if 1				/* FD switch */
-		if (fct != (PlLong (*)()) TRUE)	/* FD switch case triggered */
+#if 1						/* FD switch */
+		if (fct != (CstrFct) TRUE)	/* FD switch case triggered */
 		  {
 		    if ((*fct) (AF) == FALSE)
 		      goto failure;

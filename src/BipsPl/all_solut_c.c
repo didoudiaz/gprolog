@@ -102,17 +102,17 @@ static PlLong *next_key_var_ptr;
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Bound_Var(WamWord *adr);
+static Bool Bound_Var(WamWord *adr, WamWord var_word);
 
 static WamWord Existential_Variables(WamWord start_word);
 
-static Bool Free_Var(WamWord *adr);
+static Bool Free_Var(WamWord *adr, WamWord var_word);
 
 
 
 static void Handle_Key_Variables(WamWord start_word);
 
-static Bool Link_Key_Var(WamWord *adr);
+static Bool Link_Key_Var(WamWord *adr, WamWord var_word);
 
 
 
@@ -217,7 +217,7 @@ Pl_Recover_Generator_1(WamWord gen1_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Bound_Var(WamWord *adr)
+Bound_Var(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
 
@@ -268,7 +268,7 @@ Existential_Variables(WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Free_Var(WamWord *adr)
+Free_Var(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
   WamWord word;
@@ -466,7 +466,7 @@ Handle_Key_Variables(WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Link_Key_Var(WamWord *adr)
+Link_Key_Var(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
 

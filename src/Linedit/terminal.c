@@ -161,9 +161,9 @@ static void Choose_Fd_Out(void);
 
 static void Set_TTY_Mode(TermIO *old, TermIO *new);
 
-static void Install_Resize_Handler();
+static void Install_Resize_Handler(void);
 
-static void Resize_Handler();
+static void Resize_Handler(void);
 
 #endif
 
@@ -571,7 +571,7 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Install_Resize_Handler()
+Install_Resize_Handler(void)
 {
 #if defined(HAVE_WORKING_SIGACTION) || defined(M_solaris) || defined(M_sco)
 
@@ -596,7 +596,7 @@ Install_Resize_Handler()
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Resize_Handler()
+Resize_Handler(void)
 {
   int r, c;
   Pl_LE_Screen_Size(&r, &c);

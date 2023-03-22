@@ -108,7 +108,7 @@ static void Show_Body(StmInf *pstm, int level, int context, WamWord body_word);
 
 static void Start_Line(StmInf *pstm, int level, char c_before);
 
-static Bool Collect_Singleton(WamWord *adr);
+static Bool Collect_Singleton(WamWord *adr, WamWord var_word);
 
 static int Var_Name_To_Var_Number(int atom);
 
@@ -446,7 +446,7 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Collect_Singleton(WamWord *adr)
+Collect_Singleton(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
 

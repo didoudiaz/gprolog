@@ -51,24 +51,24 @@
 #ifdef IF_NO_FD_FILE
 
 
-void (*pl_fd_init_solver) ();	/* overwritten by FD if present */
-void (*pl_fd_reset_solver) ();
+void (*pl_fd_init_solver) (void);	/* overwritten by FD if present */
+void (*pl_fd_reset_solver) (void);
 
-Bool (*pl_fd_unify_with_integer) ();
-Bool (*pl_fd_unify_with_fd_var) ();
-int (*pl_fd_variable_size) ();
-int (*pl_fd_copy_variable) ();
-char *(*pl_fd_variable_to_string) ();
+Bool (*pl_fd_unify_with_integer) (WamWord *fdv_adr, int n);
+Bool (*pl_fd_unify_with_fd_var) (WamWord * fdv_adr1, WamWord * fdv_adr2);
+int (*pl_fd_variable_size) (WamWord *fdv_adr);
+int (*pl_fd_copy_variable) (WamWord *dst_adr, WamWord *fdv_adr);
+char *(*pl_fd_variable_to_string) (WamWord *fdv_adr);
 
 #else
 
-extern void (*pl_fd_init_solver) ();
-extern void (*pl_fd_reset_solver) ();
-extern Bool (*pl_fd_unify_with_integer) ();
-extern Bool (*pl_fd_unify_with_fd_var) ();
-extern int (*pl_fd_variable_size) ();
-extern int (*pl_fd_copy_variable) ();
-extern char *(*pl_fd_variable_to_string) ();
+extern void (*pl_fd_init_solver) (void);
+extern void (*pl_fd_reset_solver) (void);
+extern Bool (*pl_fd_unify_with_integer) (WamWord *fdv_adr, int n);
+extern Bool (*pl_fd_unify_with_fd_var) (WamWord * fdv_adr1, WamWord * fdv_adr2);
+extern int (*pl_fd_variable_size) (WamWord *fdv_adr);
+extern int (*pl_fd_copy_variable) (WamWord *dst_adr, WamWord *fdv_adr);
+extern char *(*pl_fd_variable_to_string) (WamWord *fdv_adr);
 
 #endif
 

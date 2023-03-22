@@ -131,8 +131,7 @@ Pl_Init_Pred(void)
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop,
-	       PlLong *codep)
+Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop, PlLong *codep)
 {
   PredInf pred_info;
   PredInf *pred;

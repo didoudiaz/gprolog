@@ -186,7 +186,7 @@ PlLong Pl_Term_Compare(WamWord start_u_word, WamWord start_v_word)
  * Call fct for each variable found in a term.                             *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, Bool (*fct) ())
+Pl_Treat_Vars_Of_Term(WamWord start_word, Bool generic_var, Bool (*fct) (WamWord *adr, WamWord word))
 {
   WamWord word, tag_mask;
   WamWord *adr;

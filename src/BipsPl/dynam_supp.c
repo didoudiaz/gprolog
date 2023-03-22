@@ -875,8 +875,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   if (owner_func < 0)
     owner_func = Pl_Get_Current_Bip(&owner_arity);
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key) : NO_INDEX;
 
   scan.alt_fct = alt_fct;
   scan.alt_size_info = alt_info_size;

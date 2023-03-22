@@ -170,7 +170,7 @@ Asm_Stop(void)
 
 
 
-void Load_Reg_Bank() {
+void Load_Reg_Bank(void) {
   #ifndef MAP_REG_BANK
   Inst_Printf("lla", "%s, pl_reg_bank", asm_reg_bank);
   #endif

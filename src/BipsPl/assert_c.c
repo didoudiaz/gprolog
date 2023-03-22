@@ -63,9 +63,9 @@ static DynCInf *last_clause;
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Clause_Alt(DynCInf *clause, WamWord *w);
+static PlLong Clause_Alt(DynCInf *clause, WamWord *w, Bool is_last);
 
-static Bool Retract_Alt(DynCInf *clause, WamWord *w);
+static PlLong Retract_Alt(DynCInf *clause, WamWord *w, Bool is_last);
 
 
 
@@ -141,7 +141,7 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
 			pl_permission_type_private_procedure, word);
     }
 
-  dyn = (DynPInf *) (pred->dyn);
+  dyn = pred->dyn;
   if (dyn == NULL)		/* no dynamic info */
     return FALSE;
 
@@ -151,9 +151,8 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-				(ScanFct) Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-				w);
+  clause = Pl_Scan_Dynamic_Pred(-1, 0, pred->dyn, word,
+				Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
 
@@ -169,8 +168,8 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
  * CLAUSE_ALT                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool
-Clause_Alt(DynCInf *clause, WamWord *w)
+static PlLong  /* a Bool in fact but respect type ScanFct see dynam_supp.h */
+Clause_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 {
   WamWord head_word1, body_word1;
 
@@ -228,7 +227,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
 			pl_permission_type_static_procedure, word);
     }
 
-  dyn = (DynPInf *) (pred->dyn);
+  dyn = pred->dyn;
   if (dyn == NULL)		/* no dynamic info */
     return FALSE;
 
@@ -238,9 +237,8 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   w[0] = head_word;
   w[1] = body_word;
 
-  clause = Pl_Scan_Dynamic_Pred(-1, 0, (DynPInf *) (pred->dyn), word,
-				(ScanFct) Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2,
-				w);
+  clause = Pl_Scan_Dynamic_Pred(-1, 0, pred->dyn, word,
+				Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
 
@@ -260,8 +258,8 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
  * RETRACT_ALT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool
-Retract_Alt(DynCInf *clause, WamWord *w)
+static PlLong  /* a Bool in fact but respect type ScanFct see dynam_supp.h */
+Retract_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 {
   WamWord head_word1, body_word1;
 

@@ -760,7 +760,7 @@ Scanner(void)
   char *p, *p1;
   PlLong i;
   double d;
-  double strtod();
+  double strtod(const char *nptr, char **endptr); /* why ? */
 
 
   for (;;)

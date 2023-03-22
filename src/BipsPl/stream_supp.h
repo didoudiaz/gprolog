@@ -140,7 +140,7 @@ typedef struct stm_lst		/* Chained stream list            */
 typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
   int atom_file_name;		/* atom associated to filename    */
-  PlLong file;			/* accessor (FILE *,TTYInf *) != 0*/
+  void *file;			/* accessor (FILE *,TTYInf *) != 0*/
   int fileno;			/* fileno (-1 if not a POSIX file)*/
   StmProp prop;			/* assoctiated properties         */
   StmLst *mirror;		/* mirror streams                 */
@@ -366,11 +366,24 @@ extern int pl_atom_null;
 
 
 
+/* macros to cast and invoke file functions */
+
+#define CALL_GETC(pstm)          (* (int  (*)(void *))            pstm->fct_getc)     (pstm->file)
+#define CALL_PUTC(c, pstm)       (* (int  (*)(int, void *))       pstm->fct_putc)     (c, pstm->file)
+#define CALL_FLUSH(pstm)         (* (void (*)(void *))            pstm->fct_flush)    (pstm->file)
+#define CALL_CLOSE(pstm)         (* (int  (*)(void *))            pstm->fct_close)    (pstm->file)
+#define CALL_TELL(pstm)          (* (long (*)(void *))            pstm->fct_tell)     (pstm->file)
+#define CALL_SEEK(pstm, off, wh) (* (int  (*)(void *, long, int)) pstm->fct_seek)     (pstm->file, off, wh)
+#define CALL_CLEARERR(pstm)      (* (void (*)(void *))            pstm->fct_clearerr) (pstm->file)
+
+
+
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
-int Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
+int Pl_Add_Stream(int atom_file_name, void *file, int fileno, StmProp prop,
 		  StmFct fct_getc, StmFct fct_putc,
 		  StmFct fct_flush, StmFct fct_close,
 		  StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr);
