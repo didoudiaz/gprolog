@@ -389,12 +389,13 @@ nospyall.
 	append(L1, L2, L).
 
 '$debug_list_of_pred'(N / A1 - A2, L) :-
-	'$debug_list_of_pred1'(N, A1, A2, L), !.
+	!,
+	'$debug_list_of_pred1'(N, A1, A2, L).
 
 '$debug_list_of_pred'(N, L) :-
 	atom(N), !,
 	current_prolog_flag(max_arity, Max),
-	'$debug_list_of_pred1'(N, 0, Max, L), !.
+	'$debug_list_of_pred1'(N, 0, Max, L).
 
 '$debug_list_of_pred'(PI, L) :-
 	'$get_pred_indic'(PI, N, A),
@@ -440,7 +441,7 @@ nospyall.
 	        A2 = Max,
 	        Z = any
 	    ;   Z = A1 - A2
-	    ),
+	    ), !,
 	    format(debugger_output, 'Warning: spy ~a/~w - no matching predicate~n', [N, Z])
 	;   true
 	).

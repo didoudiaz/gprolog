@@ -1,3 +1,7 @@
+Wed Mar 22 07:09:36 PM CET 2023  <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #32: remove duplicate warning message
+
 Fri Mar 10 05:10:04 PM CET 2023 <Daniel.Diaz@univ-paris1.fr>
 
 	* improve compiler speed on large Prolog data bases
