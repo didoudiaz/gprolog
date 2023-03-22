@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.5.1
 
+* fix issue #32: remove duplicate warning message
 * improve compiler speed on large Prolog data bases
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
 * speed up bind_variables/2 (also speed up the compiler for byte-code)
