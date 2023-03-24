@@ -92,10 +92,10 @@ void (*pl_le_hook_ins_mode) (int ins_mode);
 void (*pl_le_hook_screen_size) (int *row, int *col);
 int (*pl_le_hook_kbd_is_not_empty) (void);
 
-void (*pl_le_hook_backd) (int n));
+void (*pl_le_hook_backd) (int n);
 void (*pl_le_hook_forwd) (int n, char *str);
 void (*pl_le_hook_displ) (int n, char *str);
-void (*pl_le_hook_displ_str) (char *str));
+void (*pl_le_hook_displ_str) (char *str);
 void (*pl_le_hook_erase) (int n);
 
 void (*pl_le_hook_set_line_buffering) (int is_buffered);
@@ -145,30 +145,30 @@ Start_GUI(int silent)
       pl_le_hook_start = NULL;
       return;
     }
-  pl_le_hook_put_char = (void (*)()) Find_Fct(h, "_W32GC_Put_Char");
-  pl_le_hook_get_char0 = (int (*)()) Find_Fct(h, "_W32GC_Get_Char0");
-  pl_le_hook_kbd_is_not_empty = (int (*)()) Find_Fct(h, "_W32GC_Kbd_Is_Not_Empty");
-  pl_le_hook_screen_size = (void (*)()) Find_Fct(h, "_W32GC_Screen_Size");
+  pl_le_hook_put_char = (void (*)(int)) Find_Fct(h, "_W32GC_Put_Char");
+  pl_le_hook_get_char0 = (int (*)(void)) Find_Fct(h, "_W32GC_Get_Char0");
+  pl_le_hook_kbd_is_not_empty = (int (*)(void)) Find_Fct(h, "_W32GC_Kbd_Is_Not_Empty");
+  pl_le_hook_screen_size = (void (*)(int *, int *)) Find_Fct(h, "_W32GC_Screen_Size");
 
   /* the following are not mandatory for linedit and could be commented out */
 
-  pl_le_hook_emit_beep = (void (*)()) Find_Fct(h, "_W32GC_Emit_Beep");
-  pl_le_hook_ins_mode = (void (*)()) Find_Fct(h, "_W32GC_Ins_Mode");
-  pl_le_hook_backd = (void (*)()) Find_Fct(h, "_W32GC_Backd");
-  pl_le_hook_forwd = (void (*)()) Find_Fct(h, "_W32GC_Forwd");
-  pl_le_hook_displ = (void (*)()) Find_Fct(h, "_W32GC_Displ");
-  pl_le_hook_displ_str = (void (*)()) Find_Fct(h, "_W32GC_Displ_Str");
-  pl_le_hook_erase = (void (*)()) Find_Fct(h, "_W32GC_Erase");
+  pl_le_hook_emit_beep = (void (*)(void)) Find_Fct(h, "_W32GC_Emit_Beep");
+  pl_le_hook_ins_mode = (void (*)(int)) Find_Fct(h, "_W32GC_Ins_Mode");
+  pl_le_hook_backd = (void (*)(int)) Find_Fct(h, "_W32GC_Backd");
+  pl_le_hook_forwd = (void (*)(int, char *)) Find_Fct(h, "_W32GC_Forwd");
+  pl_le_hook_displ = (void (*)(int, char *)) Find_Fct(h, "_W32GC_Displ");
+  pl_le_hook_displ_str = (void (*)(char *)) Find_Fct(h, "_W32GC_Displ_Str");
+  pl_le_hook_erase = (void (*)(int )) Find_Fct(h, "_W32GC_Erase");
 
   /* the following are not used by linedit but by stream_supp.c */
 
-  pl_le_hook_set_line_buffering = (void (*)()) Find_Fct(h, "_W32GC_Set_Line_Buffering");
-  pl_le_hook_get_line_buffering = (int (*)()) Find_Fct(h, "_W32GC_Get_Line_Buffering");
-  pl_le_hook_flush = (void (*)()) Find_Fct(h, "_W32GC_Flush");
+  pl_le_hook_set_line_buffering = (void (*)(int)) Find_Fct(h, "_W32GC_Set_Line_Buffering");
+  pl_le_hook_get_line_buffering = (int (*)(void)) Find_Fct(h, "_W32GC_Get_Line_Buffering");
+  pl_le_hook_flush = (void (*)(FILE *)) Find_Fct(h, "_W32GC_Flush");
 
-  pl_le_hook_confirm_box = (int (*)()) Find_Fct(h, "_W32GC_Confirm_Box");
-  pl_le_hook_message_box = (void (*)()) Find_Fct(h, "_W32GC_Message_Box");
-  pl_le_hook_exit_process = (void (*)()) Find_Fct(h, "_W32GC_Exit_Process");
+  pl_le_hook_confirm_box = (int (*)(char *, char *)) Find_Fct(h, "_W32GC_Confirm_Box");
+  pl_le_hook_message_box = (void (*)(char *, char *, int)) Find_Fct(h, "_W32GC_Message_Box");
+  pl_le_hook_exit_process = (void (*)(int)) Find_Fct(h, "_W32GC_Exit_Process");
 
   W32GC_Start_Window = (Fct) Find_Fct(h, "_W32GC_Start_Window");
   (*W32GC_Start_Window) (Pl_LE_Get_Separators, Pl_LE_Get_Prompt_Length,

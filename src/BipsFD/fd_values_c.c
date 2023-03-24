@@ -312,9 +312,9 @@ Select_Value(WamWord *fdv_adr, int value_method)
 
     case METHOD_BISECT:
     case METHOD_MIDDLE:
-      n = (int) (Nb_Elem(fdv_adr) / 2);		   /* here nb_elem > 1 => n >= 1 */
+      n = (int) Nb_Elem(fdv_adr) / 2;		   /* here nb_elem > 1 => n >= 1 */
       return Pl_Range_Ith_Elem(Range(fdv_adr), n); /* Ith is in 1..nb_elem */
-      
+
     case METHOD_RANDOM_V:
       n = (int) Nb_Elem(fdv_adr);
       n = (int) Pl_M_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
@@ -665,8 +665,8 @@ Cmp_First_Fail(WamWord *last_fdv_adr, WamWord *new_fdv_adr)
 static Bool
 Cmp_Most_Constrained(WamWord *last_fdv_adr, WamWord *new_fdv_adr)
 {
-  PlLong l_nb = Nb_Elem(last_fdv_adr);
-  PlLong n_nb = Nb_Elem(new_fdv_adr);
+  int l_nb = (int) Nb_Elem(last_fdv_adr);
+  int n_nb = (int) Nb_Elem(new_fdv_adr);
 
   return n_nb < l_nb ||
     (n_nb == l_nb && Nb_Cstr(new_fdv_adr) > Nb_Cstr(last_fdv_adr));

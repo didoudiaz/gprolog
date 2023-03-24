@@ -255,7 +255,7 @@ Pl_Get_Integer_Tagged(WamWord w, WamWord start_word)
 
 #ifndef NO_USE_FD_SOLVER
   if (tag_mask == TAG_FDV_MASK)
-    return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+    return Fd_Unify_With_Integer(UnTag_FDV(word), (int) UnTag_INT(w));
 #endif
 
   return (word == w);
@@ -781,7 +781,7 @@ Pl_Unify_Integer_Tagged(WamWord w)
 
 #ifndef NO_USE_FD_SOLVER
       if (tag_mask == TAG_FDV_MASK)
-	return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+	return Fd_Unify_With_Integer(UnTag_FDV(word), (int) UnTag_INT(w));
 #endif
 
       return (word == w);

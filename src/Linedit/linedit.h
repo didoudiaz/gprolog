@@ -108,11 +108,11 @@ void (*pl_le_hook_exit_process) (int ret_val);
 #define SCREEN_SIZE(r, c)   ((*pl_le_hook_screen_size)(r, c))
 #define KBD_IS_NOT_EMPTY    ((*pl_le_hook_kbd_is_not_empty)())
 
-#define BACKD(n)            ((*pl_le_hook_backd)(n))
-#define FORWD(n, str)       ((*pl_le_hook_forwd)(n, str))
-#define DISPL(n, str)       ((*pl_le_hook_displ)(n, str))
+#define BACKD(n)            ((*pl_le_hook_backd)((int) (n)))
+#define FORWD(n, str)       ((*pl_le_hook_forwd)((int) (n), str))
+#define DISPL(n, str)       ((*pl_le_hook_displ)((int) (n), str))
 #define DISPL_STR(str)      ((*pl_le_hook_displ_str)(str))
-#define ERASE(n)            ((*pl_le_hook_erase)(n))
+#define ERASE(n)            ((*pl_le_hook_erase)((int) (n)))
 
 #endif
 

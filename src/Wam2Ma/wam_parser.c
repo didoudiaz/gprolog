@@ -369,7 +369,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 
     case C_INT:
       Read_Token(INTEGER);
-      Add_Arg(*top, int, int_val);
+      Add_Arg(*top, int, (int) int_val);
       return;
 
     case FLOAT:

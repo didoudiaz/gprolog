@@ -694,6 +694,10 @@ fct_name(WamWord *AF)				\
 #define fd_local_cf_pointer			\
   WamWord *CF;
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4101)	/* unused variable */
+#endif
+
 
 #ifdef __GNUC__
 #define fd_local_fdv_adr			\
