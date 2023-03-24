@@ -1708,7 +1708,7 @@ int
 Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset, PlLong char_count,
 		       PlLong line_count, PlLong line_pos)
 {
-  int x = CALL_SEEK(pstm, offset, whence);
+  int x = CALL_SEEK(pstm, (long) offset, whence);
   if (x != 0)
     return x;
 
@@ -1755,7 +1755,7 @@ Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos)
 
   offset = CALL_TELL(pstm);
   if (offset < 0)
-    return offset;
+    return (int) offset;
 
   x = CALL_SEEK(pstm, 0, SEEK_SET);
   if (x != 0)

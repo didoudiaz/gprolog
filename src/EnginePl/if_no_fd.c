@@ -83,11 +83,11 @@ Pl_Fd_Init_Solver(void)
 {
   if (pl_fd_init_solver == NULL)	/* FD solver not linked */
     {
-      pl_fd_unify_with_integer = (Bool (*)()) Fd_Solver_Missing;
-      pl_fd_unify_with_fd_var = (Bool (*)()) Fd_Solver_Missing;
-      pl_fd_variable_size = (int (*)()) Fd_Solver_Missing;
-      pl_fd_copy_variable = (int (*)()) Fd_Solver_Missing;
-      pl_fd_variable_to_string = (char *(*)()) Fd_Solver_Missing;
+      pl_fd_unify_with_integer = (Bool (*)(WamWord *, int)) Fd_Solver_Missing;
+      pl_fd_unify_with_fd_var = (Bool (*)(WamWord *, WamWord *)) Fd_Solver_Missing;
+      pl_fd_variable_size = (int (*)(WamWord *)) Fd_Solver_Missing;
+      pl_fd_copy_variable = (int (*)(WamWord *, WamWord *)) Fd_Solver_Missing;
+      pl_fd_variable_to_string = (char *(*)(WamWord *)) Fd_Solver_Missing;
       return;
     }
 

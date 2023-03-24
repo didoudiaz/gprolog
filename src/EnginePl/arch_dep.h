@@ -39,6 +39,8 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
+#include <math.h>		/* for isnan testing */
+
 /* for signals (see try_sigaction.c) */
 
 #if defined(M_ix86_sco)

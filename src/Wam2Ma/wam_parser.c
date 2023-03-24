@@ -369,7 +369,7 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 
     case C_INT:
       Read_Token(INTEGER);
-      Add_Arg(*top, int, int_val);
+      Add_Arg(*top, int, (int) int_val);
       return;
 
     case FLOAT:
@@ -631,7 +631,7 @@ Scanner(int complex_atom)
 		    }
 		  else
 		    i = 8;
-		  i = strtol(cur_line_p, &p1, i);	/* stop on the closing \ */
+		  i = strtol(cur_line_p, &p1, (int) i);	/* stop on the closing \ */
 		  cur_line_p = p1 + 1;
 		  sprintf(p, "%03" PL_FMT_o, i);
 		  p += 3;

@@ -65,7 +65,7 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
 
 #define CHECK_STREAM_AND_GET_STM(sora_word, stm)		\
   stm = (sora_word == NOT_A_WAM_WORD)				\
-         ? pl_stm_current_input :					\
+         ? pl_stm_current_input :				\
          Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_INPUT);	\
 								\
   pl_last_input_sora = sora_word;				\
@@ -79,7 +79,7 @@ Prolog_Prototype(CURRENT_CHAR_CONVERSION_ALT, 0);
     {								\
       Pl_Syntax_Error((SYS_VAR_SYNTAX_ERROR_ACTON < 0)		\
 		      ? (int) Flag_Value(syntax_error)		\
-		      : SYS_VAR_SYNTAX_ERROR_ACTON);		\
+		      : (int) SYS_VAR_SYNTAX_ERROR_ACTON);	\
       return FALSE;						\
     }								\
 								\

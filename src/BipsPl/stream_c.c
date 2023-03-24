@@ -217,7 +217,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   int atom_file_name;
   int stm;
   FILE *f;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   Bool reposition;
 
 
@@ -1442,7 +1442,7 @@ Pl_Open_Input_Term_Stream_2(WamWord sink_term_word, WamWord stm_word)
 	Pl_Rd_Codes_Str_Check(sink_term_word, str);
     }
 
-  stm = Pl_Add_Str_Stream(str, SYS_VAR_OPTION_MASK);
+  stm = Pl_Add_Str_Stream(str, (int) SYS_VAR_OPTION_MASK);
 
   Pl_Get_Integer(stm, stm_word);
 }
@@ -1495,7 +1495,7 @@ Pl_Open_Output_Term_Stream_1(WamWord stm_word)
 {
   int stm;
 
-  stm = Pl_Add_Str_Stream(NULL, SYS_VAR_OPTION_MASK);
+  stm = Pl_Add_Str_Stream(NULL, (int) SYS_VAR_OPTION_MASK);
 
   Pl_Get_Integer(stm, stm_word);
 }
