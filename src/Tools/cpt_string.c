@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Common tool                                                     *
  * File  : cpt_string.c                                                    *
- * Descr.: (longest) common prefix tree management                         *
+ * Descr.: common prefix tree management (radix tree)                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *
@@ -138,6 +138,8 @@ static CPTStat stat;
 CPT CPT_Init(void);
 
 int CPT_Add_Word(CPT cpt, char *word, int length);
+
+int CPT_Remove_Word(CPTTree tree, char *word, int length);
 
 static int Common_Prefix_Length(char *str1, int l1, char *str2, int l2);
 

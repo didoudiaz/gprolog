@@ -122,6 +122,9 @@ src/W32GUICons/Makefile.in
 src/W32GUICons/[a-z][a-z0-9]?*.[ch]
 src/W32GUICons/[a-z][a-z0-9]?*.rc
 
+src/Tools/Makefile.in
+src/Tools/[a-z][a-z_-]?*.[ch]
+
 src/EnginePl/Makefile.in
 src/EnginePl/gp_config.h.in
 src/EnginePl/[a-z][a-z_-]?*.[ch]
