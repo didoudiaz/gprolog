@@ -588,14 +588,12 @@ codif(fd_range_mod_value(RR, _), [r(RR), w(RR)]).
 
 codif(fd_range_copy(RR, RR1), [c(RR1, RR)]).
 
-codif(fd_range_fct(_, RR, FdArg), [w(RR)|LCode]) :-
-	FdArg =.. [_|FdLstArg],
+codif(fd_range_fct(RR, FctTerm), [w(RR)|LCode]) :-
+	FctTerm =.. [_, _|FdLstArg], % result range RR is also the first argument of the fct (a w(RR) register)
 	create_r_code_lst(FdLstArg, [], LCode).
 
 codif(X, LCode) :-
 	create_r_code_lst(X, [], LCode).
-
-
 
 
 

@@ -338,7 +338,7 @@ Allocate(int x)			/* only to update the register for E */
 
 
 WamCont save_CP;
-void Save_CP()
+void Save_CP(void)
 {
   //printf("in Save_CP\n");
   save_CP = CP;
@@ -346,7 +346,7 @@ void Save_CP()
 
 
 
-void Restore_CP()
+void Restore_CP(void)
 {
   CP = save_CP;
 }
@@ -417,7 +417,7 @@ test_initializer(void)
 #endif
 }
 
-void Several_Calls()
+void Several_Calls(void)
 {
   Save_CP();
 }

@@ -217,7 +217,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   int atom_file_name;
   int stm;
   FILE *f;
-  int mask = SYS_VAR_OPTION_MASK;
+  int mask = (int) SYS_VAR_OPTION_MASK;
   Bool reposition;
 
 
@@ -256,7 +256,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
     }
 
   prop = pl_stm_tbl[stm]->prop;
-  f = (FILE *) pl_stm_tbl[stm]->file;
+  f = pl_stm_tbl[stm]->file;
 
 				/* change properties wrt to specified ones */
 
@@ -858,7 +858,7 @@ Pl_Stream_Prop_Buffering_2(WamWord buffering_word, WamWord stm_word)
   stm = Pl_Rd_C_Int_Check(stm_word);	/* stm is a valid stream entry */
 
 #ifndef NO_USE_LINEDIT		/* if GUI: ask it for buffering */
-  if (pl_stm_tbl[stm]->file == (PlLong) stdout && pl_le_hook_get_line_buffering)
+  if (pl_stm_tbl[stm]->file == stdout && pl_le_hook_get_line_buffering)
     {
       if ((*pl_le_hook_get_line_buffering)())
 	pl_stm_tbl[stm]->prop.buffering = STREAM_BUFFERING_LINE;
@@ -1442,7 +1442,7 @@ Pl_Open_Input_Term_Stream_2(WamWord sink_term_word, WamWord stm_word)
 	Pl_Rd_Codes_Str_Check(sink_term_word, str);
     }
 
-  stm = Pl_Add_Str_Stream(str, SYS_VAR_OPTION_MASK);
+  stm = Pl_Add_Str_Stream(str, (int) SYS_VAR_OPTION_MASK);
 
   Pl_Get_Integer(stm, stm_word);
 }
@@ -1476,7 +1476,7 @@ Pl_Close_Input_Term_Stream_1(WamWord sora_word)
 
   if (type != TERM_STREAM_ATOM)
     {
-      str_stream = (StrSInf *) (pstm->file);
+      str_stream = pstm->file;
       Free(str_stream->buff);
     }
 
@@ -1495,7 +1495,7 @@ Pl_Open_Output_Term_Stream_1(WamWord stm_word)
 {
   int stm;
 
-  stm = Pl_Add_Str_Stream(NULL, SYS_VAR_OPTION_MASK);
+  stm = Pl_Add_Str_Stream(NULL, (int) SYS_VAR_OPTION_MASK);
 
   Pl_Get_Integer(stm, stm_word);
 }

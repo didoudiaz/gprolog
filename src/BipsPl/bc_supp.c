@@ -35,6 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include <string.h>
+
+#include <string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,7 +243,7 @@ static int BC_Arg_Func_Arity(WamWord arg_word, int *arity);
 
 WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
 
-static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w);
+static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last);
 
 static WamCont BC_Emulate_Clause(DynCInf *clause);
 
@@ -497,18 +500,23 @@ Pl_BC_Start_Emit_0(void)
 void
 Pl_BC_Stop_Emit_0(void)
 {
+  int pl_byte_code_len;		/* could be declared in bc_supp.h if needed elsewhere */
   int i;
+  
+  pl_byte_code_len = (int) (bc_sp - bc);
 
-  pl_byte_len = (int) (bc_sp - bc);
+  pl_byte_code = (unsigned *) Malloc(pl_byte_code_len * sizeof(BCWord));
 
-#ifdef DEBUG
-  DBGPRINTF("byte-code size:%d\n", pl_byte_len);
+#if 0
+  memcpy(pl_byte_code, bc, pl_byte_code_len * sizeof(BCWord));
+#else
+  for (i = 0; i < pl_byte_code_len; i++)
+    pl_byte_code[i] = bc[i].word;
 #endif
 
-  pl_byte_code = (unsigned *) Malloc(pl_byte_len * sizeof(BCWord));
-
-  for (i = 0; i < pl_byte_len; i++)
-    pl_byte_code[i] = bc[i].word;
+#ifdef DEBUG
+  DBGPRINTF("byte-code size:%d\n", pl_byte_code_len);
+#endif
 }
 
 
@@ -564,9 +572,8 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   size_bc = (int) (bc_sp - bc);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
-      bc_nb_block++;
-      bc = (BCWord *) Realloc((char *) bc,
-			      bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
+      bc_nb_block++; 
+      bc = (BCWord *) Realloc((char *) bc, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
       bc_sp = bc + size_bc;
     }
 
@@ -953,7 +960,7 @@ start:
   A(arity + 1) = debug_call;
 
   clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-				(PlLong (*)()) BC_Emulate_Pred_Alt,
+				(ScanFct) BC_Emulate_Pred_Alt,
 				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
   if (clause == NULL)
     goto fail;
@@ -978,7 +985,7 @@ fail:
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
+BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 {
   DynPInf *dyn;
   int arity;
@@ -991,7 +998,7 @@ BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w)
 
   do
     *adr++ = *w++;
-  while (--arity >= 0);		/* >=0 to also restore cut register */
+  while (--arity >= 0);		/* >= 0 to also restore cut register */
 
   debug_call = (Bool) *w;
 

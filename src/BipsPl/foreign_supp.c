@@ -175,7 +175,7 @@ Pl_Foreign_Jump_Ret(CodePtr codep)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlFIOArg *
-Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
+Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (WamWord word),
 		     int fio_arg_index)
 {
   WamWord word, tag_mask;
@@ -196,7 +196,7 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
 	    fa->value.s = Strdup(fa->value.s);
 	}
       else
-	fa->value.d = (*(double (*)()) rd_fct) (word);
+	fa->value.d = (*(double (*)(WamWord)) rd_fct) (word);
     }
 
   return fa;
@@ -210,7 +210,7 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (),
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
+Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (PlLong val, WamWord word), PlFIOArg *fa,
 		     WamWord start_word)
 {
   if (!fa->unify)
@@ -219,7 +219,7 @@ Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (), PlFIOArg *fa,
   if (arg_long)
     return (*un_fct) (fa->value.l, start_word);
 
-  return (*un_fct) (fa->value.d, start_word);
+  return (*(Bool (*)(double, WamWord)) un_fct) (fa->value.d, start_word);
 }
 
 

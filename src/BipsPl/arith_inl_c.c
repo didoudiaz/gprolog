@@ -472,11 +472,13 @@ Load_Math_Expression(WamWord exp)
 	  Pl_Err_Type(pl_type_evaluable, word);
 	}
 
-      if (Arity(adr) == 1)
-	return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)));
+#define CALL_MATH_FCT_1(x)    (* (WamWord (*)(WamWord))          (arith->fct)) (x)
+#define CALL_MATH_FCT_2(x, y) (* (WamWord (*)(WamWord, WamWord)) (arith->fct)) (x, y)
 
-      return (*(arith->fct)) (Load_Math_Expression(Arg(adr, 0)),
-			      Load_Math_Expression(Arg(adr, 1)));
+      if (Arity(adr) == 1)
+	return CALL_MATH_FCT_1(Load_Math_Expression(Arg(adr, 0)));
+      else
+	return CALL_MATH_FCT_2(Load_Math_Expression(Arg(adr, 0)), Load_Math_Expression(Arg(adr, 1)));
     }
 
   if (tag_mask == TAG_REF_MASK)

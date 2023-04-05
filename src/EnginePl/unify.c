@@ -147,14 +147,14 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
 
 #ifndef NO_USE_FD_SOLVER
   if (v_tag_mask == TAG_INT_MASK && u_tag_mask == TAG_FDV_MASK)
-    return Fd_Unify_With_Integer(UnTag_FDV(u_word), UnTag_INT(v_word));
+    return Fd_Unify_With_Integer(UnTag_FDV(u_word), (int) UnTag_INT(v_word));
 
   if (v_tag_mask == TAG_FDV_MASK)
     {
       v_adr = UnTag_FDV(v_word);
 
       if (u_tag_mask == TAG_INT_MASK)
-	return Fd_Unify_With_Integer(v_adr, UnTag_INT(u_word));
+	return Fd_Unify_With_Integer(v_adr, (int) UnTag_INT(u_word));
 
       if (u_tag_mask != v_tag_mask) /* i.e. TAG_FDV_MASK */
 	return FALSE;

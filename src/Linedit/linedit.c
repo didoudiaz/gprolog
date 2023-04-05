@@ -97,6 +97,7 @@
 
 #define DEFAULT_SEPARATORS         " ,;:-'\"!@$#^&()-+*/\\[]|<=>`~{}"
 
+#define MAX_WORDS_IN_COMP_DICO     25000 /* should be limited (see Pl_LE_Compl_Add_Word) */
 #define NB_MATCH_LINES_BEFORE_ASK  20
 
 #define OPEN_BRACKET               "([{"
@@ -159,6 +160,7 @@ static int hist_start = 0;
 static int hist_end = 0;
 
 
+static int comp_nb_words = 0;
 static CompNode *comp_start = NULL;
 static CompNode *comp_first_match;
 static CompNode *comp_last_match;
@@ -166,6 +168,7 @@ static int comp_nb_match;
 static int comp_match_max_lg;
 
 static CompNode *comp_cur_match;
+
 
 
 
@@ -1116,6 +1119,27 @@ Pl_LE_Compl_Add_Word(char *word, int word_length)
   CompNode *q;
   int cmp;
 
+  if (comp_nb_words >= MAX_WORDS_IN_COMP_DICO)
+    return NULL;
+
+#if 0				/* uncomment to check word (here done in atom.c) */
+  char *s;
+  while(Is_A_Separator(*word))	/* skip leading separators */
+    {
+      word++;
+      word_length--;
+    }
+
+  for(s = word; *s; s++)
+    if (Is_A_Separator(*s))
+      return NULL;
+#endif
+
+  /* this is slow if adding a lot of words, e.g. with a large database of n atoms
+   * basically in O(n^2).
+   * We thus limit the total number of words added in completion dico.
+   * Else, use a better data structure (e.g. prefix Trie - see cpt_string.c)
+   */
   for (p = &comp_start; *p; p = &(*p)->next)
     {
       cmp = strcmp((*p)->word, word);
@@ -1133,6 +1157,8 @@ Pl_LE_Compl_Add_Word(char *word, int word_length)
   q->word_length = word_length;
   q->next = *p;
   *p = q;
+
+  comp_nb_words++;
 
   return word;
 }

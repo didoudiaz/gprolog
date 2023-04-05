@@ -1108,7 +1108,7 @@ Bool
 Pl_Exec_5(WamWord cmd_word, WamWord sora_in_word, WamWord sora_out_word,
 	  WamWord sora_err_word, WamWord pid_word)
 
-#define STM_TO_FILE(s) ((s == -3) ? M_SPAWN_REDIRECT_NULL : ((s < 0) ? M_SPAWN_REDIRECT_CREATE : (FILE *) pl_stm_tbl[s]->file))
+#define STM_TO_FILE(s) ((s == -3) ? M_SPAWN_REDIRECT_NULL : ((s < 0) ? M_SPAWN_REDIRECT_CREATE : pl_stm_tbl[s]->file))
 
 {
   char *cmd;

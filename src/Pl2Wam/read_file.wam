@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog 1.5.0
 % file    : read_file.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/Pl2Wam/read_file.pl').
+file_name('/Users/diaz/GP/src/Pl2Wam/read_file.pl').
 
 
 predicate(read_file_init/1,127,static,private,monofile,global,[
@@ -3131,7 +3131,11 @@ label(1),
     proceed]).
 
 
-predicate(disp_msg/4,1113,static,private,monofile,global,[
+predicate(abandon_exec/0,1113,static,private,monofile,global,[
+    execute(abort/0)]).
+
+
+predicate(disp_msg/4,1119,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -3156,7 +3160,7 @@ predicate(disp_msg/4,1113,static,private,monofile,global,[
     execute(nl/0)]).
 
 
-predicate('$disp_msg/4_$aux1'/2,1113,static,private,monofile,local,[
+predicate('$disp_msg/4_$aux1'/2,1119,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3182,7 +3186,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_file_name/2,1130,static,private,monofile,global,[
+predicate(disp_file_name/2,1136,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -3220,7 +3224,7 @@ label(4),
     execute(format/2)]).
 
 
-predicate(disp_lines/1,1140,static,private,monofile,global,[
+predicate(disp_lines/1,1146,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(3,fail,fail,fail,1),
@@ -3262,7 +3266,7 @@ label(6),
     execute(format/2)]).
 
 
-predicate(disp_column/1,1149,static,private,monofile,global,[
+predicate(disp_column/1,1155,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -3282,7 +3286,7 @@ label(1),
     execute(write/1)]).
 
 
-predicate(exception/1,1161,static,private,monofile,global,[
+predicate(exception/1,1167,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(11),

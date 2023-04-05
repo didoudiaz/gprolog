@@ -40,3 +40,13 @@ foo(fdv I)
  start I in 2..4:1..1
 }
 */
+
+%{
+Bool Pl_Unify(WamWord, WamWord);
+%}
+
+dd(fdv V, int XXX, any x, any y)
+
+{
+ start V in XXX..Pl_Unify(x,y)
+}

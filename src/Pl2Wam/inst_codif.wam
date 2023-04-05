@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog 1.5.0
 % file    : inst_codif.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/Pl2Wam/inst_codif.pl').
+file_name('/Users/diaz/GP/src/Pl2Wam/inst_codif.pl').
 
 
 predicate(alias_stop_instruction/1,41,static,private,monofile,global,[

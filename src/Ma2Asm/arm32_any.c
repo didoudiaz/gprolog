@@ -247,10 +247,6 @@ Asm_Start(void)
 
   Inst_Printf(".syntax", "unified");
   Label_Printf(".text");
-#if 0                           /* see Fail_Ret() */
-  Label("fail");
-  Pl_Fail();
-#endif
 }
 
 
@@ -288,7 +284,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       Inst_Printf("push", "{%s, lr}", REG_TMP_CALL_C);
       Inst_Printf("sub", "sp, sp, #%d", RESERVED_STACK_SPACE);
@@ -459,17 +455,17 @@ Load_Immediate(char *r, PlLong int_val)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Load_Address(char *r, char *addr)
+Load_Address(char *r, char *name)
 {
 #ifdef USE_LDR_PSEUDO_OP_AND_POOL
-  Inst_Printf("ldr", "%s, =%s", r, addr);
+  Inst_Printf("ldr", "%s, =%s", r, name);
 #else
   /* Direct address loading only works over a certain range -- to avoid
    * limits we have to include address as a literal... */
   Inst_Printf("ldr", "%s, %s-4", r, Label_Gen_New(&lg_addr));
   Inst_Printf("b", Label_Gen_Get(&lg_addr));
   Emit_Pool(FALSE);
-  Inst_Printf(".word", "%s", addr);
+  Inst_Printf(".word", "%s", name);
   Label_Printf("%s:", Label_Gen_Get(&lg_addr));
 #endif
 }
@@ -560,16 +556,21 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("ldr", "pc, [" MAP_REG_B ", #-4]");
+      Inst_Printf("ldr", "pc, [" MAP_REG_B ", #-4]");
 #else
-  Load_Reg_Bank();
-  Inst_Printf("ldr", "r3, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
-  Inst_Printf("ldr", "pc, [r3, #-4]");
+      Load_Reg_Bank();
+      Inst_Printf("ldr", "r3, [%s, #%d]", ASM_REG_BANK, MAP_OFFSET_B);
+      Inst_Printf("ldr", "pc, [r3, #-4]");
 #endif
-  Emit_Pool(FALSE);
+      Emit_Pool(FALSE);
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -986,11 +987,7 @@ Fail_Ret(void)
 {
   Inst_Printf("cmp", "r0, #0");
   Inst_Printf("bne", "%s", Label_Cont_New());
-#if 0				/* see Asm_Start() */
-  Inst_Printf("b", "fail");
-#else
-  Pl_Fail();
-#endif
+  Pl_Fail(FALSE);
   Emit_Pool(FALSE);			     /* take advantage of branching to emit the pool */
   Label_Printf("%s:", Label_Cont_Get());
 }

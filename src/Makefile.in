@@ -33,9 +33,9 @@ RANLIB         = @RANLIB@
 LE_DIRS        = Linedit
 W32GC_DIRS     = W32GUICons
 FD_DIRS        = Fd2C EngineFD BipsFD
-SUB_DIRS       = EnginePl TopComp Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
+SUB_DIRS       = EnginePl TopComp Tools Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
                  BipsPl Pl2Wam @MAKE_FD_DIRS@
-SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
+SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
                  BipsPl Pl2Wam $(FD_DIRS)
 
 
@@ -47,8 +47,12 @@ all: config
 	(cd Pl2Wam; $(MAKE) stage2)
 
 # config mainly creates gplc needed by other Makefiles (so we can use make -j)
-config:
+config: EnginePl/Makefile
 	cd EnginePl; $(MAKE) config
+
+EnginePl/Makefile:
+	echo '*** run ./configure before make please (see file INSTALL) ***'
+	exit 1
 
 doc:
 	(cd ../doc; $(MAKE) all)
@@ -156,15 +160,17 @@ uninstall-examples:
 check:
 	. ./SETVARS; \
 	(cd EnginePl; $(MAKE) check) && \
+	(cd Tools; $(MAKE) check) && \
 	(cd Ma2Asm; $(MAKE) check) && \
 	(cd Pl2Wam; $(MAKE) check) && \
 	(cd BipsPl; $(MAKE) check) && \
+	(cd EngineFD; $(MAKE) check) && \
 	echo All tests succeeded
 
-check-i:
+check-e:
 	. ./SETVARS; \
-	(cd Pl2Wam; $(MAKE) check-i) && \
-	(cd BipsPl; $(MAKE) check-i) && \
+	(cd Pl2Wam; $(MAKE) check-e) && \
+	(cd BipsPl; $(MAKE) check-e) && \
 	echo All tests succeeded
 
 # --- CLEAN --- #

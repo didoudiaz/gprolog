@@ -59,7 +59,7 @@
 #define MAX_LINE_LEN               65536
 #define MAX_STR_LEN                32768
 #define MAX_ARGS                   128
-#define MAX_SWITCH_CASES           65536
+#define MAX_SWITCH_CASES           1000000
 
 
 
@@ -81,7 +81,8 @@ enum
   SWITCH_RET,
   C_CODE,
   C_RET,
-  LONG
+  LONG,
+  LABEL
 };
 
 
@@ -98,7 +99,7 @@ enum
 char *inst[] = {
   "pl_code", "pl_jump", "prep_cp", "here_cp", "pl_call", "pl_fail",
   "pl_ret", "jump", "move", "call_c", "jump_ret", "fail_ret", "move_ret",
-  "switch_ret", "c_code", "c_ret", "long", NULL };
+  "switch_ret", "c_code", "c_ret", "long", NULL }; /* NULL corresponds to a label def (LABEL) */
 
 
 Bool reload_e;
@@ -127,13 +128,34 @@ int keep_source_lines;
 FILE *file_in;
 
 int cur_line_no;
+int cur_approx_inst_line;
 char cur_line_str[MAX_LINE_LEN];
 char *cur_line_p;
 char *beg_last_token;
+int nb_appox_inst_line;
 
 char str_val[MAX_STR_LEN];
 PlLong int_val;
 double dbl_val;
+
+
+
+
+/* About approx_inst_line: the goal is to provide a measure to take into
+ * account some limitations of target processors (e.g. on arm, conditional
+ * branching have a limit on the offset, see arm64_any.c). As MA is quite 
+ * low-level (on average one MA instruction give rise to N asm instruction), 
+ * the idea is to count the number of MA instructions. There is normally, 
+ * 1 MA inst per line (but counting lines is not a good idea since some line
+ * can be blank, some can be split with a final \ and some con only contain 
+ * a comment). We thus count MA instructions (including directives, ...).
+ * For the switch_ret instruction (which can be very large), we also count 
+ * the number of pairs (value,label) since each will give rise to asm inst. 
+ * BTW: we could do the same for call_c (adding the number of arguments) but
+ * there is in general too much arguments. 
+ * This mechanism needs a pre-pass and provides a sufficient approximation 
+ * in practice (see usage in ma2asm.c / arm64_any.c).
+ */
 
 
 
@@ -144,7 +166,7 @@ double dbl_val;
 
 static void Parser(int pass_no, int nb_passes);
 
-static int Read_If_Global(Bool initializer);
+static int Read_If_Global(Bool initializer_accepted);
 
 static void Read_Function(void);
 
@@ -158,6 +180,8 @@ static int Read_Token(int what);
 
 static int Scanner(void);
 
+static void Skip_Rest_Of_Line(void);
+
 
 
 
@@ -165,7 +189,7 @@ static int Scanner(void);
  * PARSE_MA_FILE                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
+Bool
 Parse_Ma_File(char *file_name_in, int comment)
 {
   int ret_val;
@@ -180,15 +204,19 @@ Parse_Ma_File(char *file_name_in, int comment)
   else if ((file_in = fopen(file_name_in, "rt")) == NULL)
     {
       fprintf(stderr, "cannot open input file %s\n", file_name_in);
-      return 0;
+      return FALSE;
     }
 
   for(i = 1; i <= nb_passes; i++)
     {
-      if (i == 2 && fseek(file_in, 0, SEEK_SET) == -1)
+      if (i == 2)
 	{
-	  fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
-	  return 0;
+	  if (fseek(file_in, 0, SEEK_SET) == -1)
+	    {
+	      fprintf(stderr, "cannot reposition file %s (needed for 2 passes)\n", file_name_in);
+	      return FALSE;
+	    }
+	  Init_Mapper();  /* Allow to adapt parameters wrt pre-pass (e.g. nb_appox_inst_line) */
 	}
 
       keep_source_lines = comment;
@@ -197,13 +225,13 @@ Parse_Ma_File(char *file_name_in, int comment)
 	Parser(i, nb_passes);
 
       if (ret_val != 0)
-	return 0;
+	return FALSE;
     }
 
   if (file_in != stdin)
     fclose(file_in);
 
-  return 1;
+  return TRUE;
 }
 
 
@@ -231,7 +259,7 @@ Parser(int pass_no, int nb_passes)
 {
   Bool inside_code = FALSE;
   Bool initializer_defined = FALSE;
-  CodeInf cur_code;		/* some init for the compiler */
+  CodeInf cur_code;
   LongInf l;
   char **in;
   int k, i;
@@ -242,7 +270,8 @@ Parser(int pass_no, int nb_passes)
   cur_line_p = cur_line_str;
   cur_line_str[0] = '\0';
   cur_line_no = 0;
-
+  cur_approx_inst_line = 0;
+  
   for (;;)
     {
       k = Scanner();
@@ -258,22 +287,32 @@ Parser(int pass_no, int nb_passes)
 
       k = (int) (in - inst);
 
-      /* ignore it in Pre_Pass() or long decl if Pre_Pass() done before */
-      if ((Pre_Pass() && k != PL_CODE && k != C_CODE && k != LONG && *in != NULL) ||
-	  (pass_no > 1 && k == LONG)) {
-	*cur_line_p = '\0';	/* skip rest of line */
-	continue;
-      }
+      
+      cur_approx_inst_line++; /* count 1 for each MA inst (could be more precise, e.g. 0 for label, ...) */
+      if (Pre_Pass())
+	{			/* special case in in pre-pass */
+	  if (k != PL_CODE && k != C_CODE && k != LONG && k != SWITCH_RET && k != LABEL)
+	    {
+	    ignore_eol:
+	      Skip_Rest_Of_Line();
+	      continue;
+	    }
+	}
+      else if (pass_no > 1)		/* special case in second pass */
+	{
+	  if (k == LONG)		/* ignore long decl (treated in pre-pass)  */
+	    goto ignore_eol;
+	}
 
       switch (k)
 	{
 	case PL_CODE:
 	  Stop_Previous_Code();
-	  cur_code.prolog = TRUE;
+	  cur_code.type = CODE_TYPE_PROLOG;
 	  cur_code.global = Read_If_Global(FALSE);
-	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
+	  cur_code.approx_inst_line = cur_approx_inst_line;
 	  if (Pre_Pass())
 	    Decl_Code(&cur_code); /* a malloc+copy done by Decl_Code */
 	  else
@@ -286,16 +325,16 @@ Parser(int pass_no, int nb_passes)
 
 	case C_CODE:
 	  Stop_Previous_Code();
-	  cur_code.prolog = FALSE;
+	  cur_code.type = CODE_TYPE_C;
 	  cur_code.global = Read_If_Global(!initializer_defined);
-	  cur_code.initializer = FALSE;
 	  Read_Token(IDENTIFIER);
 	  cur_code.name = strdup(str_val);
-	  if (cur_code.global == 2)
+	  cur_code.approx_inst_line = cur_approx_inst_line;
+	  if (cur_code.global == 2) /* initializer ? */
 	    {
 	      initializer_defined = TRUE;
+	      cur_code.type = CODE_TYPE_INITIALIZER;
 	      cur_code.global = FALSE;
-	      cur_code.initializer = TRUE;
 	      if (!Pre_Pass())
 		Declare_Initializer(cur_code.name);
 	    }
@@ -329,7 +368,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case PL_FAIL:
-	  Pl_Fail();
+	  Pl_Fail(TRUE);
 	  reload_e = TRUE;
 	  break;
 
@@ -408,7 +447,9 @@ Parser(int pass_no, int nb_passes)
 
 	case SWITCH_RET:
 	  Read_Switch();
-	  Switch_Ret(nb_swt, swt);
+	  if (!Pre_Pass())
+	    Switch_Ret(nb_swt, swt);
+	  cur_approx_inst_line += nb_swt;/* count separately each pair (value=label) */
 	  break;
 
 	case C_RET:
@@ -445,23 +486,24 @@ Parser(int pass_no, int nb_passes)
 	  Decl_Long(&l);	/* a malloc+copy done by Decl_Long */
 	  break;
 
-	default:		/* label: */
-	  if (*in == NULL)
-	    {
-	      CodeInf c_lab;
-	      c_lab.name = strdup(str_val);
-	      c_lab.prolog = FALSE;
-	      c_lab.initializer = FALSE;
-	      c_lab.global = FALSE;
-	      Read_Token(':');
-	      if (Pre_Pass())
-		Decl_Code(&c_lab); /* record label (considered as C code) */
-	      else
-		Label(str_val);
-	    }
+	case LABEL:		/* label: */
+	  Read_Token(':');
+	  if (Pre_Pass())
+	    Decl_Label(str_val, cur_approx_inst_line); /* record label */
+	  else
+	    Label(str_val);
+	  break;
+
+	default:		/* should never occurs */
+	  Syntax_Error("Unhandled MA element (pseudo:%s token id: %d)", str_val, k);
 	}
     }
   Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
+  nb_appox_inst_line = cur_approx_inst_line;
+#ifdef DEBUG
+  if (pass_no == 1)
+    printf("lines %d: approx inst: %d\n", cur_line_no, cur_approx_inst_line);
+#endif
 }
 
 
@@ -472,7 +514,7 @@ Parser(int pass_no, int nb_passes)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Read_If_Global(Bool initializer)
+Read_If_Global(Bool initializer_accepted)
 {
   if (Scanner() != IDENTIFIER)
     goto err;
@@ -483,11 +525,11 @@ Read_If_Global(Bool initializer)
   if (strcmp(str_val, "global") == 0)
     return 1;
 
-  if (initializer && strcmp(str_val, "initializer") == 0)
+  if (initializer_accepted && strcmp(str_val, "initializer") == 0)
     return 2;
 
 err:
-  if (!initializer)
+  if (!initializer_accepted)
     Syntax_Error("local / global expected");
   else
     Syntax_Error("local / global / initializer expected");
@@ -605,6 +647,8 @@ Read_Switch(void)
 
       Read_Token('=');
       Read_Token(IDENTIFIER);
+      if (nb_swt >= MAX_SWITCH_CASES)
+	Syntax_Error("Too big switch_ret, max cases: %d", MAX_SWITCH_CASES);
       swt[nb_swt].int_val = int_val;
       swt[nb_swt].label = strdup(str_val);
 
@@ -664,13 +708,9 @@ Read_Optional_Index(void)
 static int
 Read_Token(int what)
 {
-  char str[80];
-  int k;
+  int k = Scanner();
 
-  k = Scanner();
-
-  if (k == what || (what == X_REG && k == Y_REG)
-      || (what == FL_ARRAY && k == FD_ARRAY))
+  if (k == what || (what == X_REG && k == Y_REG) || (what == FL_ARRAY && k == FD_ARRAY))
     return k;
 
   switch (what)
@@ -700,8 +740,7 @@ Read_Token(int what)
       break;
 
     default:
-      sprintf(str, "%c expected", what);
-      Syntax_Error(str);
+      Syntax_Error("%c expected", what);
       break;
     }
 
@@ -721,12 +760,12 @@ Scanner(void)
   char *p, *p1;
   PlLong i;
   double d;
-  double strtod();
+  double strtod(const char *nptr, char **endptr); /* why ? */
 
 
   for (;;)
-    {
-      while (isspace(*cur_line_p))
+    {				/* a \ should be followed by \n (not tested) for a line continuation */
+      while (isspace(*cur_line_p) || *cur_line_p == '\\')
 	cur_line_p++;
 
       if (*cur_line_p != '\0' && *cur_line_p != ';')
@@ -736,7 +775,6 @@ Scanner(void)
 	{
 	}
 
-
       if (feof(file_in))
 	return 0;
 
@@ -744,18 +782,18 @@ Scanner(void)
       cur_line_p = cur_line_str;
 
       if (keep_source_lines)
-	{
-	  while (isspace(*cur_line_p))
-	    cur_line_p++;
+        {
+          while (isspace(*cur_line_p))
+            cur_line_p++;
 
-	  if (*cur_line_p)
-	    {
-	      p = cur_line_p + strlen(cur_line_p) - 1;
-	      if (*p == '\n')
-		*p = '\0';
-	      Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
-	    }
-	}
+          if (*cur_line_p)
+            {
+              p = cur_line_p + strlen(cur_line_p) - 1;
+              if (*p == '\n')
+                *p = '\0';
+              Label_Printf("\t%s %6d: %s", mi.comment_prefix, cur_line_no, cur_line_p);
+            }
+        }
     }
 
   beg_last_token = cur_line_p;
@@ -844,19 +882,54 @@ Scanner(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_SYNTAX_ERROR                                                         *
+ * SKIP                                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static void
+Skip_Rest_Of_Line(void)
+{
+  char *p;
+
+  /* useful for pass 1 to ignore instructions (keep decl only) */
+  while((p = strrchr(cur_line_p, '\\')) != NULL)
+    {
+      if (fgets(cur_line_str, sizeof(cur_line_str), file_in)) /* to avoid gcc warning warn_unused_result */
+	{
+	}
+
+      if (feof(file_in))
+	*cur_line_str = '\0';
+
+      cur_line_no++;
+      cur_line_p = cur_line_str;
+    }
+
+  *cur_line_p = '\0';		/* ignore this line  */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * SYNTAX_ERROR                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Syntax_Error(char *s)
+Syntax_Error(char *format, ...)
 {
+  va_list arg_ptr;
   char *p = cur_line_str + strlen(cur_line_str) - 1;
 
   if (*p == '\n')
     *p = '\0';
 
-  fprintf(stderr, "line %d: %s\n", cur_line_no, s);
-  fprintf(stderr, "%s\n", cur_line_str);
+  fprintf(stderr, "line %d: ", cur_line_no);
+
+  va_start(arg_ptr, format);
+  vfprintf(stderr, format, arg_ptr);
+  va_end(arg_ptr);
+
+  fprintf(stderr, "\n%s\n", cur_line_str);
 
   for (p = cur_line_str; p < beg_last_token; p++)
     if (!isspace(*p))

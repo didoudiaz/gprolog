@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog 1.5.0
 % file    : context.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/Pl2Wam/context.pl').
+file_name('/Users/diaz/GP/src/Pl2Wam/context.pl').
 
 
 predicate('$cxt_for_call'/1,74,static,private,monofile,global,[

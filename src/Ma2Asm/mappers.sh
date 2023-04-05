@@ -149,6 +149,8 @@ test_archs()
     echo
     echo log file $file_log
     echo $errors errors
+    warnings=`grep '.*:.*warning' $file_log|wc -l`
+    echo $warnings warnings
     test $errors = 0
 }
 

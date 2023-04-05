@@ -97,6 +97,6 @@ SwtInf;
  * Function Prototypes             *
  *---------------------------------*/
 
-int Parse_Ma_File(char *file_name_in, int comment);
+Bool Parse_Ma_File(char *file_name_in, int comment);
 
-void Syntax_Error(char *s);
+void Syntax_Error(char *format, ...) ATTR_PRINTF(1);

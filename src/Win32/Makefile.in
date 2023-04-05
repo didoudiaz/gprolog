@@ -44,3 +44,4 @@ clean:
 
 
 distclean: clean
+	rm gp-vars-iss.txt

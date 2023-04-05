@@ -39,6 +39,8 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
+#include <math.h>		/* for isnan testing */
+
 /* for signals (see try_sigaction.c) */
 
 #if defined(M_ix86_sco)
@@ -105,9 +107,12 @@
 
 #if defined(__GNUC__) && !defined(M_win64) /* gcc on mingw64 warns about PRIdPTR in x86_64_any.c ??? */
 #define ATTR_PRINTF(x) __attribute__((format(printf, x, x + 1)))
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
 #else
 #define ATTR_PRINTF(x)
 #endif
+
+#define AVOID_UNUSED_WARNING(x) ((void)(x))
 
 
 
@@ -411,7 +416,7 @@ typedef struct _excp_lst
 
 /* Provided by arch_dep.c */
 
-int Pl_Win_Error_To_Errno();
+int Pl_Win_Error_To_Errno(void);
 
 /* see unix <dirent.h> */
 

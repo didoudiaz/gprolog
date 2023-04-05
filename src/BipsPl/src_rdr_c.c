@@ -271,7 +271,7 @@ Pl_SR_Init_Open_2(WamWord desc_word, WamWord out_sora_word)
       sr->file_top = NULL;
     }
 
-  sr->mask = SYS_VAR_OPTION_MASK;
+  sr->mask = (int) SYS_VAR_OPTION_MASK;
 
   sr->file_first = NULL;
   sr->file_last = NULL;
@@ -335,15 +335,14 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	    stm = pl_stm_current_input;
 #else
 	  {
-	    stm = Pl_Add_Stream(0, (PlLong) 0, 0, pl_stm_tbl[pl_stm_current_input]->prop,
-		    NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	    stm = Pl_Add_Stream(0, NULL, 0, pl_stm_tbl[pl_stm_current_input]->prop,
+				NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_current_input];
 	  }
 #endif
 	  else
 	    {
-	      stm = Pl_Add_Stream_For_Stdio_File(pl_atom_tbl[atom_file_name].name,
-					      STREAM_MODE_READ, TRUE);
+	      stm = Pl_Add_Stream_For_Stdio_File(pl_atom_tbl[atom_file_name].name, STREAM_MODE_READ, TRUE);
 	      if (stm < 0)
 		{
 		  if (errno == ENOENT || errno == ENOTDIR)
@@ -367,8 +366,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	  file->tmp_stm = Pl_Add_Stream_For_Stdio_File(file->tmp_path,
 						    STREAM_MODE_WRITE, TRUE);
 	  if (file->tmp_stm < 0)
-	    Pl_Fatal_Error("cannot create tmp file %s in %s:%d", file->tmp_path,
-			__FILE__, __LINE__);
+	    Pl_Fatal_Error("cannot create tmp file %s in %s:%d", file->tmp_path, __FILE__, __LINE__);
 
 				/* try to be similar to original file */
 	  pstm_tmp = pl_stm_tbl[file->tmp_stm];
@@ -377,8 +375,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	  if (pstm_tmp->prop.buffering != pstm->prop.buffering)
 	    {
 	      pstm_tmp->prop.buffering = pstm->prop.buffering;
-	      Pl_Stdio_Set_Buffering((FILE *) pstm_tmp->file,
-				  pstm_tmp->prop.buffering);
+	      Pl_Stdio_Set_Buffering(pstm_tmp->file, pstm_tmp->prop.buffering);
 	    }
 	  Pl_Add_Mirror_To_Stream(stm, file->tmp_stm);
 	}

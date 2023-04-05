@@ -6761,7 +6761,7 @@ done
 
 ac_config_headers="$ac_config_headers EnginePl/gp_config.h"
 
-ac_config_files="$ac_config_files Makefile TopComp/Makefile Pl2Wam/Makefile Wam2Ma/Makefile Ma2Asm/Makefile Fd2C/Makefile Linedit/Makefile W32GUICons/Makefile EnginePl/Makefile BipsPl/Makefile EngineFD/Makefile BipsFD/Makefile $OTHER_DOT_IN_FILES"
+ac_config_files="$ac_config_files Makefile TopComp/Makefile Pl2Wam/Makefile Wam2Ma/Makefile Ma2Asm/Makefile Fd2C/Makefile Linedit/Makefile W32GUICons/Makefile Tools/Makefile EnginePl/Makefile BipsPl/Makefile EngineFD/Makefile BipsFD/Makefile $OTHER_DOT_IN_FILES"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -7459,6 +7459,7 @@ do
     "Fd2C/Makefile") CONFIG_FILES="$CONFIG_FILES Fd2C/Makefile" ;;
     "Linedit/Makefile") CONFIG_FILES="$CONFIG_FILES Linedit/Makefile" ;;
     "W32GUICons/Makefile") CONFIG_FILES="$CONFIG_FILES W32GUICons/Makefile" ;;
+    "Tools/Makefile") CONFIG_FILES="$CONFIG_FILES Tools/Makefile" ;;
     "EnginePl/Makefile") CONFIG_FILES="$CONFIG_FILES EnginePl/Makefile" ;;
     "BipsPl/Makefile") CONFIG_FILES="$CONFIG_FILES BipsPl/Makefile" ;;
     "EngineFD/Makefile") CONFIG_FILES="$CONFIG_FILES EngineFD/Makefile" ;;

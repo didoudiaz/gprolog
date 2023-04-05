@@ -132,7 +132,6 @@ Asm_Start(void)
   Inst_Printf(".set", "noreorder");
 
   Label_Printf(".text");
-
 }
 
 
@@ -164,7 +163,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (c->prolog)
+  if (c->type == CODE_TYPE_PROLOG)
     {
       /* prolog code does not need any stack space */
       Inst_Printf(".frame", "$30, 0, $26, 0");
@@ -297,16 +296,20 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("ldq", "$27, -8(%s)", asm_reg_b);
+      Inst_Printf("ldq", "$27, -8(%s)", asm_reg_b);
 #else
-  Inst_Printf("ldq", "$4, %s", asm_reg_b);
-  Inst_Printf("ldq", "$27, -8($4)");
+      Inst_Printf("ldq", "$4, %s", asm_reg_b);
+      Inst_Printf("ldq", "$27, -8($4)");
 #endif
-
-  Inst_Printf("jmp", "$31, ($27), 0");
+      Inst_Printf("jmp", "$31, ($27), 0");
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -888,7 +891,7 @@ void
 Fail_Ret(void)
 {
   Inst_Printf("bne", "$0, %s", Label_Cont_New());
-  Pl_Fail();
+  Pl_Fail(FALSE);
   Label_Printf("%s:", Label_Cont_Get());
 }
 

@@ -61,7 +61,7 @@
 
 #define FILE_WAM_STACKS_H          "wam_stacks.h"
 
-#define FILE_GPROLOG_CST_H         "gprolog_cst.h"
+#define FILE_GPROLOG_CST_H         PROLOG_DIALECT "_cst.h"
 
 
 
@@ -375,6 +375,11 @@ Write_C_Compiler_Info(void)
   fprintf(fw_r, "#define CFLAGS_REGS\t\t\"");
   for (i = 0; i < nb_of_used_mach_regs; i++)
     {
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4474)	/* too many args for fprintf */
+#endif
+
       fprintf(fw_r, CFLAGS_PREFIX_REG, used_mach_reg[i].mach_reg_name);
       fputc(' ', fw_r);
     }

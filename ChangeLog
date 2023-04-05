@@ -1,3 +1,14 @@
+Wed Mar 22 07:09:36 PM CET 2023  <Daniel.Diaz@univ-paris1.fr>
+
+	* fix issue #32: remove duplicate warning message
+
+Fri Mar 10 05:10:04 PM CET 2023 <Daniel.Diaz@univ-paris1.fr>
+
+	* improve compiler speed on large Prolog data bases
+	  (speed up generation of indexing instructions switch_on_atom/integer/structure)
+	* speed up bind_variables/2 (also speed up the compiler for byte-code)
+	* increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
+
 Fri Feb 17 11:08:35 CET 2023 <Daniel.Diaz@univ-paris1.fr>
 
 	* increase default Prolog stack sizes and MAX_ATOMS

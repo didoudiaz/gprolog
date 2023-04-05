@@ -203,7 +203,7 @@ Pl_Exit_With_Value(int ret_val)
 {
 #ifndef NO_USE_LINEDIT
   if (pl_le_hook_exit_process)
-    (*pl_le_hook_exit_process)();
+    (*pl_le_hook_exit_process)(ret_val);
 #endif
 
   exit(ret_val);

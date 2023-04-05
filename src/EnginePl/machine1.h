@@ -69,7 +69,7 @@
 
 int pl_m_os_type;
 char pl_m_architecture[32];
-char pl_m_os_version[256];
+char pl_m_os_version[512+1];
 
 #else
 

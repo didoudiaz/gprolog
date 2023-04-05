@@ -41,4 +41,24 @@ clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
-distclean: clean
+distclean: clean clean-check
+
+
+#tests_fd_range@EXE_SUFFIX@: tests_fd_range.c fd_range.h
+#	$(CC) $(CFLAGS) -c fd_range.h -I../EnginePl
+#	$(CC) $(CFLAGS) -I../EnginePl @CC_EXE_NAME_OPT@tests_fd_range@EXE_SUFFIX@ tests_fd_range.c
+
+#check:  ./tests_fd_range@EXE_SUFFIX@
+#	@./tests_fd_range@EXE_SUFFIX@
+#
+#clean-check:
+#	rm -f tests_fd_range@EXE_SUFFIX@
+
+check:
+
+
+
+
+
+
+

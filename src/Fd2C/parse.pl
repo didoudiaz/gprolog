@@ -399,8 +399,8 @@ forall(_, _, LWNext, LWNext, f) -->
 
 
 last_elem(LVar, LUse, -1, LWNext, LWInst) -->
-	c_fct(LVar, LUse, Head, LArg, LWInst1, LWInst),
-	{ Term =.. [Head|LArg], LWInst1 = [fd_check_fct(Term)|LWNext] }.
+	c_fct(LVar, LUse, FctName, LArg, LWInst1, LWInst),
+	{ Term =.. [FctName|LArg], LWInst1 = [fd_check_fct(Term)|LWNext] }.
 
 last_elem(LVar, LUse, TellFdv, LWNext, LWInst) -->
 	x_in_r(LVar, LUse, TellFdv, LWNext, LWInst), !.
@@ -524,16 +524,13 @@ r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
 	a_var(V),
 	{ get_typeof(LVar, V, range, I), !,
-	  add_marked_var(LUse, V, range, I, range(Range1)) },
-	{ LWInst = [fd_range_copy(Range, Range1)|LWNext] }.
+	  add_marked_var(LUse, V, range, I, range(Range1)) ,
+	  LWInst = [fd_range_copy(Range, Range1)|LWNext] }.
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
-	c_fct(LVar, LUse, Head, LArg, LWInst1, LWInst), !,
-	{ length(LArg, N), number_atom(N, NA),
-	  atom_concat(arg_, NA, NA1),
-	  Args =.. [NA1|LArg],
-	  LWInst1 = [fd_range_fct(Head, Range, Args)|LWNext]
-	}.
+	c_fct(LVar, LUse, FctName, LArg, LWInst1, LWInst), !,
+	{ FctTerm =.. [FctName, range_arg(Range)|LArg],
+	  LWInst1 = [fd_range_fct(Range, FctTerm)|LWNext] }.
 
 
 r_prim(LVar, LUse, Range, LWNext, LWInst) -->
@@ -665,8 +662,8 @@ t_mul(LVar, LUse, Term, LWNext, LWNext) -->
 	{ get_typeof(LVar, V, int, I), !, atom_concat(int, V, Term), add_marked_var(LUse, V, int, I, _) }.
 
 t_mul(LVar, LUse, Term, LWNext, LWInst) -->
-	c_fct(LVar, LUse, Head, LArg, LWNext, LWInst), !,
-	{ Term =.. [Head|LArg] }.
+	c_fct(LVar, LUse, FctName, LArg, LWNext, LWInst), !,
+	{ Term =.. [FctName|LArg] }.
 
 t_mul(LVar, LUse, Term, LWNext, LWInst) -->
 	terminal('('),
@@ -676,13 +673,13 @@ t_mul(LVar, LUse, Term, LWNext, LWInst) -->
 
 
 
-c_fct(_, _, Head, [], LWNext, LWNext) -->
-	ident(Head),
+c_fct(_, _, FctName, [], LWNext, LWNext) -->
+	ident(FctName),
 	terminal('('),
 	terminal(')'), !.
 
-c_fct(LVar, LUse, Head, LArg, LWNext, LWInst) -->
-	ident(Head),
+c_fct(LVar, LUse, FctName, LArg, LWNext, LWInst) -->
+	ident(FctName),
 	terminal('('),
 	parm_lst(LVar, LUse, LArg, LWNext, LWInst),
 	terminal_check(')'), !.
@@ -723,7 +720,7 @@ parm_one(LVar, LUse, Arg, LWNext, LWNext) -->
 	{ get_typeof(LVar, V, T, I), atom_concat(T, V, Arg), add_marked_var(LUse, V, T, I, _) }.
 
 parm_one(LVar, LUse, &(Arg), LWNext, LWInst) -->
-	terminal(&),                                                 % adr of
+	terminal(&),                                              % adr of
 	parm_one(LVar, LUse, Arg, LWNext, LWInst).
 
 

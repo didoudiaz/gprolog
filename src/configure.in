@@ -1064,6 +1064,7 @@ AC_CONFIG_FILES(Makefile
                 Fd2C/Makefile
                 Linedit/Makefile
                 W32GUICons/Makefile
+                Tools/Makefile
                 EnginePl/Makefile
                 BipsPl/Makefile
                 EngineFD/Makefile

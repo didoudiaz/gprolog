@@ -102,8 +102,8 @@ extern void clearerr(FILE *stream);
  * Global Variables                *
  *---------------------------------*/
 
-static void Init_Stream_Supp();
-void (*pl_init_stream_supp)() = Init_Stream_Supp; /* overwrite var of engine.c */
+static void Init_Stream_Supp(void);
+void (*pl_init_stream_supp)(void) = Init_Stream_Supp; /* overwrite var of engine.c */
 
 static int atom_constant_term_stream;
 
@@ -364,8 +364,7 @@ Pl_Add_Stream_For_Stdio_Desc(FILE *f, int atom_path, int mode, Bool text,
   if (force_eof_reset || isatty(fileno(f)))
     prop.eof_action = STREAM_EOF_ACTION_RESET;
 
-  return Pl_Add_Stream(atom_path, (PlLong) f, fileno(f), prop,
-		       NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  return Pl_Add_Stream(atom_path, f, fileno(f), prop, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 
@@ -402,7 +401,7 @@ Pl_Add_Stream_For_Stdio_File(char *path, int mode, Bool text)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Init_Stream_Struct(int atom_file_name, PlLong file, int fileno, StmProp prop,
+Init_Stream_Struct(int atom_file_name, void *file, int fileno, StmProp prop,
 		   StmFct fct_getc, StmFct fct_putc,
 		   StmFct fct_flush, StmFct fct_close,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
@@ -445,7 +444,7 @@ Init_Stream_Struct(int atom_file_name, PlLong file, int fileno, StmProp prop,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
+Pl_Add_Stream(int atom_file_name, void *file, int fileno, StmProp prop,
 	      StmFct fct_getc, StmFct fct_putc,
 	      StmFct fct_flush, StmFct fct_close,
 	      StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
@@ -455,8 +454,7 @@ Pl_Add_Stream(int atom_file_name, PlLong file, int fileno, StmProp prop,
 
   stm = Find_Free_Stream();
 
-  if (prop.reposition && (fct_tell == STREAM_FCT_UNDEFINED ||
-			  fct_seek == STREAM_FCT_UNDEFINED))
+  if (prop.reposition && (fct_tell == STREAM_FCT_UNDEFINED || fct_seek == STREAM_FCT_UNDEFINED))
     Pl_Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
 
 
@@ -798,8 +796,7 @@ Pl_Set_Stream_Buffering(int stm)
     }
 
 #ifndef NO_USE_LINEDIT		/* if GUI: inform it about buffering */
-  if ((pstm->file == (PlLong) stdout || pstm->file == (PlLong) stderr) && 
-      pl_le_hook_set_line_buffering)
+  if ((pstm->file == stdout || pstm->file == stderr) && pl_le_hook_set_line_buffering)
     (*pl_le_hook_set_line_buffering)(pstm->prop.buffering != STREAM_BUFFERING_NONE);
   else
 #endif
@@ -1049,7 +1046,7 @@ Pl_Stdio_Desc_Of_Stream(int stm)
     return stdin;
 
   if (pstm->fct_getc == (StmFct) fgetc) /* could also test pstm->fileno >= 0 */
-    return (FILE *) (pstm->file);
+    return pstm->file;
 
   return NULL;
 }
@@ -1219,11 +1216,11 @@ TTY_Clearerr(void)
 
 #ifdef FOR_EXTERNAL_USE
 
-#define Before_Reading(pstm, file)
+#define Before_Reading(pstm)
 
 #else
 
-#define Before_Reading(pstm, file)					\
+#define Before_Reading(pstm)						\
 {									\
   if (pstm->eof_reached)						\
     {									\
@@ -1242,7 +1239,7 @@ TTY_Clearerr(void)
       if (pstm->prop.reposition)					\
         Pl_Stream_Set_Position(pstm, SEEK_SET, 0, 0, 0, 0);		\
       if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)			\
-        (*pstm->fct_clearerr) (file);					\
+        CALL_CLEARERR(pstm);						\
     }									\
 }
 
@@ -1273,14 +1270,14 @@ Basic_Call_Fct_Getc(StmInf *pstm)
   int c;
   StmLst *m;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
-  if (SYS_VAR_SAY_GETC && pstm->file == (PlLong) stdin)
+  if (SYS_VAR_SAY_GETC && pstm->file == stdin)
     /* could also test pstm->fct_getc == fgetc */
     {
       putchar(CHAR_TO_EMIT_WHEN_CHAR);
       fflush(stdout);
     }
 #endif
-  c = (*pstm->fct_getc) (pstm->file);
+  c = CALL_GETC(pstm);
 
   if (c != EOF)
     for (m = pstm->mirror; m ; m = m->next)
@@ -1301,7 +1298,7 @@ Basic_Call_Fct_Putc(int c, StmInf *pstm)
 {
   StmLst *m;
 
-  (*pstm->fct_putc) (c, pstm->file);
+  CALL_PUTC(c, pstm);
 
   for (m = pstm->mirror; m ; m = m->next)
     Pl_Stream_Putc(c, pl_stm_tbl[m->stm]);
@@ -1331,7 +1328,6 @@ int
 Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 {
   PlLong c;
-  PlLong file = pstm->file;
   Bool simulate;
 
 #ifndef NO_USE_LINEDIT
@@ -1341,7 +1337,7 @@ Pl_Stream_Get_Key(StmInf *pstm, int echo, int catch_ctrl_c)
 #endif
     simulate = TRUE;
 
-  Before_Reading(pstm, file);
+  Before_Reading(pstm);
 
   if (!PB_Is_Empty(pstm->pb_char))
     {
@@ -1390,9 +1386,8 @@ int
 Pl_Stream_Getc(StmInf *pstm)
 {
   PlLong c;
-  PlLong file = pstm->file;
 
-  Before_Reading(pstm, file);
+  Before_Reading(pstm);
 
   if (!PB_Is_Empty(pstm->pb_char))
     {
@@ -1458,10 +1453,8 @@ int
 Pl_Stream_Peekc(StmInf *pstm)
 {
   PlLong c;
-  PlLong file = pstm->file;
 
-
-  Before_Reading(pstm, file);
+  Before_Reading(pstm);
 
   if (!PB_Is_Empty(pstm->pb_char))
     PB_Top(pstm->pb_char, c);
@@ -1633,10 +1626,8 @@ Pl_Stream_Printf(StmInf *pstm, char *format, ...)
 void
 Pl_Stream_Flush(StmInf *pstm)
 {
-  PlLong file = pstm->file;
-
   if (pstm->prop.output && pstm->fct_flush != STREAM_FCT_UNDEFINED)
-    (*pstm->fct_flush) (file);
+    CALL_FLUSH(pstm);
 }
 
 
@@ -1649,11 +1640,10 @@ Pl_Stream_Flush(StmInf *pstm)
 int
 Pl_Stream_Close(StmInf *pstm)
 {
-  PlLong file = pstm->file;
   int ret = 0;
 
   if (pstm->fct_close != STREAM_FCT_UNDEFINED)
-    ret = (*pstm->fct_close) (file);
+    ret = CALL_CLOSE(pstm);
 
   return ret;
 }
@@ -1694,12 +1684,10 @@ void
 Pl_Stream_Get_Position(StmInf *pstm, PlLong *offset, PlLong *char_count,
 		       PlLong *line_count, PlLong *line_pos)
 {
-  PlLong file = pstm->file;
-
   *offset = 0;
   if (pstm->prop.reposition && pstm->fct_tell != STREAM_FCT_UNDEFINED)
     {
-      if ((*offset = (*pstm->fct_tell) (file)) < 0)
+      if ((*offset = CALL_TELL(pstm)) < 0)
 	*offset = 0;
       else
 	{
@@ -1734,10 +1722,7 @@ int
 Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset, PlLong char_count,
 		       PlLong line_count, PlLong line_pos)
 {
-  PlLong file = pstm->file;
-  int x;
-
-  x = (*pstm->fct_seek) (file, (PlLong) offset, whence);
+  int x = CALL_SEEK(pstm, (long) offset, whence);
   if (x != 0)
     return x;
 
@@ -1753,7 +1738,7 @@ Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset, PlLong char_coun
     {
       pstm->eof_reached = FALSE;
       if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)
-	(*pstm->fct_clearerr) (file);
+	CALL_CLEARERR(pstm);
     }
 
   PB_Init(pstm->pb_char);
@@ -1773,21 +1758,20 @@ Pl_Stream_Set_Position(StmInf *pstm, int whence, PlLong offset, PlLong char_coun
 int
 Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos)
 {
-  PlLong file = pstm->file;
   int x;
   PlLong *p;
   int c;
-  int offset;
+  PlLong offset;
   Bool save_eof_reached;
   PlLong save_char_count, save_line_count, save_line_pos;
   int save_char_nb_elems;
 
 
-  offset = (*pstm->fct_tell) (file);
+  offset = CALL_TELL(pstm);
   if (offset < 0)
-    return offset;
+    return (int) offset;
 
-  x = (*pstm->fct_seek) (file, (PlLong) 0, SEEK_SET);
+  x = CALL_SEEK(pstm, 0, SEEK_SET);
   if (x != 0)
     return x;
 
@@ -1808,7 +1792,7 @@ Pl_Stream_Set_Position_LC(StmInf *pstm, PlLong line_count, PlLong line_pos)
     {
       pstm->eof_reached = FALSE;
       if (pstm->fct_clearerr != STREAM_FCT_UNDEFINED)
-	(*pstm->fct_clearerr) (file);
+	CALL_CLEARERR(pstm);
     }
 
   p = &(pstm->line_count);
@@ -1840,7 +1824,7 @@ err:
   pstm->line_pos = save_line_pos;
   pstm->pb_char.nb_elems = save_char_nb_elems;
 
-  x = (*pstm->fct_seek) (file, (PlLong) offset, SEEK_SET);
+  x = CALL_SEEK(pstm, (long) offset, SEEK_SET);
   if (x != 0)
     return x;
 
@@ -1914,7 +1898,7 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
   stm = Find_Free_Stream();
   pstm = pl_stm_tbl[stm];
 
-  Init_Stream_Struct(atom_constant_term_stream, (PlLong) str_stream, -1, prop,
+  Init_Stream_Struct(atom_constant_term_stream, str_stream, -1, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
@@ -1933,7 +1917,7 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
 void
 Pl_Delete_Str_Stream(int stm)
 {
-  StrSInf *str_stream = (StrSInf *) (pl_stm_tbl[stm]->file);
+  StrSInf *str_stream = pl_stm_tbl[stm]->file;
 
   if (str_stream == &static_str_stream_rd ||
       str_stream == &static_str_stream_wr)
@@ -1961,9 +1945,7 @@ Pl_Delete_Str_Stream(int stm)
 char *
 Pl_Term_Write_Str_Stream(int stm)
 {
-  StrSInf *str_stream;
-
-  str_stream = (StrSInf *) (pl_stm_tbl[stm]->file);
+  StrSInf *str_stream = pl_stm_tbl[stm]->file;
   *(str_stream->ptr) = '\0';
 
   return str_stream->buff;

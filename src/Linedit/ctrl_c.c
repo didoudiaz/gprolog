@@ -66,7 +66,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-static PlLong (*ctrl_c_handler) ();
+static PlLong (*ctrl_c_handler) (int);
 static int from_callback;
 static PlLong ret_val;
 static int inside_ctrl_c;

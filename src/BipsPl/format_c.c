@@ -249,9 +249,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (!Is_Valid_Code(x))
                 Pl_Err_Representation(pl_representation_character_code);
 
-              do
+              while(n-- > 0)
                 Pl_Stream_Putc((int) x, pstm);
-              while (--n > 0);
               break;
 
             case 'e':
@@ -296,7 +295,6 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
                   Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
                   break;
                 }
-
 
               stop = (*format == 'D') ? lg % 3 : -1;
 
@@ -359,9 +357,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               break;
 
             case 'i':
-              do
+              while (--n > 0)
                 Read_Arg(&lst_adr);
-              while (--n > 0);
               break;
 
             case 'k':
@@ -373,7 +370,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'q':
               word = Read_Arg(&lst_adr);
               Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
-                WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
+			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */
@@ -396,9 +393,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (pstm->line_pos == 0)
                 break;
             case 'n':
-              do
+	      do
                 Pl_Stream_Putc('\n', pstm);
-              while (--n > 0);
+	      while (--n > 0);
               break;
 
             case '?':
@@ -409,8 +406,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               continue;
 
             default:
-              Pl_Err_Domain(pl_domain_format_control_sequence,
-                            Tag_ATM(ATOM_CHAR(*format)));
+              Pl_Err_Domain(pl_domain_format_control_sequence, Tag_ATM(ATOM_CHAR(*format)));
             }
           format++;
         }

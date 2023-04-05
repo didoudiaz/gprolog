@@ -3,11 +3,11 @@ TO_OPTIMIZE
 CONF
 MSCONF
 VC_TODO
-Makefile
 LocalStuff
 Release
 TestsPl
 DevUtils
+Makefile
 config.status
 config.cache
 autom4te.cache

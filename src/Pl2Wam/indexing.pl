@@ -75,14 +75,14 @@
  *            retry(Adj2) if more than 2 |  atmj as 1st arg,             | *
  *              :                        |  else LabAtmj = Adj1          | *
  *            trust(Adjk)                /                               | *
- *                                 if there are atms, else LabAtm=LabFail/ *
+ *                                 if there are atms, else LabAtm=fail   / *
  *   idem for switch_on_integer                                            *
  *                                                                         *
  *   LabLst : try(Adj1)                  \  if more than 1 clause has    | *
  *            retry(Adj2) if more than 2 |  [_|_] as 1st arg,            | *
  *              :                        |  else LabLst = Adj1           | *
  *            trust(Adjk)                /                               | *
- *                                 if there are lsts, else LabLst=LabFail/ *
+ *                                 if there are lsts, else LabLst=fail   / *
  *                                                                         *
  *   LabStc : switch_on_structure(N,[(stc1,LabStc1),...(stcN,LabStcN)])  \ *
  *                                                                       | *
@@ -90,7 +90,7 @@
  *            retry(Adj2) if more than 2 |  stcj as 1st arg,             | *
  *              :                        |  else LabStcj = Adj1          | *
  *            trust(Adjk)                /                               | *
- *                                 if there are stcs, else LabStc=LabFail/ *
+ *                                 if there are stcs, else LabStc=fail   / *
  *                                                                         *
  *   LabVar:  try_me_else(LabVar2) if there are more than 1 clause in Gi,  *
  *   Ad1:     <code for clause 1>  else LabVar = Ad1                       *
@@ -121,10 +121,10 @@
  * other used variables:                                                   *
  *                                                                         *
  * Lev1: has any try/retry/trust_me_else been generated for level 1 (t/f)? *
- * Atm : [a(atm,[Ad, ...]), ...]                                           *
- * Int : [a(int,[Ad, ...]), ...]                                           *
+ * Atm : [atm=[Ad, ...], ...]                                              *
+ * Int : [int=[Ad, ...], ...]                                              *
  * Lst : [Ad, ...]                                                         *
- * Stc : [a(f/n,[Ad, ...]), ...]                                           *
+ * Stc : [f/n=[Ad, ...], ...]                                              *
  * List: Atm, Int, or Stc for general processings                          *
  *                                                                         *
  * Each label issued from the indexing phase is first referenced and later *
@@ -144,9 +144,16 @@ indexing(LCC, WamCode1) :-
 
 
 
-indexing1(LCC, Lev1, Lab, [label(Lab)|WamCode]) :-
+indexing1(LCC, Lev1, Lab, [label(Lab)|WamCode]) :-	
 	look_for_var(LCC, Case, LCCBefore, CCVar, LCCAfter),
+	Case \== 2, !, % GC for large database with many ground facts/clauses (e.g. wordnet)
 	mk_indexing(Case, LCCBefore, CCVar, LCCAfter, Lev1, WamCode), !.
+
+indexing1(LCC, Lev1, Lab, [label(Lab)|WamCode]) :-
+	Case = 2,
+	LCCBefore = LCC,
+	LCCAfter = [],
+	mk_indexing(Case, LCCBefore, _CCVar, LCCAfter, Lev1, WamCode), !.
 
 
 
@@ -225,48 +232,61 @@ mk_indexing(2, LCC, _, _, Lev1, WamCode) :-
 
 
 split(LCC, Atm1, Int1, Lst, Stc1) :-
-	split1(LCC, [], [], a(End, End), [], Atm, Int, a([], Lst), Stc),
-	terminate_list(Atm, Atm1),
-	terminate_list(Int, Int1),
-	terminate_list(Stc, Stc1).
+	split1(LCC, Atm, Int, Lst, Stc),
+	group_by_keys(Atm, Atm1),
+	group_by_keys(Int, Int1),
+	group_by_keys(Stc, Stc1).
 
 
-split1([], Atm, Int, Lst, Stc, Atm, Int, Lst, Stc).
+split1([], [], [], [], []).
 
-split1([cl(Ad, FirstArg, _)|LCC], Atm, Int, Lst, Stc, Atm2, Int2, Lst2, Stc2) :-
-	split2(FirstArg, Ad, Atm, Int, Lst, Stc, Atm1, Int1, Lst1, Stc1),
-	split1(LCC, Atm1, Int1, Lst1, Stc1, Atm2, Int2, Lst2, Stc2).
+split1([cl(Ad, FirstArg, _)|LCC], Atm, Int, Lst, Stc) :-
+	split2(FirstArg, Ad, AtmNext, IntNext, LstNext, StcNext, Atm, Int, Lst, Stc),
+	split1(LCC, AtmNext, IntNext, LstNext, StcNext).
+	
 
+split2(atm(A), Ad, Atm, Int, Lst, Stc, [A-Ad|Atm], Int, Lst, Stc).
 
-split2(atm(A), Ad, Atm, Int, Lst, Stc, Atm1, Int, Lst, Stc) :-
-	add_to_list(Atm, A, Ad, Atm1).
+split2(int(N), Ad, Atm, Int, Lst, Stc, Atm, [N-Ad|Int], Lst, Stc).
 
-split2(int(N), Ad, Atm, Int, Lst, Stc, Atm, Int1, Lst, Stc) :-
-	add_to_list(Int, N, Ad, Int1).
+split2(lst, Ad, Atm, Int, Lst, Stc, Atm, Int, [Ad|Lst], Stc).
 
-split2(lst, Ad, Atm, Int, a([Ad|End], LAd), Stc, Atm, Int, a(End, LAd), Stc).
-
-split2(stc(F, N), Ad, Atm, Int, Lst, Stc, Atm, Int, Lst, Stc1) :-
-	add_to_list(Stc, F / N, Ad, Stc1).
+split2(stc(F, N), Ad, Atm, Int, Lst, Stc, Atm, Int, Lst, [F/N-Ad|Stc]).
 
 
 
 
-add_to_list([], F, Ad, [a(F, End, [Ad|End])]).
+	% Prepare swich_on_atom/int/stc instructions:
+	% from a list of pairs Key-Ad (of the form [K-Ad, ...]) group by (same) keys.
+	% Returns a list of groups : to each different Key (K) associate a list of Ad (LAd).
+	% Seems natural to return a list of K=LAd but we return [ LAd=K, ... ]
+	% because we use an additional sort/1 to have elements sorted by Ad chronologically
+	% to have in the WAM file, elements by order of apparition in the source file
+	% This sort/1 can be removed, the only important order is inside LAd,
+	% (should as in the source file) - we thus use a keysort.
 
-add_to_list([a(F, [Ad|End], LAd)|List], F, Ad, [a(F, End, LAd)|List]) :-
-	!.
+group_by_keys(List, List1) :-
+	keysort(List),
+	group_by_keys1(List, List1),
+	% this sort is optional: only to have swich_on_atom/int/stc
+	% elements by order of apparition in the source file
+	% if present, needs a list with LAd on the left wrt to key
+	sort(List1). 
 
-add_to_list([X|List], F, Ad, [X|List1]) :-
-	add_to_list(List, F, Ad, List1).
 
 
+group_by_keys1([], []).
 
+group_by_keys1([K-Ad|List], [[Ad|LAd]=K|List2]) :-
+	group_by_keys2(List, K, LAd, List1),
+	group_by_keys1(List1, List2).
+	
 
-terminate_list([], []).
+group_by_keys2([K-Ad|List], K, [Ad|LAd], List1) :-
+	!,
+	group_by_keys2(List, K, LAd, List1).
 
-terminate_list([a(F, [], LAd)|L], [a(F, LAd)|L1]) :-
-	terminate_list(L, L1).
+group_by_keys2(List, _, [], List).
 
 
 
@@ -276,12 +296,14 @@ gen_switch([], _, fail, LNext, LNext) :-
 
     % if only 1 element with only 1 clause, no switch (remove if needed)
 
-gen_switch([a(_, [Ad])], _, Ad, LNext, LNext) :-
+%gen_switch([_=[Ad]], _, Ad, LNext, LNext) :-
+gen_switch([[Ad]=_], _, Ad, LNext, LNext) :-
 	!.
 
     % if only 1 element with n clauses, no switch (remove if needed)
 /*
-gen_switch([a(_, LAd)], _, Lab, LNext, WamTRT) :-
+%gen_switch([_=LAd], _, Lab, LNext, WamTRT) :-
+gen_switch([LAd=_], _, Lab, LNext, WamTRT) :-
 	!,
 	gen_list(LAd, Lab, LNext, WamTRT).
 */
@@ -294,7 +316,8 @@ gen_switch(List, Ins, Lab, LNext, [label(Lab), SwtW|WamTRT]) :-
 
 create_switch_list([], [], LNext, LNext).
 
-create_switch_list([a(F, LAd)|List], [(F, Lab)|LSwt], LNext, WamTRT) :-
+%create_switch_list([K=LAd|List], [(K, Lab)|LSwt], LNext, WamTRT) :-
+create_switch_list([LAd=K|List], [(K, Lab)|LSwt], LNext, WamTRT) :-
 	gen_list(LAd, Lab, WamTRT1, WamTRT),
 	create_switch_list(List, LSwt, LNext, WamTRT1).
 

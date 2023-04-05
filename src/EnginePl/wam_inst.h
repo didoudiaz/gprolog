@@ -348,18 +348,16 @@ void FC Pl_Allocate(int n);
 
 void FC Pl_Deallocate(void);
 
-CodePtr FC Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-		          CodePtr c_lst, CodePtr c_stc);
+CodePtr FC Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int, CodePtr c_lst, CodePtr c_stc);
 CodePtr FC Pl_Switch_On_Term_Var_Atm(CodePtr c_var, CodePtr c_atm);
 CodePtr FC Pl_Switch_On_Term_Var_Stc(CodePtr c_var, CodePtr c_stc);
-CodePtr FC Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm,
-				      CodePtr c_lst);
-CodePtr FC Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm,
-				      CodePtr c_stc);
+CodePtr FC Pl_Switch_On_Term_Var_Atm_Lst(CodePtr c_var, CodePtr c_atm, CodePtr c_lst);
+CodePtr FC Pl_Switch_On_Term_Var_Atm_Stc(CodePtr c_var, CodePtr c_atm, CodePtr c_stc);
 
 CodePtr FC Pl_Switch_On_Atom(SwtTbl t, int size);
 
-PlLong FC Pl_Switch_On_Integer(void);
+CodePtr FC Pl_Switch_On_Integer(SwtTbl t, int size);
+PlLong FC Pl_Switch_On_Integer_For_Dichotomy(void);
 
 CodePtr FC Pl_Switch_On_Structure(SwtTbl t, int size);
 
@@ -397,8 +395,8 @@ void FC Pl_Delete_Choice_Point3(void);
 void FC Pl_Delete_Choice_Point4(void);
 
 
-void Pl_Defeasible_Open();
-void Pl_Defeasible_Undo();
+void Pl_Defeasible_Open(void);
+void Pl_Defeasible_Undo(void);
 void Pl_Defeasible_Close(Bool undo_before);
 
 

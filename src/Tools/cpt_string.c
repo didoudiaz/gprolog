@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : Common tool                                                     *
  * File  : cpt_string.c                                                    *
- * Descr.: (longest) common prefix tree management                         *
+ * Descr.: common prefix tree management (radix tree)                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *
@@ -139,6 +139,8 @@ CPT CPT_Init(void);
 
 int CPT_Add_Word(CPT cpt, char *word, int length);
 
+int CPT_Remove_Word(CPTTree tree, char *word, int length);
+
 static int Common_Prefix_Length(char *str1, int l1, char *str2, int l2);
 
 static CPTTree Create_Node(char *word, int length, int end, CPTList list);
@@ -149,16 +151,13 @@ int CPT_Search_Word(CPT tree, char *word, int length);
 
 
 
-CPTMatch *CPT_Init_Match(CPT tree, char *prefix,
-			 int prefix_length, char *buff, int (*fct) ());
+CPTMatch *CPT_Init_Match(CPT tree, char *prefix, int prefix_length, char *buff, int (*fct) ());
 
 int CPT_Do_Match(CPTMatch *match);
 
-static int Do_Match_Rec(CPTTree tree, char *buff, int length,
-			int (*fct) (), int no, int *cont);
+static int Do_Match_Rec(CPTTree tree, char *buff, int length, int (*fct) (), int no, int *cont);
 
-char *CPT_Match_Info(CPTMatch *match, int *prefix_length,
-		     int *nb_words, int *max_length);
+char *CPT_Match_Info(CPTMatch *match, int *prefix_length, int *nb_words, int *max_length);
 
 static int Match_Info_Rec(CPTTree tree, int length, int *max_length);
 
@@ -225,8 +224,7 @@ CPT_Add_Word(CPT tree, char *word, int length)
       tree1 = Create_Node(word, length, 1, NULL);
 
       /* find the appropriate son in the sorted list */
-      for (p = &(tree->list); *p && (*p)->tree->str[0] < *word;
-	   p = &((*p)->next))
+      for (p = &(tree->list); *p && (*p)->tree->str[0] < *word; p = &((*p)->next))
 	;
 
       /* no existing son - create a new cell */
@@ -330,8 +328,7 @@ CPT_Remove_Word(CPTTree tree, char *word, int length)
   p = p0 = NULL;
   for (;;)
     {
-      if (length < tree->length
-	  || memcmp(word, tree->str, tree->length) != 0)
+      if (length < tree->length || memcmp(word, tree->str, tree->length) != 0)
 	return 0;
 
       word += tree->length;
@@ -395,8 +392,7 @@ CPT_Search_Word(CPT tree, char *word, int length)
 
   for (;;)
     {
-      if (length < tree->length
-	  || memcmp(word, tree->str, tree->length) != 0)
+      if (length < tree->length || memcmp(word, tree->str, tree->length) != 0)
 	return 0;
 
       word += tree->length;
@@ -473,8 +469,7 @@ CPT_Gensym(CPTTree tree, char *prefix, int prefix_length, char *buff)
       prefix += tree->length;
       prefix_length -= tree->length;
 
-      for (list = tree->list; list && list->tree->str[0] < *prefix;
-	   list = list->next)
+      for (list = tree->list; list && list->tree->str[0] < *prefix; list = list->next)
 	;
 
       if (list == NULL || list->tree->str[0] != *prefix)
@@ -492,8 +487,7 @@ CPT_Gensym(CPTTree tree, char *prefix, int prefix_length, char *buff)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 CPTMatch *
-CPT_Init_Match(CPTTree tree, char *prefix, int prefix_length,
-	       char *buff, int (*fct) ())
+CPT_Init_Match(CPTTree tree, char *prefix, int prefix_length, char *buff, int (*fct) ())
 {
   CPTList list;
   int l;
@@ -502,9 +496,7 @@ CPT_Init_Match(CPTTree tree, char *prefix, int prefix_length,
 
   for (;;)
     {
-      l =
-	Common_Prefix_Length(prefix, prefix_length, tree->str,
-			     tree->length);
+      l = Common_Prefix_Length(prefix, prefix_length, tree->str, tree->length);
       if (l == prefix_length)
 	{
 	  match.tree = tree;
@@ -522,8 +514,7 @@ CPT_Init_Match(CPTTree tree, char *prefix, int prefix_length,
       prefix += l;
       prefix_length -= l;
 
-      for (list = tree->list; list && list->tree->str[0] < *prefix;
-	   list = list->next)
+      for (list = tree->list; list && list->tree->str[0] < *prefix; list = list->next)
 	;
 
       if (list == NULL || list->tree->str[0] != *prefix)
@@ -552,8 +543,7 @@ CPT_Do_Match(CPTMatch *match)
   if (tree == NULL)		/* should not occur */
     return 0;
 
-  return Do_Match_Rec(tree, match->buff, match->length, match->fct, 0,
-		      &cont);
+  return Do_Match_Rec(tree, match->buff, match->length, match->fct, 0, &cont);
 }
 
 
@@ -564,8 +554,7 @@ CPT_Do_Match(CPTMatch *match)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Do_Match_Rec(CPTTree tree, char *buff, int length, int (*fct) (),
-	     int no, int *cont)
+Do_Match_Rec(CPTTree tree, char *buff, int length, int (*fct) (), int no, int *cont)
 {
   CPTList list;
   char *p = buff + length;
@@ -596,8 +585,7 @@ Do_Match_Rec(CPTTree tree, char *buff, int length, int (*fct) (),
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-CPT_Match_Info(CPTMatch *match,
-	       int *prefix_length, int *nb_words, int *max_length)
+CPT_Match_Info(CPTMatch *match, int *prefix_length, int *nb_words, int *max_length)
 {
   CPTTree tree = match->tree;
 
@@ -739,8 +727,7 @@ Show_Tree(CPT tree, int level)
 {
   CPTList list;
 
-  printf("%*s<%.*s> %s\n", level, "", tree->length, tree->str,
-	 (tree->end) ? "X" : "");
+  printf("%*s<%.*s> %s\n", level, "", tree->length, tree->str, (tree->end) ? "X" : "");
   for (list = tree->list; list; list = list->next)
     Show_Tree(list->tree, level + 3);
 }
@@ -936,34 +923,24 @@ main(int argc, char *argv[])
 	  printf("\nBanch sizes\n");
 	  printf("longest         = %d\n", stat->max_branch_size);
 	  printf("sum sizes       = %d\n", stat->sum_branch_size);
-	  printf("avg size        = %g\n", (double) stat->sum_branch_size /
-		 stat->nb_branch);
+	  printf("avg size        = %g\n", (double) stat->sum_branch_size / stat->nb_branch);
 	  printf("sum size / word = %d\n", stat->sum_branch_size_word);
-	  printf("avg size / word = %g\n", (double)
-		 stat->sum_branch_size_word / stat->nb_word);
+	  printf("avg size / word = %g\n", (double) stat->sum_branch_size_word / stat->nb_word);
 	  printf("\nWord lengths\n");
 	  printf("longest         = %d\n", stat->max_word_length);
 	  printf("longest sub-word= %d\n", stat->max_swrd_length);
 	  printf("sum lengths     = %d\n", stat->sum_word_length);
-	  printf("avg length      = %g\n", (double) stat->sum_word_length /
-		 stat->nb_word);
+	  printf("avg length      = %g\n", (double) stat->sum_word_length / stat->nb_word);
 	  printf("\nList sizes\n");
 	  printf("longest         = %d\n", stat->max_list_size);
 	  printf("sum sizes       = %d\n", stat->sum_list_size);
-	  printf("avg size        = %g\n", (double) stat->sum_list_size /
-		 stat->nb_node2);
+	  printf("avg size        = %g\n", (double) stat->sum_list_size / stat->nb_node2);
 	  printf("first list size = %d\n", stat->fst_list_size);
-
 	  printf("   excepting first list (ie. first node):\n");
 	  printf("longest         = %d\n", stat->max2_list_size);
-	  printf("sum' sizes      = %d\n", stat->sum_list_size -
-		 stat->fst_list_size);
-	  printf("avg' size       = %g\n", (double) (stat->sum_list_size -
-						     stat->fst_list_size) /
-		 (stat->nb_node2 - 1));
+	  printf("sum' sizes      = %d\n", stat->sum_list_size - stat->fst_list_size);
+	  printf("avg' size       = %g\n", (double) (stat->sum_list_size - stat->fst_list_size) / (stat->nb_node2 - 1));
 	  break;
-
-
 	}
     }
 

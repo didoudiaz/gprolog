@@ -245,9 +245,6 @@ Asm_Start(void)
 #else
   Label_Printf(".text");
 #endif
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -315,7 +312,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       /* Save callee-saved registers. However, don't explicitly
          preserve %r12-%r15 since they are already handled as global
@@ -441,14 +438,19 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {    
 #ifdef MAP_REG_B
-  Inst_Printf("jmp", "*-8(%s)", asm_reg_b);
+      Inst_Printf("jmp", "*-8(%s)", asm_reg_b);
 #else
-  Inst_Printf("movq", "%s, %%rdx", asm_reg_b);
-  Inst_Printf("jmp", "*-8(%%rdx)");
+      Inst_Printf("movq", "%s, %%rdx", asm_reg_b);
+      Inst_Printf("jmp", "*-8(%%rdx)");
 #endif
+    }
+  else
+    Jump("fail");
 }
 
 

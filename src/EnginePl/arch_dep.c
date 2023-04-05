@@ -71,7 +71,7 @@
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Pl_Win_Error_To_Errno()
+Pl_Win_Error_To_Errno(void)
 {
   switch(GetLastError())
     {
@@ -271,7 +271,7 @@ closedir(DIR *dir)
   if (dir->handle != INVALID_HANDLE_VALUE)
     {
       FindClose(dir->handle);
-      err = Pl_Win_Error_To_Errno(GetLastError());
+      err = Pl_Win_Error_To_Errno();
     }
   free(dir->dirname);
   free(dir);

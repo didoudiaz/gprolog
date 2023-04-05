@@ -148,9 +148,6 @@ Asm_Start(void)
 #endif
 
   Label_Printf(".text");
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -187,7 +184,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     Inst_Printf("save", "%%sp, -104, %%sp");
 }
 
@@ -299,17 +296,22 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {    
 #ifdef MAP_REG_B
-  Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
+      Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
 #else
-  Inst_Printf("ld", "%s, %%o0", asm_reg_b);
-  Inst_Printf("ld", "[%%o0-4], %%o0");
+      Inst_Printf("ld", "%s, %%o0", asm_reg_b);
+      Inst_Printf("ld", "[%%o0-4], %%o0");
 #endif
 
-  Inst_Printf("call", "%%o0");
-  Inst_Printf("nop", "%s", "");	/* delay slot */
+      Inst_Printf("call", "%%o0");
+      Inst_Printf("nop", "%s", "");	/* delay slot */
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -687,8 +689,10 @@ Fail_Ret(void)
   Inst_Printf("cmp", "%%o0, 0");
 
 #if 0
+
   Inst_Printf("be", UN "fail");
   Inst_Printf("nop", "%s", "");	/* delay slot */
+
 #else
 
   Inst_Printf("be", UN "%s+4", "fail");
@@ -696,6 +700,7 @@ Fail_Ret(void)
   Inst_Printf("ld", "[%s-4], %%o0", asm_reg_b);
 #else
   Inst_Printf("ld", "%s, %%o0", asm_reg_b);
+
 #endif
 
 #endif

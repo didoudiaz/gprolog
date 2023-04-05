@@ -34,7 +34,7 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-
+#include <string.h>
 
 #define OBJ_INIT Pretty_Initializer
 
@@ -85,6 +85,8 @@ static WamWord equal_2;
 static PlLong *singl_var_ptr;
 static PlLong nb_singl_var;
 
+static PlLong nb_excl_var_tabled;
+
 static PlLong nb_to_try;
 
 static WamWord *above_H;
@@ -98,8 +100,7 @@ static WamWord *above_H;
 
 static void Portray_Clause(StmInf *pstm, WamWord term_word);
 
-static Bool Check_Structure(WamWord term_word, int func, int arity,
-			    WamWord arg_word[]);
+static Bool Check_Structure(WamWord term_word, int func, int arity, WamWord arg_word[]);
 
 static Bool Is_Cut(WamWord body_word);
 
@@ -107,7 +108,7 @@ static void Show_Body(StmInf *pstm, int level, int context, WamWord body_word);
 
 static void Start_Line(StmInf *pstm, int level, char c_before);
 
-static Bool Collect_Singleton(WamWord *adr);
+static Bool Collect_Singleton(WamWord *adr, WamWord var_word);
 
 static int Var_Name_To_Var_Number(int atom);
 
@@ -445,7 +446,7 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Collect_Singleton(WamWord *adr)
+Collect_Singleton(WamWord *adr, WamWord var_word)
 {
   PlLong *p;
 
@@ -547,10 +548,12 @@ Pl_Bind_Variables_4(WamWord term_word, WamWord exclude_list_word,
   WamWord word, tag_mask;
   WamWord save_list_word;
   WamWord *lst_adr, *stc_adr;
-  int i;
 
-  for (i = 0; i < MAX_VAR_IN_TERM; i++)
-    pl_glob_dico_var[i] = 0;	/* pl_glob_dico_var: excluded var ? (0/1) */
+  /* pl_glob_dico_var: excluded var ? (0/1) 
+   * mark var nb I already used to avoid to bind with '$VAR'(I) 
+   * it is very long to initialize to 0 the whole pl_glob_dico_var 
+   * since MAX_VAR_IN_TERM can be very large, so we do it incrementally when needed */
+  nb_excl_var_tabled = 0;
 
   nb_to_try = Pl_Rd_Positive_Check(from_word);
 
@@ -628,8 +631,46 @@ Var_Name_To_Var_Number(int atom)
 static void
 Exclude_A_Var_Number(PlLong n)
 {
-  if (n >= 0 && n < MAX_VAR_IN_TERM)
-    pl_glob_dico_var[n] = 1;
+  PlLong k;
+  
+  if (n < 0 || n >= MAX_VAR_IN_TERM)
+    return;
+#ifdef DEBUG
+  printf("--- mark: %ld\n", n);
+  for(k = 0; k < nb_excl_var_tabled; k++)
+    printf("%3ld", k);
+  puts("");
+  for(k = 0; k < nb_excl_var_tabled; k++)
+    printf("%3ld", pl_glob_dico_var[k]);
+  puts("");
+#endif
+
+  /* if needed init (bzero) portion of pl_glob_dico_var in [nb_excl_var_tabled..n-1] */
+  k = n - nb_excl_var_tabled;
+  if (k > 0)
+    {
+#ifdef DEBUG
+      printf("enlarge, init [%ld..%ld] = %ld entries\n", nb_excl_var_tabled, n - 1, k);
+#endif
+      memset(pl_glob_dico_var + nb_excl_var_tabled, 0, k * sizeof(pl_glob_dico_var[0]));
+    }
+
+  if (nb_excl_var_tabled <= n)
+    nb_excl_var_tabled = n + 1;      /* +1 since n will be marked below thus it is tabled */
+
+
+  /* mark as excluded */
+  pl_glob_dico_var[n] = 1;
+
+#ifdef DEBUG
+  printf("===>\n");
+  for(k = 0; k < nb_excl_var_tabled; k++)
+    printf("%3ld", k);
+  puts("");
+  for(k = 0; k < nb_excl_var_tabled; k++)
+    printf("%3ld", pl_glob_dico_var[k]);
+  puts("");
+#endif
 }
 
 
@@ -707,7 +748,7 @@ Bind_Variable(WamWord *adr, WamWord word)
   PlLong j;
   char buff[128];		/* cx: up from 32 */
 
-  while (pl_glob_dico_var[nb_to_try] && nb_to_try < MAX_VAR_IN_TERM)
+  while (nb_to_try < nb_excl_var_tabled && pl_glob_dico_var[nb_to_try])
     nb_to_try++;
 
   if (BIND_WITH_NUMBERVAR)
@@ -717,7 +758,7 @@ Bind_Variable(WamWord *adr, WamWord word)
       return TRUE;
     }
 
-  i = (int) nb_to_try % 26;
+  i = (int) (nb_to_try % 26);
   j = nb_to_try / 26;
   nb_to_try++;
 

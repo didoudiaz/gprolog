@@ -1,5 +1,10 @@
 Change in GNU Prolog version 1.5.1
 
+* fix issue #32: remove duplicate warning message
+* improve compiler speed on large Prolog data bases
+  (speed up generation of indexing instructions switch_on_atom/integer/structure)
+* speed up bind_variables/2 (also speed up the compiler for byte-code)
+* increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
 * increase default Prolog stack sizes and MAX_ATOMS
 * extend exec/4-5 to also accept provided streams + null
 * fix bug in exec/4 under windows (bad stream redirection and child console not hidden)

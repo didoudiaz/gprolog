@@ -177,9 +177,6 @@ Asm_Start(void)
 #endif
 
   Delay_Printf(".section", "\".text\"");
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -226,7 +223,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     Delay_Printf("save", "%%sp, -192, %%sp");
 
   pic_helper_ready = FALSE;
@@ -535,18 +532,23 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b);
+      Delay_Printf("ldx", "[%s-8], %%o0", asm_reg_b);
 #else
-  Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
-  Delay_Printf("ldx", "[%%o0-8], %%o0");
+      Delay_Printf("ldx", "%s, %%o0", asm_reg_b);
+      Delay_Printf("ldx", "[%%o0-8], %%o0");
 #endif
 
-  Delay_Printf("call", "%%o0");
-  Delay_Printf("nop", "%s", "");	/* delay slot */
-  pic_helper_ready = FALSE;
+      Delay_Printf("call", "%%o0");
+      Delay_Printf("nop", "%s", "");	/* delay slot */
+      pic_helper_ready = FALSE;
+    }
+  else
+    Jump("fail");
 }
 
 
@@ -929,8 +931,10 @@ Fail_Ret(void)
   Delay_Printf("cmp", "%%o0, 0");
 
 #if 0
+
   Delay_Printf("be", UN "fail");
   Delay_Printf("nop", "%s", "");	/* delay slot */
+
 #else
 
   Delay_Printf("be", UN "%s+4", "fail"); /* use delay slot */

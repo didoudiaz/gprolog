@@ -41,7 +41,6 @@
 #include <string.h>
 
 #include "engine_pl.h"
-#include "gprolog_cst.h"
 #include "bips_pl.h"
 
 

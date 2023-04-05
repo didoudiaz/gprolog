@@ -161,10 +161,6 @@ Asm_Start(void)
 #endif
 
   Label_Printf(".text");
-
-
-  Label("fail");
-  Pl_Fail();
 }
 
 
@@ -202,7 +198,7 @@ Code_Start(CodeInf *c)
 
   Label(c->name);
 
-  if (!c->prolog)
+  if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
     {
       Inst_Printf("mr", R(12) ", " R(1));
       Inst_Printf("addi", R(1) ", " R(1) ", -%d", MAX_C_ARGS_IN_C_CODE * 4);
@@ -321,18 +317,22 @@ Pl_Call(char *label)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Fail(void)
+Pl_Fail(Bool prefer_inline)
 {
-
+  if (prefer_inline)
+    {
 #ifdef MAP_REG_B
-  Inst_Printf("lwz", R(9) ", -4(%s)", asm_reg_b);
+      Inst_Printf("lwz", R(9) ", -4(%s)", asm_reg_b);
 #else
-  Inst_Printf("lwz", R(9) ", %s", asm_reg_b);
-  Inst_Printf("lwz", R(9) ", -4(" R(9) ")");
+      Inst_Printf("lwz", R(9) ", %s", asm_reg_b);
+      Inst_Printf("lwz", R(9) ", -4(" R(9) ")");
 #endif
 
-  Inst_Printf("mtctr", R(9));
-  Inst_Printf("bctr", "%s", "");
+      Inst_Printf("mtctr", R(9));
+      Inst_Printf("bctr", "%s", "");
+    }
+  else
+    Jump("fail");
 }
 
 

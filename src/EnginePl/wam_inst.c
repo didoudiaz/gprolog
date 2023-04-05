@@ -131,13 +131,29 @@ Pl_Create_Swt_Atm_Element(SwtTbl t, int size, int atom, CodePtr codep)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_CREATE_SWT_INT_ELEMENT                                               *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+void FC
+Pl_Create_Swt_Int_Element(SwtTbl t, int size, PlLong val, CodePtr codep)
+{
+  SwtInf *swt = Locate_Swt_Element(t, size, val);
+
+  swt->key = val;
+  swt->codep = codep;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_CREATE_SWT_STC_ELEMENT                                               *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity,
-			  CodePtr codep)
+Pl_Create_Swt_Stc_Element(SwtTbl t, int size, int func, int arity, CodePtr codep)
 {
   PlLong key = Functor_Arity(func, arity);
 
@@ -240,7 +256,7 @@ Pl_Get_Integer_Tagged(WamWord w, WamWord start_word)
 
 #ifndef NO_USE_FD_SOLVER
   if (tag_mask == TAG_FDV_MASK)
-    return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+    return Fd_Unify_With_Integer(UnTag_FDV(word), (int) UnTag_INT(w));
 #endif
 
   return (word == w);
@@ -766,7 +782,7 @@ Pl_Unify_Integer_Tagged(WamWord w)
 
 #ifndef NO_USE_FD_SOLVER
       if (tag_mask == TAG_FDV_MASK)
-	return Fd_Unify_With_Integer(UnTag_FDV(word), UnTag_INT(w));
+	return Fd_Unify_With_Integer(UnTag_FDV(word), (int) UnTag_INT(w));
 #endif
 
       return (word == w);
@@ -965,8 +981,7 @@ Pl_Deallocate(void)
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
 CodePtr FC
-Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int,
-	       CodePtr c_lst, CodePtr c_stc)
+Pl_Switch_On_Term(CodePtr c_var, CodePtr c_atm, CodePtr c_int, CodePtr c_lst, CodePtr c_stc)
 {
   WamWord word, tag_mask;
   CodePtr codep;
@@ -1114,18 +1129,37 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 
 
 
-
 /*-------------------------------------------------------------------------*
- * PL_SWITCH_ON_INTEGER                                                    *
+ * PL_SWITCH_ON_INTEGER / PL_SWITCH_ON_INTEGER_DICHOT                      *
  *                                                                         *
  * switch_on_integer always occurs after a switch_on_term, thus A(0) is    *
  * dereferenced and has been updated with its deref word.                  *
- * Simply return the integer since the switch is done by the assembly code.*
+ *                                                                         *
+ * 2 versions: basic or via binary search (dichotomy) see wam2ma.c         *
+ *                                                                         *
+ * Basic version: similar to switch_on_atom:                               *
+ * Look in the hash table t and return the adr of the corresponding code.  *
+ *                                                                         *
+ * Dichotomy: simply return the integer since the switch is done by the    *
+ * assembly code.                                                          *
  *                                                                         *
  * Called by compiled prolog code.                                         *
  *-------------------------------------------------------------------------*/
+CodePtr FC
+Pl_Switch_On_Integer(SwtTbl t, int size)
+{
+  SwtInf *swt;
+
+  swt = Locate_Swt_Element(t, size, (PlLong) UnTag_INT(A(0)));
+
+  return (swt->codep) ? swt->codep : ALTB(B);
+}
+
+
+
+
 PlLong FC
-Pl_Switch_On_Integer(void)
+Pl_Switch_On_Integer_For_Dichotomy(void)
 {
   return UnTag_INT(A(0));
 }
@@ -1596,7 +1630,7 @@ Pl_Delete_Choice_Point4(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Defeasible_Open()
+Pl_Defeasible_Open(void)
 {
   Pl_Create_Choice_Point0(NULL);
 }
@@ -1609,7 +1643,7 @@ Pl_Defeasible_Open()
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Defeasible_Undo()
+Pl_Defeasible_Undo(void)
 {
   Pl_Update_Choice_Point0(NULL);
 }
@@ -1669,7 +1703,7 @@ Pl_Untrail(WamWord *low_adr)
 	  adr = (WamWord *) Trail_Pop; /* fct adr no longer word aligned */
 	  nb = (int) Trail_Pop;
 	  TR -= nb;
-	  (*((int (*)()) adr)) (nb, TR);
+	  (*((int (*)(int, WamWord *)) adr)) (nb, TR);
 	}
     }
 }
@@ -1949,7 +1983,7 @@ Cxt_Call_Tagged(WamWord key, WamWord cxt_call_K)
 	if (tag_mask == TAG_ATM_MASK)
 	  sprintf (p, "%s%s/%d", sep, pl_atom_tbl[UnTag_ATM(word)].name, 0);
 	else if (tag_mask == TAG_STC_MASK)
-	  sprintf (p, "%s%s/%ld", sep,
+	  sprintf (p, "%s%s/%d", sep,
 		   pl_atom_tbl[Functor(UnTag_STC(word))].name,
 		   Arity(UnTag_STC(word)));
 	else

@@ -66,7 +66,7 @@ typedef struct			/* Predicate information          */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
   PlLong *codep;		/* compiled code                  */
-  PlLong *dyn;			/* dynamic info (cf BipsPl)       */
+  void *dyn;			/* dynamic info (cf BipsPl)       */
 }
 PredInf;
 

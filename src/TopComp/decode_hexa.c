@@ -492,7 +492,7 @@ Decode_Hexa_Line(char *str, char *format, int strict, int quote, int decode_aux)
 
 	  n = (int) strlen(module);
 	  if (n) {
-	    if (unit && unit[0]) /* => context: use unit (module) arity */
+	    if (unit[0]) /* => context: use unit (module) arity */
 	      n += sprintf (module + n, "/%d", uarity);
 	    module[n++] = ':';
 	  }

@@ -1,14 +1,12 @@
 Makefile
 gp_config.h
 gprolog_cst.h
-cpp_headers
 pl_config
 wam_archi.h
 wam_regs.h
 wam_stacks.h
 gprolog_cst.h
 try_sigaction
-DO_CPP_HEADERS
 test_oc
 MMAP.c
 TEST_CTRLC.c

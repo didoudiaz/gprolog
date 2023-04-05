@@ -303,8 +303,7 @@ Pl_Add_Dynamic_Clause_CX(WamWord head_word, WamWord body_word, Bool asserta,
   H[1] = body_word;
 
   size = Pl_Term_Size(lst_h_b);
-  clause = (DynCInf *)
-    Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
+  clause = (DynCInf *) Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
 
   Add_To_2Chain(&dyn->seq_chain, clause, TRUE, asserta);
 
@@ -888,8 +887,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   if (owner_func < 0)
     owner_func = Pl_Get_Current_Bip(&owner_arity);
 
-  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key)
-    : NO_INDEX;
+  index_no = (dyn->arity) ? Index_From_First_Arg(first_arg_word, &key) : NO_INDEX;
 
   scan.alt_fct = alt_fct;
   scan.alt_size_info = alt_info_size;
