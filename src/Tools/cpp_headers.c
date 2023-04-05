@@ -41,7 +41,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "gp_config.h"
+#include "../EnginePl/gp_config.h"
 
 #if 1
 #define DO_NOT_ADD_COMMENTS

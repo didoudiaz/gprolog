@@ -57,10 +57,10 @@
 #include <math.h>
 #include <sys/types.h>		/* some systems need this */
 
-#if 1
-#include "engine_pl.h"
+#if 0
+#include "../EnginePl/engine_pl.h"
 #else  /* to test appart from gprolog (only need HAVE_xxx macros defined by autoconf) */
-#include "gp_config.h"
+#include "../EnginePl/gp_config.h"
 #endif
 
 #include "hash_fct.h"

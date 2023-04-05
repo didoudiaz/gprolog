@@ -33,9 +33,9 @@ RANLIB         = @RANLIB@
 LE_DIRS        = Linedit
 W32GC_DIRS     = W32GUICons
 FD_DIRS        = Fd2C EngineFD BipsFD
-SUB_DIRS       = EnginePl TopComp Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
+SUB_DIRS       = EnginePl TopComp Tools Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
                  BipsPl Pl2Wam @MAKE_FD_DIRS@
-SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
+SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
                  BipsPl Pl2Wam $(FD_DIRS)
 
 
@@ -160,6 +160,7 @@ uninstall-examples:
 check:
 	. ./SETVARS; \
 	(cd EnginePl; $(MAKE) check) && \
+	(cd Tools; $(MAKE) check) && \
 	(cd Ma2Asm; $(MAKE) check) && \
 	(cd Pl2Wam; $(MAKE) check) && \
 	(cd BipsPl; $(MAKE) check) && \

@@ -10,12 +10,12 @@ PROLOG_DIALECT= @PROLOG_DIALECT@
 
 LIBNAME = $(LIB_ENGINE_PL)
 OBJLIB  = arch_dep@OBJ_SUFFIX@ machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ \
-          misc@OBJ_SUFFIX@ hash_fct@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
+          misc@OBJ_SUFFIX@ ../Tools/hash_fct@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
           engine@OBJ_SUFFIX@ engine1@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
           mem_alloc@OBJ_SUFFIX@ if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
 
-all: config wam_regs.h cpp_headers@EXE_SUFFIX@ $(LIBNAME)
+all: config wam_regs.h $(LIBNAME)
 
 
 $(LIBNAME): $(OBJLIB)
@@ -49,9 +49,6 @@ gp_config.h:
 	echo '*** run ./configure before make please (see file INSTALL) ***'
 	exit 1
 
-
-cpp_headers@EXE_SUFFIX@: cpp_headers.c
-	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
 
 try_sigaction@EXE_SUFFIX@: try_sigaction.c
 	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
@@ -89,7 +86,8 @@ engine@OBJ_SUFFIX@: engine.h engine.c
 
 wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
 
-hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct1.c
+../Tools/hash_fct@OBJ_SUFFIX@:
+	(cd ../Tools; $(MAKE))
 
 atom@OBJ_SUFFIX@: atom.h atom.c gp_config.h
 
@@ -101,7 +99,7 @@ if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
 clean:
-	rm -f pl_config@EXE_SUFFIX@ cpp_headers@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
+	rm -f pl_config@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 distclean: clean clean-test_oc
 	rm -f wam_archi.h wam_regs.h gp_config.h $(PROLOG_DIALECT)_cst.h

@@ -1,0 +1,31 @@
+GPLC          = @GPLC@
+CC            = @CC@ @CFLAGS_MACHINE@
+CFLAGS        = @CFLAGS@
+LDFLAGS       = @LDFLAGS@
+
+
+OBJS = hash_fct@OBJ_SUFFIX@ rbtree@OBJ_SUFFIX@
+
+all: cpp_headers@EXE_SUFFIX@ $(OBJS)
+
+.SUFFIXES:
+.SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
+
+.c@OBJ_SUFFIX@:
+	$(GPLC) -c -C '$(CFLAGS)' $*.c
+
+
+hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct.c hash_fct1.c
+
+rbtree@OBJ_SUFFIX@: rbtree.h rbtree.c rbtree_augmented.h
+
+check:
+
+clean-check:
+
+
+clean:
+	rm -f cpp_headers@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp
+
+distclean: clean
+

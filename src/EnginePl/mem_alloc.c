@@ -53,6 +53,6 @@
 #endif
 #define HAVE_MMAP 0		/* do not use mmap for big blocks */
 
-#include "dl_malloc.c"
+#include "../Tools/dl_malloc.c"
 
 #endif
