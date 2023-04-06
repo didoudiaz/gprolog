@@ -178,6 +178,7 @@ check-e:
 RUN_PL_DIRS = EnginePl BipsPl
 RUN_FD_DIRS = EngineFD BipsFD
 RUN_SUB_DIRS= $(RUN_PL_DIRS) $(RUN_PL_DIRS)
+RUN_WAL_DIRS= Pl2Wam BipsPl
 
 
 
@@ -194,7 +195,7 @@ clean-pl-fd: clean-pl clean-fd
 
 
 clean-wam:
-	for i in $(RUN_PL_DIRS); do (cd $$i; $(MAKE) clean-wam); done
+	for i in $(RUN_WAM_DIRS); do (cd $$i; $(MAKE) clean-wam); done
 
 
 distclean:
