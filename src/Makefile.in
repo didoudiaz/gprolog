@@ -181,7 +181,6 @@ RUN_SUB_DIRS= $(RUN_PL_DIRS) $(RUN_PL_DIRS)
 RUN_WAM_DIRS= Pl2Wam BipsPl
 
 
-
 clean:
 	for i in $(SUB_DIRS_ALL); do (cd $$i; $(MAKE) clean); done
 
