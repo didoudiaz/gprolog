@@ -59,10 +59,10 @@
  *     5 (10 1) : MODULE is encoded        PRED is encoded
  *
  * Where E(STR) =
- *  - STR (not encoded) if STR only contains letters, digits or _
- *    but does not contain the substring __ and does not begin/end with _
+ *  - STR (not encoded) if STR only contains letters, digits or _ but
+ *    does not contain the substring __ (2 _'s) and does not begin/end with _
  *    regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
- *  - an hexa representation (encoded) of each character of the string
+ *  - a hex representation (encoded) of each character of the string
  *
  * NB: if this mangling schema is modified also modify macro 
  *     Prolog_Prototype in engine.h

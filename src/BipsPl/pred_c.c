@@ -156,8 +156,7 @@ Pl_Current_Predicate_Alt_0(void)
   int func1, arity1;
   Bool all;
 
-  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0),
-		      0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 0);
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
