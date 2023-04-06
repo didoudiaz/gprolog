@@ -193,6 +193,10 @@ clean-fd:
 clean-pl-fd: clean-pl clean-fd
 
 
+clean-wam:
+	for i in $(RUN_PL_DIRS); do (cd $$i; $(MAKE) clean-wam); done
+
+
 distclean:
 	rm -rf config.status config.log config.cache autom4te.cache
 	for i in $(SUB_DIRS_ALL); do (cd $$i; $(MAKE) distclean); done
