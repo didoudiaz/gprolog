@@ -1096,7 +1096,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC") ||  || Check_Arg(i, "--dynamic")) /* TODO pass --pic to gcc as -fPIC for C code */
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC") || Check_Arg(i, "--dynamic")) /* TODO pass --pic to gcc as -fPIC for C code */
 	    {		
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
