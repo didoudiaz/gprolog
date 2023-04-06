@@ -76,7 +76,8 @@
 static StmInf *pstm_i;
 
 static Bool tok_present;
-static TokInf unget_tok;
+static char unget_tok_buffer[SCAN_BIG_BUFFER];
+static TokInf unget_tok = { .name = unget_tok_buffer };
 
 
 static sigjmp_buf jumper;
@@ -117,14 +118,20 @@ static int Lookup_In_Dico_Var(char *name);
 static void Parse_Error(char *err_msg);
 
 
-/* we simply save line/col (for error report) to avoid to 
- * duplicate the entire token (with the big buffer for names).
- * After Unget_Token it is possible to restore pl_token.line/col */
+/* ifdef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES we can have -   XXX. If XXX is not
+ * a number this forms 2 tokens. We have to Unget the last one (XXX) and thus we
+ * need 2 buffers.
+ * Except this case, a boolean tok_present + save pl_token.line/col (for error 
+ * report) to restore then after Unget_Token.
+ * NB: Unget_Token is called very ofter and MUST be fast. Do not copy too large
+ * blocks of memory */
 
 #define Unget_Token				\
 do {						\
-  tok_present = TRUE;				\
+  char *swap_buffer = unget_tok.name;		\
   unget_tok = pl_token;				\
+  pl_token.name = swap_buffer;			\
+  tok_present = TRUE;				\
 } while(0)
 
 
@@ -168,8 +175,11 @@ Read_Next_Token(Bool comma_is_punct)
 
   if (tok_present)
     {
-      tok_present = FALSE;
+      char *swap_buffer = pl_token.name;
       pl_token = unget_tok;
+      unget_tok.name = swap_buffer; /* swap name buffers to be fast */
+      
+      tok_present = FALSE;
       if (comma_is_punct && pl_token.type == TOKEN_NAME &&  !pl_token.quoted &&
 	  pl_token.name[0] == ',' && pl_token.name[1] == '\0')
 	{
@@ -416,7 +426,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	    }
 
 	  /* '-' not followed by a number, pushback this token */
-	  /* (cannot occur ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES) */
+	  /* (cannot occur ifdef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES) */
 
 	  Unget_Token;
 

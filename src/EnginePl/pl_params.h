@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-#define MAX_OBJECT                 1024
+#define MAX_OBJECT                 10240
 
 #define START_PRED_TBL_SIZE        4096
 

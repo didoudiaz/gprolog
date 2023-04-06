@@ -112,7 +112,7 @@ typedef struct			/* Atom information               */
   char *name;			/* key is <name> (the string)     */
   unsigned hash;		/* the hash code of string (name) */
   AtomProp prop;		/* associated properties          */
-  void *info;			/* an user info (used by g_var)   */
+  void *info;			/* a user info (used by g_var)    */
 }
 AtomInf;
 

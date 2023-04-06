@@ -112,6 +112,8 @@
 #define ATTR_PRINTF(x)
 #endif
 
+#define AVOID_UNUSED_WARNING(x) ((void)(x))
+
 
 
 
