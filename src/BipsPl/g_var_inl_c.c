@@ -117,54 +117,54 @@ static int atom_g_array_extend;
  *---------------------------------*/
 
 static void G_Assign(WamWord gvar_word, WamWord gval_word, Bool backtrack,
-		     Bool copy) FC;
+		     Bool copy);
 
 static void G_Assign_Element(GVarElt *g_elem, WamWord gval_word,
-			     Bool backtrack, Bool copy) FC;
+			     Bool backtrack, Bool copy);
 
-static void G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word) FC;
+static void G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word);
 
 static void G_Assign_Array(GVarElt *g_elem, WamWord *stc_adr, int array_op,
-			   Bool backtrack, Bool copy) FC;
+			   Bool backtrack, Bool copy);
 
 static GVarElt *G_Alloc_Array(GVarElt *g_elem, PlLong new_size, Bool backtrack);
 
-static GTarget *Get_Target_From_Gvar(WamWord gvar_word) FC;
+static GTarget *Get_Target_From_Gvar(WamWord gvar_word);
 
-static GTarget *Get_Target_From_Selector(WamWord *stc_adr) FC;
+static GTarget *Get_Target_From_Selector(WamWord *stc_adr);
 
-static WamWord *Get_Term_Addr_From_Target(GTarget *gt) FC;
+static WamWord *Get_Term_Addr_From_Target(GTarget *gt);
 
-static WamWord *Get_Int_Addr_From_Gvar(WamWord gvar_word) FC;
+static WamWord *Get_Int_Addr_From_Gvar(WamWord gvar_word);
 
 static PlLong Get_Int_From_Gvar(WamWord gvar_word);
 
 static PlLong Get_Int_From_Word(WamWord start_word);
 
-static void G_Free_Element(GVarElt *g_elem, Bool reinit_undo) FC;
+static void G_Free_Element(GVarElt *g_elem, Bool reinit_undo);
 
-static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem) FC;
+static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem);
 
 static void G_Trail_For_Backtrack(GVarElt *g_elem, PlLong  save_size, WamWord save_val);
 
-static void G_Untrail(int n, WamWord *arg_frame) FC;
+static void G_Untrail(int n, WamWord *arg_frame);
 
-static Bool G_Read(WamWord gvar_word, WamWord gval_word) FC;
+static Bool G_Read(WamWord gvar_word, WamWord gval_word);
 
-static Bool G_Read_Element(GVarElt *g_elem, WamWord gval_word) FC;
+static Bool G_Read_Element(GVarElt *g_elem, WamWord gval_word);
 
-static Bool G_Array_Size(WamWord gvar_word, WamWord size_word) FC;
+static Bool G_Array_Size(WamWord gvar_word, WamWord size_word);
 
 static Bool G_Inc_Dec(WamWord gvar_word, int inc,
 		      WamWord old_word, WamWord new_word);
 
-static void G_Set_Bit(WamWord gvar_word, WamWord bit_word) FC;
+static void G_Set_Bit(WamWord gvar_word, WamWord bit_word);
 
-static void G_Reset_Bit(WamWord gvar_word, WamWord bit_word) FC;
+static void G_Reset_Bit(WamWord gvar_word, WamWord bit_word);
 
-static Bool G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word) FC;
+static Bool G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word);
 
-static Bool G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word) FC;
+static Bool G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word);
 
 
 
@@ -521,7 +521,7 @@ Pl_Blt_G_Test_Reset_Bit(WamWord x, WamWord y)
  * G_ASSIGN                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Assign(WamWord gvar_word, WamWord gval_word, Bool backtrack, Bool copy)
 {
   GTarget *gt = Get_Target_From_Gvar(gvar_word);
@@ -619,7 +619,7 @@ G_Assign_Element(GVarElt *g_elem, WamWord gval_word, Bool backtrack, Bool copy)
  * G_ASSIGN_ARG                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Assign_Arg(GVarElt *g_elem, WamWord *g_arg, WamWord word)
 {
   WamWord *adr;
@@ -829,7 +829,7 @@ G_Alloc_Array(GVarElt *g_elem, PlLong new_size, Bool backtrack)
  * GET_TARGET_FROM_GVAR                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static GTarget * FC
+static GTarget *
 Get_Target_From_Gvar(WamWord gvar_word)
 {
   WamWord word, tag_mask;
@@ -920,7 +920,7 @@ Get_Target_From_Gvar(WamWord gvar_word)
  * GET_TARGET_FROM_SELECTOR                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static GTarget * FC
+static GTarget *
 Get_Target_From_Selector(WamWord *stc_adr)
 {
   WamWord word, tag_mask;
@@ -976,7 +976,7 @@ Get_Target_From_Selector(WamWord *stc_adr)
  * GET_TERM_ADDR_FROM_TARGET                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static WamWord * FC
+static WamWord *
 Get_Term_Addr_From_Target(GTarget *gt)
 {
   GVarElt *g_elem = gt->g_elem;
@@ -1000,7 +1000,7 @@ Get_Term_Addr_From_Target(GTarget *gt)
  * GET_INT_ADDR_FROM_GVAR                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static WamWord * FC
+static WamWord *
 Get_Int_Addr_From_Gvar(WamWord gvar_word)
 {
   GTarget save_g_target = g_target; /* save for cross-recursion */
@@ -1059,7 +1059,7 @@ Get_Int_From_Word(WamWord start_word)
  * G_FREE_ELEMENT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Free_Element(GVarElt *g_elem, Bool reinit_undo)
 {
   PlLong size, i;
@@ -1101,7 +1101,7 @@ G_Free_Element(GVarElt *g_elem, Bool reinit_undo)
  * G_COPY_ELEMENT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem)
 {
   WamWord *adr;
@@ -1183,7 +1183,7 @@ G_Trail_For_Backtrack(GVarElt *g_elem, PlLong save_size, WamWord save_val)
  * G_UNTRAIL                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Untrail(int n, WamWord *arg_frame)
 {
   GUndo *u = (GUndo *) arg_frame[0];
@@ -1215,7 +1215,7 @@ G_Untrail(int n, WamWord *arg_frame)
  * G_READ                                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Read(WamWord gvar_word, WamWord gval_word)
 {
   GTarget *gt = Get_Target_From_Gvar(gvar_word);
@@ -1241,7 +1241,7 @@ G_Read(WamWord gvar_word, WamWord gval_word)
  * G_READ_ELEMENT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Read_Element(GVarElt *g_elem, WamWord gval_word)
 {
   WamWord word;
@@ -1291,7 +1291,7 @@ G_Read_Element(GVarElt *g_elem, WamWord gval_word)
  * G_ARRAY_SIZE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Array_Size(WamWord gvar_word, WamWord size_word)
 {
   GTarget *gt = Get_Target_From_Gvar(gvar_word);
@@ -1313,7 +1313,7 @@ G_Array_Size(WamWord gvar_word, WamWord size_word)
  * G_INC_DEC                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Inc_Dec(WamWord gvar_word, int inc, WamWord old_word, WamWord new_word)
 {
   WamWord *adr;
@@ -1349,7 +1349,7 @@ G_Inc_Dec(WamWord gvar_word, int inc, WamWord old_word, WamWord new_word)
  * G_SET_BIT                                                               *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Set_Bit(WamWord gvar_word, WamWord bit_word)
 {
   WamWord *adr;
@@ -1368,7 +1368,7 @@ G_Set_Bit(WamWord gvar_word, WamWord bit_word)
  * G_RESET_BIT                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void FC
+static void
 G_Reset_Bit(WamWord gvar_word, WamWord bit_word)
 {
   WamWord *adr;
@@ -1387,7 +1387,7 @@ G_Reset_Bit(WamWord gvar_word, WamWord bit_word)
  * G_TEST_SET_BIT                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word)
 {
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;
@@ -1405,7 +1405,7 @@ G_Test_Set_Bit(WamWord gvar_word, WamWord bit_word)
  * G_TEST_RESET_BIT                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word)
 {
   int bit = Pl_Rd_Positive_Check(bit_word) % VALUE_SIZE;

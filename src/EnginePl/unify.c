@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word) FC;
+static Bool Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word);
 
 
 
@@ -182,7 +182,7 @@ UNIFY_FCT_NAME(WamWord start_u_word, WamWord start_v_word)
  * local stack cannot appear in a term (there is no binding from the heap  *
  * to the local stack in the WAM).                                         *
  *-------------------------------------------------------------------------*/
-static Bool FC
+static Bool
 Check_If_Var_Occurs(WamWord *var_adr, WamWord term_word)
 {
   WamWord word, tag_mask;

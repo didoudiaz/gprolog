@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : call.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/call.pl').
+file_name('/Users/diaz/GP/src/BipsPl/call.pl').
 
 
 predicate('$use_call'/0,41,static,private,monofile,built_in,[
@@ -603,8 +603,9 @@ predicate(current_unit/2,209,static,private,monofile,built_in,[
 
 
 predicate(context_valid/0,215,static,private,monofile,built_in,[
-    put_value(x(255),0),
-    cxt_execute(context_valid/1,x(255))]).
+    get_variable(x(0),255),
+    cxt_assign_K(x(0)),
+    execute(context_valid/1)]).
 
 
 predicate(context_valid/1,217,static,private,monofile,built_in,[

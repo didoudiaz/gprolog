@@ -45,7 +45,7 @@
 #define FLAG_C_FILE
 
 #include "engine_pl.h"
-#include "gprolog-cx_cst.h"
+#include "gprolog_cst.h"
 #include "bips_pl.h"
 
 #ifndef _WIN32

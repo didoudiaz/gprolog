@@ -1,0 +1,2 @@
+#!/bin/sh
+sicstus -l sicstus -a $*

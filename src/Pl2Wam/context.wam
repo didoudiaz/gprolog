@@ -1,4 +1,4 @@
-% compiler: GNU Prolog 1.5.0
+% compiler: GNU Prolog 1.5.1
 % file    : context.pl
 
 
@@ -232,7 +232,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_test_def/3,137,static,private,monofile,global,[
+predicate(cxt_test_def/3,138,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     allocate(1),
@@ -249,7 +249,7 @@ predicate(cxt_test_def/3,137,static,private,monofile,global,[
     proceed]).
 
 
-predicate(cxt_parse_env_variable/0,144,static,private,monofile,global,[
+predicate(cxt_parse_env_variable/0,145,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -291,7 +291,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_parse_env_variable/0_$aux4'/2,144,static,private,monofile,local,[
+predicate('$cxt_parse_env_variable/0_$aux4'/2,145,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -311,7 +311,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_parse_env_variable/0_$aux3'/2,144,static,private,monofile,local,[
+predicate('$cxt_parse_env_variable/0_$aux3'/2,145,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
@@ -334,7 +334,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_parse_env_variable/0_$aux2'/2,144,static,private,monofile,local,[
+predicate('$cxt_parse_env_variable/0_$aux2'/2,145,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),1),
@@ -408,7 +408,7 @@ label(4),
     proceed]).
 
 
-predicate('$cxt_parse_env_variable/0_$aux1'/1,144,static,private,monofile,local,[
+predicate('$cxt_parse_env_variable/0_$aux1'/1,145,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -427,7 +427,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_rewrite_term/5,182,static,private,monofile,global,[
+predicate(cxt_rewrite_term/5,183,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -471,7 +471,7 @@ label(4),
     execute(cxt_rewrite_clause/5)]).
 
 
-predicate(cxt_handle_directive/5,203,static,private,monofile,global,[
+predicate(cxt_handle_directive/5,204,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(9),
@@ -560,7 +560,7 @@ label(9),
     proceed]).
 
 
-predicate(cxt_mk_unit_args/3,225,static,private,monofile,global,[
+predicate(cxt_mk_unit_args/3,226,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -597,7 +597,7 @@ label(4),
     execute(cxt_mk_unit_args/3)]).
 
 
-predicate(cxt_find_var/5,244,static,private,monofile,global,[
+predicate(cxt_find_var/5,245,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -752,7 +752,7 @@ label(8),
     execute(cxt_find_var/5)]).
 
 
-predicate(cxt_rewrite_clause/5,264,static,private,monofile,global,[
+predicate(cxt_rewrite_clause/5,265,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -831,7 +831,7 @@ label(1),
     execute(cxt_rewrite_clause/5)]).
 
 
-predicate('$cxt_rewrite_clause/5_$aux3'/4,264,static,private,monofile,local,[
+predicate('$cxt_rewrite_clause/5_$aux3'/4,265,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -864,7 +864,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_rewrite_clause/5_$aux2'/2,264,static,private,monofile,local,[
+predicate('$cxt_rewrite_clause/5_$aux2'/2,265,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -887,7 +887,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_rewrite_clause/5_$aux1'/3,264,static,private,monofile,local,[
+predicate('$cxt_rewrite_clause/5_$aux1'/3,265,static,private,monofile,local,[
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -901,7 +901,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_unit_args_in_term/4,298,static,private,monofile,global,[
+predicate(cxt_unit_args_in_term/4,299,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -964,7 +964,7 @@ label(2),
     proceed]).
 
 
-predicate(cxt_unit_args_in_subterm/6,318,static,private,monofile,global,[
+predicate(cxt_unit_args_in_subterm/6,319,static,private,monofile,global,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1001,7 +1001,7 @@ label(1),
     execute(cxt_unit_args_in_subterm/6)]).
 
 
-predicate(cxt_body_of_unit_args/3,329,static,private,monofile,global,[
+predicate(cxt_body_of_unit_args/3,330,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
@@ -1040,7 +1040,7 @@ label(4),
     execute(cxt_body_of_unit_args/3)]).
 
 
-predicate(cxt_mk_arg3_call/4,337,static,private,monofile,global,[
+predicate(cxt_mk_arg3_call/4,338,static,private,monofile,global,[
     get_structure('$cxt_arg'/3,3),
     unify_local_value(x(0)),
     unify_local_value(x(1)),
@@ -1048,7 +1048,7 @@ predicate(cxt_mk_arg3_call/4,337,static,private,monofile,global,[
     proceed]).
 
 
-predicate(cxt_rewrite_body/2,346,static,private,monofile,global,[
+predicate(cxt_rewrite_body/2,347,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1342,7 +1342,7 @@ label(23),
     execute(cxt_rewrite_simple/2)]).
 
 
-predicate('$cxt_rewrite_body/2_$aux1'/3,354,static,private,monofile,local,[
+predicate('$cxt_rewrite_body/2_$aux1'/3,355,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1363,7 +1363,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_rewrite_simple/2,459,static,private,monofile,global,[
+predicate(cxt_rewrite_simple/2,460,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1497,7 +1497,7 @@ label(6),
     proceed]).
 
 
-predicate('$cxt_rewrite_simple/2_$aux2'/4,491,static,private,monofile,local,[
+predicate('$cxt_rewrite_simple/2_$aux2'/4,492,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1519,7 +1519,7 @@ label(1),
     proceed]).
 
 
-predicate('$cxt_rewrite_simple/2_$aux1'/2,491,static,private,monofile,local,[
+predicate('$cxt_rewrite_simple/2_$aux1'/2,492,static,private,monofile,local,[
     try_me_else(1),
     put_atom(cxt_env_call,0),
     put_integer(0,1),
@@ -1538,7 +1538,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_useless_for_call/2,517,static,private,monofile,global,[
+predicate(cxt_useless_for_call/2,518,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1573,7 +1573,7 @@ label(2),
     execute(sub_atom/5)]).
 
 
-predicate(cxt_debug_displ_clause/1,531,static,private,monofile,global,[
+predicate(cxt_debug_displ_clause/1,532,static,private,monofile,global,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
@@ -1595,7 +1595,7 @@ label(1),
     proceed]).
 
 
-predicate(cxt_emit_unit_name/1,546,static,private,monofile,global,[
+predicate(cxt_emit_unit_name/1,547,static,private,monofile,global,[
     get_variable(x(1),0),
     put_atom(streamwamfile,2),
     put_variable(x(0),3),

@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : stream.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/stream.pl').
+file_name('/Users/diaz/GP/src/BipsPl/stream.pl').
 
 
 predicate('$use_stream'/0,41,static,private,monofile,built_in,[
@@ -1339,7 +1339,7 @@ predicate(at_end_of_stream/1,530,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(current_alias/2,533,static,private,monofile,built_in,[
+predicate(current_alias/2,537,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),1),
     get_variable(y(1),255),
@@ -1355,7 +1355,7 @@ predicate(current_alias/2,533,static,private,monofile,built_in,[
     execute('$current_alias/2_$aux1'/3)]).
 
 
-predicate('$current_alias/2_$aux1'/3,533,static,private,monofile,local,[
+predicate('$current_alias/2_$aux1'/3,537,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1392,7 +1392,7 @@ predicate('$current_alias_alt'/0,552,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(current_mirror/2,554,static,private,monofile,built_in,[
+predicate(current_mirror/2,558,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),1),
     get_variable(y(1),255),
@@ -1477,7 +1477,7 @@ predicate(set_stream_line_column/3,630,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_input_atom_stream/2,639,static,private,monofile,built_in,[
+predicate(open_input_atom_stream/2,643,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1499,7 +1499,7 @@ predicate(open_input_atom_stream/2,639,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_input_chars_stream/2,648,static,private,monofile,built_in,[
+predicate(open_input_chars_stream/2,652,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1521,7 +1521,7 @@ predicate(open_input_chars_stream/2,648,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_input_codes_stream/2,657,static,private,monofile,built_in,[
+predicate(open_input_codes_stream/2,661,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1543,7 +1543,7 @@ predicate(open_input_codes_stream/2,657,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_atom_stream/1,666,static,private,monofile,built_in,[
+predicate(close_input_atom_stream/1,670,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1560,7 +1560,7 @@ predicate(close_input_atom_stream/1,666,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_chars_stream/1,674,static,private,monofile,built_in,[
+predicate(close_input_chars_stream/1,678,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1577,7 +1577,7 @@ predicate(close_input_chars_stream/1,674,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_input_codes_stream/1,682,static,private,monofile,built_in,[
+predicate(close_input_codes_stream/1,686,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -1594,7 +1594,7 @@ predicate(close_input_codes_stream/1,682,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_atom_stream/1,690,static,private,monofile,built_in,[
+predicate(open_output_atom_stream/1,694,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -1613,7 +1613,7 @@ predicate(open_output_atom_stream/1,690,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_chars_stream/1,699,static,private,monofile,built_in,[
+predicate(open_output_chars_stream/1,703,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -1632,7 +1632,7 @@ predicate(open_output_chars_stream/1,699,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(open_output_codes_stream/1,708,static,private,monofile,built_in,[
+predicate(open_output_codes_stream/1,712,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),255),
     cxt_assign_K(y(0)),
@@ -1651,7 +1651,7 @@ predicate(open_output_codes_stream/1,708,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_atom_stream/2,717,static,private,monofile,built_in,[
+predicate(close_output_atom_stream/2,721,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1670,7 +1670,7 @@ predicate(close_output_atom_stream/2,717,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_chars_stream/2,725,static,private,monofile,built_in,[
+predicate(close_output_chars_stream/2,729,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1689,7 +1689,7 @@ predicate(close_output_chars_stream/2,725,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(close_output_codes_stream/2,733,static,private,monofile,built_in,[
+predicate(close_output_codes_stream/2,737,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),

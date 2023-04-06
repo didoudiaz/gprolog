@@ -38,10 +38,6 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <alloca.h>
 
 #define OBJ_INIT Write_Supp_Initializer
 
@@ -424,29 +420,13 @@ Pl_Write_A_Char(StmInf *pstm, int c)
  * PL_FLOAT_TO_STRING                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-
-static char fts_buffer[64];
-
-static void
-xsprintf (char *buff, const char *fmt, ...)
-{
-  va_list ap __attribute__ ((aligned (16)));
-  va_start (ap, fmt);
-  vsprintf (buff, fmt, ap);
-  va_end (ap);
-}
-
 char *
 Pl_Float_To_String(double d)
 {
   char *p, *q, *e;
-  char *buff = fts_buffer;
+  static char buff[32];
 
-#if 0
-  vsprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
-#else
-  xsprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
-#endif
+  sprintf(buff, "%#.17g", d);	/* a . with 16 significant digits */
 
   p = buff;			/* skip leading blanks */
   while (*p == ' ')

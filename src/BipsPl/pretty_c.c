@@ -746,7 +746,7 @@ Bind_Variable(WamWord *adr, WamWord word)
 {
   int i;
   PlLong j;
-  char buff[128];		/* cx: up from 32 */
+  char buff[32];
 
   while (nb_to_try < nb_excl_var_tabled && pl_glob_dico_var[nb_to_try])
     nb_to_try++;

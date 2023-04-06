@@ -79,7 +79,6 @@ char *file_name_out;
 Bool comment;
 Bool pic_code;
 Bool ignore_fc;
-Bool dynamic;			/* produce dynamic libraries (dll/so) */
 
 MapperInf mi;
 
@@ -936,12 +935,6 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--ignore-fast"))
 	    {
 	      ignore_fc = TRUE;
-	      continue;
-	    }
-
-	  if (Check_Arg(i, "--dynamic"))
-	    {
-	      dynamic = 1;
 	      continue;
 	    }
 

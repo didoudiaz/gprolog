@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : dec10io.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/dec10io.pl').
+file_name('/Users/diaz/GP/src/BipsPl/dec10io.pl').
 
 
 predicate('$use_dec10io'/0,41,static,private,monofile,built_in,[

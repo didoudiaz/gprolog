@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : os_interf.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/os_interf.pl').
+file_name('/Users/diaz/GP/src/BipsPl/os_interf.pl').
 
 
 predicate('$use_os_interf'/0,41,static,private,monofile,built_in,[
@@ -444,7 +444,7 @@ predicate(popen/3,281,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(exec/5,293,static,private,monofile,built_in,[
+predicate(exec/5,302,static,private,monofile,built_in,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -475,7 +475,7 @@ predicate(exec/5,293,static,private,monofile,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec/5_$aux1'/2,293,static,private,monofile,local,[
+predicate('$exec/5_$aux1'/2,302,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -492,7 +492,7 @@ label(1),
     proceed]).
 
 
-predicate(exec/4,305,static,private,monofile,built_in,[
+predicate(exec/4,314,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -515,37 +515,12 @@ predicate(exec/4,305,static,private,monofile,built_in,[
     execute('$exec'/5)]).
 
 
-predicate('$exec'/5,313,static,private,monofile,built_in,[
-    allocate(8),
-    get_variable(y(0),0),
-    get_variable(y(1),2),
-    get_variable(y(2),3),
-    get_variable(y(3),4),
-    get_variable(y(4),255),
-    cxt_assign_K(y(4)),
-    put_value(x(1),0),
-    put_variable(y(5),1),
-    call('$get_open_stm'/2),
-    cxt_assign_K(y(4)),
-    put_value(y(1),0),
-    put_variable(y(6),1),
-    call('$get_open_stm'/2),
-    cxt_assign_K(y(4)),
-    put_value(y(2),0),
-    put_variable(y(7),1),
-    call('$get_open_stm'/2),
-    cxt_assign_K(y(4)),
-    put_value(y(0),0),
-    put_unsafe_value(y(5),1),
-    put_unsafe_value(y(6),2),
-    put_unsafe_value(y(7),3),
-    put_value(y(3),4),
-    deallocate,
+predicate('$exec'/5,322,static,private,monofile,built_in,[
     call_c('Pl_Exec_5',[boolean],[x(0),x(1),x(2),x(3),x(4)]),
     proceed]).
 
 
-predicate(create_pipe/2,323,static,private,monofile,built_in,[
+predicate(create_pipe/2,333,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),1),
     get_variable(y(1),255),
@@ -566,7 +541,7 @@ predicate(create_pipe/2,323,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(fork_prolog/1,332,static,private,monofile,built_in,[
+predicate(fork_prolog/1,342,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),255),
@@ -582,7 +557,7 @@ predicate(fork_prolog/1,332,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$fork_prolog/1_$aux1'/2,332,static,private,monofile,local,[
+predicate('$fork_prolog/1_$aux1'/2,342,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),

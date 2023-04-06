@@ -86,7 +86,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
   int stm;
   StmInf *pstm;
   char *str;
-  char *buff;			/* increased from 2K */
+  char buff[2048];
 
 
   stm = (sora_word == NOT_A_WAM_WORD)
@@ -102,9 +102,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
     str = pl_atom_tbl[UnTag_ATM(word)].name;
   else
     {
-      char *origbuf = Pl_Rd_Chars_Or_Codes_Check (format_word);
-      buff = alloca (1+strlen (origbuf));
-      strcpy(buff, origbuf);
+      strcpy(buff, Pl_Rd_Chars_Or_Codes_Check(format_word));
       str = buff;
     }
   Format(pstm, str, &args_word);
@@ -147,7 +145,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
   int i, k;
   char *format_stack[256];
   char **top_stack;
-  char *buff = (char *) alloca (2048);
+  char buff[2048];
 
   //  printf("d: %p\n", &d);
   top_stack = format_stack;

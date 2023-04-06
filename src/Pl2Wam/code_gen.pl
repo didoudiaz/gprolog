@@ -135,7 +135,7 @@ generate_body1(Pred, N, _, LArg, NoPred, Body, NbChunk, WamPred) :-
 	    generate_body(Body, NbChunk, WamBody)
 	).
 
-generate_body1(Pred, N, Module, LArg, NoPred, Body, NbChunk, WamLArg) :-
+generate_body1(Pred, N, _Module, LArg, NoPred, Body, NbChunk, WamLArg) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_body_arg_lst(LArg, LReg, LArg1, LReg1)

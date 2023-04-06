@@ -445,6 +445,58 @@ get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	;   get_next_clause(Pred, N, SrcCl)
 	).
 
+				% +++++ begin preprocessor management +++++
+get_next_clause1((:- if(Goal)), _, _, Pred, N, SrcCl) :-
+	!,
+	g_read(if_stack, IfStack),
+	(   '$catch'(Goal, Err, (warn('if directive caused exception: ~w', [Err]), fail), any, 0, false) ->
+	    g_assign(if_stack, [if(then, 1)|IfStack])
+	;
+	    g_assign(if_stack, [if(then, 0)|IfStack])
+	),
+	get_next_clause(Pred, N, SrcCl).
+
+get_next_clause1((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
+	!,
+	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
+	    (   Keep = 0 ->
+		(   '$catch'(Goal, Err, (warn('elif directive caused exception: ~w', [Err]), fail), any, 0, false) ->
+		    g_assign(if_stack, [if(then, 1)|IfStack])
+		;
+		    g_assign(if_stack, [if(then, 0)|IfStack])
+		)
+	    ;
+		g_assign(if_stack, [if(then, 2)|IfStack])  % 2 means ignore both the then and else part
+	    )
+	;
+	    error('unexpected elif directive', [])
+	),
+	get_next_clause(Pred, N, SrcCl).
+
+get_next_clause1((:- else), _, _, Pred, N, SrcCl) :-
+	!,
+	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
+	    Keep1 is 1 - Keep,
+	    g_assign(if_stack, [if(else, Keep1)|IfStack])
+	;
+	    error('unexpected else directive', [])
+	),
+	get_next_clause(Pred, N, SrcCl).
+
+
+get_next_clause1((:- endif), _, _, Pred, N, SrcCl) :-
+	!,
+	(   g_read(if_stack, [if(_, _)|IfStack]) ->
+	    g_assign(if_stack, IfStack)
+	;
+	    error('unexpected endif directive', [])
+	),
+	get_next_clause(Pred, N, SrcCl).
+
+get_next_clause1(_, _, _, Pred, N, SrcCl) :- % preprocessor ignores a clause
+	g_read(if_stack, [if(_, Keep)|_]), Keep \== 1, !, % ignore Keep = 0 and Keep = 2 or 1-2 = -1
+	get_next_clause(Pred, N, SrcCl).
+				% +++++ end preprocessor management +++++
 
 get_next_clause1((:- D), Where, SingNames, Pred, N, SrcCl) :-
 	display_singletons(SingNames, directive),

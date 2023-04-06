@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : consult.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/consult.pl').
+file_name('/Users/diaz/GP/src/BipsPl/consult.pl').
 
 
 predicate('$use_consult'/0,41,static,private,monofile,built_in,[
@@ -10,9 +10,6 @@ predicate('$use_consult'/0,41,static,private,monofile,built_in,[
 
 
 predicate('.'/2,44,static,private,monofile,built_in,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
-    try_me_else(1),
     get_variable(x(2),0),
     put_list(0),
     unify_local_value(x(2)),
@@ -21,32 +18,7 @@ predicate('.'/2,44,static,private,monofile,built_in,[
     put_list(0),
     unify_local_value(x(2)),
     unify_local_value(x(1)),
-    execute(consult/1),
-
-label(1),
-    trust_me_else_fail,
-    allocate(4),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    get_variable(y(2),2),
-    get_variable(y(3),255),
-    cxt_assign_K(y(3)),
-    put_value(y(0),2),
-    put_variable(x(0),3),
-    put_variable(x(1),4),
-    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(2),x(3),x(4)]),
-    cxt_call(current_unit/2,y(3)),
-    cxt_assign_K(y(3)),
-    cut(y(2)),
-    put_list(4),
-    unify_local_value(y(0)),
-    unify_local_value(y(3)),
-    put_value(y(1),0),
-    put_atom('.',1),
-    put_integer(2,2),
-    put_atom(true,3),
-    deallocate,
-    cxt_execute('$call'/4,x(4))]).
+    execute(consult/1)]).
 
 
 predicate(consult/1,55,static,private,monofile,built_in,[
@@ -228,7 +200,7 @@ predicate('$consult3'/2,96,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$load_file'/1,112,static,private,monofile,built_in,[
+predicate('$load_file'/1,117,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(4),
@@ -278,7 +250,7 @@ label(1),
     fail]).
 
 
-predicate('$load_pred'/2,126,static,private,monofile,built_in,[
+predicate('$load_pred'/2,131,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,fail,fail,fail,1),
@@ -485,7 +457,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$load_directive_exception'/3,163,static,private,monofile,built_in,[
+predicate('$load_directive_exception'/3,168,static,private,monofile,built_in,[
     get_variable(x(3),2),
     put_atom('$pl_file',2),
     put_variable(x(4),5),
@@ -504,7 +476,7 @@ predicate('$load_directive_exception'/3,163,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate('$check_pred_type'/4,170,static,private,monofile,built_in,[
+predicate('$check_pred_type'/4,175,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -570,7 +542,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$check_owner_files'/3,183,static,private,monofile,built_in,[
+predicate('$check_owner_files'/3,188,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -655,7 +627,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate(load/1,198,static,private,monofile,built_in,[
+predicate(load/1,203,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(3),
@@ -696,7 +668,7 @@ label(1),
     execute('$load1'/1)]).
 
 
-predicate('$load1'/1,208,static,private,monofile,built_in,[
+predicate('$load1'/1,213,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -798,22 +770,22 @@ label(1),
     proceed]).
 
 
-predicate('$bc_start_pred'/8,233,static,private,monofile,built_in,[
+predicate('$bc_start_pred'/8,238,static,private,monofile,built_in,[
     call_c('Pl_BC_Start_Pred_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
     proceed]).
 
 
-predicate('$bc_start_emit'/0,237,static,private,monofile,built_in,[
+predicate('$bc_start_emit'/0,242,static,private,monofile,built_in,[
     call_c('Pl_BC_Start_Emit_0',[],[]),
     proceed]).
 
 
-predicate('$bc_stop_emit'/0,240,static,private,monofile,built_in,[
+predicate('$bc_stop_emit'/0,245,static,private,monofile,built_in,[
     call_c('Pl_BC_Stop_Emit_0',[],[]),
     proceed]).
 
 
-predicate('$bc_emit'/1,243,static,private,monofile,built_in,[
+predicate('$bc_emit'/1,248,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -840,17 +812,17 @@ label(4),
     execute('$bc_emit'/1)]).
 
 
-predicate('$bc_emit_inst'/1,249,static,private,monofile,built_in,[
+predicate('$bc_emit_inst'/1,254,static,private,monofile,built_in,[
     call_c('Pl_BC_Emit_Inst_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$bc_emulate_cont'/0,255,static,private,monofile,built_in,[
+predicate('$bc_emulate_cont'/0,260,static,private,monofile,built_in,[
     call_c('Pl_BC_Emulate_Cont_0',[jump],[]),
     proceed]).
 
 
-predicate('$add_clause_term'/2,261,static,private,monofile,built_in,[
+predicate('$add_clause_term'/2,266,static,private,monofile,built_in,[
     put_value(x(1),3),
     put_integer(0,1),
     put_integer(0,2),
@@ -892,7 +864,7 @@ predicate(listing/0,283,static,private,monofile,built_in,[
     execute('$listing_all'/1)]).
 
 
-predicate(listing/1,285,static,private,monofile,built_in,[
+predicate(listing/1,290,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -945,7 +917,7 @@ predicate('$listing_any'/0,307,static,private,monofile,built_in,[
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_any'/1,309,static,private,monofile,built_in,[
+predicate('$listing_any'/1,314,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -983,7 +955,7 @@ label(2),
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_all'/1,329,static,private,monofile,built_in,[
+predicate('$listing_all'/1,334,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(4),
     get_variable(x(2),0),
@@ -1084,7 +1056,7 @@ label(1),
     execute('$not_aux_name'/1)]).
 
 
-predicate('$listing_one'/1,365,static,private,monofile,built_in,[
+predicate('$listing_one'/1,370,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),

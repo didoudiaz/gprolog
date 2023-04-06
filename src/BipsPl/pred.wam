@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : pred.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/pred.pl').
+file_name('/Users/diaz/GP/src/BipsPl/pred.pl').
 
 
 predicate('$use_pred'/0,41,static,private,monofile,built_in,[

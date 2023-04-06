@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : all_pl_bips.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/all_pl_bips.pl').
+file_name('/Users/diaz/GP/src/BipsPl/all_pl_bips.pl').
 
 
 predicate('$use_all_pl_bips'/0,39,static,private,monofile,global,[

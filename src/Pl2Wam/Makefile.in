@@ -55,7 +55,6 @@ distclean: clean
 
 pl2wam.wam:     pl2wam.pl
 read_file.wam:  read_file.pl
-bip_list.wam:   bip_list.pl
 context.wam:    context.pl
 syn_sugar.wam:  syn_sugar.pl
 internal.wam:   internal.pl

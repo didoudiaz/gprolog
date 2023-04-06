@@ -61,8 +61,8 @@
  *
  * Where E(STR) =
  *  - STR (not encoded) if STR only contains letters, digits or _ but
- *    does not contain the substring __ (2 _'s) and does not begin/end
- *    with _ regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
+ *    does not contain the substring __ (2 _'s) and does not begin/end with _
+ *    regexp: [a-zA-Z0-9] ([-]?[a-zA-Z0-9])*
  *  - a hex representation (encoded) of each character of the string
  *
  * For contexts: MODULE represents the UNIT and is now MODULE/M_ARITY
@@ -89,7 +89,7 @@ static char pl_escape_char[] = "\a\b\f\n\r\t\v";
  * an accent-letter is not a valid C/asm identifier
  */
 
-#define Letter(c)   (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
+#define Letter(c)        (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
 
 #define Letter_Digit(c)  (Letter(c) || isdigit(c))
 #define Hexa_Digit(c)    (isdigit(c) || ((c) >= 'A' && (c) <= 'F'))

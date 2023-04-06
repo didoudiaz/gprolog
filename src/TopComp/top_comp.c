@@ -1129,8 +1129,7 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--dynamic"))
 	    {
 	      dynamic = 1;
-	      Add_Last_Option(cmd_wam2ma.opt);
-	      Add_Last_Option(cmd_ma2asm.opt);
+//	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
 	    }
 #endif

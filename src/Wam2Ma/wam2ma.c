@@ -50,7 +50,6 @@
 
 #include "wam_parser.h"
 #include "wam_protos.h"
-#include "bt_string.c"
 #include "../TopComp/copying.c"
 #include "../TopComp/decode_hexa.c"
 
@@ -202,7 +201,6 @@ BTNode *cxt_cur_unit;
 char cxt_unit_for_next_call[MAX_LABEL_LENGTH];
 int cxt_arity_for_next_call = 0;
 
-int dynamic = 0;
 
 BTNode *cur_pl_file;
 
@@ -236,6 +234,7 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 
 void Init_Foreign_Table(void);
 
+
 void Emit_Obj_Initializer(void);
 
 void Emit_Exec_Directives(void);
@@ -251,6 +250,7 @@ void Emit_One_F_N_Tagged(int no, char *str, void *info);
 void Label_Printf(char *label, ...) ATTR_PRINTF(1);
 
 void Inst_Printf(char *op, char *operands, ...) ATTR_PRINTF(2);
+
 
 void Parse_Arguments(int argc, char *argv[]);
 
@@ -585,6 +585,7 @@ F_predicate(ArgVal arg[])
   atom_module = BT_String_Add(&bt_atom, module);
   if (strcmp(module, "user") == 0 || strcmp(module, "system") == 0)
     module_user_system = TRUE;
+
 
   cur_pred->module = atom_module;
   cur_pred->functor = atom_functor;
@@ -2394,12 +2395,6 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--comment"))
 	    {
 	      comment = TRUE;
-	      continue;
-	    }
-
-	  if (Check_Arg(i, "--dynamic"))
-	    {
-	      dynamic = 1;
 	      continue;
 	    }
 

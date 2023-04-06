@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : foreign.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/foreign.pl').
+file_name('/Users/diaz/GP/src/BipsPl/foreign.pl').
 
 
 predicate('$force_foreign_link'/0,45,static,private,monofile,built_in,[

@@ -163,10 +163,6 @@ void M_Check_Magic_Words(void); /* not compiled if not needed */
 
 #    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
 
-#elif defined(M_x86_64_linux)
-
-#    define M_USED_REGS            {"r12", "r13", "r14", "r15", 0}
-
 #else
 
 #    define M_USED_REGS            {0}

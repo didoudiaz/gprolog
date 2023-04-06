@@ -66,7 +66,7 @@ extern "C" {
  * Constants                       *
  *---------------------------------*/
 
-#include "gprolog-cx_cst.h"
+#include "gprolog_cst.h"
 
 #define PL_RECOVER        	0
 #define PL_CUT			1

@@ -134,6 +134,7 @@ cxt_add_def(F, N, U) :-
 	( g_read(cxt_env_debug, 1) -> format('% adding ~w\n', [cxt_def(F,N,U)]) ; true ),
 	assertz(cxt_def(F, N, U)).
 
+
 cxt_test_def(F, N, U) :-
 	clause(cxt_def(F, N, U), _),
 	!.

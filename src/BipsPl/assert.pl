@@ -51,7 +51,7 @@ asserta(C) :-
 
 assertz(C) :-
 	set_bip_name(assertz, 1),
-	( context([UF|_]) -> functor(UF, U, _) ; U=[] ),
+	( context([UF|_]) -> functor(UF, U, _) ; U = [] ),
 	'$assert'(C, 0, 1, U).
 
 

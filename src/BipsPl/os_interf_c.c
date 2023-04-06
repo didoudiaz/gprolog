@@ -106,8 +106,6 @@ InfSig;
 
 static int atom_dt;
 
-/*static*/ int atom_read;	// FIXME: SPA: not static in stream_supp.h
-/*static*/ int atom_write;	// FIXME: SPA: not static in stream_supp.h
 /* pl_atom_write is already defined in the set of often used atoms */
 static int atom_execute;
 static int atom_search;

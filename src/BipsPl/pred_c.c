@@ -157,8 +157,7 @@ Pl_Current_Predicate_Alt_0(void)
   WamWord cxt;
   Bool all;
 
-  Pl_Update_Choice_Point
-    ((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 0);
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 0);
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
@@ -235,8 +234,8 @@ Pl_Current_Predicate_Alt_0(void)
   AB(B, 0) = name_word;
   AB(B, 1) = arity_word;
   AB(B, 2) = which_preds;
-#endif
   AB(B, 3) = (WamWord) scan.endt;
+#endif
   AB(B, 4) = (WamWord) scan.cur_t;
   AB(B, 5) = (WamWord) scan.cur_p;
   AB(B, 6) = (WamWord) cxt;

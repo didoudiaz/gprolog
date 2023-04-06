@@ -1,8 +1,8 @@
-% compiler: GNU Prolog 1.5.1
+% compiler: GNU Prolog/CX 1.5.1
 % file    : assert.pl
 
 
-file_name('/Users/spa/local/src/gprolog-ref/src/BipsPl/assert.pl').
+file_name('/Users/diaz/GP/src/BipsPl/assert.pl').
 
 
 predicate('$use_assert'/0,41,static,private,monofile,built_in,[
