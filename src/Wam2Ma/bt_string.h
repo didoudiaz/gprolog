@@ -34,6 +34,8 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#ifndef _BT_STRING_H
+#define _BT_STRING_H
 
 
 /*---------------------------------*
@@ -88,3 +90,5 @@ BTNode *BT_String_Add(BTString *bt_str, char *str);
 BTNode *BT_String_Lookup(BTString *bt_str, char *str);
 
 void BT_String_List(BTString *bt_str, BTStrLstFct fct);
+
+#endif

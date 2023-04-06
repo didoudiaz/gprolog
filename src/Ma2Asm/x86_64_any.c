@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -719,7 +718,6 @@ Call_C_Arg_String(int offset, StringInf *s)
   else
     Inst_Printf("movq", "$%s, %s", s->symb, r_aux);
   
-
   AFTER_ARG;
 
   return 1;
@@ -812,7 +810,6 @@ Call_C_Arg_Reg_Y(int offset, Bool adr_of, int index)
     Inst_Printf("leaq", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
   else
     Inst_Printf("movq", "%d(%s), %s", Y_OFFSET(index), asm_reg_e, r_aux);
-
 
   AFTER_ARG;
 

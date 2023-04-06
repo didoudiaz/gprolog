@@ -75,7 +75,7 @@ char **pl_os_argv;
 char *pl_home;
 int pl_devel_mode;
 
-char pl_glob_buff[10240];
+char pl_glob_buff[1024 * 1024];
 
 PlLong *pl_base_fl;		/* overwritten by foreign if present */
 double *pl_base_fd;		/* overwritten by foreign if present */
