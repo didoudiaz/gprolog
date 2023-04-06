@@ -2,7 +2,7 @@
 % file    : unify.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/unify.pl').
+file_name('/home/diaz/GP/src/BipsPl/unify.pl').
 
 
 predicate('$use_unify'/0,42,static,private,monofile,built_in,[

@@ -2,7 +2,7 @@
 % file    : pretty.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/pretty.pl').
+file_name('/home/diaz/GP/src/BipsPl/pretty.pl').
 
 
 predicate('$use_pretty'/0,41,static,private,monofile,built_in,[

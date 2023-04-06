@@ -50,6 +50,7 @@
 
 #include "wam_parser.h"
 #include "wam_protos.h"
+#include "bt_string.c"
 #include "../TopComp/copying.c"
 #include "../TopComp/decode_hexa.c"
 

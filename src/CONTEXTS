@@ -1,0 +1,70 @@
+		GNU Prolog with Contexts (CxLP)
+
+Should work in native-code compilation mode but emulated mode is not yet
+supported (e.g. consult does not work).
+
+Normally, gprolog-cx bootstraps correctly.
+You should be able to build (and rebuild from itself) as for gprolog:
+./configure
+make
+make check
+make
+
+The sub-compilers written in Prolog (pl2wam and fd2c) do not use contexts and
+can be compiled with the classical gprolog's gplc. However, the builtins should be
+compiled with the gprolog/cx version of pl2wam else you will obtain an unstable
+(and unusable) system.
+
+Things can thus become broken when mixing compilation with classical gprolog and gprolog/cx...
+
+One symptom is that the following command never finishes:
+
+fd2c FD_FILE
+
+this is due to the clause in BipsPl/call.pl: context(X) :- context(X).
+which is normally inlined by the cx version while it give rise to an 
+infinite loop the non-cx version.
+
+Another symptom is you obtain a lot of undefined symbol when trying to build pl2wam, e.g.
+  "_pl_sys_var", referenced from:
+      _Pl_Indomain_Alt_0 in libbips_fd.a(fd_values_c.o)
+      _Pl_Stream_Get_Key in libbips_pl.a(stream_supp.o)
+      _Pl_Stream_Getc in libbips_pl.a(stream_supp.o)
+   ...
+
+To fix this, we need 2 environments:
+ - terminal 1 on the gprolog-cx to build
+ - terminal 2 with environment on a classical gprolog
+
+In terminal 1:
+cd ~/gprolog-cx/src
+. SETVARS
+make distclean
+make clean-wam
+./configure
+
+In terminal 2:
+# setup the environment with PATH on the classical gprolog
+cd ~/gprolog/src/
+. SETVARS
+# compile pl2wam/cw with the classical gprolog's gplc
+cd ~/gprolog-cx/src/Pl2Wam
+make
+
+
+In terminal 1:
+# complete the build of the context version
+make
+make check  # this one has differences (it is normal)
+make check  # maybe this also has differences (it is normal)
+make check  # this one should reach a fix-point and be OK
+make
+
+now you can continue to work on this terminal (you can close terminal 2)
+in particular you can re-create it:
+
+make clean
+make
+make check
+make
+

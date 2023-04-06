@@ -2,7 +2,7 @@
 % file    : read.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/read.pl').
+file_name('/home/diaz/GP/src/BipsPl/read.pl').
 
 
 predicate('$use_read'/0,41,static,private,monofile,built_in,[

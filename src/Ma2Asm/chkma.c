@@ -1184,3 +1184,9 @@ Pl_Dummy_Ptr(void *p)
 { 
   return p;
 }
+
+// dummy for contexts
+void FC
+Cxt_Init(void)
+{
+}

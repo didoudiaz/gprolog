@@ -2,7 +2,7 @@
 % file    : catch.pl
 
 
-file_name('/Users/diaz/GP/src/BipsPl/catch.pl').
+file_name('/home/diaz/GP/src/BipsPl/catch.pl').
 
 
 predicate('$use_catch'/0,41,static,private,monofile,built_in,[

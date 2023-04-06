@@ -102,6 +102,13 @@ clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
+clean-wam:
+	rm -f *.wam
+
+
+clean-full: clean-wam clean
+
+
 distclean: clean
 
 
