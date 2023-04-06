@@ -178,7 +178,7 @@ check-e:
 RUN_PL_DIRS = EnginePl BipsPl
 RUN_FD_DIRS = EngineFD BipsFD
 RUN_SUB_DIRS= $(RUN_PL_DIRS) $(RUN_PL_DIRS)
-RUN_WAL_DIRS= Pl2Wam BipsPl
+RUN_WAM_DIRS= Pl2Wam BipsPl
 
 
 
