@@ -1002,7 +1002,7 @@ Display_Help(void)
   L("");
   L("Options:");
   L("  -o FILE, --output FILE      set output file name");
-  L("  --pic                       produce position independent code (PIC)");
+  L("  --pic, -fPIC, --dynamic     produce position independent code (PIC)");
   L("  --ignore-fast               ignore fast call (FC) declarations");
   L("  --comment                   include comments in the output file");
   L("  -h, --help                  print this help and exit");

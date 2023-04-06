@@ -1119,7 +1119,7 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC")) /* TODO pass --pic to gcc as -fPIC for C code */
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC") || Check_Arg(i, "--dynamic")) /* TODO pass --pic to gcc as -fPIC for C code */
 	    {		
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
@@ -1567,7 +1567,7 @@ Display_Help(void)
   L(" ");
   L("Mini-assembly to assembly translator options:");
   L("  --comment                   include comments in the output file");
-  L("  --pic                       produce position independent code (PIC)");
+  L("  --pic, -fPIC, --dynamic     produce position independent code (PIC)");
   L(" ");
   L("C Compiler options:");
   L("  --c-compiler FILE           use FILE as C compiler/linker");
