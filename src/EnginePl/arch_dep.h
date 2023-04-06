@@ -117,7 +117,6 @@
 
 
 
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
 /* There are 2 kinds of MSVC warning C4996 one wants to remove:

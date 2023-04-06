@@ -40,7 +40,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define SCAN_BIG_BUFFER            (1024*1024)
+#define SCAN_BIG_BUFFER            (1024 * 1024)
 
 
 
@@ -71,7 +71,7 @@ TypTok;
 typedef struct
 {
   TypTok type;
-  char name[SCAN_BIG_BUFFER];	/* for VARIABLE NAME STRING BACK_QUOTED */
+  char *name;			/* for VARIABLE NAME STRING BACK_QUOTED */
   int quoted;                   /* for NAME: was it quoted ?            */
   int punct;			/* for PUNCTUATION                      */
   PlLong int_num;		/* for INTEGER                          */
@@ -90,7 +90,9 @@ TokInf;
 
 #ifdef SCAN_SUPP_FILE
 
-TokInf pl_token;
+static char scan_tok_buffer[SCAN_BIG_BUFFER];
+
+TokInf pl_token = { .name = scan_tok_buffer, };
 
 #else
 

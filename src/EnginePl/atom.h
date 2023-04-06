@@ -114,7 +114,7 @@ typedef struct			/* Atom information               */
   AtomProp prop;		/* associated properties          */
   char **modules;		/* module predicate tables        */
 				/* (indexed with the arity)       */
-  void *info;			/* user info (used by g_var)      */
+  void *info;			/* a user info (used by g_var)    */
 }
 AtomInf;
 
