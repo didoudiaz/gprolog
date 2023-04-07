@@ -1,3 +1,9 @@
+Fri Apr  7 09:54:37 CEST 2023  <Daniel.Diaz@univ-paris1.fr>
+
+	* start version 1.6.0
+	* add a Tools directory for tools common to runtime and standalone sub-compilers
+	* converge code master with branch and contexts from spa
+
 Wed Mar 22 07:09:36 PM CET 2023  <Daniel.Diaz@univ-paris1.fr>
 
 	* fix issue #32: remove duplicate warning message
