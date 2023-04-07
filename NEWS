@@ -1,4 +1,4 @@
-Change in GNU Prolog version 1.5.1
+Change in GNU Prolog version 1.6.0
 
 * fix issue #32: remove duplicate warning message
 * improve compiler speed on large Prolog data bases
