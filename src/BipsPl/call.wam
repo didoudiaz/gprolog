@@ -1,4 +1,4 @@
-% compiler: GNU Prolog/CX 1.5.1
+% compiler: GNU Prolog 1.6.0
 % file    : call.pl
 
 
@@ -603,9 +603,8 @@ predicate(current_unit/2,209,static,private,monofile,built_in,[
 
 
 predicate(context_valid/0,215,static,private,monofile,built_in,[
-    get_variable(x(0),255),
-    cxt_assign_K(x(0)),
-    execute(context_valid/1)]).
+    put_value(x(255),0),
+    cxt_execute(context_valid/1,x(255))]).
 
 
 predicate(context_valid/1,217,static,private,monofile,built_in,[
