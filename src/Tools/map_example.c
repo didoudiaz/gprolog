@@ -9,7 +9,7 @@
 void
 example1(void)
 {
-  Map map;
+  struct map_rbt map;
 
   map_init(&map);
 
@@ -35,15 +35,9 @@ example1(void)
   map_clear(&map);
 }
 
-#define MAP_PREFIX PL_
-#define MAP_SUFFIX _OK
-#define MAP_RE_INCLUDE
-#include "map_rbtree.h"
-
 int
 main(int argc, char *argv[])
 {
   example1();
-  //  example2();
   return 0;
 }
