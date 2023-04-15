@@ -2577,10 +2577,13 @@ F_cxt_unit_for_next_call(ArgVal arg[])
   Args1(F_N(atom, n));
   AVOID_UNUSED_WARNING(f_n_no);
 
+#if 0
   strcpy(cxt_unit_for_next_call, str_atom);
   for (p = str_atom; *p && *p != '/'; ++p)
     ;
+//  if (*p == '/') fprintf (stderr, "unit_for_next_call: %s\n", str_atom);
   *p = 0;
+#endif
   cxt_unit_arity_for_next_call = n;
 }
 
