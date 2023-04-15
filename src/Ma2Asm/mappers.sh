@@ -3,7 +3,7 @@
 # this script checks the compilation of all mappers to check for regressions
 #
 # mappers.sh unset
-#    creates the a header file to unset all arch macros
+#    creates a header file to unset all arch macros
 #
 # mappers.sh cp
 #    compile all mappers and copy chkma_ma.s in a compile dir for future check

@@ -15,7 +15,7 @@ force-mapper:
 ma_parser@OBJ_SUFFIX@: ma_parser.c ma_parser.h ma_protos.h
 	$(CC) $(CFLAGS) -c ma_parser.c
 
-ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Wam2Ma/bt_string.c \
+ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Tools/map_rbtree.h \
           ../TopComp/copying.c
 	$(CC) $(CFLAGS) -c ma2asm.c
 
@@ -25,8 +25,8 @@ ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
 	$(CC) $(CFLAGS) $(FORCE_MAP) -c ma2asm_inst.c
 
 ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
-                    ma2asm_inst@OBJ_SUFFIX@ ma2asm_inst.c
-	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@
+                    ma2asm_inst@OBJ_SUFFIX@ ma2asm_inst.c ../Tools/rbtree@OBJ_SUFFIX@ 
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ ../Tools/rbtree@OBJ_SUFFIX@ 
 
 
 clean:
