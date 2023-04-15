@@ -50,9 +50,17 @@
 
 #include "wam_parser.h"
 #include "wam_protos.h"
-#include "bt_string.c"
 #include "../TopComp/copying.c"
 #include "../TopComp/decode_hexa.c"
+
+
+/* we need several maps of same type: key=string -> value=int (sequential no) */
+#define MAP_KEY_TYPE char *
+#define MAP_KEY_CMP(x, y) strcmp(x, y)
+#define MAP_VALUE_TYPE int
+#define MAP_PUT_ENTRY(map, entry) ((entry)->value = map_counter_add(map) - 1)
+#include "../Tools/map_rbtree.h"
+
 
 #ifdef FC_USED_TO_COMPILE_CORE
 #define FAST "fast "
@@ -119,7 +127,7 @@
 
 typedef struct swt_elt
 {
-  BTNode *atom;
+  struct map_entry *atom;
   PlLong n;
   int label;
 }
@@ -154,14 +162,15 @@ typedef struct predinf *PredP;
 
 typedef struct predinf
 {
-  BTNode *module;		/* not NULL */
-  BTNode *functor;
+  struct map_entry *module;		/* not NULL */
+  struct map_entry *functor;
   int arity;
   char *hexa;
   int line_no;
   int prop;
-  BTNode *cxt_unit;
-  BTNode *pl_file;
+  struct map_entry *cxt_unit;
+  int cxt_unit_arity;
+  struct map_entry *pl_file;
   int pl_line;
   SwtTbl *swt_tbl[3];
   PredP next;
@@ -174,7 +183,7 @@ typedef struct directinf *DirectP;
 
 typedef struct directinf
 {
-  BTNode *pl_file;
+  struct map_entry *pl_file;
   int pl_line;
   Bool system;
   DirectP next;
@@ -193,17 +202,18 @@ Bool comment;
 
 FILE *file_out;
 
-BTString bt_atom;
-BTString bt_tagged_atom;
-BTString bt_tagged_f_n;
+struct map_rbt map_atom;
+struct map_rbt map_tagged_atom;
+struct map_rbt map_tagged_f_n;
 
 
-BTNode *cxt_cur_unit;
+struct map_entry *cxt_cur_unit;
+int cxt_cur_unit_arity;
 char cxt_unit_for_next_call[MAX_LABEL_LENGTH];
-int cxt_arity_for_next_call = 0;
+int cxt_unit_arity_for_next_call = 0;
 
 
-BTNode *cur_pl_file;
+struct map_entry *cur_pl_file;
 
 char buff_hexa[MAX_HEXA_LENGTH];
 
@@ -240,13 +250,13 @@ void Emit_Obj_Initializer(void);
 
 void Emit_Exec_Directives(void);
 
-void Emit_One_Atom(int no, char *str, void *info);
+void Emit_One_Atom(struct map_entry *entry);
 
-void Emit_One_Atom_Tagged(int no, char *str, void *info);
+void Emit_One_Atom_Tagged(struct map_entry *entry);
 
 int Add_F_N_Tagged(char *atom, int n);
 
-void Emit_One_F_N_Tagged(int no, char *str, void *info);
+void Emit_One_F_N_Tagged(struct map_entry *entry);
 
 void Label_Printf(char *label, ...) ATTR_PRINTF(1);
 
@@ -271,13 +281,13 @@ void Display_Help(void);
 
 
 
-#define DEF_ATOM(atom)        BTNode *atom; char *str_##atom
+#define DEF_ATOM(atom)        struct map_entry *atom; char *str_##atom
 
 #define LOAD_ATOM_T(atom, t)  Get_Arg(top, char *, str_##atom); \
-                              atom = BT_String_Add(&t, str_##atom)
+			      atom = map_put(&t, str_##atom, NULL)
 
-#define LOAD_ATOM_0(atom)     LOAD_ATOM_T(atom, bt_atom)
-#define LOAD_ATOM_1(atom)     LOAD_ATOM_T(atom, bt_tagged_atom)
+#define LOAD_ATOM_0(atom)     LOAD_ATOM_T(atom, map_atom)
+#define LOAD_ATOM_1(atom)     LOAD_ATOM_T(atom, map_tagged_atom)
 
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
 #define LOAD_ATOM(atom)       LOAD_ATOM_1(atom)
@@ -403,9 +413,14 @@ void Display_Help(void);
 
 #define DELETE_CHOICE_INST                                                  \
   if (cur_arity >= 1 && cur_arity <= 4)                                     \
-    Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);       \
+    Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);    \
   else                                                                      \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point(%d)", cur_arity)
+
+
+
+
+void Cxt_Unit_Name(struct map_entry *unit_name, int arity);
 
 
 
@@ -417,10 +432,10 @@ void Display_Help(void);
 int
 main(int argc, char *argv[])
 {
-  Parse_Arguments(argc, argv);
+  setlocale(LC_ALL, "");	/* really needed (to be checked) */
+  setlocale(LC_NUMERIC, "C");	/* make sure floats come out right... */
 
-  setlocale (LC_ALL, "");
-  setlocale (LC_NUMERIC, "C");	/* make sure floats come out right... */
+  Parse_Arguments(argc, argv);
 
   if (file_name_out == NULL)
     file_out = stdout;
@@ -430,9 +445,9 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-  BT_String_Init(&bt_atom);
-  BT_String_Init(&bt_tagged_atom);
-  BT_String_Init(&bt_tagged_f_n);
+  map_init(&map_atom);
+  map_init(&map_tagged_atom);
+  map_init(&map_tagged_f_n);
 
   Init_Foreign_Table();
   dummy_pred_start.next = NULL;
@@ -492,7 +507,7 @@ F_file_name(ArgVal arg[])
 {
   Args1(STR(pl_file));
 
-  cur_pl_file = BT_String_Add(&bt_atom, pl_file);
+  cur_pl_file = map_put(&map_atom, pl_file, NULL);
 }
 
 
@@ -504,8 +519,8 @@ F_file_name(ArgVal arg[])
 void
 F_predicate(ArgVal arg[])
 {
-  BTNode *atom_module = NULL;
-  BTNode *atom_functor;
+  struct map_entry *atom_module = NULL;
+  struct map_entry *atom_functor;
   Bool module_user_system = FALSE;
   int prop = 0;			/* init for the compiler */
   Bool local_symbol = FALSE;
@@ -515,7 +530,7 @@ F_predicate(ArgVal arg[])
   if (cur_pl_file == NULL)
     Syntax_Error("file_name declaration missing");
 
-  atom_functor = BT_String_Add(&bt_atom, functor);
+  atom_functor = map_put(&map_atom, functor, NULL);
 
   cur_arity = (int) arity;
   cur_sub_label = 0;
@@ -583,7 +598,7 @@ F_predicate(ArgVal arg[])
       else
 	module = "user";
     }
-  atom_module = BT_String_Add(&bt_atom, module);
+  atom_module = map_put(&map_atom, module, NULL);
   if (strcmp(module, "user") == 0 || strcmp(module, "system") == 0)
     module_user_system = TRUE;
 
@@ -592,6 +607,7 @@ F_predicate(ArgVal arg[])
   cur_pred->functor = atom_functor;
   cur_pred->arity = (int) arity;
   cur_pred->cxt_unit = cxt_cur_unit;
+  cur_pred->cxt_unit_arity = cxt_cur_unit_arity;
   cur_pred->pl_file = cur_pl_file;
   cur_pred->pl_line = (int) pl_line;
   cur_pred->prop = prop;
@@ -606,7 +622,7 @@ F_predicate(ArgVal arg[])
   if (comment)
     {
       Label_Printf("\n\n; *** Predicate: %s:%s/%d (%s:%d)",
-		   module, functor, arity, cur_pl_file->str, pl_line);
+		   module, functor, arity, cur_pl_file->key, pl_line);
     }
 
   /* do not qualif with module in Encode_Hexa if:
@@ -664,7 +680,7 @@ F_directive(ArgVal arg[])
   direct_end = p;
 
   if (comment)
-    Label_Printf("\n\n; *** %s Directive (%s:%d)", (system) ? "System" : "User", cur_pl_file->str, pl_line);
+    Label_Printf("\n\n; *** %s Directive (%s:%d)", (system) ? "System" : "User", cur_pl_file->key, pl_line);
 
   Label_Printf("\n\npl_code local directive_%d", cur_direct_no);
 }
@@ -732,9 +748,9 @@ F_get_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), C_INT(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Get_Atom_Tagged(ta(%d),X(%d))", atom->no, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Atom_Tagged(ta(%d),X(%d))", atom->value, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Atom(at(%d),X(%d))", atom->no, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Atom(at(%d),X(%d))", atom->value, a);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -817,7 +833,7 @@ F_get_structure(ArgVal arg[])
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Get_Structure_Tagged(fn(%d),X(%d))", f_n_no, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%d,X(%d))", atom->no, n, a);
+  Inst_Printf("call_c", FAST "Pl_Get_Structure(at(%d),%d,X(%d))", atom->value, n, a);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -902,9 +918,9 @@ F_put_atom(ArgVal arg[])
 {
   Args2(ATOM(atom), C_INT(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Atom_Tagged(ta(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Pl_Put_Atom_Tagged(ta(%d))", atom->value);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->value);
 #endif
   Inst_Printf("move_ret", "X(%d)", a);
 }
@@ -987,7 +1003,7 @@ F_put_structure(ArgVal arg[])
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Put_Structure_Tagged(fn(%d))", f_n_no);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Structure(at(%d),%d)", atom->no, n);
+  Inst_Printf("call_c", FAST "Pl_Put_Structure(at(%d),%d)", atom->value, n);
 #endif
   Inst_Printf("move_ret", "X(%d)", a);
 }
@@ -1004,9 +1020,9 @@ F_put_meta_term(ArgVal arg[])
 {
   Args2(ATOM(module), C_INT(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %d)", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %d)", module->value, a);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %d)", module->no, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %d)", module->value, a);
 #endif
 }
 
@@ -1109,9 +1125,9 @@ F_unify_atom(ArgVal arg[])
 {
   Args1(ATOM(atom));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Unify_Atom_Tagged(ta(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Pl_Unify_Atom_Tagged(ta(%d))", atom->value);
 #else
-  Inst_Printf("call_c", FAST "Pl_Unify_Atom(at(%d))", atom->no);
+  Inst_Printf("call_c", FAST "Pl_Unify_Atom(at(%d))", atom->value);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -1177,7 +1193,7 @@ F_unify_structure(ArgVal arg[])
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
   Inst_Printf("call_c", FAST "Pl_Unify_Structure_Tagged(fn(%d))", f_n_no);
 #else
-  Inst_Printf("call_c", FAST "Pl_Unify_Structure(at(%d),%" PL_FMT_d ")", atom->no, n);
+  Inst_Printf("call_c", FAST "Pl_Unify_Structure(at(%d),%" PL_FMT_d ")", atom->value, n);
 #endif
   Inst_Printf("fail_ret", "");
 }
@@ -1220,13 +1236,13 @@ void
 F_call(ArgVal arg[])
 {
   char  *ux = cxt_unit_for_next_call;
-  PlLong ua = cxt_arity_for_next_call;
+  PlLong ua = cxt_unit_arity_for_next_call;
 
   Args1(MP_N(m, p, n));
 
   if (!cxt_cur_unit ||
-      !strcmp (ux, cxt_cur_unit->str) ||
-      ua != cxt_cur_unit->arity) {
+      !strcmp (ux, cxt_cur_unit->key) ||
+      ua != cxt_cur_unit_arity) {
     ux = "";
     ua = 0;
   }
@@ -1248,13 +1264,13 @@ void
 F_execute(ArgVal arg[])
 {
   char  *ux = cxt_unit_for_next_call;
-  PlLong ua = cxt_arity_for_next_call;
+  PlLong ua = cxt_unit_arity_for_next_call;
 
   Args1(MP_N(m, p, n));
 
   if (!cxt_cur_unit ||
-      !strcmp (ux, cxt_cur_unit->str) ||
-      ua != cxt_cur_unit->arity) {
+      !strcmp (ux, cxt_cur_unit->key) ||
+      ua != cxt_cur_unit_arity) {
     ux = "";
     ua = 0;
   }
@@ -1420,7 +1436,7 @@ F_switch_on_atom(ArgVal arg[])
     {
       LOAD_STR(str);
       LOAD_C_INT(label);
-      elem->atom = BT_String_Add(&bt_atom, str);
+      elem->atom = map_put(&map_atom, str, NULL);
       elem->label = label;
     }
 
@@ -1513,7 +1529,7 @@ F_switch_on_structure(ArgVal arg[])
       LOAD_STR(str);
       LOAD_C_INT(arity);
       LOAD_C_INT(label);
-      elem->atom = BT_String_Add(&bt_atom, str);
+      elem->atom = map_put(&map_atom, str, NULL);
       elem->n = arity;
       elem->label = label;
     }
@@ -1798,12 +1814,12 @@ F_call_c(ArgVal arg[])
 	  else if (tagged)
 	    {
 	      LOAD_ATOM_1(atom);
-	      fprintf(file_out, "ta(%d)", atom->no);
+	      fprintf(file_out, "ta(%d)", atom->value);
 	    }
 	  else
 	    {
 	      LOAD_ATOM_0(atom);
-	      fprintf(file_out, "at(%d)", atom->no);
+	      fprintf(file_out, "at(%d)", atom->value);
 	    }
 	  break;
 
@@ -1838,7 +1854,7 @@ F_call_c(ArgVal arg[])
 	    {
 	      DEF_F_N_0(atom, n);
 	      LOAD_F_N_0(atom, n);
-	      fprintf(file_out, "at(%d),%d", atom->no, n);
+	      fprintf(file_out, "at(%d),%d", atom->value, n);
 	    }
 	  break;
 	}
@@ -2075,14 +2091,14 @@ Emit_Obj_Initializer(void)
 
   Label_Printf("\n");
 
-  if (bt_atom.nb_elem)
-    Label_Printf("long local at(%d)", bt_atom.nb_elem);
+  if (map_atom.size)
+    Label_Printf("long local at(%d)", map_atom.size);
 
-  if (bt_tagged_atom.nb_elem)
-    Label_Printf("long local ta(%d)", bt_tagged_atom.nb_elem);
+  if (map_tagged_atom.size)
+    Label_Printf("long local ta(%d)", map_tagged_atom.size);
 
-  if (bt_tagged_f_n.nb_elem)
-    Label_Printf("long local fn(%d)", bt_tagged_f_n.nb_elem);
+  if (map_tagged_f_n.size)
+    Label_Printf("long local fn(%d)", map_tagged_f_n.size);
 
   if (nb_swt_tbl)
     Label_Printf("long local st(%d)", nb_swt_tbl);
@@ -2100,9 +2116,19 @@ Emit_Obj_Initializer(void)
   Inst_Printf("call_c", "printf(\"executing init obj of %s\\n\")", file_name_in);
 #endif
 
-  BT_String_List(&bt_atom, Emit_One_Atom);
-  BT_String_List(&bt_tagged_atom, Emit_One_Atom_Tagged);
-  BT_String_List(&bt_tagged_f_n, Emit_One_F_N_Tagged);
+  map_foreach(&map_atom, entry)
+    {
+      Emit_One_Atom(entry);
+    }
+  map_foreach(&map_tagged_atom, entry)
+    {
+      Emit_One_Atom_Tagged(entry);
+    }
+
+  map_foreach(&map_tagged_f_n, entry)
+    {
+      Emit_One_F_N_Tagged(entry);
+    }
 
   cur_pred_no = 0;
   for (p = dummy_pred_start.next; p; p = p->next)
@@ -2116,19 +2142,18 @@ Emit_Obj_Initializer(void)
 
 #if 0  /* uncomment this to support modules */
       Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),at(%d),%d,at(%d),%d,%d,%s)",
-		  p->module->no, p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		  p->module->value, p->functor->value, p->arity, p->pl_file->value, p->pl_line,
 		  p->prop, q);
 #else
       if (p->cxt_unit)		/* pred in unit (context) */
 	Inst_Printf("call_c", FAST 
 		    "Pl_Create_Pred_Module(at(%d),%d,at(%d),%d,at(%d),%d,%d,%s)",
-		    p->cxt_unit->no,
-		    p->cxt_unit->arity,
-		    p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		    p->cxt_unit->value, p->cxt_unit_arity,
+		    p->functor->value, p->arity, p->pl_file->value, p->pl_line,
 		    p->prop, q);
       else
 	Inst_Printf("call_c", FAST "Pl_Create_Pred(at(%d),%d,at(%d),%d,%d,%s)",
-		    p->functor->no, p->arity, p->pl_file->no, p->pl_line,
+		    p->functor->value, p->arity, p->pl_file->value, p->pl_line,
 		    p->prop, q);
 #endif
 
@@ -2148,7 +2173,7 @@ Emit_Obj_Initializer(void)
 		    sprintf(l, FORMAT_LABEL(t->elem[j].label));
 		    Inst_Printf("call_c", FAST
 				"Pl_Create_Swt_Atm_Element(st(%d),%d,at(%d),&%s)",
-				t->tbl_no, t->nb_elem, (t->elem[j].atom)->no, l);
+				t->tbl_no, t->nb_elem, (t->elem[j].atom)->value, l);
 		  }
 		break;
 
@@ -2171,7 +2196,7 @@ Emit_Obj_Initializer(void)
 		    Inst_Printf("call_c", FAST
 				"Pl_Create_Swt_Stc_Element(st(%d),%d,at(%d),%" PL_FMT_d ",&%s)",
 				t->tbl_no, t->nb_elem,
-				(t->elem[j].atom)->no, t->elem[j].n, l);
+				(t->elem[j].atom)->value, t->elem[j].n, l);
 		  }
 	      }
 	  }
@@ -2211,7 +2236,7 @@ Emit_Exec_Directives(void)
       }
 #endif
       Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
-		  p->pl_file->no, p->pl_line, 1, i);
+		  p->pl_file->value, p->pl_line, 1, i);
     }
 
   Inst_Printf("c_ret", "");
@@ -2235,7 +2260,7 @@ Emit_Exec_Directives(void)
       }
 #endif
       Inst_Printf("call_c", "Pl_Execute_Directive(at(%d),%d,%d,&directive_%d)",
-		  p->pl_file->no, p->pl_line, 0, i);
+		  p->pl_file->value, p->pl_line, 0, i);
     }
 
   Inst_Printf("c_ret", "");
@@ -2249,10 +2274,10 @@ Emit_Exec_Directives(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_Atom(int no, char *str, void *info)
+Emit_One_Atom(struct map_entry *entry)
 {
-  Inst_Printf("call_c", "Pl_Create_Atom(\"%s\")", str);
-  Inst_Printf("move_ret", "at(%d)", no);
+  Inst_Printf("call_c", "Pl_Create_Atom(\"%s\")", entry->key);
+  Inst_Printf("move_ret", "at(%d)", entry->value);
 }
 
 
@@ -2263,16 +2288,16 @@ Emit_One_Atom(int no, char *str, void *info)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_Atom_Tagged(int no, char *str, void *info)
+Emit_One_Atom_Tagged(struct map_entry *entry)
 {
-  BTNode *atom = BT_String_Lookup(&bt_atom, str);
+  struct map_entry *atom = map_get(&map_atom, entry->key);
 
   if (atom)			/* optim: reuse the atom to avoid re-hashing */
-    Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->no);
+    Inst_Printf("call_c", FAST "Pl_Put_Atom(at(%d))", atom->value);
   else
-    Inst_Printf("call_c", FAST "Pl_Create_Atom_Tagged(\"%s\")", str);
+    Inst_Printf("call_c", FAST "Pl_Create_Atom_Tagged(\"%s\")", entry->key);
 
-  Inst_Printf("move_ret", "ta(%d)", no);
+  Inst_Printf("move_ret", "ta(%d)", entry->value);
 }
 
 
@@ -2290,7 +2315,7 @@ Add_F_N_Tagged(char *atom, int n)
   atom = (char *) realloc(atom, l + 5 + 1);
   sprintf(atom + l, "/%d", n);
 
-  return BT_String_Add(&bt_tagged_f_n, atom)->no;
+  return map_put(&map_tagged_f_n, atom, NULL)->value;
 }
 
 
@@ -2301,10 +2326,11 @@ Add_F_N_Tagged(char *atom, int n)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_One_F_N_Tagged(int no, char *str, void *info)
+Emit_One_F_N_Tagged(struct map_entry *entry)
 {
   int n;
-  char *p = str + strlen(str) - 1;
+  char *str = entry->key;
+  char *p;
 
   for(p = str + strlen(str) - 1; *p != '/'; p--)
     ;
@@ -2313,7 +2339,7 @@ Emit_One_F_N_Tagged(int no, char *str, void *info)
   *p = '\0';
 
   Inst_Printf("call_c", FAST "Pl_Create_Functor_Arity_Tagged(\"%s\",%d)", str, n);
-  Inst_Printf("move_ret", "fn(%d)", no);
+  Inst_Printf("move_ret", "fn(%d)", entry->value);
 }
 
 
@@ -2476,13 +2502,14 @@ Display_Help(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Cxt_Unit_Name(BTNode *unit_name, int arity)
+Cxt_Unit_Name(struct map_entry *unit_name, int arity)
 {
-  if (strcmp(unit_name->str, "[]") == 0)
+  if (strcmp(unit_name->key, "[]") == 0) {
     cxt_cur_unit = NULL;
-  else {
+    cxt_cur_unit_arity = 0;
+  } else {
     cxt_cur_unit = unit_name;
-    cxt_cur_unit->arity = arity;
+    cxt_cur_unit_arity = arity;
   }
 }
 
@@ -2499,11 +2526,9 @@ F_cxt_execute(ArgVal arg[])
   Args2(F_N(atom, n), X_Y(xy));
 
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Cxt_Call_Tagged(fn(%d),%c(%d))", 
-	      f_n_no, c, xy);
+  Inst_Printf("call_c", FAST "Cxt_Call_Tagged(fn(%d),%c(%d))", f_n_no, c, xy);
 #else
-  Inst_Printf("call_c", FAST "Cxt_Call(at(%d),%ld,%c(%d))",
-	      atom->no, n, c, xy);
+  Inst_Printf("call_c", FAST "Cxt_Call(at(%d),%ld,%c(%d))", atom->no, n, c, xy);
 #endif
   Inst_Printf("jump_ret", "");
 }
@@ -2556,7 +2581,7 @@ F_cxt_unit_for_next_call(ArgVal arg[])
   for (p = str_atom; *p && *p != '/'; ++p)
     ;
   *p = 0;
-  cxt_arity_for_next_call = n;
+  cxt_unit_arity_for_next_call = n;
 }
 
 

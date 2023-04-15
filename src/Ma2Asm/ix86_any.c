@@ -148,12 +148,12 @@ Bool load_pb_reg = FALSE;
 int pb_label_no = 0;
 char pb_label[32];
 
-#include "../Wam2Ma/bt_string.h"
-BTString bt_stub;
-BTString bt_non_lazy;
+#define MAP_KEY_TYPE char *
+#define MAP_KEY_CMP(x, y) strcmp(x, y)
+#include "../Tools/map_rbtree.h"
 
-void Emit_Non_Lazy(int str_no, char *name, void *unused_info);
-void Emit_Stub(int str_no, char *name, void *unused_info);
+struct map_rbt map_stub;
+struct map_rbt map_non_lazy;
 
 #endif
 
@@ -190,8 +190,8 @@ void Init_Mapper(void)
   mi.call_c_reverse_args = FALSE;
 
 #ifdef M_darwin
-  BT_String_Init(&bt_stub);
-  BT_String_Init(&bt_non_lazy);
+  map_init(&map_stub);
+  map_init(&map_non_lazy);
 #endif
 }
 
@@ -262,19 +262,27 @@ Asm_Stop(void)
 #endif
 
 #ifdef M_darwin
-  if (bt_non_lazy.nb_elem)
+  if (map_non_lazy.size)
     {
       Inst_Printf(".section __IMPORT,__pointers,non_lazy_symbol_pointers", "%s", "");
-      BT_String_List(&bt_non_lazy, Emit_Non_Lazy);
+      map_foreach(&map_non_lazy, entry)
+	{
+	  Label_Printf("L_%s$non_lazy_ptr:", entry->key);
+	  Label_Printf("\t.indirect_symbol _%s", entry->key);
+	  Inst_Printf(".long", "0");
+	}
     }
 
-  if (bt_stub.nb_elem)
+  if (map_stub.size)
     {
       Inst_Printf(".section __IMPORT,__jump_table,symbol_stubs,self_modifying_code+pure_instructions,5", "%s", "");
-
-      BT_String_List(&bt_stub, Emit_Stub);
+      map_foreach(&map_stub, entry)
+	{
+	  Label_Printf("L_%s$stub:", entry->key);
+	  Label_Printf(".indirect_symbol _%s", entry->key);
+	  Inst_Printf("hlt ; hlt ; hlt ; hlt ; hlt", "%s", "");
+	}
     }
-
 
   Inst_Printf(".subsections_via_symbols", "%s", "");
   Inst_Printf(".section", "__TEXT,__textcoal_nt,coalesced,pure_instructions");
@@ -287,24 +295,6 @@ Asm_Stop(void)
 }
 
 #ifdef M_darwin
-void
-Emit_Non_Lazy(int str_no, char *name, void *unused_info)
-{
-  Label_Printf("L_%s$non_lazy_ptr:", name);
-  Label_Printf("\t.indirect_symbol _%s", name);
-  Inst_Printf(".long", "0");
-}
-
-void
-Emit_Stub(int str_no, char *name, void *unused_info)
-{
-  Label_Printf("L_%s$stub:", name);
-  Label_Printf(".indirect_symbol _%s", name);
-  Inst_Printf("hlt ; hlt ; hlt ; hlt ; hlt", "%s", "");
-}
-
-
-
 void
 Load_PB_Reg(void)
 {
@@ -414,7 +404,7 @@ Pl_Jump(char *label)
 #ifdef M_darwin
   if (!Is_Code_Defined(label))
     {
-      BT_String_Add(&bt_stub, strdup(label));
+      map_put(&map_stub, strdup(label), NULL);
       Inst_Printf("jmp", "L_%s$stub", label);
     }
   else
@@ -757,7 +747,7 @@ Call_C_Arg_Mem_L(int offset, Bool adr_of, char *name, int index)
   if ((l && l->global && l->vtype != INITIAL_VALUE) ||
       (!l && !Is_Code_Defined(name))) /* external code */
     {
-      BT_String_Add(&bt_non_lazy, name); /* strdup done by parser */
+      map_put(&map_non_lazy, name, NULL); /* strdup done by parser */
       Inst_Printf("movl", "L_%s$non_lazy_ptr-%s, %s", name, pb_label, r_aux);
       if (adr_of)
 	{

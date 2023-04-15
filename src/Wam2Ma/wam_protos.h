@@ -37,7 +37,6 @@
 
 #include "../EnginePl/pl_long.h"
 #include "../EnginePl/bool.h"
-#include "bt_string.h"
 
 
 /*---------------------------------*
@@ -183,8 +182,6 @@ void F_call_c(ArgVal arg[]);
 void F_foreign_call_c(ArgVal arg[]);
 
 /* --- Contexts --- */
-
-void Cxt_Unit_Name(BTNode *unit_name, int arity);
 
 void F_cxt_call(ArgVal arg[]);
 

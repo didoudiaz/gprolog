@@ -15,7 +15,7 @@ WAMS    = $(PLS:.pl=.wam)
 #.pl.wam:
 #	$(GPLC) -W $(GPLCFLAGS) $*.pl
 # we now use pl2wam to compile .pl->.wam 
-# only to be able to execute check-i (in interpreted mode)
+# only to be able to execute check-e (in emulated mode)
 .pl.wam:
 	$(PL2WAM) $(PLFLAGS) $*.pl
 

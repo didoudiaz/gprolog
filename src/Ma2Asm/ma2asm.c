@@ -35,20 +35,48 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 #include "../EnginePl/gp_config.h"
-#include "../Wam2Ma/bt_string.c"
 #include "../TopComp/copying.c"
+
 
 #define MA2ASM_FILE
 
 #include "ma_parser.h"
 #include "ma_protos.h"
+
+/* we need several maps, in all case the key is a string */
+#define MAP_KEY_TYPE char *
+#define MAP_KEY_CMP(x, y) strcmp(x, y)
+
+#define MAP_VALUE_TYPE CodeInf
+#define MAP_NAME map_cod
+#include "../Tools/map_rbtree.h"
+
+#undef MAP_VALUE_TYPE
+#undef MAP_NAME
+#define MAP_VALUE_TYPE LongInf
+#define MAP_NAME map_lng
+#define MAP_RE_INCLUDE
+#include "../Tools/map_rbtree.h"
+
+#undef MAP_VALUE_TYPE
+#undef MAP_NAME
+#define MAP_VALUE_TYPE StringInf
+#define MAP_NAME map_str
+#define MAP_RE_INCLUDE
+#include "../Tools/map_rbtree.h"
+
+#undef MAP_VALUE_TYPE
+#undef MAP_NAME
+#define MAP_VALUE_TYPE DoubleInf
+#define MAP_NAME map_dbl
+#define MAP_RE_INCLUDE
+#include "../Tools/map_rbtree.h"
 
 
 #if 0
@@ -86,10 +114,10 @@ LabelGen lg_cont; /* local label generator for continuations (always available) 
 
 FILE *file_out;
 
-BTString bt_code;		/* only filled if pre-pass is activated */
-BTString bt_long;
-BTString bt_string;
-BTString bt_double;		/* only filled used if needed */
+struct map_cod_rbt map_code;		/* only filled if pre-pass is activated */
+struct map_lng_rbt map_long;
+struct map_str_rbt map_string;
+struct map_dbl_rbt map_double;		/* only filled used if needed */
 
 char *initializer_fct = NULL;
 
@@ -101,12 +129,6 @@ int local_label_count = 0;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-void Invoke_Dico_String(int no, char *str, void *info);
-
-void Invoke_Dico_Double(int no, char *str, void *info);
-
-void Invoke_Dico_Long(int no, char *str, void *info);
 
 StringInf *Record_String(char *str);
 
@@ -168,10 +190,10 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-  BT_String_Init(&bt_code); 		/* only filled if pre_pass is activated */
-  BT_String_Init(&bt_long);
-  BT_String_Init(&bt_string);
-  BT_String_Init(&bt_double);		/* only filled if dico double is needed */
+  map_cod_init(&map_code); 		/* only filled if pre_pass is activated */
+  map_lng_init(&map_long);
+  map_str_init(&map_string);
+  map_dbl_init(&map_double);		/* only filled if dico double is needed */
 
   Label_Gen_Init(&lg_cont, "cont");	/* available for any mapper */
   
@@ -191,27 +213,38 @@ main(int argc, char *argv[])
 
   Data_Start(initializer_fct);
 
-  n = bt_string.nb_elem;
+  n = map_string.size;
   if (n)
     {
       Dico_String_Start(n);
-      BT_String_List(&bt_string, Invoke_Dico_String);
+      map_foreach(&map_string, entry)
+	{
+	  Dico_String(&entry->value);
+	}
       Dico_String_Stop(n);
     }
 
-  n = bt_double.nb_elem;
+  n = map_double.size;
   if (n)
     {
       Dico_Double_Start(n);
-      BT_String_List(&bt_double, Invoke_Dico_Double);
+      map_foreach(&map_double, entry)
+        {
+          if (comment)
+	    Inst_Printf("", "%s %s", mi.comment_prefix, entry->value.cmt_str);
+	  Dico_Double(&entry->value);
+        }
       Dico_Double_Stop(n);
     }
 
-  n = bt_long.nb_elem;
+  n = map_long.size;
   if (n)
     {
       Dico_Long_Start(n);
-      BT_String_List(&bt_long, Invoke_Dico_Long);
+      map_foreach(&map_long, entry)
+	{
+	  Dico_Long(&entry->value);
+	}
       Dico_Long_Stop(n);
     }
 
@@ -229,52 +262,6 @@ main(int argc, char *argv[])
 
 
 /*-------------------------------------------------------------------------*
- * INVOKE_DICO_STRING                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Invoke_Dico_String(int no, char *str, void *info)
-{
-  StringInf *d = (StringInf *) info;
-  Dico_String(d);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * INVOKE_DICO_DOUBLE                                                      *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Invoke_Dico_Double(int no, char *str, void *info)
-{
-  DoubleInf *d = (DoubleInf *) info;
-
-  if (comment)
-    Inst_Printf("", "%s %s", mi.comment_prefix, d->cmt_str);
-      
-  Dico_Double(d);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * INVOKE_DICO_LONG                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Invoke_Dico_Long(int no, char *name, void *info)
-{
-  LongInf *l = (LongInf *) info;
-  Dico_Long(l);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * RECORD_STRING                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -282,14 +269,21 @@ StringInf *
 Record_String(char *str)
 {
   char label[32];
-  BTNode *b = BT_String_Add(&bt_string, str);
-  StringInf *s = (StringInf *) &b->info;
-  s->no = b->no;
-  s->str = str;
-  sprintf(label, "%s%d", mi.string_symb_prefix, s->no);
-  s->symb = strdup(label);
+  bool created;
+  struct map_str_entry *entry = map_put(&map_string, str, &created);
+  StringInf *s = &entry->value;
+
+  if (created)
+    {
+      s->no = map_string.counter_add - 1;
+      s->str = str;
+      sprintf(label, "%s%d", mi.string_symb_prefix, s->no);
+      s->symb = strdup(label);
+    }
+
   return s;
 }
+
 
 
 
@@ -301,29 +295,33 @@ DoubleInf *
 Record_Double(char *ma_str, double dbl_val)
 {
   char label[32];
-  char *p;
   static char cmt[64];
-  BTNode *b = BT_String_Add(&bt_double, ma_str);
-  DoubleInf *d = (DoubleInf *) &b->info;
-  d->no = b->no;
-  d->ma_str = ma_str;
-  sprintf(label, "%s%d", mi.double_symb_prefix, d->no);
-  d->symb = strdup(label);
-  d->v.dbl = dbl_val;
+  bool created;
+  struct map_dbl_entry *entry = map_put(&map_double, ma_str, &created);
+  DoubleInf *d = &entry->value;
 
-  /* check if the double read in MA file is given in a human-readable form */
-  p = ma_str;
-  while(*p && strchr("0123456789.-eE", *p))
-    p++;
-
-  d->is_ma_str_human = (*p == '\0');
-
-  if (d->is_ma_str_human)
-    d->cmt_str = d->ma_str;
-  else
+  if (created)
     {
-      sprintf(cmt, "%s = %1.17g", ma_str, dbl_val);
-      d->cmt_str = strdup(cmt);
+      d->no = map_double.counter_add - 1;
+      d->ma_str = ma_str;
+      sprintf(label, "%s%d", mi.double_symb_prefix, d->no);
+      d->symb = strdup(label);
+      d->v.dbl = dbl_val;
+
+      /* check if the double read in MA file is given in a human-readable form */
+      char *p = ma_str;
+      while(*p && strchr("0123456789.-eE", *p))
+	p++;
+
+      d->is_ma_str_human = (*p == '\0');
+
+      if (d->is_ma_str_human)
+	d->cmt_str = d->ma_str;
+      else
+	{
+	  sprintf(cmt, "%s = %1.17g", ma_str, dbl_val);
+	  d->cmt_str = strdup(cmt);
+	}
     }
 
   return d;
@@ -352,14 +350,9 @@ Declare_Initializer(char *init_fct)
 void				/* called if pre_pass */
 Decl_Code(CodeInf *c)
 {
-  CodeInf *c1;
-  /* needs to create a copy of c (malloc)
-   * actually donne by BT_String_Add 
-   */
-
-		/* name: strdup done by the parser */
-  c1 = (CodeInf *) &BT_String_Add(&bt_code, c->name)->info;
-  *c1 = *c;
+  /* map_put ensures space for a copy of c
+   * name: strdup done by the parser */
+  map_put(&map_code, c->name, NULL)->value = *c;
 }
 
 
@@ -393,14 +386,9 @@ Decl_Label(char *name, int approx_inst_line)
 void
 Decl_Long(LongInf *l)
 {
-  LongInf *l1;
-  /* needs to create a copy of c (malloc)
-   * actually donne by BT_String_Add 
-   */
-
-		/* name: strdup done by the parser */
-  l1 = (LongInf *) &BT_String_Add(&bt_long, l->name)->info;
-  *l1 = *l;
+  /* map_put ensures space for a copy of l
+   * name: strdup done by the parser */
+  map_put(&map_long, l->name, NULL)->value = *l;
 }
 
 
@@ -419,7 +407,7 @@ Is_Code_Defined(char *name)
     printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
 #endif
 
-  return (BT_String_Lookup(&bt_code, name) != NULL);
+  return map_contains(&map_code, name);
 }
 
 
@@ -433,14 +421,14 @@ Is_Code_Defined(char *name)
 CodeInf *
 Get_Code_Infos(char *name)
 {
-  BTNode *b = BT_String_Lookup(&bt_code, name);
+  struct map_cod_entry *entry = map_get(&map_code, name);
 
 #ifdef DEBUG
   if (!mi.needs_pre_pass)
     printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
 #endif
 
-  return (b == NULL) ? NULL : (CodeInf *) &b->info;
+  return (entry == NULL) ? NULL : &entry->value;
 }
 
 
@@ -453,9 +441,9 @@ Get_Code_Infos(char *name)
 LongInf *
 Get_Long_Infos(char *name)
 {
-  BTNode *b = BT_String_Lookup(&bt_long, name);
+  struct map_lng_entry *entry = map_get(&map_long, name);
 
-  return (b == NULL) ? NULL : (LongInf *) &b->info;
+  return (entry == NULL) ? NULL : &entry->value;
 }
 
 
@@ -507,7 +495,7 @@ Scope_Of_Symbol(char *name, Bool *global)
 
 #define Has_Prefix(p) (*p && strncmp(name, p, strlen(p)) == 0)
 
-  /* test other local symbols (not recorded in bt_code/bt_long, e.g. strings) */
+  /* test other local symbols (not recorded in map_code/map_long, e.g. strings) */
   if (*name == '.' ||
       Has_Prefix(mi.local_symb_prefix) ||
       Has_Prefix(mi.string_symb_prefix) ||
