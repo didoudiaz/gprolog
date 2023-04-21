@@ -26,10 +26,10 @@ clean-check:
 	rm -rf map_test@EXE_SUFFIX@
 
 map_test@EXE_SUFFIX@: map_test.c map_rbtree.h rbtree@OBJ_SUFFIX@
-	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@map_test@EXE_SUFFIX@ map_test.c rbtree@OBJ_SUFFIX@
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@map_test@EXE_SUFFIX@ map_test.c rbtree@OBJ_SUFFIX@
 
 map_example@EXE_SUFFIX@: map_example.c map_rbtree.h rbtree@OBJ_SUFFIX@
-	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@map_example@EXE_SUFFIX@ map_example.c rbtree@OBJ_SUFFIX@
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@map_example@EXE_SUFFIX@ map_example.c rbtree@OBJ_SUFFIX@
 
 
 

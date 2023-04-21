@@ -97,7 +97,6 @@
 
 #define DEFAULT_SEPARATORS         " ,;:-'\"!@$#^&()-+*/\\[]|<=>`~{}"
 
-#define MAX_WORDS_IN_COMP_DICO     25000 /* should be limited (see Pl_LE_Compl_Add_Word) */
 #define NB_MATCH_LINES_BEFORE_ASK  20
 
 #define OPEN_BRACKET               "([{"
@@ -126,17 +125,6 @@ HistCell;
 
 
 
-typedef struct comp_node CompNode;
-
-struct comp_node
-{
-  char *word;
-  int word_length;
-  CompNode *next;
-};
-
-
-
 
 /*---------------------------------*
  * Global Variables                *
@@ -160,27 +148,17 @@ static int hist_start = 0;
 static int hist_end = 0;
 
 
-static int comp_nb_words = 0;
-static CompNode *comp_start = NULL;
-static CompNode *comp_first_match;
-static CompNode *comp_last_match;
-static int comp_nb_match;
-static int comp_match_max_lg;
-
-static CompNode *comp_cur_match;
-
-
 
 
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
-static int New_Char(int c, char *str, int size, char **p_pos, char **p_end);
+static bool New_Char(int c, char *str, int size, char **p_pos, char **p_end);
 
 static char *Skip(char *from, char *limit, int res_sep_cmp, int direction);
 
-static int Is_A_Separator(char c);
+static bool Is_A_Separator(char c);
 
 static int Search_Bracket(char *brackets, char c);
 
@@ -196,15 +174,13 @@ static int History_Get_Line(char *str, int hist_no);
 
 
 
-static char *Completion_Do_Match(char *prefix, int prefix_length, int *rest_length);
-
-static void Completion_Print_All(void);
+static void Display_All_Completions(ComplMatch *compl_match);
 
 static void Display_Help(void);
 
 
 
-#define NewLn()  { PUT_CHAR('\n'); }
+#define NEW_LN()  { PUT_CHAR('\n'); }
 
 
 #define Hist_Inc(n)   { if (++(n) >= MAX_HISTORY_LINES) (n) = 0; }
@@ -271,11 +247,11 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
   char *p, *q, *start, *stop;
   char w;
   int c, n, n1;
-  int last_was_eof = 0;
+  bool last_was_eof = false;
   int h_no = Hist_End_Entry();
-  int rest_length;
   int tab_count = 0;
   int count_bracket[3];
+  ComplMatch compl_match;
 
   Pl_LE_Initialize();
 
@@ -362,7 +338,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           last_was_eof = (c == KEY_CTRL('D'));
         }
       else
-        last_was_eof = 0;
+        last_was_eof = false;
 
       if (c != '\t')
         tab_count = 0;
@@ -565,8 +541,8 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
             {
               if (++tab_count > NB_TAB_BEFORE_LIST)
                 {
-                  NewLn();
-                  Completion_Print_All();
+                  NEW_LN();
+                  Display_All_Completions(&compl_match);
                   goto re_display_line;
                 }
               goto error;
@@ -574,18 +550,22 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
           p = (pos == str) ? pos : pos - 1; /* to avoid start of a word */
           p = Skip(p, str, 0, -1);      /* skip non separators */
           p = Skip(p, end, 1, +1);      /* skip separators */
-          w = *pos;             /* prefix from p to pos */
+	  n = (int) (pos - p);
+	  w = *pos;			/* prefix from p to pos */
           *pos = '\0';
-          p = Completion_Do_Match(p, (int) (pos - p), &rest_length);
-          *pos = w;
-          if (p == NULL)
+ //	  printf("p: %p  pos: %p p[1]: %d  *p:%d\n", p, pos, p[1], *p);
+	  Pl_LE_Compl_Match_First(&compl_match, p, n);
+	  *pos = w;
+	  if (compl_match.nb_match == 0)
             goto error;
-
-          while (rest_length--)
+ //	  printf("\nmatch prefix: <%s> len: %d   cur_word: <%s>  max_prefix_len: %d (%.*s)\n", p, n, compl_match.cur_word, compl_match.max_prefix_length, compl_match.max_prefix_length, compl_match.cur_word);
+	  p = compl_match.cur_word + n;
+	  n = compl_match.max_prefix_length - n; /* display rest to complete longest prefix */
+          while (n--)
             if (!New_Char(*p++, str, size, &pos, &end))
               goto error;
 
-          if (comp_first_match != comp_last_match)
+          if (compl_match.nb_match > 1)
             {
               tab_count = 1;
               goto error;       /* for the beep */
@@ -661,7 +641,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
 
         case KEY_ESC('P'):      /* history: recall previous matching line */
-          if (Hist_Is_Empty() || pos == str)
+         if (Hist_Is_Empty() || pos == str)
             goto error;
           *end = '\0';
           History_Update_Line(str, (int) (end - str), h_no);
@@ -719,7 +699,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
 
         case KEY_ESC('?'):      /* display help */
         display_help:
-          NewLn();
+          NEW_LN();
           Display_Help();
           goto re_display_line;
 
@@ -813,7 +793,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
     }
 
  finish:
-  NewLn();
+  NEW_LN();
 
   Pl_LE_Close_Terminal();
 
@@ -827,7 +807,7 @@ Pl_LE_FGets(char *str, int size, char *prompt, int display_prompt)
  * NEW_CHAR                                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
+static bool
 New_Char(int c, char *str, int size, char **p_pos, char **p_end)
 {
   char *pos = *p_pos;
@@ -835,7 +815,7 @@ New_Char(int c, char *str, int size, char **p_pos, char **p_end)
   char *p;
 
   if ((ins_mode || pos == end) && end - str >= size)
-    return 0;
+    return false;
 
   if (!ins_mode)
     {
@@ -859,7 +839,7 @@ New_Char(int c, char *str, int size, char **p_pos, char **p_end)
   *p_pos = pos;
   *p_end = end;
 
-  return 1;
+  return true;
 }
 
 
@@ -944,6 +924,27 @@ Pl_LE_Set_Separators(char *sep_str)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_LE_ADJUST_WORD_FOR_COMPLETION                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_LE_Adjust_For_Completion(char *word)
+{	 /* to check word (done in atom.c) */
+  char *s;
+  while(Is_A_Separator(*word))	/* skip leading separators */
+    word++;
+
+  for(s = word; *s; s++)
+    if (Is_A_Separator(*s))
+      return NULL;
+
+  return word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_LE_GET_CTRL_C_RETURN_VALUE                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -981,17 +982,17 @@ Skip(char *from, char *limit, int res_sep_cmp, int direction)
  * IS_A_SEPARATOR                                                          *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
+static bool
 Is_A_Separator(char c)
 {
   char *p;
 
-  /* like strchr(separators,c) but does not take into account '\0' */
+  /* like strchr(separators, c) but does not take into account '\0' */
   for (p = separators; *p; p++)
     if (*p == c)
-      return 1;
+      return true;
 
-  return 0;
+  return false;
 }
 
 
@@ -1109,292 +1110,71 @@ History_Get_Line(char *str, int hist_no)
 
 
 /*-------------------------------------------------------------------------*
- * PL_LE_COMPL_ADD_WORD                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_LE_Compl_Add_Word(char *word, int word_length)
-{
-  CompNode **p;
-  CompNode *q;
-  int cmp;
-
-  if (comp_nb_words >= MAX_WORDS_IN_COMP_DICO)
-    return NULL;
-
-#if 0				/* uncomment to check word (here done in atom.c) */
-  char *s;
-  while(Is_A_Separator(*word))	/* skip leading separators */
-    {
-      word++;
-      word_length--;
-    }
-
-  for(s = word; *s; s++)
-    if (Is_A_Separator(*s))
-      return NULL;
-#endif
-
-  /* this is slow if adding a lot of words, e.g. with a large database of n atoms
-   * basically in O(n^2).
-   * We thus limit the total number of words added in completion dico.
-   * Else, use a better data structure (e.g. prefix Trie - see cpt_string.c)
-   */
-  for (p = &comp_start; *p; p = &(*p)->next)
-    {
-      cmp = strcmp((*p)->word, word);
-      if (cmp == 0)
-        return word;
-
-      if (cmp > 0)
-        break;
-    }
-
-  if ((q = (CompNode *) malloc(sizeof(CompNode))) == NULL)
-    exit(1);
-
-  q->word = word;
-  q->word_length = word_length;
-  q->next = *p;
-  *p = q;
-
-  comp_nb_words++;
-
-  return word;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_LE_COMPL_DEL_WORD                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_LE_Compl_Del_Word(char *word)
-{
-  CompNode **p;
-  CompNode *q;
-  int cmp;
-
-  for (p = &comp_start; *p; p = &(*p)->next)
-    {
-      cmp = strcmp((*p)->word, word);
-      if (cmp == 0)
-        break;
-
-      if (cmp > 0)
-        return NULL;
-    }
-
-  q = *p;
-  *p = q->next;
-  free(q);
-
-  return word;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_LE_COMPL_INIT_MATCH                                                  *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg)
-{
-  int prefix_length, rest_length;
-  char *str;
-
-  prefix_length = (int) strlen(prefix);
-
-  if (Completion_Do_Match(prefix, prefix_length, &rest_length) == NULL)
-    return NULL;
-
-  if ((str = (char *) malloc(prefix_length + rest_length + 1)) == NULL)
-    exit(1);
-
-  *nb_match = comp_nb_match;
-  *max_lg = comp_match_max_lg;
-  comp_cur_match = comp_first_match;
-
-  strncpy(str, comp_first_match->word, prefix_length + rest_length);
-  str[prefix_length + rest_length] = '\0';
-  return str;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_LE_COMPL_FIND_MATCH                                                  *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_LE_Compl_Find_Match(int *is_last)
-{
-  char *str;
-
-  if (comp_cur_match == NULL)
-    return NULL;
-
-  str = comp_cur_match->word;
-  if (comp_cur_match != comp_last_match)
-    {
-      comp_cur_match = comp_cur_match->next;
-      *is_last = 0;
-    }
-  else
-    {
-      comp_cur_match = NULL;
-      *is_last = 1;
-    }
-
-  return str;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * COMPLETION_DO_MATCH                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static char *
-Completion_Do_Match(char *prefix, int prefix_length, int *rest_length)
-{
-  CompNode *p;
-  int cmp;
-  int l;
-  char w;
-
-
-  comp_first_match = NULL;
-  comp_nb_match = 0;
-  comp_match_max_lg = 0;
-
-  for (p = comp_start; p; p = p->next)
-    {
-      cmp = strncmp(p->word, prefix, prefix_length);
-      if (cmp == 0)
-        {
-          if (comp_first_match == NULL)
-            comp_first_match = p;
-
-          comp_last_match = p;
-          comp_nb_match++;
-          if (p->word_length > comp_match_max_lg)
-            comp_match_max_lg = p->word_length;
-        }
-      else if (cmp > 0)
-        break;
-    }
-
-  if (comp_first_match == NULL)
-    return NULL;
-
-  if (comp_first_match == comp_last_match)
-    *rest_length = comp_first_match->word_length - prefix_length;
-  else
-    {                           /* determine longest common suffix */
-      l = prefix_length;
-      for (;;)
-        {
-          w = comp_first_match->word[l];
-          p = comp_first_match->next;
-          for (;;)
-            {
-              if (p->word[l] != w)      /* also deals with '\0' */
-                goto diff_found;
-
-              if (p == comp_last_match)
-                break;
-              p = p->next;
-            }
-
-          l++;
-        }
-    diff_found:
-      *rest_length = l - prefix_length;
-    }
-
-  return comp_first_match->word + prefix_length;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * COMPLETION_PRINT_ALL                                                    *
+ * DISPLAY_ALL_COMPLETIONS                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Completion_Print_All(void)
+Display_All_Completions(ComplMatch *compl_match)
 {
-  CompNode *p, *p1;
+  int nb_match = compl_match->nb_match;
+  int max_word_length = compl_match->max_word_length;
   int row, col;
-  int nb_in_a_line, nb_lines;
-  int nb_in_last_line, nb_miss_in_last_line;
-  int spaces, skip;
-  int k;
-  char buff[512];
+  int nb_cols, nb_lines;
+  int space_between;
+  char buff[64];
   int l, c;
 
 
   SCREEN_SIZE(&row, &col);
 
-  nb_in_a_line = col / (comp_match_max_lg + 2); /* at least 2 chars to separate */
+#define MIN_CHARS_BETWEEN_WORDS 1
 
-  if (nb_in_a_line <= 1)
-    nb_in_a_line = 1;
+  /* col - 1 to avoid to fully fill a line (keep at least 1 char after last word) */
+  nb_cols = (col - 1 + MIN_CHARS_BETWEEN_WORDS) / (max_word_length + MIN_CHARS_BETWEEN_WORDS); 
+  if (nb_cols < 1)
+    nb_cols = 1;
+  
+  nb_lines = (nb_match + nb_cols - 1) / nb_cols;
 
-  nb_lines = (comp_nb_match + nb_in_a_line - 1) / nb_in_a_line;
-  nb_in_last_line = ((comp_nb_match - 1) % nb_in_a_line) + 1;
-  nb_miss_in_last_line = nb_in_a_line - nb_in_last_line;
+#if 0
+  printf("rows: %d  cols: %d   maxlg:%d  nb cols: %d  width:%d  nb lines: %d\n",
+	 row, col, max_word_length, nb_cols,
+	 nb_cols * max_word_length + (nb_cols - 1) * MIN_CHARS_BETWEEN_WORDS,
+	 nb_lines);
+#endif
 
-  spaces = (nb_in_a_line == 1) ? 0 : (col - nb_in_a_line * comp_match_max_lg) / nb_in_a_line;
-
+#if 1	      /* fixed nb of chars between columns */
+  space_between = MIN_CHARS_BETWEEN_WORDS;
+#else	     /* spread the display on all the width of the screen (cols chars) */
+  space_between = ((col - 1) - (nb_cols * max_word_length)) / (nb_cols - 1);
+#endif
 
   if (nb_lines > NB_MATCH_LINES_BEFORE_ASK)     /* too many matchings ? */
     {
-      sprintf(buff, "Show all %d possibilities (y/n) ? ", comp_nb_match);
+      sprintf(buff, "Show all %d possibilities (y/n) ? ", nb_match);
       DISPL_STR(buff);
       c = Pl_LE_Get_Char();
-      NewLn();
-      if (c != 'y')
+      NEW_LN();
+      if (c != 'y' && c != 'Y')
         return;
     }
 
-  p = comp_first_match;
-  l = 0;
-  for (;;)
+  for(l = 0; l < nb_lines; l++)
     {
-      p1 = p;
-      c = 0;
-      for (;;)
-        {
-          DISPL_STR(p1->word);
-
-          if (++c == ((l < nb_lines - 1) ? nb_in_a_line : nb_in_last_line))
-            break;
-
-          sprintf(buff, "%*s", comp_match_max_lg - p1->word_length + spaces,
-                  "");
-          DISPL_STR(buff);
-
-          skip = nb_lines;
-          if (c > nb_in_a_line - nb_miss_in_last_line)
-            skip--;
-          for (k = 0; k < skip; k++)
-            p1 = p1->next;
-        }
-
-      NewLn();
-      if (++l == nb_lines)
-        break;
-
-      p = p->next;
+      /* no space after the last word, so display <space of previous word><curr word> */
+      int space_prev = 0;
+      for(c = 0; c < nb_cols; c++)
+	{
+	  int no = c * nb_lines + l;
+	  if (Pl_LE_Compl_Match_Goto(compl_match, no))
+	    {
+	      while(space_prev--)
+		PUT_CHAR(' ');
+	      DISPL_STR(compl_match->cur_word);
+	      space_prev = max_word_length - compl_match->cur_word_length + space_between;
+	    }
+	}
+      NEW_LN();
     }
 }
 
@@ -1407,7 +1187,7 @@ Completion_Print_All(void)
  *-------------------------------------------------------------------------*/
 static void
 Display_Help(void)
-#define L(msg)     DISPL_STR(msg); NewLn()
+#define L(msg)     DISPL_STR(msg); NEW_LN()
 {
   char buff[80];
 

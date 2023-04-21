@@ -7,7 +7,7 @@ AR_RC                = @AR_RC@
 RANLIB               = @RANLIB@
 
 LIBNAME = $(LIB_LINEDIT)
-OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@
+OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@ completion@OBJ_SUFFIX@ ../Tools/rbtree@OBJ_SUFFIX@
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
@@ -27,6 +27,11 @@ $(LIBNAME): $(OBJLIB)
 terminal@OBJ_SUFFIX@: terminal.h
 
 linedit@OBJ_SUFFIX@: linedit.h terminal.h ctrl_c.h
+
+completion@OBJ_SUFFIX@: completion.h ../Tools/map_rbtree.h
+
+../Tools/rbtree@OBJ_SUFFIX@:
+	(cd ../Tools; $(MAKE))
 
 
 clean:
