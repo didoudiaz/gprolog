@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#if 1
 #define MAP_KEY_TYPE int
 #define MAP_KEY_CMP(x, y) ((x) - (y))
 #define MAP_SHOW_ENTRY(map, entry) printf("%d", entry->key)
@@ -51,10 +52,10 @@ example1(void)
 
   map_init(&map);
 
-  for(int i = 0; i < 100; i+=2)
+  for(int i = 0; i < 100; i += 2)
     map_put(&map, i, NULL);
 
-  for(int i = 0; i < 100; i+=2)
+  for(int i = 0; i < 100; i += 2)
     if (i % 3 == 0)
       map_remove(&map, i);
 
@@ -72,10 +73,94 @@ example1(void)
   
   map_clear(&map);
 }
+#endif
+
+
+
+struct str_len
+{
+  char *str;
+  int len;
+};
+
+int
+str_len_cmp(struct str_len *x, struct str_len *y)
+{
+  int i = 0;
+  while(i < x->len && i < y->len && x->str[i] == y->str[i])
+    i++;
+
+  if (i < x->len && i < y->len)
+    return (unsigned char) x->str[i] - (unsigned char) y->str[i];
+
+  return x->len - y->len;
+}
+
+
+/* key is a struct, it can be passed either by value (copy of the content) or
+ * by pointer (faster).
+ * In any case the space for the struct is reserved in the entry
+ */
+#if 1
+#define MAP_KEY_PASSED_BY_PTR
+#endif
+
+#undef MAP_KEY_TYPE
+#undef MAP_KEY_CMP
+#undef MAP_SHOW_ENTRY
+#define MAP_KEY_TYPE struct str_len
+#ifndef MAP_KEY_PASSED_BY_PTR
+#define MAP_KEY_CMP(x, y) (str_len_cmp(&x, &y))
+#else
+#define MAP_KEY_CMP(x, y) (str_len_cmp(x, y))
+#endif
+#define MAP_VALUE_TYPE char *
+#define MAP_SHOW_ENTRY(map, entry) printf("%.*s = %s", entry->key.len, entry->key.str, entry->value)
+#define MAP_NAME map_sl
+#define MAP_RE_INCLUDE
+#include "map_rbtree.h"
+
+char *t[] =  {
+  "lackLACK", "unavailabilityUNAVAILABILITY", "academicACADEMIC", "scholasticSCHOLASTIC",
+  "boundaryBOUNDARY", "absenceABSENCE", "boundsBOUNDS", "confinesCONFINES", "borrowBORROW",
+  "takeTAKE", "characteristicCHARACTERISTIC", "typicalTYPICAL", "dialogueDIALOGUE",
+  "conversationCONVERSATION", "embraceEMBRACE", "acceptACCEPT", "foreignFOREIGN",
+  "overseasOVERSEAS", "generateGENERATE", "producePRODUCE", "causeCAUSE",
+  "highlightHIGHLIGHT", "callCALL", "incorporateINCORPORATE", "includeINCLUDE",
+  "justifyJUSTIFY", "defendDEFEND", "maintainMAINTAIN", NULL };
+    
+
+void
+example2()
+{
+  struct map_sl_rbt map;
+  struct str_len sl;
+
+  map_sl_init(&map);
+
+  for(int i = 0; t[i]; i++)
+    {
+      int len = strlen(t[i]) / 2;
+      sl.str = t[i];
+      sl.len = len;
+#ifndef MAP_KEY_PASSED_BY_PTR
+      map_put(&map, sl, NULL)->value = t[i] + len;
+#else
+      map_put(&map, &sl, NULL)->value = t[i] + len;      
+#endif
+    }
+  map_show_tree(&map);
+}
+
 
 int
 main(int argc, char *argv[])
 {
-  example1();
+  //  example1();
+  example2();
+  /* struct str_len x = { "abcd", 4 }; */
+  /* struct str_len y = { "abcdef", 3 }; */
+  /* printf("cmp: %d\n", str_len_cmp(&x, &y)); */
+
   return 0;
 }

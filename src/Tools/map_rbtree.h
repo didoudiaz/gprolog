@@ -37,7 +37,7 @@
   
 
 
-/* An Efficient C Sorted Map Implementation Based on Red-Black Trees.
+/* An Efficient Sorted Map Implementation Based on Red-Black Trees in C.
  * 
  * Introduction
  * ------------
@@ -67,16 +67,26 @@
  * ------------
  *
  * This section describes a simple usage when only one type of map is needed
- * in a Csource file. Basically, the user code defines some macros before
+ * in a C source file. Basically, the user code defines some macros before
  * including the header file map_rbtree.h and then uses the intuitive API.
  *
  * Define some macros before the inclusion of the header file
  *
  *   MAP_KEY_TYPE:      type of the key
  *   MAP_KEY_CMP(x, y): compare 2 keys and return a value <,=,> 0 if x <,=,> y
- *   MAP_VALUE_TYPE:    type of  value (any C type, including a struct).
- *                      Can be omitted if there is no attached value (can be
- *                      usefull to store sorted sets).
+ *   MAP_VALUE_TYPE:    type of  value. Can be omitted if there is no attached 
+ *                      value (can be usefull to store sorted sets).
+ *
+ *   Both key and value can be of any type (including a struct).
+ *   By default, the key is passed by value (including for a struct). However,
+ *   in the case of a struct (or union) it can be better to pass it by pointer
+ *   (more efficient). This can be imposed defining the following macro:
+ *
+ *   MAP_KEY_PASSED_BY_PTR: pass the key by pointer to functions.
+ *
+ *   The value associated to the key is not really handled. A space is simply 
+ *   reserved in the map_entry - see below, field value). The user is thus 
+ *   responsible of adding/updating data to the value field.
  *
  *   Other optional macros can be defined before the inclusion (see below).
  *
@@ -90,11 +100,11 @@
  *     size:        number of keys in the map
  *     counter_add: total number of insertions
  *     counter_del: total number of deletions
- *           -- the following fields are mainly for internal use --
+ *        -- the following fields are mainly for internal use --
  *     root:        root of the rbtree
  *     for_typeof:  a map_entry * field (used by map_foreach macros)
  *     put:         pointer to associated function map_put
- *     locate:      same for other functions
+ *     locate:      similarly for other functions
  *     get:
  *     contains:
  *     remove_entry:
@@ -400,40 +410,42 @@
 #include <stdlib.h>
 #include "rbtree.h"
 
-#define CAT21(a, b)    a ## _ ## b
-#define CAT2(a, b)     CAT21(a, b)
+#define _MAP_CAT21(a, b)    a ## _ ## b
+#define _MAP_CAT2(a, b)     _MAP_CAT21(a, b)
 
 #else  /* _MAP_H (re-include) */
 
-#undef MAP_STATIC_API
-#undef MAP_MK_NAME
+#undef _KEY
+#undef _ENTRY_KEY
+#undef _MAP_STATIC_API
+#undef _MAP_MK_NAME
 
 #endif	/* !_MAP_H */
 
 
 #ifdef MAP_NAME
-#   define MAP_MK_NAME(name)  CAT2(MAP_NAME, name)
+#   define _MAP_MK_NAME(name)  _MAP_CAT2(MAP_NAME, name)
 #else
-#   define MAP_MK_NAME(name)  CAT2(map_, name)
+#   define _MAP_MK_NAME(name)  _MAP_CAT2(map_, name)
 #endif
 
 
 #ifndef MAP_NO_STATIC
-#   define MAP_STATIC_API static
+#   define _MAP_STATIC_API static
 #   ifdef __GNUC__
 #      pragma GCC diagnostic push
 #      pragma GCC diagnostic ignored "-Wunused-function"
 #   endif
 #else
-#   define MAP_STATIC_API
+#   define _MAP_STATIC_API
 #endif
 
 /* add prefix to API function/type names (not macros else redefine warnings) */
 
-#define map_rbt            MAP_MK_NAME(rbt)
-#define map_entry          MAP_MK_NAME(entry)
+#define map_rbt            _MAP_MK_NAME(rbt)
+#define map_entry          _MAP_MK_NAME(entry)
 
-#define map_init           MAP_MK_NAME(init)
+#define map_init           _MAP_MK_NAME(init)
 
 #define map_put(map, key, created)   ((map)->put(map, key, created))
 #define map_locate(map, key)         ((map)->locate(map, key))
@@ -466,6 +478,13 @@ struct map_entry
   struct rb_node node_inv;	/* the invasive rbtree node */
 };
 
+#ifndef MAP_KEY_PASSED_BY_PTR
+#define _KEY key
+#define _ENTRY_KEY entry->key
+#else
+#define _KEY *key
+#define _ENTRY_KEY &entry->key
+#endif
 
 struct map_rbt
 {
@@ -477,17 +496,17 @@ struct map_rbt
 
   struct map_entry *for_typeof;	/* dummy field, only to get the correct type */
 				/* pointer to functions */
-  struct map_entry *(*put)         (struct map_rbt *map, MAP_KEY_TYPE key, bool *created);
-  struct map_entry *(*locate)      (struct map_rbt *map, MAP_KEY_TYPE key);
-  struct map_entry *(*get)         (struct map_rbt *map, MAP_KEY_TYPE key);
-  bool              (*contains)    (struct map_rbt *map, MAP_KEY_TYPE key);
+  struct map_entry *(*put)         (struct map_rbt *map, MAP_KEY_TYPE _KEY, bool *created);
+  struct map_entry *(*locate)      (struct map_rbt *map, MAP_KEY_TYPE _KEY);
+  struct map_entry *(*get)         (struct map_rbt *map, MAP_KEY_TYPE _KEY);
+  bool              (*contains)    (struct map_rbt *map, MAP_KEY_TYPE _KEY);
   void              (*remove_entry)(struct map_rbt *map, struct map_entry *entry);
-  bool              (*remove)      (struct map_rbt *map, MAP_KEY_TYPE key);
+  bool              (*remove)      (struct map_rbt *map, MAP_KEY_TYPE _KEY);
   struct map_entry *(*first)       (struct map_rbt *map);
   struct map_entry *(*last)        (struct map_rbt *map);
-  struct map_entry *(*next)        (struct map_rbt *map, MAP_KEY_TYPE key, bool strict);
+  struct map_entry *(*next)        (struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict);
   struct map_entry *(*next_entry)  (struct map_rbt *map, struct map_entry *entry);
-  struct map_entry *(*prev)        (struct map_rbt *map, MAP_KEY_TYPE key, bool strict);
+  struct map_entry *(*prev)        (struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict);
   struct map_entry *(*prev_entry)  (struct map_rbt *map, struct map_entry *entry);
   void              (*clear)       (struct map_rbt *map);
   void              (*show_tree)   (struct map_rbt *map);
@@ -502,8 +521,8 @@ struct map_rbt
 
 /* API: functions */
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(put)(struct map_rbt *map, MAP_KEY_TYPE key, bool *created)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(put)(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool *created)
 {
   struct rb_node **node = &(map->root.rb_node), *parent = NULL;
   struct map_entry *entry;
@@ -512,7 +531,7 @@ MAP_MK_NAME(put)(struct map_rbt *map, MAP_KEY_TYPE key, bool *created)
   while (*node)
     {
       entry = container_of(*node, struct map_entry, node_inv);
-      int result = MAP_KEY_CMP(key, entry->key);
+      int result = MAP_KEY_CMP(key, _ENTRY_KEY);
 
       parent = *node;
       if (result < 0)
@@ -530,7 +549,7 @@ MAP_MK_NAME(put)(struct map_rbt *map, MAP_KEY_TYPE key, bool *created)
 
   /* Add new node and rebalance tree */
   entry = calloc(1, sizeof(*entry));
-  entry->key = key;
+  entry->key = _KEY;
 
   map->size++;
   map->counter_add++;
@@ -549,8 +568,8 @@ MAP_MK_NAME(put)(struct map_rbt *map, MAP_KEY_TYPE key, bool *created)
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(locate)(struct map_rbt *map, MAP_KEY_TYPE key)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(locate)(struct map_rbt *map, MAP_KEY_TYPE _KEY)
 {
   struct rb_node *node = map->root.rb_node;
   struct map_entry *entry = NULL;
@@ -558,7 +577,7 @@ MAP_MK_NAME(locate)(struct map_rbt *map, MAP_KEY_TYPE key)
   while (node)
     {
       entry = container_of(node, struct map_entry, node_inv);
-      int result = MAP_KEY_CMP(key, entry->key);
+      int result = MAP_KEY_CMP(key, _ENTRY_KEY);
 
       if (result < 0)
 	node = node->rb_left;
@@ -572,23 +591,23 @@ MAP_MK_NAME(locate)(struct map_rbt *map, MAP_KEY_TYPE key)
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(get)(struct map_rbt *map, MAP_KEY_TYPE key)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(get)(struct map_rbt *map, MAP_KEY_TYPE _KEY)
 {
   struct map_entry *entry = map_locate(map, key);
-  return (entry && MAP_KEY_CMP(key, entry->key) == 0) ? entry : NULL;
+  return (entry && MAP_KEY_CMP(key, _ENTRY_KEY) == 0) ? entry : NULL;
 }
 
 
-MAP_STATIC_API bool
-MAP_MK_NAME(contains)(struct map_rbt *map, MAP_KEY_TYPE key)
+_MAP_STATIC_API bool
+_MAP_MK_NAME(contains)(struct map_rbt *map, MAP_KEY_TYPE _KEY)
 {
-  return (MAP_MK_NAME(get)(map, key) != NULL);
+  return (_MAP_MK_NAME(get)(map, key) != NULL);
 }
 
 
-MAP_STATIC_API void
-MAP_MK_NAME(remove_entry)(struct map_rbt *map, struct map_entry *entry)
+_MAP_STATIC_API void
+_MAP_MK_NAME(remove_entry)(struct map_rbt *map, struct map_entry *entry)
 {
   rb_erase(&(entry->node_inv), &(map->root));
 #ifdef MAP_REMOVE_ENTRY
@@ -600,14 +619,14 @@ MAP_MK_NAME(remove_entry)(struct map_rbt *map, struct map_entry *entry)
 }
 
 
-MAP_STATIC_API bool
-MAP_MK_NAME(remove)(struct map_rbt *map, MAP_KEY_TYPE key)
+_MAP_STATIC_API bool
+_MAP_MK_NAME(remove)(struct map_rbt *map, MAP_KEY_TYPE _KEY)
 {
-  struct map_entry *entry = MAP_MK_NAME(get)(map, key);
+  struct map_entry *entry = _MAP_MK_NAME(get)(map, key);
 
   if (entry)
     {
-      MAP_MK_NAME(remove_entry)(map, entry);
+      _MAP_MK_NAME(remove_entry)(map, entry);
       return true;
     }
   return false;
@@ -615,24 +634,24 @@ MAP_MK_NAME(remove)(struct map_rbt *map, MAP_KEY_TYPE key)
 
 
 /* Navigation */
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(first)(struct map_rbt *map)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(first)(struct map_rbt *map)
 {
   struct rb_node *node = rb_first(&map->root);
   return (node) ? container_of(node, struct map_entry, node_inv) : NULL;
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(last)(struct map_rbt *map)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(last)(struct map_rbt *map)
 {
   struct rb_node *node = rb_last(&map->root);
   return (node) ? container_of(node, struct map_entry, node_inv) : NULL;
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(next_entry)(struct map_rbt *map, struct map_entry *entry)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(next_entry)(struct map_rbt *map, struct map_entry *entry)
 {
   struct rb_node *node = &entry->node_inv;
   node = rb_next(node);
@@ -642,24 +661,24 @@ MAP_MK_NAME(next_entry)(struct map_rbt *map, struct map_entry *entry)
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(next)(struct map_rbt *map, MAP_KEY_TYPE key, bool strict)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(next)(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
 {
-  struct map_entry *entry = MAP_MK_NAME(locate)(map, key);
+  struct map_entry *entry = _MAP_MK_NAME(locate)(map, key);
 
   if (entry)
     {
-      int result = MAP_KEY_CMP(key, entry->key);
+      int result = MAP_KEY_CMP(key, _ENTRY_KEY);
       if (result > 0 || (result == 0 && strict))
-	entry = MAP_MK_NAME(next_entry)(map, entry);
+	entry = _MAP_MK_NAME(next_entry)(map, entry);
     }
 
   return entry;
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(prev_entry)(struct map_rbt *map, struct map_entry *entry)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(prev_entry)(struct map_rbt *map, struct map_entry *entry)
 {
   struct rb_node *node = &entry->node_inv;
   node = rb_prev(node);
@@ -669,24 +688,24 @@ MAP_MK_NAME(prev_entry)(struct map_rbt *map, struct map_entry *entry)
 }
 
 
-MAP_STATIC_API struct map_entry *
-MAP_MK_NAME(prev)(struct map_rbt *map, MAP_KEY_TYPE key, bool strict)
+_MAP_STATIC_API struct map_entry *
+_MAP_MK_NAME(prev)(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
 {
-  struct map_entry *entry = MAP_MK_NAME(locate)(map, key);
+  struct map_entry *entry = _MAP_MK_NAME(locate)(map, key);
 
   if (entry)
     {
-      int result = MAP_KEY_CMP(key, entry->key);
+      int result = MAP_KEY_CMP(key, _ENTRY_KEY);
       if (result < 0 || (result == 0 && strict))
-	entry =  MAP_MK_NAME(prev_entry)(map, entry);
+	entry =  _MAP_MK_NAME(prev_entry)(map, entry);
     }
 
   return entry;
 }
 
 
-MAP_STATIC_API void
-MAP_MK_NAME(clear)(struct map_rbt *map)
+_MAP_STATIC_API void
+_MAP_MK_NAME(clear)(struct map_rbt *map)
 {
 #if 1
 
@@ -741,7 +760,7 @@ MAP_MK_NAME(clear)(struct map_rbt *map)
 
 #ifdef MAP_SHOW_ENTRY
 static void
-MAP_MK_NAME(show_tree_rec)(struct map_rbt *map, struct rb_node *node, char *buff, bool left_child)
+_MAP_MK_NAME(show_tree_rec)(struct map_rbt *map, struct rb_node *node, char *buff, bool left_child)
 {
   if (node == NULL)
     return;
@@ -751,7 +770,7 @@ MAP_MK_NAME(show_tree_rec)(struct map_rbt *map, struct rb_node *node, char *buff
   int n = (int) strlen(buff);
 
   sprintf(buff + n, (left_child && n > 0) ? "|  " : "   "); /* n > 0 to avoid a | on first column */
-  MAP_MK_NAME(show_tree_rec)(map, node->rb_right, buff, false);
+  _MAP_MK_NAME(show_tree_rec)(map, node->rb_right, buff, false);
 
   buff[n] = '\0';
   printf("%s+- ", buff);
@@ -759,21 +778,21 @@ MAP_MK_NAME(show_tree_rec)(struct map_rbt *map, struct rb_node *node, char *buff
   printf("\n");
   
   sprintf(buff + n, (!left_child) ? "|  " : "   ");
-  MAP_MK_NAME(show_tree_rec)(map, node->rb_left, buff, true);
+  _MAP_MK_NAME(show_tree_rec)(map, node->rb_left, buff, true);
 }
 
-MAP_STATIC_API void
-MAP_MK_NAME(show_tree)(struct map_rbt *map)
+_MAP_STATIC_API void
+_MAP_MK_NAME(show_tree)(struct map_rbt *map)
 {
   static char buff[65536];
   *buff = '\0';
-  MAP_MK_NAME(show_tree_rec)(map, map->root.rb_node, buff, true);
+  _MAP_MK_NAME(show_tree_rec)(map, map->root.rb_node, buff, true);
 }
 #endif
 
 
-MAP_STATIC_API void
-MAP_MK_NAME(init)(struct map_rbt *map)
+_MAP_STATIC_API void
+_MAP_MK_NAME(init)(struct map_rbt *map)
 {
   map->size = 0;
   map->counter_add = 0;
@@ -783,21 +802,21 @@ MAP_MK_NAME(init)(struct map_rbt *map)
 
   map->for_typeof = NULL;
 
-  map->put = MAP_MK_NAME(put);
-  map->locate = MAP_MK_NAME(locate);
-  map->get = MAP_MK_NAME(get);
-  map->contains = MAP_MK_NAME(contains);
-  map->remove_entry = MAP_MK_NAME(remove_entry);
-  map->remove = MAP_MK_NAME(remove);
-  map->first = MAP_MK_NAME(first);
-  map->last = MAP_MK_NAME(last);
-  map->next = MAP_MK_NAME(next);
-  map->next_entry = MAP_MK_NAME(next_entry);
-  map->prev = MAP_MK_NAME(prev);
-  map->prev_entry = MAP_MK_NAME(prev_entry);
-  map->clear = MAP_MK_NAME(clear);
+  map->put = _MAP_MK_NAME(put);
+  map->locate = _MAP_MK_NAME(locate);
+  map->get = _MAP_MK_NAME(get);
+  map->contains = _MAP_MK_NAME(contains);
+  map->remove_entry = _MAP_MK_NAME(remove_entry);
+  map->remove = _MAP_MK_NAME(remove);
+  map->first = _MAP_MK_NAME(first);
+  map->last = _MAP_MK_NAME(last);
+  map->next = _MAP_MK_NAME(next);
+  map->next_entry = _MAP_MK_NAME(next_entry);
+  map->prev = _MAP_MK_NAME(prev);
+  map->prev_entry = _MAP_MK_NAME(prev_entry);
+  map->clear = _MAP_MK_NAME(clear);
 #ifdef MAP_SHOW_ENTRY
-  map->show_tree = MAP_MK_NAME(show_tree);
+  map->show_tree = _MAP_MK_NAME(show_tree);
 #else
   map->show_tree = NULL;
 #endif
