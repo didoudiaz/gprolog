@@ -3,7 +3,7 @@
  *                                                                         *
  * Part  : installation                                                    *
  * File  : cpp_headers.c                                                   *
- * Descr.: General GNU Prolog header file maker                            *
+ * Descr.: General GNU Prolog header file maker (no longer used)           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *

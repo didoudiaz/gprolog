@@ -213,23 +213,7 @@ p(_,_):-call(_).
 */
 
 
-
-
 /*
-
-lgt_current_output(S) :-
-	current_output(S), !.
-
-lgt_current_output(S) :-
-	current_stream(S), !,
-	fail.
-
-lgt_current_output(S) :-
-	set_bip_name(current_output, 1),
-	'$pl_err_existence'(stream, S).
-
-*/
-
 
 :- multifile(p/0).
 :- dynamic(p/0).
@@ -239,8 +223,11 @@ p:-write(toto),nl.
 
 
 %:- initialization((trace, p)).
-%foo:-write(a),write(b),nl.
 
+*/
+%foo:-write(a),write(b),nl. % %
+
+/*
 test(Goal) :-
 	open('/tmp/foo.out', write, Stream),
 	set_output(Stream),
@@ -325,3 +312,8 @@ i(S) :-
 
 m :-
 	exec(ls, null, user_output, null).
+*/
+
+:- multifile(p/0).
+
+p.

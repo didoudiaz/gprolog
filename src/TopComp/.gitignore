@@ -2,5 +2,7 @@ Makefile
 SEARCH_PATH.c
 gprolog
 gprolog0
+gprolog-cx
+gprolog-cx0
 gplc
 hexgplc

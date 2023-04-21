@@ -35,6 +35,10 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#ifndef _LINEDIT_H
+#define _LINEDIT_H
+
+#include "completion.h"
 
 
 /* Windows uses 2 codepages (which give the meaning of 0x80..0xFF chars):
@@ -144,15 +148,7 @@ char *Pl_LE_Get_Separators(void);
 
 char *Pl_LE_Set_Separators(char *sep_str);
 
-
-
-char *Pl_LE_Compl_Add_Word(char *word, int word_length);
-
-char *Pl_LE_Compl_Del_Word(char *word);
-
-char *Pl_LE_Compl_Init_Match(char *prefix, int *nb_match, int *max_lg);
-
-char *Pl_LE_Compl_Find_Match(int *is_last);
+char *Pl_LE_Adjust_For_Completion(char *word);
 
 
 int Pl_LE_Get_Key(int echo, int catch_ctrl_c);
@@ -171,3 +167,5 @@ int (*pl_le_initialize)() = Pl_LE_Initialize;
 int (*pl_le_initialize)();
 
 #endif
+
+#endif	/* linedit.h */

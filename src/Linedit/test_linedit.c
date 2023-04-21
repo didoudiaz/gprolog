@@ -98,9 +98,8 @@ PlLong
 Ctrl_C_Manager(int from_callback)
 {
   int c;
-  char prefix[100];
-  char *str;
-  int nb, max_lg, is_last;
+  char prefix[1024];
+  ComplMatch cm;
 
   printf("\nCATCHING CTRL+C prompt length: %d   current pos: %d\n",
          Pl_LE_Get_Prompt_Length(), Pl_LE_Get_Current_Position());
@@ -125,13 +124,15 @@ Ctrl_C_Manager(int from_callback)
     case 'C':
       printf("Enter a prefix:");
       Pl_LE_Gets(prefix);
-      if ((str = Pl_LE_Compl_Init_Match(prefix, &nb, &max_lg)) == NULL)
+      if (!Pl_LE_Compl_Match_First(&cm, prefix, strlen(prefix)))
         printf("no matching\n");
       else
         {
-          printf("common=<%s> nb=%d max_lg=%d\n", str, nb, max_lg);
-          while ((str = Pl_LE_Compl_Find_Match(&is_last)) != NULL)
-            printf("matching: <%s>\n", str);
+          printf("common=<%.*s> nb=%d max_lg=%d\n", cm.max_prefix_length, cm.cur_word,
+		 cm.nb_match, cm.max_word_length);
+	  do
+            printf("matching: <%s>\n", cm.cur_word);
+	  while(Pl_LE_Compl_Match_Next(&cm));
         }
       break;
     }
@@ -181,7 +182,7 @@ main(int argc, char *argv[])
   char *p;
   char sep[100];
   int ret_val;
-  int tempo = 0;
+  long tempo = 0;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
   setbuf(stdout, NULL);
@@ -194,11 +195,34 @@ main(int argc, char *argv[])
 
   Set_Test_Locale();
 
-  if (argc > 1)
-    tempo = atoi(argv[1]);
-
   sep[0] = '\n';
-  strcpy(sep + 1, Pl_LE_Get_Separators());
+  sep[1] = '\r';
+  sep[2] = '\t';
+  strcpy(sep + 3, Pl_LE_Get_Separators());
+
+  if (argc > 1)
+    {
+      tempo = strtol(argv[1], &p, 0);
+      if (*p)			/* not an integer - read the file */
+	{
+	  tempo = 0;
+	  FILE *f = fopen(argv[1], "rt");
+	  if (f == NULL)
+	    perror(argv[1]);
+	  else
+	    {
+	      while(fgets(line, sizeof(line), f))
+		{
+		  for (p = line; (p = strtok(p, sep)) != NULL; p = NULL)
+		    {
+		      //		      printf("reading word (%s) for completion\n", p);
+		      Pl_LE_Compl_Add_Word(strdup(p), strlen(p));
+		    }
+		}
+	      fclose(f);
+	    }
+	}
+    }
 
   printf("enter lines (EOF to finish)\n");
 

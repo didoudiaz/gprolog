@@ -27,7 +27,7 @@
 
 /* DD: userspace adaptation */
 #define WRITE_ONCE(x, val) ((x) = (val))
-#define unlikely(x) (x)
+#define unlikely(x) (x)		/* used to help branch prediction in kernel */
 #ifndef __always_inline
 #define __always_inline inline
 #endif

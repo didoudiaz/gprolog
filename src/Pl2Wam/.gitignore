@@ -4,7 +4,7 @@ Makefile
 ?.pl
 TO_DO
 pl2wam
-pl2wam0
+pl2wam[0-9]
 spl2wam
 make_bip_list
 all.wam

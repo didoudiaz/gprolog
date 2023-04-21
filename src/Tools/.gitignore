@@ -1,4 +1,8 @@
 Makefile
 cpp_headers
 DO_CPP_HEADERS
+cpt_string
+map_example
+map_test
+*.1
 

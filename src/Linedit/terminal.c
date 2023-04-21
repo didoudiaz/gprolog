@@ -38,6 +38,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -46,6 +47,8 @@
 #include <errno.h>
 
 #include "../EnginePl/gp_config.h"
+
+#include "completion.h"		/* to initialize it */
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -108,9 +111,9 @@ typedef struct termio TermIO;
  * Global Variables                *
  *---------------------------------*/
 
-static int use_linedit;
-static int use_gui;
-static int use_ansi;
+static bool use_linedit;
+static int use_gui;		/* 0, 1 or 2 */
+static bool use_ansi;
 #if defined(__unix__) || defined(__CYGWIN__)
 static int fd_in = 0;           /* not changed */
 #endif
@@ -255,6 +258,8 @@ Pl_LE_Initialize(void)
 
 #endif
 
+  Pl_LE_Compl_Init();
+
   return le_mode;
 }
 
@@ -271,7 +276,7 @@ Parse_Env_Var(void)
   char *p, *q, *r;
   char buff[1024];
 
-  use_linedit = use_gui = use_ansi = 1; /* default */
+  use_linedit = use_gui = use_ansi = true; /* default */
 
   p = getenv("LINEDIT");
   if (p == NULL)
@@ -279,7 +284,7 @@ Parse_Env_Var(void)
 
   if (strncmp(p, "no", 2) == 0)	/* deactivate linedit */
     {
-      use_linedit = 0;
+      use_linedit = false;
       return;
     }
 
@@ -290,7 +295,7 @@ Parse_Env_Var(void)
     use_gui = 2;
 
   if (strstr(p, "ansi=n") != NULL)
-    use_ansi = 0;
+    use_ansi = false;
 
 #ifdef _WIN32
   if ((q = strstr(p, "cp=")) != NULL && isdigit(q[3]))
