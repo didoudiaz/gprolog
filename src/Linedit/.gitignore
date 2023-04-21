@@ -6,6 +6,7 @@ lccmake
 makefile.lcc
 test_linedit
 test_noecho
+completion
 
 
 

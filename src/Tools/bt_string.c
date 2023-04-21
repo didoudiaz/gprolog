@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
- * Part  : WAM to mini-assembler translator                                *
+ * Part  : Tools                                                           *
  * File  : bt_string.c                                                     *
- * Descr.: string dico management (file included by wam2ma.c and ma2asm.c) *
+ * Descr.: string dico management (replaced by map_rbtree)                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *

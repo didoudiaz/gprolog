@@ -2,8 +2,8 @@
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Tools                                                           *
- * File  : map_example.c                                                   *
- * Descr.: example using the map data structure with red-black trees       *
+ * File  : bt_string.c                                                     *
+ * Descr.: string dico management (replaced by map_rbtree) - header file   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *
@@ -34,48 +34,62 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+#ifndef _BT_STRING_H
+#define _BT_STRING_H
 
 
-#include <stdio.h>
-#include <string.h>
+/*---------------------------------*
+ * Constants                       *
+ *---------------------------------*/
 
-#define MAP_KEY_TYPE int
-#define MAP_KEY_CMP(x, y) ((x) - (y))
-#define MAP_SHOW_ENTRY(map, entry) printf("%d", entry->key)
-#include "map_rbtree.h"
+/*---------------------------------*
+ * Type Definitions                *
+ *---------------------------------*/
 
-void
-example1(void)
+typedef struct btnode *PBTNode;
+
+typedef struct btnode
 {
-  struct map_rbt map;
-
-  map_init(&map);
-
-  for(int i = 0; i < 100; i+=2)
-    map_put(&map, i, NULL);
-
-  for(int i = 0; i < 100; i+=2)
-    if (i % 3 == 0)
-      map_remove(&map, i);
-
-  printf("values: ");
-  map_foreach(&map, entry)
-    printf("%d ", entry->key);
-
-  printf("\nmap size: %d\n", map_size(&map));
-
-  printf("is 10 inside: %s\n", map_contains(&map, 10) ? "Yes" : "No");
-  printf("is 25 inside: %s\n", map_contains(&map, 15) ? "Yes" : "No");
-  printf("is 36 inside: %s\n", map_contains(&map, 36) ? "Yes" : "No");
-
-  map_show_tree(&map);
-  
-  map_clear(&map);
+  char *str;
+  int no;
+  int arity;			/* FIXME: CROCK */
+#if WORD_SIZE == 64
+  int filler;		/* to preserve 64-bits align for info=PlLong (to avoid a SIGBUS) */
+#endif
+  char info[128];	/* a buffer to store some information */
+  PBTNode left;
+  PBTNode right;
 }
+BTNode;
 
-int
-main(int argc, char *argv[])
+
+
+
+typedef struct
 {
-  example1();
-  return 0;
+  BTNode *tree;
+  int nb_elem;
 }
+BTString;
+
+typedef void (*BTStrLstFct) (int no, char *str, void *info);
+
+
+/*---------------------------------*
+ * Global Variables                *
+ *---------------------------------*/
+
+
+/*---------------------------------*
+ * Function Prototypes             *
+ *---------------------------------*/
+
+void BT_String_Init(BTString *bt_str);
+
+BTNode *BT_String_Add(BTString *bt_str, char *str);
+
+BTNode *BT_String_Lookup(BTString *bt_str, char *str);
+
+void BT_String_List(BTString *bt_str, BTStrLstFct fct);
+
+#endif

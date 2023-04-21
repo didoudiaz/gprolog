@@ -1,9 +1,9 @@
 /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
- * Part  : WAM to mini-assembler translator                                *
- * File  : bt_string.h                                                     *
- * Descr.: string dico management - header file                            *
+ * Part  : line-edit library                                               *
+ * File  : completion.h                                                    *
+ * Descr.: completion facility - header file                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
  * Copyright (C) 1999-2023 Daniel Diaz                                     *
@@ -34,8 +34,11 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-#ifndef _BT_STRING_H
-#define _BT_STRING_H
+
+#ifndef _COMPLETION_H
+#define _COMPLETION_H
+
+#include <stdbool.h>
 
 
 /*---------------------------------*
@@ -46,50 +49,58 @@
  * Type Definitions                *
  *---------------------------------*/
 
-typedef struct btnode *PBTNode;
+/* See explanations in completion.c about opaque pointers */
 
-typedef struct btnode
-{
-  char *str;
-  int no;
-  int arity;			/* FIXME: CROCK */
-#if WORD_SIZE == 64
-  int filler;		/* to preserve 64-bits align for info=PlLong (to avoid a SIGBUS) */
-#endif
-  char info[128];	/* a buffer to store some information */
-  PBTNode left;
-  PBTNode right;
-}
-BTNode;
-
-
-
-
+/*
+ * At iteration (Pl_LE_Compl_Match_Navig), the needed (input) fields are
+ * nb_match, cur_no (to check displacement) and entry (to naviagte in the map)
+ * output fields are: cur_no (updated), cur_word and cur_word_length.
+ */
 typedef struct
 {
-  BTNode *tree;
-  int nb_elem;
-}
-BTString;
+  int prefix_length;		/* initial prefix length */
+  int nb_match;			/* number of matching words */
+  int max_word_length;		/* length of longest matching word */
+  int max_prefix_length;	/* length of longest common prefix (use cur_word to obtain it) */
+				/* information on current matching word */
+  int cur_no;			/* current word index (from 0 to nb_match-1) */
+  char *cur_word;		/* current word */
+  int cur_word_length;		/* current word length */
+  void *entry;			/* opaque pointer (used to iterate on the map) */
+}ComplMatch;
 
-typedef void (*BTStrLstFct) (int no, char *str, void *info);
+
 
 
 /*---------------------------------*
  * Global Variables                *
  *---------------------------------*/
 
-
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
 
-void BT_String_Init(BTString *bt_str);
 
-BTNode *BT_String_Add(BTString *bt_str, char *str);
+void Pl_LE_Compl_Init(void);
 
-BTNode *BT_String_Lookup(BTString *bt_str, char *str);
+bool Pl_LE_Compl_Add_Word(char *word, int word_length);
 
-void BT_String_List(BTString *bt_str, BTStrLstFct fct);
+bool Pl_LE_Compl_Remove_Word(char *word);
+
+bool Pl_LE_Compl_Is_Empty(void);
+
+int Pl_LE_Compl_Size(void);
+
+void Pl_LE_Compl_Clear(void);
+
+bool Pl_LE_Compl_Match_First(ComplMatch *cm, char *prefix, int prefix_length);
+
+bool Pl_LE_Compl_Match_Navig(ComplMatch *cm, int step);
+
+#define Pl_LE_Compl_Match_Next(cm) Pl_LE_Compl_Match_Navig((cm), 1)
+
+#define Pl_LE_Compl_Match_Prev(cm) Pl_LE_Compl_Match_Navig((cm), -1)
+
+#define Pl_LE_Compl_Match_Goto(cm, no) Pl_LE_Compl_Match_Navig((cm), (no) - (cm)->cur_no)
 
 #endif

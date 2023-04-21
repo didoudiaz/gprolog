@@ -58,6 +58,8 @@
  * Global Variables                *
  *---------------------------------*/
 
+static ComplMatch compl_match;
+
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
@@ -133,26 +135,22 @@ Pl_Add_Linedit_Completion_1(WamWord compl_word)
 Bool
 Pl_Find_Linedit_Completion_2(WamWord prefix_word, WamWord compl_word)
 {
-  char *prefix = Pl_Rd_String_Check(prefix_word);
-  int nb_match, max_lg, is_last;
-  char *compl;
+  int prefix_atom = Pl_Rd_Atom_Check(prefix_word);
+  char *prefix = pl_atom_tbl[prefix_atom].name;
+  int prefix_length = pl_atom_tbl[prefix_atom].prop.length;
 
   Pl_Check_For_Un_Atom(compl_word);
 
-  if (Pl_LE_Compl_Init_Match(prefix, &nb_match, &max_lg) == NULL)
+  if (!Pl_LE_Compl_Match_First(&compl_match, prefix, prefix_length))
     return FALSE;
 
-  compl = Pl_LE_Compl_Find_Match(&is_last);
-
-  if (!is_last)			/* non deterministic case */
+  if (compl_match.nb_match > 1)			/* non deterministic case */
     {
       A(0) = compl_word;
-      Pl_Create_Choice_Point((CodePtr)
-			  Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0),
-			  1);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0), 1);
     }
 
-  return Pl_Get_Atom(Pl_Create_Atom(compl), compl_word);
+  return Pl_Get_Atom(Pl_Create_Atom(compl_match.cur_word), compl_word);
 }
 
 
@@ -166,18 +164,14 @@ Bool
 Pl_Find_Linedit_Completion_Alt_0(void)
 {
   WamWord compl_word;
-  int is_last;
-  char *compl;
 
-  Pl_Update_Choice_Point((CodePtr)
-		      Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0), 0);
-
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(FIND_LINEDIT_COMPLETION_ALT, 0), 0);
   compl_word = AB(B, 0);
 
-  compl = Pl_LE_Compl_Find_Match(&is_last);
+  Pl_LE_Compl_Match_Next(&compl_match);
 
-  if (is_last)
+  if (compl_match.cur_no >= compl_match.nb_match - 1)
     Delete_Last_Choice_Point();
 
-  return Pl_Get_Atom(Pl_Create_Atom(compl), compl_word);
+  return Pl_Get_Atom(Pl_Create_Atom(compl_match.cur_word), compl_word);
 }

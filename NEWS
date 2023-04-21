@@ -1,8 +1,11 @@
 Change in GNU Prolog version 1.6.0
 
 * fix issue #32: remove duplicate warning message
+* improve consult speed on large Prolog data bases
+  (use new map implementation to improve the linedit completion: new file completion.c)
 * improve compiler speed on large Prolog data bases
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
+  (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 * speed up bind_variables/2 (also speed up the compiler for byte-code)
 * increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
 * increase default Prolog stack sizes and MAX_ATOMS
