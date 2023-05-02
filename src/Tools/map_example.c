@@ -37,6 +37,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if 1
@@ -48,9 +49,9 @@
 void
 example1(void)
 {
-  struct map_rbt map;
+  struct map_rbt map = MAP_INIT;
 
-  map_init(&map);
+  map_init(&map);		/* redundant but to test the two macros */
 
   for(int i = 0; i < 100; i += 2)
     map_put(&map, i, NULL);
@@ -60,7 +61,8 @@ example1(void)
       map_remove(&map, i);
 
   printf("values: ");
-  map_foreach(&map, entry)
+  for(struct map_entry *entry = map_first(&map); entry != NULL; entry = map_next_entry(&map, entry))
+    //  map_foreach(&map, entry)
     printf("%d ", entry->key);
 
   printf("\nmap size: %d\n", map_size(&map));
@@ -97,9 +99,9 @@ str_len_cmp(struct str_len *x, struct str_len *y)
 }
 
 
-/* key is a struct, it can be passed either by value (copy of the content) or
- * by pointer (faster).
- * In any case the space for the struct is reserved in the entry
+/* key is a struct, it can be passed either by value (copy of the content) 
+ * or by pointer (faster). 
+ * In both cases the space for the whole struct is reserved in the entry.
  */
 #if 1
 #define MAP_KEY_PASSED_BY_PTR
@@ -133,7 +135,7 @@ char *t[] =  {
 void
 example2()
 {
-  struct map_sl_rbt map;
+  struct map_rbt map;
   struct str_len sl;
 
   map_sl_init(&map);
@@ -144,19 +146,20 @@ example2()
       sl.str = t[i];
       sl.len = len;
 #ifndef MAP_KEY_PASSED_BY_PTR
-      map_put(&map, sl, NULL)->value = t[i] + len;
+      map_sl_put(&map, sl, NULL)->value = t[i] + len;
 #else
-      map_put(&map, &sl, NULL)->value = t[i] + len;      
+      map_sl_put(&map, &sl, NULL)->value = t[i] + len;      
 #endif
     }
-  map_show_tree(&map);
+  map_sl_show_tree(&map);
 }
 
 
 int
 main(int argc, char *argv[])
 {
-  //  example1();
+  example1();
+  printf("\n");
   example2();
   /* struct str_len x = { "abcd", 4 }; */
   /* struct str_len y = { "abcdef", 3 }; */

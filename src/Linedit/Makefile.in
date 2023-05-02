@@ -58,8 +58,11 @@ test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIBNAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
 	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
 
+test_completion@EXE_SUFFIX@: completion.c ../Tools/rbtree@OBJ_SUFFIX@
+	$(CC) @CC_EXE_NAME_OPT@test_completion@EXE_SUFFIX@ completion.c -DUSE_ALONE ../Tools/rbtree@OBJ_SUFFIX@
+
 
 clean-test:
-	rm -f test*@OBJ_SUFFIX@ test_linedit@EXE_SUFFIX@ test_noecho@EXE_SUFFIX@
+	rm -f test*@OBJ_SUFFIX@ test_linedit@EXE_SUFFIX@ test_noecho@EXE_SUFFIX@ test_completion@EXE_SUFFIX@
 
 

@@ -200,9 +200,9 @@ Bool comment;
 
 FILE *file_out;
 
-struct map_rbt map_atom;
-struct map_rbt map_tagged_atom;
-struct map_rbt map_tagged_f_n;
+struct map_rbt map_atom = MAP_INIT;
+struct map_rbt map_tagged_atom = MAP_INIT;
+struct map_rbt map_tagged_f_n = MAP_INIT;
 
 struct map_entry *cur_pl_file;
 
@@ -428,9 +428,11 @@ main(int argc, char *argv[])
       exit(1);
     }
 
+#if 0	  /* done with MAP_INIT */
   map_init(&map_atom);
   map_init(&map_tagged_atom);
   map_init(&map_tagged_f_n);
+#endif
 
   Init_Foreign_Table();
   dummy_pred_start.next = NULL;

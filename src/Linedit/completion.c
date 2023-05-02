@@ -77,7 +77,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-static struct map_rbt dico;
+static struct map_rbt dico = MAP_INIT;
 
 
 
@@ -85,19 +85,6 @@ static struct map_rbt dico;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-
-/*-------------------------------------------------------------------------*
- * PL_LE_COMPL_INIT                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_LE_Compl_Init(void)
-{
-  map_init(&dico);
-}
-
-
 
 
 /*-------------------------------------------------------------------------*
@@ -370,7 +357,6 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 
   setbuf(stdout, NULL);		/* for MS VC++ compiler */
-  Pl_LE_Compl_Init();
 
   if (argc > 1)
     Read_File(argv[1]);

@@ -258,8 +258,6 @@ Pl_LE_Initialize(void)
 
 #endif
 
-  Pl_LE_Compl_Init();
-
   return le_mode;
 }
 
