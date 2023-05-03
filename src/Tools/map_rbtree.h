@@ -67,7 +67,9 @@
  * ------------
  *
  * This section describes a simple usage when only one type of map is needed
- * in a C source file. Basically, the user code defines some macros before
+ * in a C source file. The type of a map is defined by the type of the key
+ * (to which corresponds a comparison function) and the type of the value. 
+ * The user code thus defines some macros to parametrize the map before 
  * including the header file map_rbtree.h and then uses the intuitive API.
  *
  * Define some macros before the inclusion of the header file
@@ -303,6 +305,14 @@
  *
  *   MAP_NO_STATIC: do not use define API functions as static
  *
+ * To only obtain minimal type and functions prototypes (as usually provided by
+ * classical header file for an external usage), use the following macro:
+ *
+ *   MAP_PROTOTYPES_ONLY: only provide API function prototypes
+ *
+ *    In this use case, only the type of the key and of the value are needed and
+ *    generally with MAP_NO_STATIC.
+ *
  * Advanced Usage
  * --------------
  *
@@ -396,10 +406,29 @@
 
 #if !defined(_MAP_H) || defined(MAP_RE_INCLUDE)
 
-#ifndef _MAP_H	       /* first include (things to be defined only once) */
-
-//#include <stdlib.h>
+#ifndef MAP_PROTOTYPES_ONLY
+#include <stdlib.h>
 #include "rbtree.h"
+#else
+ /* minimal things copied from rbtree.h to avoid inclusion of code - check this if you update rbtree.h */
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+struct rb_node {
+	uintptr_t  __rb_parent_color;
+	struct rb_node *rb_right;
+	struct rb_node *rb_left;
+};
+
+struct rb_root {		
+	struct rb_node *rb_node;
+};
+#define RB_ROOT   (struct rb_root) { NULL, }
+#endif
+
+
+
+#ifndef _MAP_H	       /* first include (things to be defined only once) */
 
 struct map_rbt
 {
@@ -409,8 +438,8 @@ struct map_rbt
   struct rb_root root;		/* root of the RB tree (for internal use) */
 };
 
-#define _MAP_CAT21(a, b) a ## _ ## b
-#define _MAP_CAT2(a, b)  _MAP_CAT21(a, b)
+#define _MAP_CAT1(a, b) a ## _ ## b
+#define _MAP_CAT(a, b)  _MAP_CAT1(a, b)
 
 #else  /* _MAP_H (re-include) */
 
@@ -423,9 +452,9 @@ struct map_rbt
 
 
 #ifdef MAP_NAME
-#   define _MAP_MK_NAME(name)  _MAP_CAT2(MAP_NAME, name)
+#   define _MAP_MK_NAME(name)  _MAP_CAT(MAP_NAME, name)
 #else
-#   define _MAP_MK_NAME(name)  _MAP_CAT2(map, name)
+#   define _MAP_MK_NAME(name)  _MAP_CAT(map, name)
 #endif
 
 
@@ -448,19 +477,13 @@ struct map_rbt
 
 
 #define map_foreach2(name, map, entry)	   \
-  for(struct _MAP_CAT2(name, entry) *entry = _MAP_CAT2(name, first)(map); entry != NULL; entry = _MAP_CAT2(name, next_entry)(map, entry))
+  for(struct _MAP_CAT(name, entry) *entry = _MAP_CAT(name, first)(map); entry != NULL; entry = _MAP_CAT(name, next_entry)(map, entry))
 
 #define map_foreach_rev2(name, map, entry) \
-  for(struct _MAP_CAT2(name, entry) *entry = _MAP_CAT2(name, last)(map); entry != NULL; entry = _MAP_CAT2(name, prev_entry)(map, entry))
+  for(struct _MAP_CAT(name, entry) *entry = _MAP_CAT(name, last)(map); entry != NULL; entry = _MAP_CAT(name, prev_entry)(map, entry))
 
 
 #define map_entry          _MAP_MK_NAME(entry)
-
- //#define map_init        _MAP_MK_NAME(init)
- //#define map_size        _MAP_MK_NAME(size)
- //#define map_counter_add _MAP_MK_NAME(counter_add)
- //#define map_counter_del _MAP_MK_NAME(counter_del)
- //#define map_is_empty    _MAP_MK_NAME(is_empty)
 
 #define map_put            _MAP_MK_NAME(put)
 #define map_locate         _MAP_MK_NAME(locate)
@@ -501,12 +524,12 @@ struct map_entry
 
 #define MAP_INIT { .size = 0, .counter_add = 0, .counter_del = 0, .root = RB_ROOT }
 
-#define map_init(map)				\
- do {						\
-   (map)->size = 0;				\
-   (map)->counter_add = 0;			\
-   (map)->counter_del = 0;			\
-   (map)->root = RB_ROOT;			\
+#define map_init(map)		\
+ do {				\
+   (map)->size = 0;		\
+   (map)->counter_add = 0;	\
+   (map)->counter_del = 0;	\
+   (map)->root = RB_ROOT;	\
  } while(0)
 
 #define map_size(map)          ((map)->size)
@@ -529,42 +552,63 @@ struct map_entry
 
 _MAP_STATIC_API void
 _MAP_MK_NAME(init)(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   map_init(map);
-} 
+}
+#else
+;
+#endif
 
 
 _MAP_STATIC_API int
 _MAP_MK_NAME(size)(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   return map_size(map);
-} 
+}
+#else
+;
+#endif
 
 _MAP_STATIC_API int
 _MAP_MK_NAME(counter_add)(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   return map_counter_add(map);
-} 
+}
+#else
+;
+#endif
 
 
 _MAP_STATIC_API int
 _MAP_MK_NAME(counter_del)(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   return map_counter_del(map);
-} 
+}
+#else
+;
+#endif
 
 
 _MAP_STATIC_API bool
 _MAP_MK_NAME(is_empty)(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   return map_is_empty(map);
-} 
+}
+#else
+;
+#endif
 
 #endif	/* MAP_NAME */
 
 
 _MAP_STATIC_API struct map_entry *
 map_put(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool *created)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node **node = &(map->root.rb_node), *parent = NULL;
   struct map_entry *entry;
@@ -608,10 +652,14 @@ map_put(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool *created)
   
   return entry;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_locate(struct map_rbt *map, MAP_KEY_TYPE _KEY)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node *node = map->root.rb_node;
   struct map_entry *entry = NULL;
@@ -631,25 +679,37 @@ map_locate(struct map_rbt *map, MAP_KEY_TYPE _KEY)
 
   return entry;			/* returns the closest entry (or NULL if tree is empty) */
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_get(struct map_rbt *map, MAP_KEY_TYPE _KEY)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct map_entry *entry = map_locate(map, key);
   return (entry && MAP_KEY_CMP(key, _ENTRY_KEY) == 0) ? entry : NULL;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API bool
 map_contains(struct map_rbt *map, MAP_KEY_TYPE _KEY)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   return (map_get(map, key) != NULL);
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API void
 map_remove_entry(struct map_rbt *map, struct map_entry *entry)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   rb_erase(&(entry->node_inv), &(map->root));
 #ifdef MAP_REMOVE_ENTRY
@@ -659,10 +719,14 @@ map_remove_entry(struct map_rbt *map, struct map_entry *entry)
   map->size--;
   map->counter_del++;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API bool
 map_remove(struct map_rbt *map, MAP_KEY_TYPE _KEY)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct map_entry *entry = map_get(map, key);
 
@@ -673,26 +737,38 @@ map_remove(struct map_rbt *map, MAP_KEY_TYPE _KEY)
     }
   return false;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_first(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node *node = rb_first(&map->root);
   return (node) ? container_of(node, struct map_entry, node_inv) : NULL;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_last(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node *node = rb_last(&map->root);
   return (node) ? container_of(node, struct map_entry, node_inv) : NULL;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_next_entry(struct map_rbt *map, struct map_entry *entry)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node *node = &entry->node_inv;
   node = rb_next(node);
@@ -700,10 +776,14 @@ map_next_entry(struct map_rbt *map, struct map_entry *entry)
 
   return entry;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_next(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct map_entry *entry = map_locate(map, key);
 
@@ -716,10 +796,14 @@ map_next(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
 
   return entry;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_prev_entry(struct map_rbt *map, struct map_entry *entry)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct rb_node *node = &entry->node_inv;
   node = rb_prev(node);
@@ -727,10 +811,14 @@ map_prev_entry(struct map_rbt *map, struct map_entry *entry)
 
   return entry;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API struct map_entry *
 map_prev(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   struct map_entry *entry = map_locate(map, key);
 
@@ -743,10 +831,14 @@ map_prev(struct map_rbt *map, MAP_KEY_TYPE _KEY, bool strict)
 
   return entry;
 }
+#else
+;
+#endif
 
 
 _MAP_STATIC_API void
 map_clear(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
 #if 1
 
@@ -794,11 +886,15 @@ map_clear(struct map_rbt *map)
 
   map_init(map);
 }
+#else
+;
+#endif
 
 
 #ifdef MAP_SHOW_ENTRY
 static void
 map_show_tree_rec(struct map_rbt *map, struct rb_node *node, char *buff, bool left_child)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   if (node == NULL)
     return;
@@ -818,15 +914,23 @@ map_show_tree_rec(struct map_rbt *map, struct rb_node *node, char *buff, bool le
   sprintf(buff + n, (!left_child) ? "|  " : "   ");
   map_show_tree_rec(map, node->rb_left, buff, true);
 }
+#else
+;
+#endif
 
 _MAP_STATIC_API void
 map_show_tree(struct map_rbt *map)
+#ifndef MAP_PROTOTYPES_ONLY
 {
   static char buff[65536];
   *buff = '\0';
   map_show_tree_rec(map, map->root.rb_node, buff, true);
 }
+#else
+;
 #endif
+
+#endif	/* MAP_SHOW_ENTRY */
 
 
 

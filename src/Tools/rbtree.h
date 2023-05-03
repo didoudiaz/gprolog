@@ -19,7 +19,6 @@
 
 // DD: #include <linux/kernel.h>
 // DD: #include <linux/stddef.h>
-//#include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
