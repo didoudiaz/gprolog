@@ -81,8 +81,6 @@ typedef struct
  *---------------------------------*/
 
 
-void Pl_LE_Compl_Init(void);
-
 bool Pl_LE_Compl_Add_Word(char *word, int word_length);
 
 bool Pl_LE_Compl_Remove_Word(char *word);

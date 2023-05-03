@@ -114,10 +114,10 @@ LabelGen lg_cont; /* local label generator for continuations (always available) 
 
 FILE *file_out;
 
-struct map_cod_rbt map_code;		/* only filled if pre-pass is activated */
-struct map_lng_rbt map_long;
-struct map_str_rbt map_string;
-struct map_dbl_rbt map_double;		/* only filled used if needed */
+struct map_rbt map_code = MAP_INIT;	/* only filled if pre-pass is activated */
+struct map_rbt map_long = MAP_INIT;
+struct map_rbt map_string = MAP_INIT;
+struct map_rbt map_double = MAP_INIT;	/* only filled used if needed */
 
 char *initializer_fct = NULL;
 
@@ -190,11 +190,13 @@ main(int argc, char *argv[])
       exit(1);
     }
 
+#if 0	  /* done with MAP_INIT */
   map_cod_init(&map_code); 		/* only filled if pre_pass is activated */
   map_lng_init(&map_long);
   map_str_init(&map_string);
   map_dbl_init(&map_double);		/* only filled if dico double is needed */
-
+#endif
+  
   Label_Gen_Init(&lg_cont, "cont");	/* available for any mapper */
   
   Asm_Start();
@@ -217,7 +219,7 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_String_Start(n);
-      map_foreach(&map_string, entry)
+      map_foreach2(map_str, &map_string, entry)
 	{
 	  Dico_String(&entry->value);
 	}
@@ -228,7 +230,7 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_Double_Start(n);
-      map_foreach(&map_double, entry)
+      map_foreach2(map_dbl, &map_double, entry)
         {
           if (comment)
 	    Inst_Printf("", "%s %s", mi.comment_prefix, entry->value.cmt_str);
@@ -241,7 +243,7 @@ main(int argc, char *argv[])
   if (n)
     {
       Dico_Long_Start(n);
-      map_foreach(&map_long, entry)
+      map_foreach2(map_lng, &map_long, entry)
 	{
 	  Dico_Long(&entry->value);
 	}
@@ -270,7 +272,7 @@ Record_String(char *str)
 {
   char label[32];
   bool created;
-  struct map_str_entry *entry = map_put(&map_string, str, &created);
+  struct map_str_entry *entry = map_str_put(&map_string, str, &created);
   StringInf *s = &entry->value;
 
   if (created)
@@ -297,7 +299,7 @@ Record_Double(char *ma_str, double dbl_val)
   char label[32];
   static char cmt[64];
   bool created;
-  struct map_dbl_entry *entry = map_put(&map_double, ma_str, &created);
+  struct map_dbl_entry *entry = map_dbl_put(&map_double, ma_str, &created);
   DoubleInf *d = &entry->value;
 
   if (created)
@@ -352,7 +354,7 @@ Decl_Code(CodeInf *c)
 {
   /* map_put ensures space for a copy of c
    * name: strdup done by the parser */
-  map_put(&map_code, c->name, NULL)->value = *c;
+  map_cod_put(&map_code, c->name, NULL)->value = *c;
 }
 
 
@@ -388,7 +390,7 @@ Decl_Long(LongInf *l)
 {
   /* map_put ensures space for a copy of l
    * name: strdup done by the parser */
-  map_put(&map_long, l->name, NULL)->value = *l;
+  map_lng_put(&map_long, l->name, NULL)->value = *l;
 }
 
 
@@ -407,7 +409,7 @@ Is_Code_Defined(char *name)
     printf("WARNING: %s:%d needs a pre-pass\n",  __FILE__, __LINE__);
 #endif
 
-  return map_contains(&map_code, name);
+  return map_cod_contains(&map_code, name);
 }
 
 
@@ -421,7 +423,7 @@ Is_Code_Defined(char *name)
 CodeInf *
 Get_Code_Infos(char *name)
 {
-  struct map_cod_entry *entry = map_get(&map_code, name);
+  struct map_cod_entry *entry = map_cod_get(&map_code, name);
 
 #ifdef DEBUG
   if (!mi.needs_pre_pass)
@@ -441,7 +443,7 @@ Get_Code_Infos(char *name)
 LongInf *
 Get_Long_Infos(char *name)
 {
-  struct map_lng_entry *entry = map_get(&map_long, name);
+  struct map_lng_entry *entry = map_lng_get(&map_long, name);
 
   return (entry == NULL) ? NULL : &entry->value;
 }

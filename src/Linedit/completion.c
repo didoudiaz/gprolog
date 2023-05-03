@@ -42,8 +42,8 @@
  * This file could be in ../Tools since it does not depend on linedit
  * (it is simply used by linedit) but this needs a bit of work to be done
  * cleanly (if we want to provide several "completers" and not to work on
- * only one global as done here). In particular, because map_rbtree.h is
- * difficult to "reexport" in a header file (here in completion.h).
+ * only one global as done here). Doable using map_rbtree.h reexportation
+ * with MAP_PROTOTYPES_ONLY.
  *
  * In this version we use opaque pointers in completion.h.
  */
@@ -77,7 +77,7 @@
  * Global Variables                *
  *---------------------------------*/
 
-static struct map_rbt dico;
+static struct map_rbt dico = MAP_INIT;
 
 
 
@@ -85,19 +85,6 @@ static struct map_rbt dico;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-
-/*-------------------------------------------------------------------------*
- * PL_LE_COMPL_INIT                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-void
-Pl_LE_Compl_Init(void)
-{
-  map_init(&dico);
-}
-
-
 
 
 /*-------------------------------------------------------------------------*
@@ -370,7 +357,6 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 
   setbuf(stdout, NULL);		/* for MS VC++ compiler */
-  Pl_LE_Compl_Init();
 
   if (argc > 1)
     Read_File(argv[1]);
