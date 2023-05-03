@@ -48,8 +48,6 @@
 
 #include "../EnginePl/gp_config.h"
 
-#include "completion.h"		/* to initialize it */
-
 #if defined(__unix__) || defined(__CYGWIN__)
 
 #include <unistd.h>
