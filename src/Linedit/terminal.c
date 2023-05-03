@@ -48,8 +48,6 @@
 
 #include "../EnginePl/gp_config.h"
 
-#include "completion.h"		/* to initialize it */
-
 #if defined(__unix__) || defined(__CYGWIN__)
 
 #include <unistd.h>
@@ -257,8 +255,6 @@ Pl_LE_Initialize(void)
   interrupt_key = KEY_CTRL('C');        /* WIN32: interrupt = CTRL+C */
 
 #endif
-
-  Pl_LE_Compl_Init();
 
   return le_mode;
 }

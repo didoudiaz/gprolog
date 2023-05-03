@@ -69,7 +69,6 @@ struct my_info
 #define MAP_REMOVE_ENTRY(map, entry) free(entry->key)
 #define MAP_CLEAR_ENTRY(map, entry)  free(entry->key)
 #define MAP_NAME                     map_str
-#define MAP_STATIC
 
 #include "map_rbtree.h"
 
@@ -90,7 +89,7 @@ test1_once(struct map_rbt *map)
       sprintf(key, "%03d", key_copy_as_int);
       dbl = key_copy_as_int / 0.1233;
 
-      entry = map_put(map, strdup(key), NULL);
+      entry = map_str_put(map, strdup(key), NULL);
       
       entry->value.key_copy_as_int = key_copy_as_int;
       entry->value.dbl = dbl;
@@ -109,7 +108,7 @@ test1_once(struct map_rbt *map)
       sprintf(key, "%03d", key_copy_as_int);
       dbl = key_copy_as_int / 0.1233;
 
-      entry = map_get(map, key);
+      entry = map_str_get(map, key);
       assert(entry != NULL);
       assert(strcmp(entry->key, key) == 0);
       assert(entry->value.no == i+1);
@@ -127,7 +126,7 @@ test1_once(struct map_rbt *map)
       sprintf(key, "%03d", key_copy_as_int);
       dbl = key_copy_as_int / 0.1233;
 
-      b = map_remove(map, key); UNUSED(b);
+      b = map_str_remove(map, key); UNUSED(b);
       assert(b);
     }
   assert(map_size(map) == 5);
@@ -141,7 +140,7 @@ test1_once(struct map_rbt *map)
       sprintf(key, "%03d", key_copy_as_int);
       dbl = key_copy_as_int / 0.1233;
 
-      entry = map_get(map, key);
+      entry = map_str_get(map, key);
       if (entry == NULL)
 	{
 	  assert(i % 2 == 0);
@@ -160,7 +159,7 @@ test1_once(struct map_rbt *map)
   assert(map_counter_del(map) == 5);
 
   //printf("--- clear ---\n");
-  map_clear(map);
+  map_str_clear(map);
   assert(map_size(map) == 0);
   assert(map_counter_add(map) == 0);
   assert(map_counter_del(map) == 0);
@@ -225,7 +224,7 @@ test2_once(struct map_rbt *map)
     {
       for(;;)
 	{
-	  entry = map_put(map, key[i], &creat); /* check if duplicates in rand */
+	  entry = map_int_put(map, key[i], &creat); /* check if duplicates in rand */
 	  if (creat)
 	    break;
 	  key[i] = rand() % (100 * N);
@@ -245,7 +244,7 @@ test2_once(struct map_rbt *map)
   int remov = 0;
   for(i = 0; i < N; i+=5)
     {
-      assert(map_remove(map, key[i]));
+      assert(map_int_remove(map, key[i]));
       remov++;
     }
   assert(map_size(map) == N - remov);
@@ -255,7 +254,7 @@ test2_once(struct map_rbt *map)
   //printf("--- RE-PUT ---\n");
   for(i = 0; i < N; i++)
     {
-      entry = map_put(map, key[i], &creat);
+      entry = map_int_put(map, key[i], &creat);
       assert(entry);
       if (creat)
 	entry->value = key[i] * factor;
@@ -272,17 +271,17 @@ test2_once(struct map_rbt *map)
   if (N < 100)
     {
       printf("\n--- TREE ---\n\n");
-      map_show_tree(map);
+      map_int_show_tree(map);
     }
 
 
   //printf("\n--- NAVIG ASCENDING ---\n");
 
-  //printf("first: %d = %f\n", map_first(map)->key, map_first(map)->value);
-  assert(map_first(map)->key == s[0]);
+  //printf("first: %d = %f\n", map_int_first(map)->key, map_int_first(map)->value);
+  assert(map_int_first(map)->key == s[0]);
   for(i = 0; i < N; i++)
     {
-      entry = map_next(map, s[i], true);
+      entry = map_int_next(map, s[i], true);
       if (i < N - 1)
 	{
 	  assert(entry);
@@ -290,22 +289,22 @@ test2_once(struct map_rbt *map)
 	}
       else
 	assert(entry == NULL);
-      assert(entry == map_next(map, s[i] + 1, false));
-      entry = map_next(map, s[i] - 1, true);
+      assert(entry == map_int_next(map, s[i] + 1, false));
+      entry = map_int_next(map, s[i] - 1, true);
       assert(entry);
       assert(entry->key == s[i]);
     }
-  assert(map_next(map, s[N - 1], true) == NULL);
-  assert(map_next(map, s[N - 1] + 1, false) == NULL);
+  assert(map_int_next(map, s[N - 1], true) == NULL);
+  assert(map_int_next(map, s[N - 1] + 1, false) == NULL);
 
   
   //printf("\n--- NAVIG DESCENDING ---\n");
   
-  //printf("last:  %d = %f\n", map_last(map)->key, map_last(map)->value);
-  assert(map_last(map)->key == s[N - 1]);
+  //printf("last:  %d = %f\n", map_int_last(map)->key, map_int_last(map)->value);
+  assert(map_int_last(map)->key == s[N - 1]);
   for(i = N - 1; i >= 0; i--)
     {
-      entry = map_prev(map, s[i], true);
+      entry = map_int_prev(map, s[i], true);
       if (i > 0)
 	{
 	  assert(entry);
@@ -313,17 +312,18 @@ test2_once(struct map_rbt *map)
 	}
       else
 	assert(entry == NULL);
-      assert(entry == map_prev(map, s[i] - 1, false));
-      entry = map_prev(map, s[i] + 1, true);
+      assert(entry == map_int_prev(map, s[i] - 1, false));
+      entry = map_int_prev(map, s[i] + 1, true);
       assert(entry);
       assert(entry->key == s[i]);
     }
-  assert(map_prev(map, s[0], true) == NULL);
-  assert(map_prev(map, s[0] - 1, false) == NULL);
+  assert(map_int_prev(map, s[0], true) == NULL);
+  assert(map_int_prev(map, s[0] - 1, false) == NULL);
 
   //printf("\n--- ITER ASCENDING ---\n");
   i = 0;
-  for(entry = map_first(map) ; entry ; entry = map_next_entry(map, entry))
+  //  for(entry = map_int_first(map) ; entry; entry = map_int_next_entry(map, entry))
+  map_foreach(map, entry)
     {
       assert(entry->key == s[i]);
       i++;
@@ -332,7 +332,8 @@ test2_once(struct map_rbt *map)
   
   //printf("\n--- ITER DESCENDING ---\n");
   i = N - 1;
-  for(entry = map_last(map) ; entry ; entry = map_prev_entry(map, entry))
+  //  for(entry = map_int_last(map) ; entry; entry = map_int_prev_entry(map, entry))
+  map_foreach_rev(map, entry)
     {
       assert(entry->key == s[i]);
       i--;
@@ -341,14 +342,14 @@ test2_once(struct map_rbt *map)
 
   //printf("\n--- ITER ASCENDING + REMOVE\n");
   i = 0;
-  for(entry = map_first(map) ; entry ; )
+  for(entry = map_int_first(map) ; entry; )
     {
       assert(entry->key == s[i]);
       struct map_entry *entry0 = entry;
-      entry = map_next_entry(map, entry);
+      entry = map_int_next_entry(map, entry);
       if (i % 2 == 1)
 	{
-	  map_remove_entry(map, entry0);
+	  map_int_remove_entry(map, entry0);
 	  remov++;
 	}
       i++;
@@ -359,7 +360,7 @@ test2_once(struct map_rbt *map)
   //printf("--- RE-PUT ---\n");
   for(i = 0; i < N; i++)
     {
-      entry = map_put(map, key[i], &creat);
+      entry = map_int_put(map, key[i], &creat);
       assert(entry);
       if (creat)
 	entry->value = key[i] * factor;
@@ -374,14 +375,14 @@ test2_once(struct map_rbt *map)
 
   //printf("\n--- ITER DESCENDING + REMOVE\n");
   i = N - 1;
-  for(entry = map_last(map) ; entry ; )
+  for(entry = map_int_last(map) ; entry; )
     {
       assert(entry->key == s[i]);
       struct map_entry *entry0 = entry;
-      entry = map_prev_entry(map, entry);
+      entry = map_int_prev_entry(map, entry);
       if (i % 2 == 1)
 	{
-	  map_remove_entry(map, entry0);
+	  map_int_remove_entry(map, entry0);
 	  remov++;
 	}
       i--;
@@ -390,7 +391,7 @@ test2_once(struct map_rbt *map)
   assert(map_counter_del(map) == remov);
 
   //printf("\n--- CLEAR ---\n\n");
-  map_clear(map);
+  map_int_clear(map);
 }
 
 
