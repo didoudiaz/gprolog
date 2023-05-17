@@ -407,6 +407,10 @@ Bool FC Pl_Unify(WamWord start_u_word, WamWord start_v_word);
 
 Bool FC Pl_Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
 
+void Pl_Print_Tag_Value(WamWord *word_adr, WamWord word);
+
+void Pl_Print_Func_Arity(WamWord *word_adr, WamWord word);
+
 
 #endif /* FRAME_ONLY */
 

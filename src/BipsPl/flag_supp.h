@@ -170,8 +170,8 @@ FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong v
 #define SYS_VAR_LINEDIT             (pl_sys_var[12])
 #define SYS_VAR_DEBUGGER            (pl_sys_var[13])
 
-#define SYS_VAR_SAY_GETC            (pl_sys_var[20])
-#define CHAR_TO_EMIT_WHEN_CHAR      '\1'
+#define SYS_VAR_SAY_GETC            (pl_sys_var[20]) /* is it activated (0 or 1) */
+#define CHAR_TO_EMIT_ON_PIPED_GETC  '\1'
 
 
 

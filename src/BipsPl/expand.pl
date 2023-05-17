@@ -46,13 +46,14 @@
 % variable is already instantiated to the output value)
 
 expand_term(T1, T3) :-
-	'$expand_term1'(T1, T2),
+	'$expand_term1'(T1, T2, _),
 	T2 = T3.
-
-'$expand_term1'(T1, T2) :-
+			% called by pl2wam which needs to detect if term_expansion has been applied
+'$expand_term1'(T1, T2, TermExpans) :-
 	(   var(T1),
 	    T2 = T1
-	;   '$call_term_expansion'(T1, T2)
+	;   '$call_term_expansion'(T1, T2),
+	    TermExpans = true
 	;   set_bip_name(expand_term, 2),
 	    '$dcg_trans_rule'(T1, T2)
 	;   T2 = T1
@@ -63,6 +64,7 @@ expand_term(T1, T3) :-
 
 '$call_term_expansion'(T1, T2) :-
 	current_predicate(term_expansion / 2),
+	set_bip_name(expand_term, 2),
 	call(term_expansion(T1, T2)).
 
 

@@ -76,7 +76,6 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   FILE *f_in = M_SPAWN_REDIRECT_CREATE;
   FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   FILE **pf_in;
-  int save;
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
@@ -96,16 +95,12 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   ADD_ARG(multifile_warning, "--no-mult-warn");
 
 
-  save = (int) SYS_VAR_SAY_GETC;
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
-  SYS_VAR_SAY_GETC = 1;
   pf_in = &f_in;
 #else
   f_in = NULL;
   pf_in = NULL;
 #endif
-  Pl_Write_Pl_State_File(tmp_file_word);
-  SYS_VAR_SAY_GETC = save;
 
   Pl_Flush_All_Streams();
   pid = Pl_M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
@@ -136,7 +131,7 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
 	break;
 
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
-      if (c == CHAR_TO_EMIT_WHEN_CHAR)
+      if (c == CHAR_TO_EMIT_ON_PIPED_GETC)
 	{
 	  if (p == NULL)
 	    {

@@ -48,6 +48,7 @@ pl2wam(LArg) :-
 
 
 pl2wam1(LArg) :-
+	read_file_init,		% inits before read_pl_file
 	cmd_line_args(LArg, PlFile, WamFile),
 	prolog_file_name(PlFile, PlFile1),
 	g_read(native_code, NativeCode),

@@ -835,8 +835,7 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       if (Try_Portray(word))
 	return;
 
-      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM,
-		     UnTag_STC(word));
+      Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, UnTag_STC(word));
       break;
     }
 }

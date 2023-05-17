@@ -142,7 +142,7 @@ example2()
 
   for(int i = 0; t[i]; i++)
     {
-      int len = strlen(t[i]) / 2;
+      int len = (int) strlen(t[i]) / 2;
       sl.str = t[i];
       sl.len = len;
 #ifndef MAP_KEY_PASSED_BY_PTR

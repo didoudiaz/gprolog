@@ -53,6 +53,8 @@ struct rb_root {
 
 #define rb_parent(r)   ((struct rb_node *)((r)->__rb_parent_color & ~3))
 
+// DD: MSVC does not accept the cast in variable initialization
+#define RB_ROOT_NO_CAST { NULL, }
 #define RB_ROOT	(struct rb_root) { NULL, }
 #define	rb_entry(ptr, type, member) container_of(ptr, type, member)
 

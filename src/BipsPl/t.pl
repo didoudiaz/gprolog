@@ -313,7 +313,32 @@ i(S) :-
 m :-
 	exec(ls, null, user_output, null).
 */
-
+/*
 :- multifile(p/0).
 
 p.
+*/
+
+a:- for(I,1,5),assertz(p(_,I)),fail.
+a.
+
+r:- retract(p(_,X)), !, r.
+r.
+/*
+:- dynamic(a/1).
+a(1).
+a(2).
+a(3).
+a(4).
+*/
+s:- for(I,1,4),assertz(a(I)),fail;true.
+
+rr:-clause(a(X),Y), write(X),nl, retract(a(3)).
+
+:- dynamic(foo/1).
+foo(1).
+foo(2).
+sf:- for(I,1,10),assertz(foo(_,I,I*I)),fail;true.
+
+r([X-Y|L]) :- retract(foo(_,X,Y)),!, nl,write(removed(X,Y)), nl,r(L).
+r([]).

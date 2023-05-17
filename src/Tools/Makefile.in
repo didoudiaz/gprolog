@@ -19,6 +19,11 @@ hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct.c hash_fct1.c
 
 rbtree@OBJ_SUFFIX@: rbtree.h rbtree.c rbtree_augmented.h
 
+cpp_headers@EXE_SUFFIX@: cpp_headers.c
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@cpp_headers@EXE_SUFFIX@ cpp_headers.c
+
+
+
 check: map_test@EXE_SUFFIX@
 	./map_test@EXE_SUFFIX@
 

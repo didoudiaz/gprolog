@@ -80,7 +80,7 @@ extern void clearerr(FILE *stream);
 
 #define STR_STREAM_WRITE_BLOCK     1024
 
-#define TTY_BUFFER_SIZE            1024
+#define TTY_BUFFER_SIZE            10240
 
 #define BIG_BUFFER                 65535
 
@@ -1273,7 +1273,7 @@ Basic_Call_Fct_Getc(StmInf *pstm)
   if (SYS_VAR_SAY_GETC && pstm->file == stdin)
     /* could also test pstm->fct_getc == fgetc */
     {
-      putchar(CHAR_TO_EMIT_WHEN_CHAR);
+      putchar(CHAR_TO_EMIT_ON_PIPED_GETC);
       fflush(stdout);
     }
 #endif

@@ -37,17 +37,13 @@
 
 
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
 
 
-#if 0
-#define DEBUG
-#endif
-#if 0
-#define DEBUG1
-#endif
+#define DEBUG_LEVEL 0
 
 
 
@@ -57,8 +53,10 @@
  *---------------------------------*/
 
 #define DYN_STAMP_NONE             ((DynStamp) -1)
-#define ALL_MUST_BE_ERASED         (DynCInf *) 2 /* bit 0 used for mark */
+#define ALL_MUST_BE_ERASED         ((DynCInf *) 2) /* bit 0 used for mark */
 
+
+#define MAX_CLAUSES_BEFORE_CLEAN   128
 #define MAX_KBYTES_BEFORE_CLEAN    512
 #define MAX_SIZE_BEFORE_CLEAN      (MAX_KBYTES_BEFORE_CLEAN * 1024 / sizeof(WamWord))
 
@@ -104,7 +102,9 @@ DynScan;
 
 static DynStamp erase_stamp = 1;
 static DynPInf *first_dyn_with_erase = NULL;
-static int size_of_erased = 0;
+static int waiting_erased_nb_clauses = 0;
+static int waiting_erased_size = 0;
+
 
 
 
@@ -112,15 +112,13 @@ static int size_of_erased = 0;
  * Function Prototypes             *
  *---------------------------------*/
 
-static DynPInf *Alloc_Init_Dyn_Info(PredInf *pred, int arity);
+static DynPInf *Alloc_Init_Dyn_Info(int func, int arity);
 
 static int Index_From_First_Arg(WamWord first_arg_word, PlLong *key);
 
-static void Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain,
-			  Bool asserta);
+static void Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, Bool asserta);
 
-static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause,
-			       Bool in_seq_chain);
+static void Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain);
 
 static void Erase_All(DynPInf *dyn);
 
@@ -140,13 +138,24 @@ static DynCInf *Scan_Dynamic_Pred_Next(DynScan *scan);
 
 
 
-#if defined(DEBUG) || defined(DEBUG1)
+#if DEBUG_LEVEL
 
-static void Check_Dynamic_Clauses(DynPInf *dyn);
+/* not static to avoid compiler warning if unused */
 
-static void Check_Hash(char *t, int index_no);
+#define Print_Scan_Info(msg, sc)					\
+  DBGPRINTF(msg ": %s/%d (owner: %s/%d) erase_stamp: %" PL_FMT_u "\n",	\
+	    pl_atom_tbl[(sc)->dyn->func].name, (sc)->dyn->arity,		\
+	    pl_atom_tbl[(sc)->owner_func].name, (sc)->owner_arity,		\
+	    (sc)->erase_stamp)
 
-static void Check_Chain(D2ChHdr *p, int index_no);
+
+void Print_Dynamic_Clause_Term(DynCInf *clause);
+
+void Check_Dynamic_Clauses(DynPInf *dyn, const char *msg);
+
+void Check_Hash(char *t, int index_no);
+
+void Check_Chain(D2ChHdr *p, int index_no);
 
 #endif
 
@@ -169,11 +178,10 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  * The frame consists of:                                                  *
  *                                                                         *
  *   - a number (<0 if asserta >=0 if assertz) to order them.              *
- *   - a forward  sequential chain (chronological chain).                  *
- *   - a backward sequential chain (chronological chain).                  *
- *   - a forward  indexing   chain                                         *
- *   - a backward indexing   chain                                         *
+ *   - a 2-link (forward/backward) sequential chain (chronological chain)  *
+ *   - a 2-link (forward/backward) indexing   chain                        *
  *   - the clause number                                                   *
+ *   - owner Prolog file (see below)                                       *
  *   - the erase stamp (only if the clause is erased, DYN_STAMP_NONE else) *
  *   - the pointer to the next erased clause (only if the clause is erased)*
  *   - the pointer to the byte-code (or NULL if the clause is interpreted) *
@@ -192,29 +200,31 @@ Prolog_Prototype(SCAN_DYN_JUMP_ALT, 0);
  *   - lst_ind_chain: a chain to the first clause with a list as 1st arg   *
  *   - stc_htbl     : a hash table: key=f_n/info=chain to the first clause *
  *                                                                         *
- * This clause management uses the logical database update view, ie. the   *
- * different altenatives of a predicate are not influenced by subsequent   *
- * actions. When a predicate must be scanned (cf. Scan_Dynamic_Pred) we    *
- * must ensure that subsequent retracted clause must be selected and all   *
- * subsequent added clause must be ignored.                                *
- * For added clause we use the count_z value when the selection starts (cf.*
- * stop_cl_no). A clause is ignored if its clause number (cl_no) is >= to  *
- * stop_cl_no.                                                             *
- * For retracted clause we use a stamp incremented at each selection. When *
- * a clause is retracted its erase_stamp is set to the current stamp. Then *
- * an erased clause ignored for a selection if its stamp is <= to the stamp*
- * of the selection.                                                       *
- * All erased clause of a predicate are linked (first_erased_cl /          *
- * next_erased_cl).                                                        *
+ * This clause management uses the logical database update view (LDUV),    *
+ * ie. the different altenatives of a predicate are not influenced by      *
+ * subsequent actions (assert/retract). NB: LDUV only applies for dynamic  *
+ * predicates with alternatives (more than one answer -> choice-point).    *
+ * See: https://stackoverflow.com/questions/28116244/how-prologs-logical-  *
+ * update-view-works-for-assert-and-retract                                *
+ * When a predicate must be scanned (cf. Scan_Dynamic_Pred) we must ensure *
+ * that subsequent retracted clauses are selected and subsequent added     *
+ * clauses are ignored.                                                    *
+ * For added clauses we record count_z (stop_cl_no) when the scan starts:  *
+ * a clause is ignored if its clause no (cl_no) >= stop_cl_no.             *
+ * For retracted clauses we use a stamp incremented at each scan: when a   *
+ * clause is retracted its erase_stamp is set to the current stamp. Then   *
+ * an erased clause is ignored for a selection if its stamp <= the stamp   *
+ * of the scan (it has been erased before the scan-point).                 *
+ * All erased clauses of a predicate are linked (first/next_erased_cl).    *
  * All dynamic predicates with at least one erased clause are linked       *
- * (first_dyn_with_erase / next_dyn_with_erase).                           *
- * Erased clauses are physically cleaned when MAX_KBYTES_BEFORE_CLEAN are  *
- * reached. Then the local stack is scanned to detect all predicates with  *
- * selections and to mark them. All erased clauses of a predicate which is *
- * not marked are physically destroyed (free).                             *
+ * (first/next_dyn_with_erase).                                            *
+ * GC: erased clauses are cleaned (freed) when MAX_CLAUSES_BEFORE_CLEAN    *
+ * or MAX_KBYTES_BEFORE_CLEAN are reached. Then the local stack is scanned *
+ * to detect all predicates with scan (selections) and mark them.          *
+ * All erased clauses of a not marked predicate are reclaimed (freed).     *
  *                                                                         *
  * pl_file is the file name of its definition (or -1). Used for multifile  *
- * predicates by consult/1 (see Pl_Update_Dynamic_Pred).
+ * predicates by consult/1 (see Pl_Update_Dynamic_Pred).                   *
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
@@ -242,7 +252,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
 
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
-#ifdef DEBUG
+#if DEBUG_LEVEL >= 2
   DBGPRINTF("\tarity: %d", arity);
   if (arity > 0)
     {
@@ -268,19 +278,18 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   if (pl_file == pl_atom_void)
     pl_file = -1;
 
-  dyn = (DynPInf *) (pred->dyn);
-  if (dyn == NULL)		/* dynamic info not yet allocated ? */
-    dyn = Alloc_Init_Dyn_Info(pred, arity);
+  if (pred->dyn == NULL)		/* dynamic info not yet allocated ? */
+    pred->dyn = Alloc_Init_Dyn_Info(func, arity);
+  dyn = pred->dyn;
 
 
   index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key) : NO_INDEX;
 
-#ifdef DEBUG
+#if DEBUG_LEVEL >= 2
   DBGPRINTF("\n");
-  DBGPRINTF("asserta: %d  Clause: ", asserta);
-  DBGPRINTF("\thead: ");
+  DBGPRINTF("asserta: %d  Clause: \t", asserta);
   Pl_Write(head_word);
-  DBGPRINTF("\tbody: ");
+  DBGPRINTF(":-");
   Pl_Write(body_word);
   DBGPRINTF("\nByte Code at :%p\n", pl_byte_code);
 #endif
@@ -291,7 +300,12 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   H[1] = body_word;
 
   size = Pl_Term_Size(lst_h_b);
-  clause = (DynCInf *) Malloc(sizeof(DynCInf) - 3 * sizeof(WamWord) + size * sizeof(WamWord));
+#if DEBUG_LEVEL >= 4
+  DBGPRINTF("term to copy: ");
+  Pl_Write(lst_h_b);
+  DBGPRINTF(" - size: %d   H: %p\n", size, H);
+#endif
+  clause = (DynCInf *) Malloc(sizeof(DynCInf) + (size - 3) * sizeof(WamWord));
 
   Add_To_2Chain(&dyn->seq_chain, clause, TRUE, asserta);
 
@@ -359,8 +373,8 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   if (p_ind_hdr)
     Add_To_2Chain(p_ind_hdr, clause, FALSE, asserta);
 
-#ifdef DEBUG
-  Check_Dynamic_Clauses(dyn);
+#if DEBUG_LEVEL >= 5
+  Check_Dynamic_Clauses(dyn, __func__);
 #endif
 
   return clause;
@@ -374,7 +388,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static DynPInf *
-Alloc_Init_Dyn_Info(PredInf *pred, int arity)
+Alloc_Init_Dyn_Info(int func, int arity)
 {
   DynPInf *dyn;
 
@@ -384,13 +398,12 @@ Alloc_Init_Dyn_Info(PredInf *pred, int arity)
   dyn->var_ind_chain.first = dyn->var_ind_chain.last = NULL;
   dyn->lst_ind_chain.first = dyn->lst_ind_chain.last = NULL;
   dyn->atm_htbl = dyn->int_htbl = dyn->stc_htbl = NULL;
+  dyn->func = func;
   dyn->arity = arity;
   dyn->count_a = -1;
   dyn->count_z = 0;
   dyn->first_erased_cl = NULL;
   dyn->next_dyn_with_erase = NULL;
-
-  pred->dyn = (PlLong *) dyn;
 
   return dyn;
 }
@@ -533,26 +546,35 @@ void
 Pl_Delete_Dynamic_Clause(DynCInf *clause)
 {
   DynPInf *dyn;
-  Bool first;
+
+  /* Test if clause is already deleted. This can occurs with LDUV with
+   * foo(1).
+   * foo(2).
+   *
+   * | ?- retract(foo(X)), retract(foo(2)).
+   * foo(2) is deleted after X=1 and on backtracking (LDUV) with X=2 (then failure).
+   */
+  if (clause->erase_stamp != DYN_STAMP_NONE)
+    return;
 
   dyn = clause->dyn;
-  first = (dyn->first_erased_cl == NULL);
-
-  clause->erase_stamp = erase_stamp;
-  clause->next_erased_cl = dyn->first_erased_cl;
-  dyn->first_erased_cl = clause;
-
-  if (first)
+  if (dyn->first_erased_cl == NULL) /* first clause deletion -> link dyn with erase */
     {
       dyn->next_dyn_with_erase = first_dyn_with_erase;
       first_dyn_with_erase = dyn;
     }
 
-  size_of_erased += clause->term_size;
+  clause->erase_stamp = erase_stamp;
+  clause->next_erased_cl = dyn->first_erased_cl;
+  dyn->first_erased_cl = clause;
+
+
+  waiting_erased_nb_clauses++;
+  waiting_erased_size += clause->term_size;
   Clean_Erased_Clauses();
 
-#ifdef DEBUG
-  Check_Dynamic_Clauses(dyn);
+#if DEBUG_LEVEL >= 5
+  Check_Dynamic_Clauses(dyn, __func__);
 #endif
 }
 
@@ -573,8 +595,7 @@ Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
   if (dyn == NULL)
     return;
 
-  for (clause = dyn->seq_chain.first; clause;
-       clause = clause->seq_chain.next)
+  for (clause = dyn->seq_chain.first; clause; clause = clause->seq_chain.next)
     {
       if (clause->erase_stamp == DYN_STAMP_NONE && clause->pl_file == pl_file)
 	Pl_Delete_Dynamic_Clause(clause);
@@ -582,6 +603,10 @@ Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
 
 #if 0
   Clean_Erased_Clauses();
+#endif
+
+#if DEBUG_LEVEL >= 5
+  Check_Dynamic_Clauses(dyn, __func__);
 #endif
 }
 
@@ -597,29 +622,30 @@ Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
 static void
 Erase_All(DynPInf *dyn)
 {
-  Bool first;
   DynCInf *clause;
 
   if (dyn == NULL)
     return;
 
-  first = (dyn->first_erased_cl == NULL);
-  dyn->first_erased_cl = ALL_MUST_BE_ERASED;
-
-  if (first)
+  if (dyn->first_erased_cl == NULL) /* first clause deletion -> link dyn with erase */
     {
       dyn->next_dyn_with_erase = first_dyn_with_erase;
       first_dyn_with_erase = dyn;
     }
 
-  for (clause = dyn->seq_chain.first; clause;
-       clause = clause->seq_chain.next)
+  dyn->first_erased_cl = ALL_MUST_BE_ERASED;
+
+  for (clause = dyn->seq_chain.first; clause; clause = clause->seq_chain.next)
     {
       if (clause->erase_stamp == DYN_STAMP_NONE)
-	size_of_erased += clause->term_size;
+	{
+	  waiting_erased_nb_clauses++;
+	  waiting_erased_size += clause->term_size;
+	}
     }
 
   Clean_Erased_Clauses();
+  /* Do not call Check_Dynamic_Clauses(dyn); since dyn is in an unstable state (parts freed) */
 }
 
 
@@ -636,22 +662,40 @@ Clean_Erased_Clauses(void)
   DynScan *scan;
   DynPInf *dyn, *dyn1, **prev;
   DynCInf *clause, *clause1;
-
-  if (size_of_erased <= MAX_SIZE_BEFORE_CLEAN)
+ 
+  if (waiting_erased_nb_clauses <= MAX_CLAUSES_BEFORE_CLEAN && waiting_erased_size <= MAX_SIZE_BEFORE_CLEAN)
     return;
 
+#if DEBUG_LEVEL >= 4
+  DBGPRINTF("/// GC-DYN-ERASE: recoverable clauses: %d  size: %d \n", waiting_erased_nb_clauses, waiting_erased_size);
+#endif
+  
+  /* other possibility to mark: use -count_a (thus a positive number)  */
+#define MARK_AS_KEEP(dyn)       dyn->first_erased_cl = (DynCInf *) ((PlULong) (dyn->first_erased_cl) | 1)
+#define IS_MARKED_AS_KEEP(dyn)  ((PlULong) (dyn->first_erased_cl) & 1)
+#define UNMARK_AS_KEEP(dyn)     dyn->first_erased_cl = (DynCInf *) ((PlULong) (dyn->first_erased_cl) & (~1))
+
+  /* GC erased clauses: mark and clean */
+
+  /* Traverse all choice-points from top to bottom marking those corresponding dyn scan */
   base = Local_Stack;
   for (b = B; b > base; b = BB(b))
     {
       scan = Get_Scan_Choice_Point(b);
       if (scan == NULL)
-	continue;
+	{
+#if DEBUG_LEVEL >= 5
+	  DBGPRINTF("GC-DYN-ERASE: chc-point other\n");
+#endif
+	  continue;
+	}
 
       dyn = scan->dyn;
-
-      if (dyn->first_erased_cl)	/* we must keep it - free impossible */
-	dyn->first_erased_cl = (DynCInf *)
-	  ((PlULong) (dyn->first_erased_cl) | 1);	/* mark it */
+#if DEBUG_LEVEL >= 4
+      Print_Scan_Info("GC-DYN-ERASE: chc-point mark scan", scan);
+#endif
+      if (dyn->first_erased_cl)	/* we must keep it (free impossible) - mark it */
+	MARK_AS_KEEP(dyn);
     }
 
 
@@ -659,23 +703,23 @@ Clean_Erased_Clauses(void)
   for (dyn = first_dyn_with_erase; dyn; dyn = dyn1)
     {
       dyn1 = dyn->next_dyn_with_erase;
-      if ((PlLong) (dyn->first_erased_cl) & 1)	/* marked ? */
-	{			/* cannot free it */
-	  dyn->first_erased_cl = (DynCInf *)
-	    ((PlULong) (dyn->first_erased_cl) & (~1));
+      if (IS_MARKED_AS_KEEP(dyn))
+	{			/* marked: cannot be cleaned (unmark it) */
+	  UNMARK_AS_KEEP(dyn);
 	  prev = &(dyn->next_dyn_with_erase);
 	  continue;
 	}
 
-      /* not marked - can be cleaned */
+      /* not marked: can be cleaned */
       *prev = dyn->next_dyn_with_erase;
 
-      if (dyn->first_erased_cl == ALL_MUST_BE_ERASED)	/* clean all ? */
-	{
+      if (dyn->first_erased_cl == ALL_MUST_BE_ERASED)	
+	{			/* avoid to remove one by one all entries in hash tables */
 	  for (clause = dyn->seq_chain.first; clause; clause = clause1)
 	    {
 	      clause1 = clause->seq_chain.next;
-	      size_of_erased -= clause->term_size;
+	      waiting_erased_nb_clauses--;
+	      waiting_erased_size -= clause->term_size;
 	      Free_Clause(clause);
 	    }
 
@@ -688,14 +732,15 @@ Clean_Erased_Clauses(void)
 	  if (dyn->stc_htbl)
 	    Pl_Hash_Free_Table(dyn->stc_htbl);
 
-	  Free(dyn);
+	  Free(dyn);		/* has been re-allocated if needed, so it is safe to free */
 	  continue;
 	}
 
       for (clause = dyn->first_erased_cl; clause; clause = clause1)
 	{
 	  clause1 = clause->next_erased_cl;
-	  size_of_erased -= clause->term_size;
+	  waiting_erased_nb_clauses--;
+	  waiting_erased_size -= clause->term_size;
 	  Unlink_Clause(clause);
 	  Free_Clause(clause);
 	}
@@ -717,10 +762,15 @@ Clean_Erased_Clauses(void)
 	  dyn->count_a = -1;
 	  dyn->count_z = 0;
 	}
-#ifdef DEBUG1
-      Check_Dynamic_Clauses(dyn);
-#endif
     }
+#if DEBUG_LEVEL >= 4
+  DBGPRINTF("\\\\\\ GC-DYN-ERASE: remaining recoverable clauses: %d  size: %d \n", waiting_erased_nb_clauses, waiting_erased_size);
+#endif
+
+#if DEBUG_LEVEL >= 5
+  Check_Dynamic_Clauses(dyn, __func__);
+#endif
+
 }
 
 
@@ -735,18 +785,21 @@ Unlink_Clause(DynCInf *clause)
 {
   DynPInf *dyn = clause->dyn;
   PlLong *p_key;
-  DSwtInf swt_info;
 
+#if DEBUG_LEVEL >= 4
+  DBGPRINTF("Unlink clause: %p -- ", clause);
+  Print_Dynamic_Clause_Term(clause);
+  DBGPRINTF("\n");
+#endif
+  
   Remove_From_2Chain(&dyn->seq_chain, clause, TRUE);
   if (clause->p_ind_hdr)
     Remove_From_2Chain(clause->p_ind_hdr, clause, FALSE);
 
-  if (clause->p_ind_htbl && clause->ind_chain.prev == NULL &&
-      clause->ind_chain.next == NULL)
+  if (clause->p_ind_htbl && clause->ind_chain.prev == NULL && clause->ind_chain.next == NULL)
     {
-      p_key = (PlLong *) ((char *) clause->p_ind_hdr -
-	((char *) &(swt_info.ind_chain) - (char *) &(swt_info.key)));
-#ifdef DEBUG1
+      p_key = (PlLong *) ((char *) clause->p_ind_hdr - offsetof(DSwtInf, ind_chain));
+#if DEBUG_LEVEL >= 4
       DBGPRINTF("Removing last ind key in a hash table  (%" PL_FMT_d ")\n", *p_key);
 #endif
       Pl_Hash_Delete(*clause->p_ind_htbl, *p_key);
@@ -809,12 +862,12 @@ Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_mult
 
   if (pl_file_for_multi >= 0 && (pred->prop & MASK_PRED_MULTIFILE))
     {
-      Erase_All_Clauses_Of_File((DynPInf *) (pred->dyn), pl_file_for_multi);
+      Erase_All_Clauses_Of_File(pred->dyn, pl_file_for_multi);
     }
   else
     {
-      Erase_All((DynPInf *) (pred->dyn));
-      pred->dyn = NULL;
+      Erase_All(pred->dyn);
+      pred->dyn = NULL;		/* pred->dyn will be reallocated if needed */
     }
 
   if ((what_to_do & 2))
@@ -872,6 +925,25 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   int i;
   CodePtr scan_alt;
 
+  /* Here is a good place to free erased clauses, just before a choice-point 
+   * is created for this dynamic predicate.
+   * Consider this code to retract all clauses creating a list
+   * (even if a findall is better):
+   *
+   * r([X|L]) :- retract(foo(X)), !, r(L).
+   * r([]).
+   *
+   * with the ! we can really clean (free) step-by-step the n facts of foo/1.
+   * (e.g. depending on MAX_CLAUSES_BEFORE_CLEAN, to check set it to 0).
+   * If we do not call the GC here, a choice-point (for recursive retract),
+   * will be created, making it impossible to clean erased clauses of foo.
+   *
+   * NB: the ! is important (remove the choice-point) else leads to a O(n^2/2) 
+   * complexity: at each recursion a new clause is skipped/ignored due to LDUV.
+   */
+
+  Clean_Erased_Clauses();
+  
   if (owner_func < 0)
     owner_func = Pl_Get_Current_Bip(&owner_arity);
 
@@ -883,8 +955,12 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   scan.owner_arity = owner_arity;
   scan.dyn = dyn;
   scan.stop_cl_no = dyn->count_z;
-  scan.erase_stamp = erase_stamp++;
+  scan.erase_stamp = erase_stamp; /* for LDUV */
 
+#if DEBUG_LEVEL >= 1
+  Print_Scan_Info("SCAN DYNAMIC", &scan);
+#endif
+  
   switch (index_no)
     {
     case NO_INDEX:
@@ -917,8 +993,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   if (p_ind_htbl)
     {
       scan.xxx_is_seq_chain = FALSE;
-      if (*p_ind_htbl &&
-	  (swt = (DSwtInf *) Pl_Hash_Find(*p_ind_htbl, key)) != NULL)
+      if (*p_ind_htbl && (swt = (DSwtInf *) Pl_Hash_Find(*p_ind_htbl, key)) != NULL)
 	scan.xxx_ind_chain = swt->ind_chain.first;
       else
 	scan.xxx_ind_chain = NULL;
@@ -935,8 +1010,8 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
   if (Scan_Dynamic_Pred_Next(&scan) != NULL)	/* non deterministic case */
     {
-      i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) +
-	alt_info_size;
+      erase_stamp++;		/* LDUV needs care only when there are more than one answer */
+      i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) + alt_info_size;
 
       if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
@@ -971,55 +1046,81 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
   PlLong xxx_nb, var_nb;
   DynCInf *clause;
 
-#ifdef DEBUG
-  DBGPRINTF("Looking for next clause stamp:%" PL_FMT_d,
-	    (PlLong) (scan->erase_stamp));
-  Check_Dynamic_Clauses(scan->dyn);
+#if DEBUG_LEVEL >= 1
+  Print_Scan_Info("SCAN Next", scan);
+#endif
+
+#if DEBUG_LEVEL >= 5
+  Check_Dynamic_Clauses(scan->dyn, __func__);
 #endif
 
   scan->clause = NULL;
 
-start:
-  xxx_ind_chain = scan->xxx_ind_chain;
-  if (xxx_ind_chain)
+#if DEBUG_LEVEL >= 1
+  int skip_count = -1;
+#endif
+  do
     {
-      xxx_clause = xxx_ind_chain;
-      xxx_nb = xxx_clause->cl_no;
-    }
-  else
-    xxx_nb = INT_GREATEST_VALUE;
-
-  var_ind_chain = scan->var_ind_chain;
-  if (var_ind_chain)
-    {
-      var_clause = var_ind_chain;
-      var_nb = var_clause->cl_no;
-    }
-  else
-    var_nb = INT_GREATEST_VALUE;
-
-  if (xxx_nb <= var_nb)
-    {
-      if (xxx_nb == INT_GREATEST_VALUE)
-	return NULL;
-
-      clause = xxx_clause;
-      if (scan->xxx_is_seq_chain)
-	scan->xxx_ind_chain = xxx_ind_chain->seq_chain.next;
+#if DEBUG_LEVEL >= 1
+      skip_count++;
+#endif
+      xxx_ind_chain = scan->xxx_ind_chain;
+      if (xxx_ind_chain)
+	{
+	  xxx_clause = xxx_ind_chain;
+	  xxx_nb = xxx_clause->cl_no;
+	}
       else
-	scan->xxx_ind_chain = xxx_ind_chain->ind_chain.next;
+	xxx_nb = INT_GREATEST_VALUE;
+
+      var_ind_chain = scan->var_ind_chain;
+      if (var_ind_chain)
+	{
+	  var_clause = var_ind_chain;
+	  var_nb = var_clause->cl_no;
+	}
+      else
+	var_nb = INT_GREATEST_VALUE;
+
+      if (xxx_nb <= var_nb)
+	{
+	  if (xxx_nb == INT_GREATEST_VALUE)
+	    return NULL;
+
+	  clause = xxx_clause;
+	  if (scan->xxx_is_seq_chain)
+	    scan->xxx_ind_chain = xxx_ind_chain->seq_chain.next;
+	  else
+	    scan->xxx_ind_chain = xxx_ind_chain->ind_chain.next;
+	}
+      else
+	{
+	  clause = var_clause;
+	  scan->var_ind_chain = var_ind_chain->ind_chain.next;
+	}
+
+      if (clause->cl_no >= scan->stop_cl_no)
+	return NULL;
+#if DEBUG_LEVEL >= 1
+      if (clause->erase_stamp <= scan->erase_stamp)
+	{
+	  DBGPRINTF("+++++++++++++++++++++++ IGNORE clause: %" PL_FMT_u " <= %" PL_FMT_u " skip_count: %d - ",
+		    clause->erase_stamp, scan->erase_stamp, skip_count);
+	  Print_Dynamic_Clause_Term(clause);
+	  DBGPRINTF("\n");
+	}
+#endif
     }
-  else
+  while(clause->erase_stamp <= scan->erase_stamp);
+
+#if DEBUG_LEVEL >= 1
+  if (skip_count > 0)
     {
-      clause = var_clause;
-      scan->var_ind_chain = var_ind_chain->ind_chain.next;
+      DBGPRINTF("skip_count: %d (erased clauses) - head: ", skip_count);
+      Print_Dynamic_Clause_Term(clause);
+      DBGPRINTF("\n");
     }
-
-  if (clause->cl_no >= scan->stop_cl_no)
-    return NULL;
-
-  if (clause->erase_stamp <= scan->erase_stamp)
-    goto start;
+#endif
 
   scan->clause = clause;
 
@@ -1105,22 +1206,53 @@ Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 
 
 
-#if defined(DEBUG) || defined(DEBUG1)
+#if DEBUG_LEVEL
+
+/*-------------------------------------------------------------------------*
+ * PRINT_DYNAMIC_CLAUSE_TERM                                               *
+ *                                                                         *
+ * (debug function)                                                        *
+ *-------------------------------------------------------------------------*/
+void
+Print_Dynamic_Clause_Term(DynCInf *clause)
+{
+  /* do not use Pl_Write(clause->head_word) since in presence of variables, 
+   * vars are globalized (put in heap) which modifies the term (no longer stored in malloc)
+   */
+#if 1
+  Pl_Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
+  Pl_Write(H[1]);
+  DBGPRINTF(":-");
+  Pl_Write(H[2]);
+#endif
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * CHECK_DYNAMIC_CLAUSES                                                   *
  *                                                                         *
  * (debug function)                                                        *
  *-------------------------------------------------------------------------*/
-static void
-Check_Dynamic_Clauses(DynPInf *dyn)
+void
+Check_Dynamic_Clauses(DynPInf *dyn, const char *msg)
 {
-  DBGPRINTF("\nFirst dyn with erase:%p\n",
-	    first_dyn_with_erase);
+  DBGPRINTF("--- CHECKING Dyn part (%s) ---", msg);
+  DBGPRINTF("\nFirst_dyn_with_erase:%p\n", first_dyn_with_erase);
   DBGPRINTF("Dyn:%p  arity:%d  count_a:%d  count_z:%d  "
-	    "1st erased:%p  next dyn with erase:%p\n",
+	    "first_erased_cl:%p  next_dyn_with_erase:%p\n",
 	    dyn, dyn->arity, dyn->count_a, dyn->count_z,
 	    dyn->first_erased_cl, dyn->next_dyn_with_erase);
+
+  if (waiting_erased_nb_clauses < 0 || waiting_erased_size < 0)
+    DBGPRINTF("ERROR 1\n");
+
+  if ((waiting_erased_nb_clauses == 0) != (first_dyn_with_erase == NULL)) /* xor */
+    DBGPRINTF("ERROR 2\n");
+
+  if ((waiting_erased_size == 0) != (first_dyn_with_erase == NULL)) /* xor */
+    DBGPRINTF("ERROR 3\n");
 
   Check_Chain(&dyn->seq_chain, NO_INDEX);
   Check_Chain(&dyn->var_ind_chain, VAR_INDEX);
@@ -1128,6 +1260,7 @@ Check_Dynamic_Clauses(DynPInf *dyn)
   Check_Hash(dyn->int_htbl, INT_INDEX);
   Check_Chain(&dyn->lst_ind_chain, LST_INDEX);
   Check_Hash(dyn->stc_htbl, STC_INDEX);
+  DBGPRINTF("--- CHECKING END ---\n");
 }
 
 
@@ -1138,7 +1271,7 @@ Check_Dynamic_Clauses(DynPInf *dyn)
  *                                                                         *
  * (debug function)                                                        *
  *-------------------------------------------------------------------------*/
-static void
+void
 Check_Hash(char *t, int index_no)
 {
   DSwtInf *swt;
@@ -1187,7 +1320,7 @@ Check_Hash(char *t, int index_no)
  *                                                                         *
  * (debug function)                                                        *
  *-------------------------------------------------------------------------*/
-static void
+void
 Check_Chain(D2ChHdr *hdr, int index_no)
 {
   DynCInf *clause, *clause_b, *clause_f;
@@ -1227,12 +1360,10 @@ Check_Chain(D2ChHdr *hdr, int index_no)
       DBGPRINTF(" %3d  %3d  %p  %p <-> %p  ",
 		clause->cl_no, clause->term_size, clause,
 		clause_b, clause_f);
-      Pl_Write(clause->head_word);
-      DBGPRINTF(":-");
-      Pl_Write(clause->body_word);
+      Print_Dynamic_Clause_Term(clause);
       if (clause->erase_stamp != DYN_STAMP_NONE)
-	DBGPRINTF("  erased at:%" PL_FMT_d "   next erased: %p",
-		  clause->erase_stamp, (clause->next_erased_cl));
+	DBGPRINTF("  erased at:%" PL_FMT_u "   next erased: %p", clause->erase_stamp,
+		  clause->next_erased_cl);
       DBGPRINTF("\n");
     }
 }

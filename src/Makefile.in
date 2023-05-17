@@ -35,7 +35,7 @@ W32GC_DIRS     = W32GUICons
 FD_DIRS        = Fd2C EngineFD BipsFD
 SUB_DIRS       = EnginePl TopComp Tools Wam2Ma Ma2Asm @MAKE_LE_DIRS@ @MAKE_W32GC_DIRS@ \
                  BipsPl Pl2Wam @MAKE_FD_DIRS@
-SUB_DIRS_ALL   = EnginePl TopComp Wam2Ma Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
+SUB_DIRS_ALL   = EnginePl TopComp Tools Wam2Ma Wam2Ma Ma2Asm $(LE_DIRS) $(W32GC_DIRS) \
                  BipsPl Pl2Wam $(FD_DIRS)
 
 

@@ -868,7 +868,7 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return Pl_BC_Emulate_Pred(func, pred->dyn);
 }
 
 
@@ -885,29 +885,26 @@ Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
   WamCont codep;
   int arity;
 
-start:
-  if (dyn == NULL)
-    goto fail;
+  while (dyn)
+    {
+      arity = dyn->arity;
+      A(arity) = Pl_Get_Current_Choice();	/* init cut register */
+      A(arity + 1) = debug_call;
 
-  arity = dyn->arity;
-  A(arity) = Pl_Get_Current_Choice();	/* init cut register */
-  A(arity + 1) = debug_call;
+      clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
+				    (ScanFct) BC_Emulate_Pred_Alt,
+				    DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
+      if (clause == NULL)
+	break;			/* fail */
 
-  clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-				(ScanFct) BC_Emulate_Pred_Alt,
-				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
-  if (clause == NULL)
-    goto fail;
+      codep = BC_Emulate_Clause(clause);
+      if (codep)
+	return (codep);
 
-  codep = BC_Emulate_Clause(clause);
-  if (codep)
-    return (codep);
-
-  func = glob_func;
-  dyn = glob_dyn;
-  goto start;
-
-fail:
+      func = glob_func;
+      dyn = glob_dyn;
+    }
+  /* fail */
   return ALTB(B);
 }
 
@@ -974,15 +971,12 @@ BC_Emulate_Clause(DynCInf *clause)
 
   for (i = 0; i < arity; i++)	/* head unification */
     if (!Pl_Unify(A(i), *arg_adr++))
-      goto fail;
+      return ALTB(B);		/* fail */
 
   A(2) = A(arity);		/* before since pb with cut if arity <= 1 */
   A(0) = body_word;
   A(1) = Tag_INT(Call_Info(func, arity, debug_call));
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
-
-fail:
-  return ALTB(B);
 }
 
 
@@ -1337,7 +1331,7 @@ bc_loop:
       bc++;			/* useless since CP already set */
 #endif
       glob_func = func;
-      glob_dyn = (DynPInf *) (pred->dyn);
+      glob_dyn = pred->dyn;
       return NULL;		/* to then call BC_Emulate_Pred */
 
     case CALL_NATIVE:

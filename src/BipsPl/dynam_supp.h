@@ -53,44 +53,44 @@
 
 typedef PlULong DynStamp;
 
-typedef struct dynpinf *DynPInfP;
+typedef struct dynpinf DynPInf;
 
-typedef struct dyncinf *DynCInfP;
+typedef struct dyncinf DynCInf;
 
-typedef PlLong (*ScanFct) (DynCInfP clause, WamWord *alt_ino, Bool is_last);
+typedef PlLong (*ScanFct) (DynCInf *clause, WamWord *alt_ino, Bool is_last);
 
-typedef struct			/* Dobly-linked chain header     */
+typedef struct			/* Double-linked chain header    */
 {				/* ----------------------------- */
-  DynCInfP first;		/* first clause (or NULL)        */
-  DynCInfP last;		/* last  clause (or NULL)        */
+  DynCInf *first;		/* first clause (or NULL)        */
+  DynCInf *last;		/* last  clause (or NULL)        */
 }D2ChHdr;
 
 
-typedef struct			/* Dobly-linked chain cell       */
+typedef struct			/* Double-linked chain cell      */
 {				/* ----------------------------- */
-  DynCInfP next;		/* next     clause (or NULL)     */
-  DynCInfP prev;		/* previous clause (or NULL)     */
+  DynCInf *next;		/* next     clause (or NULL)     */
+  DynCInf *prev;		/* previous clause (or NULL)     */
 }D2ChCell;
 
 
-typedef struct dyncinf		/* Dynamic clause information     */
+struct dyncinf			/* Dynamic clause information     */
 {				/* ------------------------------ */
   D2ChCell seq_chain;		/* sequential chain               */
   D2ChCell ind_chain;		/* indexical  chain               */
-  DynPInfP dyn;			/* back ptr to associated dyn inf */
+  DynPInf *dyn;			/* back ptr to associated dyn inf */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
   char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
   int pl_file;			/* file name of its definition    */
   DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
-  DynCInfP next_erased_cl;	/* pointer to next erased clause  */
+  DynCInf *next_erased_cl;	/* pointer to next erased clause  */
   unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
   int term_size;		/* size of the term of the clause */
   WamWord term_word;		/* clause [Head|Body]=<LST,adr+1> */
   WamWord head_word;		/* adr+1 = Car = clause term Head */
   WamWord body_word;		/* adr+2 = Cdr = clause term Body */
-}
-DynCInf;
+				/* ... space for rest of term ... */
+};
 
 
 
@@ -105,7 +105,7 @@ DSwtInf;
 
 
 
-typedef struct dynpinf		/* Dynamic predicate information  */
+struct dynpinf			/* Dynamic predicate information  */
 {				/* ------------------------------ */
   D2ChHdr seq_chain;		/* sequential chain               */
   D2ChHdr var_ind_chain;	/* index if 1st arg=VAR (chain)   */
@@ -113,13 +113,14 @@ typedef struct dynpinf		/* Dynamic predicate information  */
   char *int_htbl;		/* index if 1st arg=INT (htable)  */
   D2ChHdr lst_ind_chain;	/* index if 1st arg=LST (chain)   */
   char *stc_htbl;		/* index if 1st arg=STC (htable)  */
+  int func;			/* functor (redundant but for dbg)*/
   int arity;			/* arity (redundant but faster)   */
-  int count_a;			/* next clause nb for asserta     */
-  int count_z;			/* next clause nb for assertz     */
-  DynCInfP first_erased_cl;	/* 1st erased clause NULL if none */
-  DynPInfP next_dyn_with_erase;	/* next dyn with erased clauses   */
-}
-DynPInf;
+  int count_a;			/* next clause no for asserta, < 0*/
+  int count_z;			/* next clause no for assertz, >=0*/
+				/* --- erased clauses (LDUV) ---  */
+  DynCInf *first_erased_cl;	/* 1st erased clause, NULL if none*/
+  DynPInf *next_dyn_with_erase;	/* next dyn with erased clauses   */
+};
 
 
 
@@ -146,5 +147,4 @@ DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 
 int Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity);
 
-void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
-			 WamWord *body_word);
+void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word);

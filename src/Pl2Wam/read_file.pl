@@ -54,7 +54,7 @@
  *    Pred   = predicate name (an atom).                                   *
  *    N      = arity (an integer >=0).                                     *
  *    LSrcCl = [SrcCl,...], list of source clauses, with                   *
- *     SrcCl = Where+Cl where Cl is the source clause read.                *
+ *     SrcCl = Where+Cl where Cl is the raw source clause read.            *
  *                                                                         *
  * Buffers for special predicate management (with assert/retract):         *
  *                                                                         *
@@ -66,7 +66,7 @@
  *                                                                         *
  * buff_discontig_clause(Pred,N,SrcCl):                                    *
  *    records a clause of a discontiguous predicate (:- discontiguous).    *
- *    Eacho clause of a discontiguous predicate is asserted when it is read*
+ *    Each clause of a discontiguous predicate is asserted when it is read *
  *    When the end of file is reached all clauses of a discontiguous pred  *
  *    are grouped to return a list of source clauses LSrcCl.               *
  *    Thus discontiguous predicates are always compiled after other        *
@@ -116,16 +116,23 @@
  *                                                                         *
  * Buffers for special clause management (with assert/retract):            *
  *                                                                         *
- * buff_clause(Pred,N,SrcCl):                                              *
- *    the reader needs a lookahead clause (to group clauses by predicates).*
- *    For such a clause we assert/retract(buff_clause(Pred,N,SrcCl)).      *
+ * buff_raw_clause(Cl,Where):                                              *
+ *    to handle term_expansion/2 which can return a list of (raw) clauses. *
+ *    The first one is handled directly, for the others we                 *
+  *   assert/retract(buff_raw_clause(Cl,Where)).                           *
  *    Read at the very next invocation of get_next_clause/3.               *
+ *                                                                         *
+ * buff_src_clause(Pred,N,SrcCl):                                          *
+ *    the reader needs a lookahead clause (to group clauses by predicates).*
+ *    For such a clause we assert/retract(buff_src_clause(Pred,N,SrcCl)).  *
+ *    Read at the next invocation of get_next_clause/3.                    *
  *-------------------------------------------------------------------------*/
 
 :-	op(200, fx, ?).
 
-read_file_init(PlFile) :-
-	retractall(buff_clause(_, _, _)),
+read_file_init :-
+	retractall(buff_raw_clause(_, _)),
+	retractall(buff_src_clause(_, _, _)),
 	retractall(buff_aux_pred(_, _, _)),
 	retractall(buff_discontig_clause(_, _, _)),
 	retractall(buff_dyn_interf_clause(_, _, _)),
@@ -146,7 +153,9 @@ read_file_init(PlFile) :-
 	g_assign(where, 0),
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
-	g_assign(in_bytes, 0),
+	g_assign(in_bytes, 0).
+
+read_file_init(PlFile) :-
 	open_new_prolog_file(PlFile).
 
 
@@ -289,7 +298,11 @@ read_predicate1(Pred, N, LSrcCl) :-
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
 	retract(buff_discontig_clause(Pred, N, SrcCl)), !,  % discontiguous pred
-	recover_discontig_clauses(Pred, N, LSrcCl).
+	% write('one discontig'(Pred,N,SrcCl)),nl,
+	% statistics(runtime, _),
+	collect_discontig_clauses(Pred, N, LSrcCl).
+	% statistics(runtime, [_, T]),
+	% write(collect_discontig_time(T)),nl.
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
@@ -335,7 +348,7 @@ group_clauses_by_pred(Pred, N, SrcCl, [SrcCl|LSrcCl1]) :-
 	    (   Pred1 = end_of_file,
 	        N1 = 0 ->
 	        true
-	    ;   asserta(buff_clause(Pred1, N1, SrcCl1))
+	    ;   asserta(buff_src_clause(Pred1, N1, SrcCl1))
 	    )
 	).
 
@@ -360,12 +373,20 @@ create_dyn_interf_clause(Pred, N, Where, SrcCl) :-
 
 
 
-recover_discontig_clauses(Pred, N, [SrcCl|LSrcCl]) :-
+collect_discontig_clauses(Pred, N, LSrcCl) :-
+	findall(SrcCl, retract(buff_discontig_clause(Pred, N, SrcCl)), LSrcCl).
+
+/* The below solution is less optimal than with findall. Worse, if we omit the
+ * cut after retract, it runs in O(n^2) due to logical database update view (LDUV)
+ * (see dynam_supp.c)
+ */
+/*
+collect_discontig_clauses(Pred, N, [SrcCl|LSrcCl]) :-
 	retract(buff_discontig_clause(Pred, N, SrcCl)), !,
-	recover_discontig_clauses(Pred, N, LSrcCl).
+	collect_discontig_clauses(Pred, N, LSrcCl).
 
-recover_discontig_clauses(_, _, []).
-
+collect_discontig_clauses(_, _, []).
+*/
 
 
 
@@ -395,9 +416,15 @@ get_file_name([PlFile * _|_] + _, PlFile).
 
 
 get_next_clause(Pred, N, SrcCl) :-
-	retract(buff_clause(Pred, N, SrcCl)),
+	retract(buff_raw_clause(Cl, Where)), !,
+	g_assign(where, Where),
+	get_next_clause2(Cl, Where, [], Pred, N, SrcCl).
+
+
+get_next_clause(Pred, N, SrcCl) :-
+	retract(buff_src_clause(Pred, N, SrcCl)), !,
 	SrcCl = Where + _,
-	g_assign(where, Where), !.
+	g_assign(where, Where).
 
 get_next_clause(Pred, N, SrcCl) :-
 	g_read(open_file_stack, OpenFileStack),
@@ -405,7 +432,7 @@ get_next_clause(Pred, N, SrcCl) :-
 	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
-	    '$catch'(expand_term(Cl, Cl1), error(Err, _), dcg_error(Err), any, 0, false),
+	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), dcg_error(Err), any, 0, false),
 	    stream_line_column(Stream, Line, Col),
 	    (   Col = 1 ->
 	        L2 is Line - 1
@@ -413,13 +440,32 @@ get_next_clause(Pred, N, SrcCl) :-
 	    ),
 	    Where = OpenFileStack + (L1 - L2),
 	    g_assign(where, Where),
-	    get_next_clause1(Cl1, Where, SingNames, Pred, N, SrcCl)
+	    get_next_clause1(Cl1, Where, SingNames, Pred, N, SrcCl, TermExpans)
 	;   get_next_clause(Pred, N, SrcCl)
 	), !.
 
 
+get_next_clause1(LstCl, Where, SingNames, Pred, N, SrcCl, TermExpans) :-
+	nonvar(TermExpans),
+	list(LstCl), !,		% term_expansion/2 can return a list of clauses
+	(   LstCl = [] ->
+	    get_next_clause(Pred, N, SrcCl)
+	;   LstCl = [Cl|LstCl1],	    
+	    (   member(Cl1, LstCl1),
+	        assertz(buff_raw_clause(Cl1, Where)),
+	        fail
+	    ;
+		get_next_clause2(Cl, Where, SingNames, Pred, N, SrcCl)
+	    )
+	).
+	    
+get_next_clause1(Cl, Where, SingNames, Pred, N, SrcCl, _) :-
+	get_next_clause2(Cl, Where, SingNames, Pred, N, SrcCl).
 
-get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
+
+		% return the (next) source clause SrcCl from the raw clause Cl
+
+get_next_clause2(end_of_file, _, _, Pred, N, SrcCl) :-
 	close_last_prolog_file,
 	g_read(open_file_stack, OpenFileStack),
 	(   OpenFileStack = [] ->
@@ -437,7 +483,7 @@ get_next_clause1(end_of_file, _, _, Pred, N, SrcCl) :-
 	).
 
 				% +++++ begin preprocessor management +++++
-get_next_clause1((:- if(Goal)), _, _, Pred, N, SrcCl) :-
+get_next_clause2((:- if(Goal)), _, _, Pred, N, SrcCl) :-
 	!,
 	g_read(if_stack, IfStack),
 	(   '$catch'(Goal, Err, (warn('if directive caused exception: ~w', [Err]), fail), any, 0, false) ->
@@ -447,7 +493,7 @@ get_next_clause1((:- if(Goal)), _, _, Pred, N, SrcCl) :-
 	),
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause1((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
+get_next_clause2((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
 	!,
 	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
 	    (   Keep = 0 ->
@@ -464,7 +510,7 @@ get_next_clause1((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
 	),
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause1((:- else), _, _, Pred, N, SrcCl) :-
+get_next_clause2((:- else), _, _, Pred, N, SrcCl) :-
 	!,
 	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
 	    Keep1 is 1 - Keep,
@@ -475,7 +521,7 @@ get_next_clause1((:- else), _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
 
-get_next_clause1((:- endif), _, _, Pred, N, SrcCl) :-
+get_next_clause2((:- endif), _, _, Pred, N, SrcCl) :-
 	!,
 	(   g_read(if_stack, [if(_, _)|IfStack]) ->
 	    g_assign(if_stack, IfStack)
@@ -484,12 +530,12 @@ get_next_clause1((:- endif), _, _, Pred, N, SrcCl) :-
 	),
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause1(_, _, _, Pred, N, SrcCl) :- % preprocessor ignores a clause
+get_next_clause2(_, _, _, Pred, N, SrcCl) :- % preprocessor ignores a clause
 	g_read(if_stack, [if(_, Keep)|_]), Keep \== 1, !, % ignore Keep = 0 and Keep = 2 or 1-2 = -1
 	get_next_clause(Pred, N, SrcCl).
 				% +++++ end preprocessor management +++++
 
-get_next_clause1((:- D), Where, SingNames, Pred, N, SrcCl) :-
+get_next_clause2((:- D), Where, SingNames, Pred, N, SrcCl) :-
 	display_singletons(SingNames, directive),
 	(   g_read(foreign_only, f)
 	;   functor(D, foreign, _)
@@ -499,7 +545,7 @@ get_next_clause1((:- D), Where, SingNames, Pred, N, SrcCl) :-
 	), !,
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
+get_next_clause2(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	g_read(foreign_only, f), !,
 	(   Cl = (Head :- _)
 	;   Cl = Head
@@ -516,11 +562,23 @@ get_next_clause1(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	check_head_is_module_free(Head),
 	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
-	display_singletons(SingNames, Pred / N).
+	display_singletons(SingNames, Pred / N),
+	(   Pred = term_expansion, N = 2 ->
+	    assertz(Cl)
+	;   true
+	).
 
                                           % ignore clause with --foreign-only
-get_next_clause1(_, _, _, Pred, N, SrcCl) :-
+get_next_clause2(_, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
+
+
+
+
+				% called by read_pl_state_file/1
+add_input_term(Cl, PlFile, L1, L2):-
+	Where  = [PlFile * _] + (L1 - L2),
+	assertz(buff_raw_clause(Cl, Where)).
 
 
 
@@ -833,7 +891,7 @@ exec_directive_exception(Goal, Err) :-
 
 
 
-used_bips_via_call :-                     % to enforce the link of these bips
+used_bips_via_call :-                     % to enforce the link of these bips - useless now since all bips are linked
 	op(_, _, _),
 	char_conversion(_, _),
 	set_prolog_flag(_, _),
@@ -858,8 +916,7 @@ add_empty_dyn((P1, P2), Where) :-
 add_empty_dyn(Pred / N, Where) :-
 	(   clause(empty_dyn_pred(Pred, N, _), _) ->
 	    true
-	;
-	    assertz(empty_dyn_pred(Pred, N, Where))
+	;   assertz(empty_dyn_pred(Pred, N, Where))
 	).
 
 
@@ -908,8 +965,7 @@ add_module_export_info(Pred / N, Module) :-
 	assertz(module_export(Pred, N, Module)),
 	(   test_pred_info(def, Pred, N) ->
 	    check_module_clash(Pred, N)
-	;
-	    true
+	;   true
 	).
 
 
@@ -943,7 +999,7 @@ check_head_is_module_free(_).
 
 
 check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for clash with an import
-	clause(module_export(Pred, N, Module), true),
+	clause(module_export(Pred, N, Module), true), !,
 	g_read(module, Module1),
 	Module \== Module1, !,
 	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
@@ -955,7 +1011,7 @@ check_module_clash(_, _).
 
 
 get_owner_module(Pred, N, Module) :-
-	clause(module_export(Pred, N, Module), true),
+	clause(module_export(Pred, N, Module), true), !,
 	Module \== system, !.
 
 get_owner_module(_, _, _).
@@ -974,8 +1030,7 @@ get_module_of_cur_pred(Module) :-
 	    Module = system
 	;   test_pred_info(bfd, Pred, N) ->
 	    Module = system
-	;
-	    g_read(module, Module)
+	;   g_read(module, Module)
 	).
 
 
@@ -1043,10 +1098,10 @@ flag_bit(multi, 8).
 
 
 
-
+/*
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	(   retract(pred_info(F, N, InfoMask))
+	(   retract(pred_info(F, N, InfoMask)), !
 	;   InfoMask = 0
 	), !,
 	InfoMask1 is InfoMask \/ 1 << Bit,
@@ -1068,10 +1123,41 @@ unset_pred_info(_, _, _).
 
 test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
-	clause(pred_info(F, N, InfoMask), _),
-	InfoMask /\ 1 << Bit > 0 .
+	clause(pred_info(F, N, InfoMask), _), !,
+	InfoMask /\ 1 << Bit > 0.
+*/
 
 
+set_pred_info(Flag, F, N) :-
+	flag_bit(Flag, Bit),
+	f_n_to_key(F, N, Key),
+	g_read(Key, InfoMask),
+	InfoMask1 is InfoMask \/ 1 << Bit,
+	g_assign(Key, InfoMask1).
+
+
+
+
+unset_pred_info(Flag, F, N) :-
+	flag_bit(Flag, Bit),
+	f_n_to_key(F, N, Key),
+	g_read(Key, InfoMask),
+	InfoMask1 is InfoMask /\ \ (1 << Bit),
+	g_assign(Key, InfoMask1).
+
+
+
+
+test_pred_info(Flag, F, N) :-
+	flag_bit(Flag, Bit),
+	f_n_to_key(F, N, Key),
+	g_read(Key, InfoMask),
+	InfoMask /\ 1 << Bit > 0.
+
+
+
+f_n_to_key(F, N, Key) :-
+	format_to_atom(Key, '$~a/~d', [F, N]).
 
 
 check_predicate(Pred, N) :-

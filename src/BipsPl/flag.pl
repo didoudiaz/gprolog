@@ -108,18 +108,76 @@ current_prolog_flag(Flag, Value) :-
 	'$call_c'('Pl_Set_Current_B_1'(X)).
 
 
-
-
 write_pl_state_file(File) :-
 	set_bip_name(write_pl_state_file, 1),
-	'$call_c_test'('Pl_Write_Pl_State_File'(File)).
+	'$open'(File, write, S, []),
+	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
+	    '$write_pl_state_goal'(S, op(Prior, Prec, LOp)),
+	    fail
+	;
+	    true
+	),
+	LFlags = [double_quotes, back_quotes, char_conversion, singleton_warning, suspicious_warning,
+		  multifile_warning, strict_iso],
+	(   member(Flag, LFlags),
+	    current_prolog_flag(Flag, FlagValue),
+	    '$write_pl_state_goal'(S, set_prolog_flag(Flag, FlagValue)),
+	    fail
+	;
+	    true
+	),
+	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
+	'$write_pl_state_goal'(S, '$sys_var_write'(20, SysVar)),
+	(   current_char_conversion(Ch1,Ch2),
+	    '$write_pl_state_goal'(S, char_conversion(Ch1, Ch2)),
+	    fail
+	;
+	    true
+	),
+	(   TermHead = term_expansion(_, _),
+	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
+	;
+	    true
+	),
+	close(S),
+	fail.			% GC
+
+write_pl_state_file(_).
+
+
+'$write_pl_state_goal'(S, Goal) :-
+	portray_clause(S, (:- initialization(Goal))).
 
 
 
+	% basically it a consult(File) but 1) as it is used in consult+pl2wam
+	% this leads to an infinite recursion and 2) it has to handle a specific
+	% add_input_term/1 directive. So we simply read-assert/execute the content.
 
 read_pl_state_file(File) :-
 	set_bip_name(read_pl_state_file, 1),
-	'$call_c_test'('Pl_Read_Pl_State_File'(File)).
+	'$open'(File, read, S, []),
+	repeat,
+	last_read_start_line_column(L1, _),
+	read(S, Cl),
+	stream_line_column(S, Line, Col),
+	(   Col = 1 ->
+	    L2 is Line - 1
+	;   L2 = Line
+	),
+	(   Cl = end_of_file ->
+	    true
+	;   Cl = (:- initialization(Goal)) ->
+	    call(Goal),
+	    fail
+	;   Cl = (:- add_input_term(Cl1)) ->
+	    current_predicate(add_input_term/4),
+	    call(add_input_term(Cl1, File, L1, L2)),
+	    fail
+	;   assertz(Cl),
+	    fail
+	), !,
+	close(S).
 
 
 

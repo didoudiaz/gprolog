@@ -1692,3 +1692,87 @@ Pl_Untrail(WamWord *low_adr)
 #define OCCURS_CHECK
 
 #include "unify.c"
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_PRINT_TAG_VALUE                                                      *
+ *                                                                         *
+ * for debug (gdb/lldb)                                                    *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Print_Tag_Value(WamWord *word_adr, WamWord word)
+{
+  WamWord tag;
+  WamWord value;
+  WamWord *adr;
+  int tag_type = -1;
+  char *tag_name = "???";
+  int i;
+
+  if (word_adr)
+    {
+      printf("addr %p: ", word_adr);
+      word = *word_adr;
+    }
+
+  printf("%*p = ", (int) (sizeof(WamWord) *2), (void *) word);
+  tag = Tag_Of(word);
+  for (i = 0; i < NB_OF_TAGS; i++)
+    if (pl_tag_tbl[i].value == tag)
+      {
+	tag_name = pl_tag_tbl[i].name;
+	tag_type = pl_tag_tbl[i].type;
+	break;
+      }
+
+  switch (tag_type)
+    {
+    case LONG_INT:
+      value = (WamWord) UnTag_Long_Int(word);
+      printf("%s,%" PL_FMT_d "\n", tag_name, (PlLong) value);
+      break;
+
+#define ATOM_NAME(x) ((Is_Valid_Atom(x) && pl_atom_tbl[x].name != NULL) ? pl_atom_tbl[x].name : "???INVALID ATOM No???")
+      
+    case SHORT_UNS:
+      value = (WamWord) UnTag_Short_Uns(word);
+      if (tag == ATM)
+	printf("ATM,%d (%s)\n", (int) value, ATOM_NAME(value));
+      else
+	printf("%s,%" PL_FMT_u "\n", tag_name, (PlULong) value);
+      break;
+
+    case ADDRESS:
+    default:
+      adr = (WamWord *) UnTag_Address(word);
+      printf("%s,%p%s\n", tag_name, adr, (word_adr && word_adr == adr) ? " SELF_REF" : "");
+      break;
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PRINT_FUNC_ARITY                                                     *
+ *                                                                         *
+ * for debug (gdb/lldb)                                                    *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Print_Func_Arity(WamWord *word_adr, WamWord word)
+{
+  int func, arity;
+
+  if (word_adr)
+    {
+      printf("addr %p: ", word_adr);
+      word = *word_adr;
+    }
+
+  printf("%*p = ", (int) (sizeof(WamWord) * 2), (void *) word);
+  func = Functor_Of(word);
+  arity = Arity_Of(word);
+  printf("%d (%s)/%d\n", func, ATOM_NAME(func), arity);
+}

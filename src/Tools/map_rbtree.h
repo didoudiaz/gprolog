@@ -423,7 +423,8 @@ struct rb_node {
 struct rb_root {		
 	struct rb_node *rb_node;
 };
-#define RB_ROOT   (struct rb_root) { NULL, }
+#define RB_ROOT_NO_CAST { NULL, }
+#define RB_ROOT         (struct rb_root) { NULL, }
 #endif
 
 
@@ -522,7 +523,8 @@ struct map_entry
 
 /* API: macros */
 
-#define MAP_INIT { .size = 0, .counter_add = 0, .counter_del = 0, .root = RB_ROOT }
+// here MSVC does not want a cast for RB_ROOT (removed in rbtree.h)
+#define MAP_INIT { .size = 0, .counter_add = 0, .counter_del = 0, .root = RB_ROOT_NO_CAST }
 
 #define map_init(map)		\
  do {				\

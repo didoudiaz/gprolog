@@ -89,6 +89,10 @@ consult(File) :-
 
 
 '$consult3'(TmpFile, PlFile) :-
+	'$sys_var_read'(20, Say_GetC), 
+	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
+	write_pl_state_file(TmpFile),
+	'$sys_var_write'(20, Say_GetC),
 	'$call_c_test'('Pl_Consult_2'(TmpFile, PlFile)).
 
 /*
@@ -370,6 +374,7 @@ listing(PI) :-
 	'$get_pred_indic'(PI, N, A),
 	functor(H, N, A),
 	nl,
+	set_bip_name(listing, 0), %only for debug of dynam_supp.c (see owner_func/arity if not passed)
 	'$clause'(H, B, 2),
 	portray_clause((H :- B)),
 	fail.
