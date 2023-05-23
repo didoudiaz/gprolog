@@ -272,7 +272,8 @@ Parse_Env_Var(void)
   char *p, *q, *r;
   char buff[1024];
 
-  use_linedit = use_gui = use_ansi = true; /* default */
+  use_gui = 0;			 /* default */
+  use_linedit = use_ansi = true; /* default */
 
   p = getenv("LINEDIT");
   if (p == NULL)

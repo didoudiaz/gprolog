@@ -298,11 +298,9 @@ read_predicate1(Pred, N, LSrcCl) :-
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
 	retract(buff_discontig_clause(Pred, N, SrcCl)), !,  % discontiguous pred
-	% write('one discontig'(Pred,N,SrcCl)),nl,
-	% statistics(runtime, _),
+%	write('one discontig'(Pred,N,SrcCl)), nl, statistics(runtime, _),
 	collect_discontig_clauses(Pred, N, LSrcCl).
-	% statistics(runtime, [_, T]),
-	% write(collect_discontig_time(T)),nl.
+%	statistics(runtime, [_, T]), write(collect_discontig_time(T)), nl.
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
@@ -372,13 +370,12 @@ create_dyn_interf_clause(Pred, N, Where, SrcCl) :-
 
 
 
-
+/* Version with findall */
 collect_discontig_clauses(Pred, N, LSrcCl) :-
 	findall(SrcCl, retract(buff_discontig_clause(Pred, N, SrcCl)), LSrcCl).
 
-/* The below solution is less optimal than with findall. Worse, if we omit the
- * cut after retract, it runs in O(n^2) due to logical database update view (LDUV)
- * (see dynam_supp.c)
+/* Version with retract recursive (do not omit the cut). Can be worse than 
+ * with findall depending on how LDUV is implemented (see dynam_supp.c)
  */
 /*
 collect_discontig_clauses(Pred, N, [SrcCl|LSrcCl]) :-
@@ -1098,7 +1095,7 @@ flag_bit(multi, 8).
 
 
 
-/*
+/* Version with assert/retract */
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	(   retract(pred_info(F, N, InfoMask)), !
@@ -1125,9 +1122,9 @@ test_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, InfoMask), _), !,
 	InfoMask /\ 1 << Bit > 0.
-*/
 
 
+/* Alternative version with g_assign (same speed)
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),
@@ -1158,6 +1155,8 @@ test_pred_info(Flag, F, N) :-
 
 f_n_to_key(F, N, Key) :-
 	format_to_atom(Key, '$~a/~d', [F, N]).
+*/
+
 
 
 check_predicate(Pred, N) :-

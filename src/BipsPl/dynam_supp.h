@@ -36,6 +36,13 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+/* see explanations in dynam_supp.c */
+#if 1
+#define OPTIM_FIRST_FOR_SCAN
+#endif
+
+
+
 
 /*---------------------------------*
  * Constants                       *
@@ -62,6 +69,9 @@ typedef PlLong (*ScanFct) (DynCInf *clause, WamWord *alt_ino, Bool is_last);
 typedef struct			/* Double-linked chain header    */
 {				/* ----------------------------- */
   DynCInf *first;		/* first clause (or NULL)        */
+#ifdef OPTIM_FIRST_FOR_SCAN
+  DynCInf *first_for_scan;	/* first for next scan (optim)   */
+#endif
   DynCInf *last;		/* last  clause (or NULL)        */
 }D2ChHdr;
 
@@ -81,8 +91,8 @@ struct dyncinf			/* Dynamic clause information     */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
   char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
-  int pl_file;			/* file name of its definition    */
-  DynStamp erase_stamp;		/* FFF...F if not erased or stamp */
+  int pl_file;			/* file name of its def (or -1)   */
+  DynStamp erase_stamp;		/* erase stamp or FFF...F if not  */
   DynCInf *next_erased_cl;	/* pointer to next erased clause  */
   unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
   int term_size;		/* size of the term of the clause */
@@ -93,16 +103,12 @@ struct dyncinf			/* Dynamic clause information     */
 };
 
 
-
-
 typedef struct			/* Dynamic switch item info       */
 {				/* ------------------------------ */
   PlLong key;			/* key: atm, int, f/n             */
   D2ChHdr ind_chain;		/* indexical chain                */
 }
 DSwtInf;
-
-
 
 
 struct dynpinf			/* Dynamic predicate information  */
@@ -117,7 +123,8 @@ struct dynpinf			/* Dynamic predicate information  */
   int arity;			/* arity (redundant but faster)   */
   int count_a;			/* next clause no for asserta, < 0*/
   int count_z;			/* next clause no for assertz, >=0*/
-				/* --- erased clauses (LDUV) ---  */
+				/* ------- LDUV handling -------- */
+  DynStamp curr_stamp;		/* erase stamp or FFF...F if not  */
   DynCInf *first_erased_cl;	/* 1st erased clause, NULL if none*/
   DynPInf *next_dyn_with_erase;	/* next dyn with erased clauses   */
 };

@@ -319,26 +319,78 @@ m :-
 p.
 */
 
-a:- for(I,1,5),assertz(p(_,I)),fail.
-a.
 
-r:- retract(p(_,X)), !, r.
-r.
-/*
-:- dynamic(a/1).
-a(1).
-a(2).
-a(3).
-a(4).
-*/
-s:- for(I,1,4),assertz(a(I)),fail;true.
+% --- test
+% display 1..N, followed by odd numbers 1,3,.. until largest odd N' <= N
+s(N):- a(N), clause(aa(X),_), write(X),nl, X1 is X*2, retract(aa(X1)), fail.
+s(_):- clause(aa(X), _), write(X), nl, fail.
+s(_).
 
-rr:-clause(a(X),Y), write(X),nl, retract(a(3)).
 
-:- dynamic(foo/1).
-foo(1).
-foo(2).
-sf:- for(I,1,10),assertz(foo(_,I,I*I)),fail;true.
+a(N):- between(1,N,I), assertz(aa(I)), fail.
+a(_).
 
-r([X-Y|L]) :- retract(foo(_,X,Y)),!, nl,write(removed(X,Y)), nl,r(L).
-r([]).
+
+% --- test
+% 10->56, 20->211, 30->466
+t1(N, Z) :- f(N), findall(X,r1(X),L), length(L,Z).
+
+f(N):- between(1,N,I), assertz(foo(_,I,I*I)), fail.
+f(_).
+
+% retract all without cut
+r1([X-Y|L]) :- retract(foo(_,X,Y)), /* write(removed(X,Y)), nl, */ r1(L).
+r1([]).
+
+% retract all with a cut
+r2([X-Y|L]) :- retract(foo(_,X,Y)), !, /*write(removed(X,Y)), nl*/ r2(L).
+r2([]).
+
+
+% --- test
+% N->N
+% with DEBUG_LEVEL = 1 and with MAX_CLAUSES_BEFORE_CLEAN set to 0 
+% check unlink step by step (Delete followed by Unlink+Free)
+t2(N, Z) :- f(N), r2(L), length(L, Z).
+
+
+% --- test
+% 5->5, then relaunch 5->15, 5->35, 5->75, 5->155 (2*prev+5)
+t3(N, Z):- f(N), findall(X, u(X), L), length(L, Z).
+
+u(X):- clause(foo(_,X,Y),_), write(foo(X,Y)), nl, assertz(foo(_,X,Y+Y)).
+
+
+% --- test
+
+
+z(X):- assertz(zz(1)), clause(zz(X),_), assertz(zz(X+z)).
+
+
+:- dynamic(v/3).
+
+v(1,1,1).
+v(1,2,2).
+v(2,3,3).
+v(X,4,4+X).
+v(4,5,5).
+v(1,6,6).
+v(X,7,7+X).
+v(X,8,8+X).
+v(4,9,9).
+
+qv:- X=1, v(X,Y,Z), write(v(X,Y,Z)),nl,retract(v(1,V,W)),assertz(v(1,V+V,W+W)),fail.
+qv.
+
+:- dynamic(w/3).
+
+w(1,1,1).
+w(1,2,2).
+w(1,3,4).
+w(1,6,6).
+
+qw:-X=1, clause(w(X,Y,Z),_), write(w(X,Y,Z)),nl,retract(w(X,V,W)),write(retract(X,V,W)),nl, V<3,assertz(w(1,V+V,W+W)), fail.
+qw.
+
+:- initialization(qw).
+

@@ -619,7 +619,7 @@ label(7),
     proceed]).
 
 
-predicate('$read_predicate1/3_$aux3'/4,311,static,private,monofile,local,[
+predicate('$read_predicate1/3_$aux3'/4,309,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -694,7 +694,7 @@ label(1),
     proceed]).
 
 
-predicate(group_clauses_by_pred/4,342,static,private,monofile,global,[
+predicate(group_clauses_by_pred/4,340,static,private,monofile,global,[
     allocate(6),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -715,7 +715,7 @@ predicate(group_clauses_by_pred/4,342,static,private,monofile,global,[
     execute('$group_clauses_by_pred/4_$aux1'/6)]).
 
 
-predicate('$group_clauses_by_pred/4_$aux1'/6,342,static,private,monofile,local,[
+predicate('$group_clauses_by_pred/4_$aux1'/6,340,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -737,7 +737,7 @@ label(1),
     execute('$group_clauses_by_pred/4_$aux2'/3)]).
 
 
-predicate('$group_clauses_by_pred/4_$aux2'/3,342,static,private,monofile,local,[
+predicate('$group_clauses_by_pred/4_$aux2'/3,340,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -756,7 +756,7 @@ label(1),
     execute(asserta/1)]).
 
 
-predicate(add_dyn_interf_clause/3,358,static,private,monofile,global,[
+predicate(add_dyn_interf_clause/3,356,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -790,7 +790,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(create_dyn_interf_clause/4,368,static,private,monofile,global,[
+predicate(create_dyn_interf_clause/4,366,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),2),
@@ -813,7 +813,7 @@ predicate(create_dyn_interf_clause/4,368,static,private,monofile,global,[
     proceed]).
 
 
-predicate(collect_discontig_clauses/3,376,static,private,monofile,global,[
+predicate(collect_discontig_clauses/3,374,static,private,monofile,global,[
     get_variable(x(3),1),
     put_structure(retract/1,1),
     unify_structure(buff_discontig_clause/3),
@@ -823,7 +823,7 @@ predicate(collect_discontig_clauses/3,376,static,private,monofile,global,[
     execute(findall/3)]).
 
 
-predicate(create_exe_clauses_for_dyn_pred/3,393,static,private,monofile,global,[
+predicate(create_exe_clauses_for_dyn_pred/3,390,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -882,7 +882,7 @@ label(4),
     execute(create_exe_clauses_for_dyn_pred/3)]).
 
 
-predicate(create_exe_clauses_for_pub_pred/1,405,static,private,monofile,global,[
+predicate(create_exe_clauses_for_pub_pred/1,402,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -917,7 +917,7 @@ label(4),
     execute(create_exe_clauses_for_pub_pred/1)]).
 
 
-predicate(get_file_name/2,413,static,private,monofile,global,[
+predicate(get_file_name/2,410,static,private,monofile,global,[
     get_structure((+)/2,0),
     unify_variable(x(0)),
     unify_void(1),
@@ -930,7 +930,7 @@ predicate(get_file_name/2,413,static,private,monofile,global,[
     proceed]).
 
 
-predicate(get_next_clause/3,418,static,private,monofile,global,[
+predicate(get_next_clause/3,415,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1026,7 +1026,7 @@ label(2),
     proceed]).
 
 
-predicate('$get_next_clause/3_$aux1'/8,429,static,private,monofile,local,[
+predicate('$get_next_clause/3_$aux1'/8,426,static,private,monofile,local,[
     pragma_arity(9),
     get_current_choice(x(8)),
     try_me_else(1),
@@ -1090,7 +1090,7 @@ label(1),
     execute(get_next_clause/3)]).
 
 
-predicate('$get_next_clause/3_$aux2'/3,429,static,private,monofile,local,[
+predicate('$get_next_clause/3_$aux2'/3,426,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1107,7 +1107,7 @@ label(1),
     proceed]).
 
 
-predicate(get_next_clause1/7,448,static,private,monofile,global,[
+predicate(get_next_clause1/7,445,static,private,monofile,global,[
     pragma_arity(8),
     get_current_choice(x(7)),
     try_me_else(1),
@@ -1128,7 +1128,7 @@ label(1),
     execute(get_next_clause2/6)]).
 
 
-predicate('$get_next_clause1/7_$aux1'/6,448,static,private,monofile,local,[
+predicate('$get_next_clause1/7_$aux1'/6,445,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     switch_on_term(1,2,fail,4,fail),
@@ -1161,7 +1161,7 @@ label(4),
     execute('$get_next_clause1/7_$aux2'/7)]).
 
 
-predicate('$get_next_clause1/7_$aux2'/7,448,static,private,monofile,local,[
+predicate('$get_next_clause1/7_$aux2'/7,445,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -1184,7 +1184,7 @@ label(1),
     execute(get_next_clause2/6)]).
 
 
-predicate(get_next_clause2/6,468,static,private,monofile,global,[
+predicate(get_next_clause2/6,465,static,private,monofile,global,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(13),
@@ -1390,7 +1390,7 @@ label(16),
     execute(get_next_clause/3)]).
 
 
-predicate('$get_next_clause2/6_$aux11'/3,548,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux11'/3,545,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1405,7 +1405,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux10'/1,548,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux10'/1,545,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1422,7 +1422,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux9'/1,548,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux9'/1,545,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1437,7 +1437,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux8'/2,548,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux8'/2,545,static,private,monofile,local,[
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -1450,7 +1450,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux7'/2,538,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux7'/2,535,static,private,monofile,local,[
     try_me_else(1),
     execute(handle_directive/2),
 
@@ -1463,7 +1463,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux6'/1,538,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux6'/1,535,static,private,monofile,local,[
     try_me_else(1),
     put_atom(foreign_only,0),
     put_atom(f,1),
@@ -1478,7 +1478,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux5'/0,524,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux5'/0,521,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -1501,7 +1501,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux4'/0,513,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux4'/0,510,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -1534,7 +1534,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux3'/1,496,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux3'/1,493,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1558,7 +1558,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$get_next_clause2/6_$aux12'/3,496,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux12'/3,493,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1581,7 +1581,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux13'/2,496,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux13'/2,493,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1625,7 +1625,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux2'/2,486,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux2'/2,483,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1669,7 +1669,7 @@ label(1),
     proceed]).
 
 
-predicate('$get_next_clause2/6_$aux1'/4,468,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux1'/4,465,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1693,7 +1693,7 @@ label(1),
     execute(get_next_clause/3)]).
 
 
-predicate('$get_next_clause2/6_$aux14'/0,468,static,private,monofile,local,[
+predicate('$get_next_clause2/6_$aux14'/0,465,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -1710,7 +1710,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate(add_input_term/4,579,static,private,monofile,global,[
+predicate(add_input_term/4,576,static,private,monofile,global,[
     get_variable(x(4),0),
     put_structure((*)/2,5),
     unify_local_value(x(1)),
@@ -1729,7 +1729,7 @@ predicate(add_input_term/4,579,static,private,monofile,global,[
     execute(assertz/1)]).
 
 
-predicate(after_syn_error/0,586,static,private,monofile,global,[
+predicate(after_syn_error/0,583,static,private,monofile,global,[
     allocate(3),
     put_atom(syn_error_nb,1),
     put_variable(x(0),2),
@@ -1763,7 +1763,7 @@ predicate(after_syn_error/0,586,static,private,monofile,global,[
     execute(disp_msg/4)]).
 
 
-predicate(dcg_error/1,598,static,private,monofile,global,[
+predicate(dcg_error/1,595,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),0),
     put_variable(y(1),0),
@@ -1787,7 +1787,7 @@ predicate(dcg_error/1,598,static,private,monofile,global,[
     execute(error/2)]).
 
 
-predicate(display_singletons/2,607,static,private,monofile,global,[
+predicate(display_singletons/2,604,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1809,7 +1809,7 @@ label(1),
     proceed]).
 
 
-predicate('$display_singletons/2_$aux1'/2,607,static,private,monofile,local,[
+predicate('$display_singletons/2_$aux1'/2,604,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1829,7 +1829,7 @@ label(1),
     execute(warn/2)]).
 
 
-predicate(get_singletons/2,620,static,private,monofile,global,[
+predicate(get_singletons/2,617,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1859,7 +1859,7 @@ label(4),
     execute(get_singletons/2)]).
 
 
-predicate('$get_singletons/2_$aux1'/3,622,static,private,monofile,local,[
+predicate('$get_singletons/2_$aux1'/3,619,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1886,7 +1886,7 @@ label(1),
     proceed]).
 
 
-predicate(handle_directive/2,634,static,private,monofile,global,[
+predicate(handle_directive/2,631,static,private,monofile,global,[
     get_variable(x(2),1),
     get_variable(x(3),0),
     put_list(4),
@@ -1896,7 +1896,7 @@ predicate(handle_directive/2,634,static,private,monofile,global,[
     execute(handle_directive/3)]).
 
 
-predicate(foreign_get_options/1,785,static,private,monofile,global,[
+predicate(foreign_get_options/1,782,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(1,2,fail,4,fail),
@@ -1924,7 +1924,7 @@ label(4),
     execute(foreign_get_options/1)]).
 
 
-predicate(foreign_get_options1/1,792,static,private,monofile,global,[
+predicate(foreign_get_options1/1,789,static,private,monofile,global,[
     switch_on_term(3,fail,fail,fail,1),
 
 label(1),
@@ -2022,7 +2022,7 @@ label(14),
     proceed]).
 
 
-predicate('$foreign_get_options1/1_$aux1'/1,796,static,private,monofile,local,[
+predicate('$foreign_get_options1/1_$aux1'/1,793,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2050,7 +2050,7 @@ label(7),
     proceed]).
 
 
-predicate(foreign_check_types/4,826,static,private,monofile,global,[
+predicate(foreign_check_types/4,823,static,private,monofile,global,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2092,7 +2092,7 @@ label(1),
     execute(foreign_check_types/4)]).
 
 
-predicate('$foreign_check_types/4_$aux1'/3,829,static,private,monofile,local,[
+predicate('$foreign_check_types/4_$aux1'/3,826,static,private,monofile,local,[
     switch_on_term(2,9,fail,fail,1),
 
 label(1),
@@ -2135,7 +2135,7 @@ label(9),
     proceed]).
 
 
-predicate(foreign_check_arg/1,847,static,private,monofile,global,[
+predicate(foreign_check_arg/1,844,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2254,7 +2254,7 @@ label(33),
     proceed]).
 
 
-predicate(handle_initialization/3,874,static,private,monofile,global,[
+predicate(handle_initialization/3,871,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -2283,7 +2283,7 @@ label(5),
     execute(assertz/1)]).
 
 
-predicate(exec_directive/1,883,static,private,monofile,global,[
+predicate(exec_directive/1,880,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -2309,7 +2309,7 @@ label(1),
     execute(warn/2)]).
 
 
-predicate(exec_directive_exception/2,889,static,private,monofile,global,[
+predicate(exec_directive_exception/2,886,static,private,monofile,global,[
     get_variable(x(2),1),
     put_list(1),
     unify_local_value(x(0)),
@@ -2320,7 +2320,7 @@ predicate(exec_directive_exception/2,889,static,private,monofile,global,[
     execute(warn/2)]).
 
 
-predicate(used_bips_via_call/0,894,static,private,monofile,global,[
+predicate(used_bips_via_call/0,891,static,private,monofile,global,[
     allocate(0),
     put_void(0),
     put_void(1),
@@ -2338,7 +2338,7 @@ predicate(used_bips_via_call/0,894,static,private,monofile,global,[
     execute(expand_term/2)]).
 
 
-predicate(add_empty_dyn/2,903,static,private,monofile,global,[
+predicate(add_empty_dyn/2,900,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,3,fail,5,1),
@@ -2399,7 +2399,7 @@ label(9),
     execute('$add_empty_dyn/2_$aux1'/3)]).
 
 
-predicate('$add_empty_dyn/2_$aux1'/3,916,static,private,monofile,local,[
+predicate('$add_empty_dyn/2_$aux1'/3,913,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2426,7 +2426,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate(add_ensure_linked/1,925,static,private,monofile,global,[
+predicate(add_ensure_linked/1,922,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(3,4,fail,6,1),
@@ -2505,7 +2505,7 @@ label(12),
     execute(assertz/1)]).
 
 
-predicate(add_module_export_info/2,947,static,private,monofile,global,[
+predicate(add_module_export_info/2,944,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(3,4,fail,6,1),
@@ -2606,7 +2606,7 @@ label(12),
     execute('$add_module_export_info/2_$aux1'/2)]).
 
 
-predicate('$add_module_export_info/2_$aux1'/2,964,static,private,monofile,local,[
+predicate('$add_module_export_info/2_$aux1'/2,961,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -2629,7 +2629,7 @@ label(1),
     proceed]).
 
 
-predicate(check_module_name/2,972,static,private,monofile,global,[
+predicate(check_module_name/2,969,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -2653,7 +2653,7 @@ label(2),
     execute(error/2)]).
 
 
-predicate(check_head_is_module_free/1,992,static,private,monofile,global,[
+predicate(check_head_is_module_free/1,989,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -2675,7 +2675,7 @@ label(1),
     proceed]).
 
 
-predicate(check_module_clash/2,1001,static,private,monofile,global,[
+predicate(check_module_clash/2,998,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -2715,7 +2715,7 @@ label(1),
     proceed]).
 
 
-predicate(get_owner_module/3,1013,static,private,monofile,global,[
+predicate(get_owner_module/3,1010,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2742,7 +2742,7 @@ label(1),
     proceed]).
 
 
-predicate(is_exported/2,1021,static,private,monofile,global,[
+predicate(is_exported/2,1018,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -2759,7 +2759,7 @@ predicate(is_exported/2,1021,static,private,monofile,global,[
     proceed]).
 
 
-predicate(get_module_of_cur_pred/1,1027,static,private,monofile,global,[
+predicate(get_module_of_cur_pred/1,1024,static,private,monofile,global,[
     allocate(3),
     get_variable(y(0),0),
     put_variable(y(1),0),
@@ -2772,7 +2772,7 @@ predicate(get_module_of_cur_pred/1,1027,static,private,monofile,global,[
     execute('$get_module_of_cur_pred/1_$aux1'/3)]).
 
 
-predicate('$get_module_of_cur_pred/1_$aux1'/3,1027,static,private,monofile,local,[
+predicate('$get_module_of_cur_pred/1_$aux1'/3,1024,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -2811,7 +2811,7 @@ label(2),
     proceed]).
 
 
-predicate(set_flag_for_preds/2,1039,static,private,monofile,global,[
+predicate(set_flag_for_preds/2,1036,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,3,fail,5,1),
@@ -2876,7 +2876,7 @@ label(9),
     execute('$set_flag_for_preds/2_$aux1'/4)]).
 
 
-predicate('$set_flag_for_preds/2_$aux1'/4,1052,static,private,monofile,local,[
+predicate('$set_flag_for_preds/2_$aux1'/4,1049,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -2918,7 +2918,7 @@ label(1),
     execute(set_pred_info/3)]).
 
 
-predicate('$set_flag_for_preds/2_$aux2'/3,1052,static,private,monofile,local,[
+predicate('$set_flag_for_preds/2_$aux2'/3,1049,static,private,monofile,local,[
     try_me_else(6),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -2946,7 +2946,7 @@ label(6),
     proceed]).
 
 
-predicate(define_predicate/2,1069,static,private,monofile,global,[
+predicate(define_predicate/2,1066,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3008,7 +3008,7 @@ label(4),
     proceed]).
 
 
-predicate(flag_bit/2,1089,static,private,monofile,global,[
+predicate(flag_bit/2,1086,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -3087,71 +3087,107 @@ label(19),
     proceed]).
 
 
-predicate(set_pred_info/3,1131,static,private,monofile,global,[
-    allocate(4),
+predicate(set_pred_info/3,1099,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),2),
-    put_variable(y(2),1),
+    get_variable(y(2),3),
+    put_variable(y(3),1),
     call(flag_bit/2),
     put_value(y(0),0),
     put_value(y(1),1),
-    put_variable(y(3),2),
-    call(f_n_to_key/3),
-    put_unsafe_value(y(3),1),
-    put_variable(x(0),2),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    math_fast_load_value(x(0),0),
+    put_variable(y(4),2),
+    put_value(y(2),3),
+    call('$set_pred_info/3_$aux1'/4),
+    cut(y(2)),
+    math_fast_load_value(y(4),0),
     put_integer(1,1),
-    math_fast_load_value(y(2),2),
+    math_fast_load_value(y(3),2),
     call_c('Pl_Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
     call_c('Pl_Fct_Fast_Or',[fast_call,x(1)],[x(0),x(1)]),
-    put_unsafe_value(y(3),0),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_structure(pred_info/3,0),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    unify_local_value(x(1)),
     deallocate,
+    execute(assertz/1)]).
+
+
+predicate('$set_pred_info/3_$aux1'/4,1099,static,private,monofile,local,[
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),3),
+    get_variable(x(3),0),
+    put_structure(pred_info/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    call(retract/1),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_integer(0,2),
     proceed]).
 
 
-predicate(unset_pred_info/3,1141,static,private,monofile,global,[
-    allocate(4),
+predicate(unset_pred_info/3,1110,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    try_me_else(1),
+    allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),2),
-    put_variable(y(2),1),
+    get_variable(y(2),3),
+    put_variable(y(3),1),
     call(flag_bit/2),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    put_variable(y(3),2),
-    call(f_n_to_key/3),
-    put_unsafe_value(y(3),1),
-    put_variable(x(0),2),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    math_fast_load_value(x(0),0),
+    put_structure(pred_info/3,0),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    unify_variable(y(4)),
+    call(retract/1),
+    cut(y(2)),
+    math_fast_load_value(y(4),0),
     put_integer(1,1),
-    math_fast_load_value(y(2),2),
+    math_fast_load_value(y(3),2),
     call_c('Pl_Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
     call_c('Pl_Fct_Fast_Not',[fast_call,x(1)],[x(1)]),
     call_c('Pl_Fct_Fast_And',[fast_call,x(1)],[x(0),x(1)]),
-    put_unsafe_value(y(3),0),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    put_structure(pred_info/3,0),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    unify_local_value(x(1)),
     deallocate,
+    execute(assertz/1),
+
+label(1),
+    trust_me_else_fail,
     proceed]).
 
 
-predicate(test_pred_info/3,1151,static,private,monofile,global,[
-    allocate(4),
+predicate(test_pred_info/3,1121,static,private,monofile,global,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    allocate(5),
     get_variable(y(0),1),
     get_variable(y(1),2),
-    put_variable(y(2),1),
+    get_variable(y(2),3),
+    put_variable(y(3),1),
     call(flag_bit/2),
-    put_value(y(0),0),
-    put_value(y(1),1),
-    put_variable(y(3),2),
-    call(f_n_to_key/3),
-    put_unsafe_value(y(3),1),
-    put_variable(x(0),2),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    math_fast_load_value(x(0),0),
+    put_structure(pred_info/3,0),
+    unify_local_value(y(0)),
+    unify_local_value(y(1)),
+    unify_variable(y(4)),
+    put_void(1),
+    call(clause/2),
+    cut(y(2)),
+    math_fast_load_value(y(4),0),
     put_integer(1,1),
-    math_fast_load_value(y(2),2),
+    math_fast_load_value(y(3),2),
     call_c('Pl_Fct_Fast_Shl',[fast_call,x(1)],[x(1),x(2)]),
     call_c('Pl_Fct_Fast_And',[fast_call,x(0)],[x(0),x(1)]),
     put_integer(0,1),
@@ -3160,19 +3196,7 @@ predicate(test_pred_info/3,1151,static,private,monofile,global,[
     proceed]).
 
 
-predicate(f_n_to_key/3,1159,static,private,monofile,global,[
-    get_variable(x(3),2),
-    put_list(2),
-    unify_local_value(x(0)),
-    unify_list,
-    unify_local_value(x(1)),
-    unify_nil,
-    put_value(x(3),0),
-    put_atom('$~a/~d',1),
-    execute(format_to_atom/3)]).
-
-
-predicate(check_predicate/2,1163,static,private,monofile,global,[
+predicate(check_predicate/2,1162,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3267,7 +3291,7 @@ label(4),
     proceed]).
 
 
-predicate(bip/2,1186,static,private,monofile,global,[
+predicate(bip/2,1185,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -3279,7 +3303,7 @@ predicate(bip/2,1186,static,private,monofile,global,[
     proceed]).
 
 
-predicate(control_construct/2,1194,static,private,monofile,global,[
+predicate(control_construct/2,1193,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -3358,7 +3382,7 @@ label(19),
     proceed]).
 
 
-predicate(suspicious_predicate/2,1208,static,private,monofile,global,[
+predicate(suspicious_predicate/2,1207,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -3451,7 +3475,7 @@ label(22),
     proceed]).
 
 
-predicate(warn/2,1222,static,private,monofile,global,[
+predicate(warn/2,1221,static,private,monofile,global,[
     put_value(x(0),2),
     put_value(x(1),3),
     put_atom(warning,0),
@@ -3459,7 +3483,7 @@ predicate(warn/2,1222,static,private,monofile,global,[
     execute(disp_msg/4)]).
 
 
-predicate(error/2,1228,static,private,monofile,global,[
+predicate(error/2,1227,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(1),
@@ -3476,7 +3500,7 @@ predicate(error/2,1228,static,private,monofile,global,[
     execute(abandon_exec/0)]).
 
 
-predicate('$error/2_$aux1'/1,1228,static,private,monofile,local,[
+predicate('$error/2_$aux1'/1,1227,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -3492,11 +3516,11 @@ label(1),
     proceed]).
 
 
-predicate(abandon_exec/0,1240,static,private,monofile,global,[
+predicate(abandon_exec/0,1239,static,private,monofile,global,[
     execute(abort/0)]).
 
 
-predicate(disp_msg/4,1246,static,private,monofile,global,[
+predicate(disp_msg/4,1245,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -3521,7 +3545,7 @@ predicate(disp_msg/4,1246,static,private,monofile,global,[
     execute(nl/0)]).
 
 
-predicate('$disp_msg/4_$aux1'/2,1246,static,private,monofile,local,[
+predicate('$disp_msg/4_$aux1'/2,1245,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -3547,7 +3571,7 @@ label(1),
     proceed]).
 
 
-predicate(disp_file_name/2,1263,static,private,monofile,global,[
+predicate(disp_file_name/2,1262,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -3585,7 +3609,7 @@ label(4),
     execute(format/2)]).
 
 
-predicate(disp_lines/1,1273,static,private,monofile,global,[
+predicate(disp_lines/1,1272,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     switch_on_term(3,fail,fail,fail,1),
@@ -3627,7 +3651,7 @@ label(6),
     execute(format/2)]).
 
 
-predicate(disp_column/1,1282,static,private,monofile,global,[
+predicate(disp_column/1,1281,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -3647,7 +3671,7 @@ label(1),
     execute(write/1)]).
 
 
-predicate(exception/1,1294,static,private,monofile,global,[
+predicate(exception/1,1293,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(11),
@@ -3747,7 +3771,7 @@ label(11),
     execute(error/2)]).
 
 
-predicate(handle_directive/3,639,static,private,monofile,global,[
+predicate(handle_directive/3,636,static,private,monofile,global,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(43),
@@ -4164,7 +4188,7 @@ label(43),
     execute(warn/2)]).
 
 
-predicate('$handle_directive/3_$aux7'/2,756,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux7'/2,753,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -4192,7 +4216,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_directive/3_$aux6'/1,738,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux6'/1,735,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -4226,7 +4250,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$handle_directive/3_$aux5'/2,722,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux5'/2,719,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -4258,7 +4282,7 @@ label(1),
     execute(error/2)]).
 
 
-predicate('$handle_directive/3_$aux4'/0,708,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux4'/0,705,static,private,monofile,local,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -4282,7 +4306,7 @@ label(1),
     proceed]).
 
 
-predicate('$handle_directive/3_$aux3'/1,678,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux3'/1,675,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -4301,7 +4325,7 @@ label(1),
     execute(add_ensure_linked/1)]).
 
 
-predicate('$handle_directive/3_$aux2'/1,670,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux2'/1,667,static,private,monofile,local,[
     try_me_else(1),
     put_nil(1),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
@@ -4318,7 +4342,7 @@ label(1),
     execute(set_flag_for_preds/2)]).
 
 
-predicate('$handle_directive/3_$aux1'/1,662,static,private,monofile,local,[
+predicate('$handle_directive/3_$aux1'/1,659,static,private,monofile,local,[
     try_me_else(1),
     put_nil(1),
     call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(1)]),
