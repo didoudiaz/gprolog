@@ -5,7 +5,6 @@ LDFLAGS = @LDFLAGS@
 
 OBJS = hash_fct@OBJ_SUFFIX@ rbtree@OBJ_SUFFIX@
 
-#all: cpp_headers@EXE_SUFFIX@ $(OBJS)
 all: cpp_headers@EXE_SUFFIX@ $(OBJS)
 
 .SUFFIXES:
