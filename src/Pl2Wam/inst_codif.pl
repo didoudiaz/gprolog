@@ -100,6 +100,8 @@ codif(put_list(Reg), [w(Reg)]).
 
 codif(put_structure(_, Reg), [w(Reg)]).
 
+codif(put_meta_term(_, Reg1, Reg), [r(Reg1), w(Reg)]).
+
 codif(math_load_value(x(Reg), Tmp), [r(Reg), w(Tmp)]).
 
 codif(math_load_value(y(_), Tmp), [w(Tmp)]).

@@ -567,14 +567,14 @@ label(6),
     proceed]).
 
 
-predicate(maplist/2,354,static,private,monofile,built_in,[
+predicate(maplist/2,356,static,private,monofile,built_in,[
     get_variable(x(2),1),
     get_variable(x(1),0),
     put_value(x(2),0),
     execute('$maplist'/2)]).
 
 
-predicate('$maplist'/2,357,static,private,monofile,built_in,[
+predicate('$maplist'/2,359,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -601,7 +601,7 @@ label(4),
     execute('$maplist'/2)]).
 
 
-predicate(maplist/3,366,static,private,monofile,built_in,[
+predicate(maplist/3,370,static,private,monofile,built_in,[
     get_variable(x(3),2),
     get_variable(x(2),0),
     put_value(x(1),0),
@@ -609,7 +609,7 @@ predicate(maplist/3,366,static,private,monofile,built_in,[
     execute('$maplist'/3)]).
 
 
-predicate('$maplist'/3,369,static,private,monofile,built_in,[
+predicate('$maplist'/3,373,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -642,7 +642,7 @@ label(4),
     execute('$maplist'/3)]).
 
 
-predicate(maplist/4,378,static,private,monofile,built_in,[
+predicate(maplist/4,384,static,private,monofile,built_in,[
     get_variable(x(4),3),
     get_variable(x(3),0),
     put_value(x(1),0),
@@ -651,7 +651,7 @@ predicate(maplist/4,378,static,private,monofile,built_in,[
     execute('$maplist'/4)]).
 
 
-predicate('$maplist'/4,381,static,private,monofile,built_in,[
+predicate('$maplist'/4,387,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -690,7 +690,7 @@ label(4),
     execute('$maplist'/4)]).
 
 
-predicate(maplist/5,390,static,private,monofile,built_in,[
+predicate(maplist/5,398,static,private,monofile,built_in,[
     get_variable(x(5),4),
     get_variable(x(4),0),
     put_value(x(1),0),
@@ -700,7 +700,7 @@ predicate(maplist/5,390,static,private,monofile,built_in,[
     execute('$maplist'/5)]).
 
 
-predicate('$maplist'/5,393,static,private,monofile,built_in,[
+predicate('$maplist'/5,401,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -745,7 +745,7 @@ label(4),
     execute('$maplist'/5)]).
 
 
-predicate(maplist/6,402,static,private,monofile,built_in,[
+predicate(maplist/6,412,static,private,monofile,built_in,[
     get_variable(x(6),5),
     get_variable(x(5),0),
     put_value(x(1),0),
@@ -756,7 +756,7 @@ predicate(maplist/6,402,static,private,monofile,built_in,[
     execute('$maplist'/6)]).
 
 
-predicate('$maplist'/6,405,static,private,monofile,built_in,[
+predicate('$maplist'/6,415,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -807,7 +807,7 @@ label(4),
     execute('$maplist'/6)]).
 
 
-predicate(maplist/7,414,static,private,monofile,built_in,[
+predicate(maplist/7,426,static,private,monofile,built_in,[
     get_variable(x(7),6),
     get_variable(x(6),0),
     put_value(x(1),0),
@@ -819,7 +819,7 @@ predicate(maplist/7,414,static,private,monofile,built_in,[
     execute('$maplist'/7)]).
 
 
-predicate('$maplist'/7,417,static,private,monofile,built_in,[
+predicate('$maplist'/7,429,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -876,7 +876,7 @@ label(4),
     execute('$maplist'/7)]).
 
 
-predicate(maplist/8,426,static,private,monofile,built_in,[
+predicate(maplist/8,440,static,private,monofile,built_in,[
     get_variable(x(8),7),
     get_variable(x(7),0),
     put_value(x(1),0),
@@ -889,7 +889,7 @@ predicate(maplist/8,426,static,private,monofile,built_in,[
     execute('$maplist'/8)]).
 
 
-predicate('$maplist'/8,429,static,private,monofile,built_in,[
+predicate('$maplist'/8,443,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -952,7 +952,7 @@ label(4),
     execute('$maplist'/8)]).
 
 
-predicate(maplist/9,438,static,private,monofile,built_in,[
+predicate(maplist/9,454,static,private,monofile,built_in,[
     get_variable(x(9),8),
     get_variable(x(8),0),
     put_value(x(1),0),
@@ -966,7 +966,7 @@ predicate(maplist/9,438,static,private,monofile,built_in,[
     execute('$maplist'/9)]).
 
 
-predicate('$maplist'/9,441,static,private,monofile,built_in,[
+predicate('$maplist'/9,457,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1033,3 +1033,239 @@ label(4),
     put_value(y(8),8),
     deallocate,
     execute('$maplist'/9)]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,354,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(2,1),
+    get_structure(maplist/2,2),
+    unify_integer(1),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,368,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(3,1),
+    get_structure(maplist/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux3'/3,382,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(4,1),
+    get_structure(maplist/4,2),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux4'/3,396,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(5,1),
+    get_structure(maplist/5,2),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux5'/3,410,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(6,1),
+    get_structure(maplist/6,2),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux6'/3,424,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(7,1),
+    get_structure(maplist/7,2),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux7'/3,438,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(8,1),
+    get_structure(maplist/8,2),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux8'/3,452,static,private,monofile,local,[
+    get_atom(maplist,0),
+    get_integer(9,1),
+    get_structure(maplist/9,2),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,354,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(354,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(2),
+    unify_structure(maplist/2),
+    unify_integer(1),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(368,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(3),
+    unify_structure(maplist/3),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(382,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(4),
+    unify_structure(maplist/4),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(396,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(5),
+    unify_structure(maplist/5),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(410,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(6),
+    unify_structure(maplist/6),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(424,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(7),
+    unify_structure(maplist/7),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(438,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux7',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(8),
+    unify_structure(maplist/8),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(452,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux8',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(maplist),
+    unify_integer(9),
+    unify_structure(maplist/9),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('list.pl',1),
+    execute('$add_clause_term'/2)]).

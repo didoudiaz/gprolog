@@ -70,11 +70,15 @@ expand_term(T1, T3) :-
 
 
 
+:- meta_predicate(phrase(2, ?)).
+
 phrase(DcgBody, In) :-
 	'$phrase'(DcgBody, In, [], 2).
 
 
 
+
+:- meta_predicate(phrase(2, ?, ?)).
 
 phrase(DcgBody, In, Out) :-
 	'$phrase'(DcgBody, In, Out, 3).

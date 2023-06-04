@@ -626,7 +626,7 @@ get_singletons([X = _|SingNames], Sing1) :-
 
 
 
-:-	discontiguous(handle_directive / 3).
+:-	discontiguous(handle_directive/3).
 
 handle_directive(D, Where) :-
 	D =.. [DName|DLst],
@@ -732,12 +732,15 @@ handle_directive(use_module, [Module, DLst], _) :-
 	check_module_name(Module, false),
 	add_module_export_info(DLst, Module).
 
-handle_directive(meta_predicate, [MetaDecl], _) :-
+handle_directive(meta_predicate, [MetaDecl], Where) :-
 	!,
 	(   callable(MetaDecl) ->
 	    functor(MetaDecl, Pred, N),
 	    set_flag_for_preds(Pred/N, meta),
-	    assertz(meta_pred(Pred, N, MetaDecl))
+	    assertz(meta_pred(Pred, N, MetaDecl)),
+	    set_flag_for_preds('$prop_meta_pred'/3, discontig),
+	    set_flag_for_preds('$prop_meta_pred'/3, multi),
+	    assertz(buff_discontig_clause('$prop_meta_pred', 3, Where+'$prop_meta_pred'(Pred, N, MetaDecl)))
 	;
 	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
 	).

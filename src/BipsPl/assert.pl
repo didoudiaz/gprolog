@@ -41,12 +41,16 @@
 '$use_assert'.
 
 
+:- meta_predicate(asserta(:)).
+
 asserta(C) :-
 	set_bip_name(asserta, 1),
 	'$assert'(C, 1, 1, '').
 
 
 
+
+:- meta_predicate(assertz(:)).
 
 assertz(C) :-
 	set_bip_name(assertz, 1),
@@ -66,6 +70,8 @@ assertz(C) :-
 
 
 
+:- meta_predicate(retract(:)).
+
 retract(C) :-
 	set_bip_name(retract, 1),
 	'$get_head_and_body'(C, H, B),
@@ -77,6 +83,7 @@ retract(C) :-
 
 
 
+:- meta_predicate(retractall(:)).
 
 retractall(H) :-
 	set_bip_name(retractall, 1),
@@ -95,6 +102,8 @@ retractall(_).
 	'$call_c'('Pl_Retract_Last_Found_0').
 
 
+
+:- meta_predicate(clause(:, ?)).
 
 clause(H, B) :-
 	set_bip_name(clause, 2),
@@ -115,6 +124,8 @@ clause(H, B) :-
 	'$call_c'('Pl_Setarg_Of_Last_Found_2'(ArgNo, NewValue)).
 
 
+
+:- meta_predicate(abolish(:)).
 
 abolish(PI) :-
 	set_bip_name(abolish, 1),

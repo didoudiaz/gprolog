@@ -982,12 +982,13 @@ F_put_structure(ArgVal arg[])
 void
 F_put_meta_term(ArgVal arg[])
 {
-  Args2(ATOM(module), C_INT(a));
+  Args3(ATOM(module), C_INT(x), C_INT(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %d)", module->value, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), X(%d))", module->value, x);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %d)", module->value, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), X(%d))", module->value, x);
 #endif
+  Inst_Printf("move_ret", "X(%d)", a);
 }
 
 

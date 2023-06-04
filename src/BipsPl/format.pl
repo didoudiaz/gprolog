@@ -41,12 +41,16 @@
 '$use_format'.
 
 
+%:- meta_predicate(format(+, :)).
+
 format(Format, Args) :-
 	set_bip_name(format, 2),
 	'$call_c'('Pl_Format_2'(Format, Args)).
 
 
 
+
+%:- meta_predicate(format(+, +, :)).
 
 format(SorA, Format, Args) :-
 	set_bip_name(format, 3),

@@ -328,8 +328,8 @@ gen_load_arg(nil, Reg, WamNext, [put_nil(Reg)|WamNext]).
 
 gen_load_arg(stc('$mt', 2, [atm(Module), Goal]), Reg, WamNext, WamInst) :-
 	!,
-	gen_load_arg(Goal, Reg, WamMT, WamInst),
-	WamMT = [put_meta_term(Module, Reg)|WamNext].
+	gen_load_arg(Goal, Reg1, WamMT, WamInst),
+	WamMT = [put_meta_term(Module, Reg1, Reg)|WamNext].
 
 
 gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
@@ -357,7 +357,7 @@ flat_stc_arg_lst([StcArg|LStcArg], HB, [StcArg|LStcArg1], LArgAux, LRegAux) :-
 flat_stc_arg_lst([StcArg], HB, [stc(F, N, LStcArg1)], LArgAux, LRegAux) :-
 	g_read(opt_last_subterm, t),     % last subterm unif stc optimization
 	StcArg = stc(F, N, LStcArg),
-	( F \== '$mt' ; N \== 3 ), !,
+	( F \== '$mt' ; N \== 2 ), !,
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
 flat_stc_arg_lst([StcArg|LStcArg], HB, [V|LStcArg1], [StcArg|LArgAux], [X|LRegAux]) :-

@@ -78,18 +78,18 @@ predicate('$call_term_expansion'/2,65,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate(phrase/2,73,static,private,monofile,built_in,[
+predicate(phrase/2,75,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,79,static,private,monofile,built_in,[
+predicate(phrase/3,83,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,85,static,private,monofile,built_in,[
+predicate('$phrase'/4,89,static,private,monofile,built_in,[
     allocate(7),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -117,7 +117,7 @@ predicate('$phrase'/4,85,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$$phrase/4_$aux1'/1,85,static,private,monofile,local,[
+predicate('$$phrase/4_$aux1'/1,89,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -130,11 +130,67 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,102,static,private,monofile,built_in,[
+predicate('$dcg_trans_rule'/2,106,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,108,static,private,monofile,built_in,[
+predicate('$dcg_trans_body'/4,112,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,73,static,private,monofile,local,[
+    get_atom(phrase,0),
+    get_integer(2,1),
+    get_structure(phrase/2,2),
+    unify_integer(2),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,81,static,private,monofile,local,[
+    get_atom(phrase,0),
+    get_integer(3,1),
+    get_structure(phrase/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,73,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(73,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(phrase),
+    unify_integer(2),
+    unify_structure(phrase/2),
+    unify_integer(2),
+    unify_atom(?),
+    put_atom('expand.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(81,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(phrase),
+    unify_integer(3),
+    unify_structure(phrase/3),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('expand.pl',1),
+    execute('$add_clause_term'/2)]).

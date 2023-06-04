@@ -35,12 +35,10 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#include <string.h>
-
-#include <string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define OBJ_INIT Byte_Code_Initializer
 
@@ -103,6 +101,7 @@ typedef enum
   PUT_NIL,
   PUT_LIST,
   PUT_STRUCTURE,
+//  PUT_META_TERM,
 
   MATH_LOAD_X_VALUE,
   MATH_LOAD_Y_VALUE,
@@ -171,9 +170,9 @@ typedef union
   double d;
 #if WORD_SIZE == 64
   int *p;
-  PlLong l;
+  PlLong l; // why not uint64_t l;
 #endif
-  unsigned u[2];
+  uint32_t u[2];
 }
 C64To32;
 
@@ -301,6 +300,7 @@ Byte_Code_Initializer(void)
   Op_In_Tbl("put_nil", PUT_NIL);
   Op_In_Tbl("put_list", PUT_LIST);
   Op_In_Tbl("put_structure", PUT_STRUCTURE);
+//  Op_In_Tbl("put_meta_term", PUT_META_TERM);
   Op_In_Tbl("math_load_value", MATH_LOAD_X_VALUE);
 
   Op_In_Tbl("unify_variable", UNIFY_X_VARIABLE);
@@ -549,7 +549,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   size_bc = (int) (bc_sp - bc);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
-      bc_nb_block++; 
+      bc_nb_block++;
       bc = (BCWord *) Realloc((char *) bc, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
       bc_sp = bc + size_bc;
     }
@@ -626,7 +626,14 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       BC1_Arity(w) = arity;
       BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
-
+/*
+    case PUT_META_TERM:
+      nb_word = 2;
+      w1 = Pl_Rd_Atom(*arg_adr++);
+      BC1_X0(w) = Pl_Rd_Integer(*arg_adr++);
+      BC1_XY(w) = Pl_Rd_Integer(*arg_adr);
+      break;
+*/
     case PUT_VOID:
       BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
@@ -772,6 +779,24 @@ Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
 #endif
 
   ASSEMBLE_INST(bc_sp, EXECUTE_NATIVE, nb_word, w, w1, w2, w3);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
+ *                                                                         *
+ * Called by pl2wam for each clause of a dynamic or multifile predicate    *
+ * Each clause has been compiled to native code (aux pred).                *
+ * We here create a call to this clause.                                   *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
+{
+  Pl_BC_Start_Emit_0();
+  Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);
+  Pl_BC_Stop_Emit_0();
 }
 
 
@@ -1190,7 +1215,15 @@ bc_loop:
       bc++;
       X(x0) = Pl_Put_Structure(func, arity);
       goto bc_loop;
-
+/*
+    case PUT_META_TERM:
+      x0 = BC1_X0(w);
+      x = BC1_XY(w);
+      module = bc->word;
+      bc++;
+      X(x) = Pl_Put_Meta_Term(module, X(x0));
+      goto bc_loop;
+*/
     case MATH_LOAD_X_VALUE:
       x0 = BC1_X0(w);
       x = BC1_XY(w);
@@ -1384,7 +1417,7 @@ bc_loop:
 
     case FAIL:
       if (pl_debug_call_code != NULL && debug_call)
-	{			/* invoke the debugger that will then call fail/0 */
+	{			/* invoke the debugger which will then call fail/0 */
 	  Prep_Debug_Call(atom_fail, 0, 0, 0);
 	  return pl_debug_call_code;
 	}

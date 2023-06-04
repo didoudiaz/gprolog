@@ -350,7 +350,7 @@ r2([]).
 % --- test
 % N->N
 % with DEBUG_LEVEL = 1 and with MAX_CLAUSES_BEFORE_CLEAN set to 0 
-% check unlink step by step (Delete followed by Unlink+Free)
+% check unlink step by step (Delete followed by unlink+free)
 t2(N, Z) :- f(N), r2(L), length(L, Z).
 
 
@@ -392,5 +392,5 @@ w(1,6,6).
 qw:-X=1, clause(w(X,Y,Z),_), write(w(X,Y,Z)),nl,retract(w(X,V,W)),write(retract(X,V,W)),nl, V<3,assertz(w(1,V+V,W+W)), fail.
 qw.
 
-:- initialization(qw).
+%:- initialization(qw).
 

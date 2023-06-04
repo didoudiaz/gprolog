@@ -41,10 +41,13 @@
 '$use_call'.
 
 
+:- meta_predicate(once(0)).
 
 once(Goal) :-
 	call(Goal), !.
 
+
+:- meta_predicate(\+(0)).
 
 \+ Goal :-
 	(   call(Goal) ->
@@ -52,7 +55,7 @@ once(Goal) :-
 	;   true
 	).
 
-
+:- meta_predicate(call_det(0, ?)).
 
 call_det(Goal, Deterministic) :-
 	set_bip_name(call_det, 2),
@@ -182,6 +185,8 @@ call_det(Goal, Deterministic) :-
 false :-
 	fail.
 
+
+:- meta_predicate(forall(0, 0)).
 
 forall(Condition, Action) :-
 	'$not'((Condition, '$not'(Action, forall, 2)), forall, 2).

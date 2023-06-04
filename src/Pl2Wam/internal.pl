@@ -43,7 +43,8 @@
  *                                                                         *
  * NoPred : predicate number = corresponding chunk number                  *
  *                                                                         *
- * Module: module qualification or module owned if export (a variable else)*
+ * Module: module qualification or module owner if export (a variable else)*
+ *         used to qualify a call to a predicate (see code_gen.pl)         *
  *                                                                         *
  * Pred/N : predicate/arity                                                *
  *                                                                         *

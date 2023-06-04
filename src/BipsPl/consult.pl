@@ -41,11 +41,15 @@
 '$use_consult'.
 
 
+:- meta_predicate('.'(:, +)).
+
 [File|Files] :-
 	consult([File|Files]).
 
 
 
+
+:- meta_predicate(consult(:)).
 
 consult(File) :-
 	set_bip_name(consult, 1),
@@ -285,6 +289,8 @@ listing :-
 	'$listing_all'(_).
 
 
+
+:- meta_predicate(listing(:)).
 
 listing(PI) :-
 	set_bip_name(listing, 1),

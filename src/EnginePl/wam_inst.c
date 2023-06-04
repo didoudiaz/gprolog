@@ -607,6 +607,101 @@ Pl_Put_Structure(int func, int arity)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PUT_META_TERM_TAGGED                                                 *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *                                                                         *
+ * See also Pl_Get_Module_And_Goal (for meta_term decomposition)           *
+ *-------------------------------------------------------------------------*/
+WamWord FC
+Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
+{
+  WamWord *cur_H = H;
+  WamWord res_word;
+#ifdef META_TERM_HIDDEN
+  int offset;
+#endif
+
+  /* Avoid to create meta_term on an existing SAME meta_term.
+   * SAME is because we want to have the calling context, e.g.
+   * if goal_word is foo:p(...) and the module is bar we will
+   * obtain bar:foo:p(...) (so the topmost module is the caller module)
+   * But if goal_word is bar:p(...) the goal remains unchanged
+   * See Pl_Set_Calling_Module (and fct like Pl_Strip_Module_Top)
+   */
+#if 1	
+  WamWord word, tag_mask;
+  WamWord f_n;
+  WamWord *adr;
+
+  DEREF(goal_word, word, tag_mask);
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      f_n = Functor_And_Arity(adr);
+      if (f_n == Functor_Arity(ATOM_CHAR(':'), 2))
+	{
+	  DEREF(module_word, word, tag_mask);
+	  module_word = word;
+	  
+	  DEREF(Arg(adr, 0), word, tag_mask); /* module part */
+	  if (word == module_word)
+	    return goal_word;
+	}
+
+#ifdef META_TERM_HIDDEN
+      if (f_n == Functor_Arity(pl_atom_meta_term, 1)) /* also test arg1 = offset ? */
+	return goal_word;
+#endif
+    }
+#endif
+
+  res_word = Tag_STC(cur_H);
+
+#ifdef META_TERM_HIDDEN
+  /* Return a term '$$meta_term'(Offset) in A(j) 
+   *        Offset is an index in the heap.
+   * In the heap Offset is followed by Module, Goal as for
+   * '$$meta_term'(Offset, Module, Goal) (only the F/N word contains N=1)
+   * NB: GC (and copy_term ?) has then to treat '$$meta_term'/1 as '$$meta_term'/3.
+   * NB: the Offset argument is then useless (can be used to check validity).
+   */
+
+  offset = cur_H - Global_Stack;
+  *cur_H++ = Functor_Arity(pl_atom_meta_term, 1);
+  *cur_H++ = Tag_INT(offset);
+  *cur_H++ = module_word;
+  *cur_H++ = goal_word;
+#else
+  /* Return a meta-term of the form Module:Goal in A(j) */
+
+  *cur_H++ = Functor_Arity(ATOM_CHAR(':'), 2);
+  *cur_H++ = module_word;
+  *cur_H++ = goal_word;
+#endif
+
+  H = cur_H;
+  return res_word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PUT_META_TERM                                                        *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord FC
+Pl_Put_Meta_Term(int module, WamWord goal_word)
+{
+  return Pl_Put_Meta_Term_Tagged(Tag_ATM(module), goal_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_UNIFY_VARIABLE                                                       *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1125,6 +1220,7 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 
   return (swt->codep) ? swt->codep : ALTB(B);
 }
+
 
 
 

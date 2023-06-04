@@ -41,8 +41,12 @@
 '$use_all_solut'.
 
 
+:- meta_predicate(findall(?, 0, -)).
+
 findall(Template, Generator, Instances) :-
 	'$findall'(Template, Generator, Instances, [], findall, 3).
+
+:- meta_predicate(findall(?, 0, -, ?)).
 
 findall(Template, Generator, Instances, Tail) :-
 	'$findall'(Template, Generator, Instances, Tail, findall, 4).
@@ -56,6 +60,8 @@ findall(Template, Generator, Instances, Tail) :-
 
 
 
+:- meta_predicate(setof(?, 0, -)).
+
 setof(Template, Goal, Instances) :-
 	'$check_list_arg'(Instances, setof, 3),
 	'$bagof'(Template, Goal, Instances, setof, 3).
@@ -63,6 +69,8 @@ setof(Template, Goal, Instances) :-
 
 
 
+
+:- meta_predicate(bagof(?, 0, -)).
 
 bagof(Template, Generator, Instances) :-
 	'$check_list_arg'(Instances, bagof, 3),

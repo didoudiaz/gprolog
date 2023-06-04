@@ -486,13 +486,14 @@ head_wrapper(Head, AuxName, Head1) :-
 
 	% meta_predicate rewriting
 
+/* ignore until module support
 meta_pred_rewriting(P1, P2) :-
 	nonvar(P1),
 	functor(P1, Pred, N),
 	clause(meta_pred(Pred, N, MetaDecl), _), !,
 	functor(P2, Pred, N),
 	meta_pred_rewrite_args(1, N, P1, MetaDecl, P2).
-
+*/
 meta_pred_rewriting(P, P).
 
 
@@ -521,6 +522,7 @@ meta_pred_rewrite_arg(:, A1, A2) :-
 
 meta_pred_rewrite_arg(Spec, A1, '$mt'(Module, A1)) :-
 	integer(Spec), !,
+%	functor(A1, F, N), (F \== '$mt' ;  N \== 2), !, % do not nest meta_term args
 	get_module_of_cur_pred(Module).
 
 meta_pred_rewrite_arg(_, A, A).
