@@ -147,7 +147,6 @@ write_term(_, _, _).
 	).
 	    
 
-
 '$get_write_options1'([]).
 
 '$get_write_options1'([X|Options]) :-

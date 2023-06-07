@@ -190,22 +190,22 @@ reference the order of variables is system dependent).
 
 \subsubsection{\IdxPBD{(==)/2} - term identical, \label{(==)/2}
                \IdxPBD{({\bs}==)/2} - term not identical, \\
-   \AddPBD{("@{\lt})/2} % Pb with @ in \index with HeVeA
-   \AddPBD{("@={\lt})/2}
-   \AddPBD{("@{\gt})/2}
-   \AddPBD{("@{\gt}=)/2}
-               \texttt{(@{\lt})/2} - term less than,
-               \texttt{(@={\lt})/2} - term less than or equal to, \\
-               \texttt{(@{\gt})/2} - term greater than,
-               \texttt{(@{\gt}=)/2} - term greater than or equal to}
+   \AddPBD{("@<)/2} % Pb with @ in \index with HeVeA
+   \AddPBD{("@=<)/2}
+   \AddPBD{("@>)/2}
+   \AddPBD{("@>=)/2}
+               \texttt{(@<)/2} - term less than,
+               \texttt{(@=<)/2} - term less than or equal to, \\
+               \texttt{(@>)/2} - term greater than,
+               \texttt{(@>=)/2} - term greater than or equal to}
 
 \begin{TemplatesTwoCols}
 ==(?term, ?term)\\
 {\bs}==(?term, ?term) \\
-@{\lt}(?term, ?term) \\
-@={\lt}(?term, ?term)\\
-@{\gt}(?term, ?term)\\
-@{\gt}=(?term, ?term)
+@<(?term, ?term) \\
+@=<(?term, ?term)\\
+@>(?term, ?term)\\
+@>=(?term, ?term)
 
 \end{TemplatesTwoCols}
 
@@ -220,20 +220,20 @@ equal.
 \texttt{Term1 {\bs}== Term2} succeeds if \texttt{Term1} and
 \texttt{Term2} are different.
 
-\texttt{Term1 @{\lt} Term2} succeeds if \texttt{Term1} is less than
+\texttt{Term1 @< Term2} succeeds if \texttt{Term1} is less than
 \texttt{Term2}.
 
-\texttt{Term1 @={\lt} Term2} succeeds if \texttt{Term1} is less than or
+\texttt{Term1 @=< Term2} succeeds if \texttt{Term1} is less than or
 equal to \texttt{Term2}.
 
-\texttt{Term1 @{\gt} Term2} succeeds if \texttt{Term1} is greater than
+\texttt{Term1 @> Term2} succeeds if \texttt{Term1} is greater than
 \texttt{Term2}.
 
-\texttt{Term1 @{\gt}= Term2} succeeds if \texttt{Term1} is greater than
+\texttt{Term1 @>= Term2} succeeds if \texttt{Term1} is greater than
 or equal to \texttt{Term2}.
 
-\texttt{==}, \texttt{{\bs}==}, \texttt{@{\lt}}, \texttt{@={\lt}},
-\texttt{@{\gt}} and \texttt{@{\gt}=} are predefined infix operators \RefSP{op/3:(Term-input/output)}.
+\texttt{==}, \texttt{{\bs}==}, \texttt{@<}, \texttt{@=<},
+\texttt{@>} and \texttt{@>=} are predefined infix operators \RefSP{op/3:(Term-input/output)}.
 
 \PlErrorsNone
 
@@ -255,11 +255,11 @@ compare(?atom, +term, +term)
 
 \begin{itemize}
 
-\item the atom \texttt{{\lt}} if \texttt{Term1} is less than \texttt{Term2}.
+\item the atom \texttt{<} if \texttt{Term1} is less than \texttt{Term2}.
 
 \item the atom \texttt{=} if \texttt{Term1} and \texttt{Term2} are equal.
 
-\item the atom \texttt{{\gt}} if \texttt{Term1} is greater than
+\item the atom \texttt{>} if \texttt{Term1} is greater than
 \texttt{Term2}.
 
 \end{itemize}
@@ -269,7 +269,7 @@ compare(?atom, +term, +term)
 \ErrCond{\texttt{Order} is neither a variable nor an atom}
 \ErrTerm{type\_error(atom, Order)}
 
-\ErrCond{\texttt{Order} is an atom but not \texttt{{\lt}}, \texttt{=} or \texttt{{\gt}}}
+\ErrCond{\texttt{Order} is an atom but not \texttt{<}, \texttt{=} or \texttt{>}}
 \ErrTerm{domain\_error(order, Order)}
 
 \end{PlErrors}
@@ -962,12 +962,12 @@ I & Y \\
 
 \hline
 
-\texttt{E1 {\lt}{\lt} E2} & \textit{eval}(\texttt{E1}) integer\_shift\_left
+\texttt{E1 << E2} & \textit{eval}(\texttt{E1}) integer\_shift\_left
 \textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & Y \\
 
 \hline
 
-\texttt{E1 {\gt}{\gt} E2} & \textit{eval}(\texttt{E1}) integer\_shift\_right
+\texttt{E1 >> E2} & \textit{eval}(\texttt{E1}) integer\_shift\_right
 \textit{eval}(\texttt{E2}) & I, I $\rightarrow$ I & Y \\
 
 \hline
@@ -1179,7 +1179,7 @@ result is an integer.
 
 \texttt{is}, \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{//},
 \texttt{div}, \texttt{rem}, \texttt{mod}, \texttt{/{\bs}}, \texttt{{\bs}/},
-\texttt{{\lt}{\lt}}, \texttt{{\gt}{\gt}}, \texttt{**} and \texttt{\^{}} are predefined infix
+\texttt{<<}, \texttt{>>}, \texttt{**} and \texttt{\^{}} are predefined infix
 operators. \texttt{+}, \texttt{-} and \texttt{{\bs}}, are predefined prefix
 operators \RefSP{op/3:(Term-input/output)}.
 
@@ -1271,18 +1271,18 @@ ISO predicate.
 
 \subsubsection{\IdxPBD{(=:=)/2} - arithmetic equal, \label{(=:=)/2}
                \IdxPBD{(={\bs}=)/2} - arithmetic not equal, \\
-               \IdxPBD{({\lt})/2} - arithmetic less than,
-               \IdxPBD{(={\lt})/2} - arithmetic less than or equal to, \\
-               \IdxPBD{({\gt})/2} - arithmetic greater than,
-               \IdxPBD{({\gt}=)/2} - arithmetic greater than or equal to}
+               \IdxPBD{(<)/2} - arithmetic less than,
+               \IdxPBD{(=<)/2} - arithmetic less than or equal to, \\
+               \IdxPBD{(>)/2} - arithmetic greater than,
+               \IdxPBD{(>=)/2} - arithmetic greater than or equal to}
 
 \begin{TemplatesTwoCols}
 =:=(+evaluable, +evaluable)\\
 ={\bs}=(+evaluable, +evaluable)\\
-{\lt}(+evaluable, +evaluable)\\
-={\lt}(+evaluable, +evaluable)\\
-{\gt}(+evaluable, +evaluable)\\
-{\gt}=(+evaluable, +evaluable)
+<(+evaluable, +evaluable)\\
+=<(+evaluable, +evaluable)\\
+>(+evaluable, +evaluable)\\
+>=(+evaluable, +evaluable)
 
 \end{TemplatesTwoCols}
 
@@ -1294,23 +1294,23 @@ ISO predicate.
 \texttt{Expr1 ={\bs}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\neq$ \textit{eval}(\texttt{Expr2}).
 
-\texttt{Expr1 {\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $<$
+\texttt{Expr1 < Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $<$
 \textit{eval}(\texttt{Expr2}).
 
-\texttt{Expr1 ={\lt} Expr2} succeeds if \textit{eval}(\texttt{Expr1})
+\texttt{Expr1 =< Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\leq$ \textit{eval}(\texttt{Expr2}).
 
-\texttt{Expr1 {\gt} Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $>$
+\texttt{Expr1 > Expr2} succeeds if \textit{eval}(\texttt{Expr1}) $>$
 \textit{eval}(\texttt{Expr2}).
 
-\texttt{Expr1 {\gt}= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
+\texttt{Expr1 >= Expr2} succeeds if \textit{eval}(\texttt{Expr1})
 $\geq$ \textit{eval}(\texttt{Expr2}).
 
 Refer to the evaluation of an arithmetic expression for the definition of
 the \textit{eval} function \RefSP{Evaluation-of-an-arithmetic-expression}.
 
-\texttt{=:=}, \texttt{={\bs}=}, \texttt{{\lt}}, \texttt{={\lt}},
-\texttt{{\gt}} and \texttt{{\gt}=} are predefined infix operators
+\texttt{=:=}, \texttt{={\bs}=}, \texttt{<}, \texttt{=<},
+\texttt{>} and \texttt{>=} are predefined infix operators
 \RefSP{op/3:(Term-input/output)}.
 
 \Errors
@@ -1434,7 +1434,7 @@ and \texttt{Body} = \texttt{true}.
 \texttt{call(T)}.
 
 \item if \texttt{T} is a control construct \texttt{(',')/2}, \texttt{(;)/2}
-or \texttt{(-{\gt})/2} each argument of the control construct is recursively
+or \texttt{(->)/2} each argument of the control construct is recursively
 converted to a goal.
 
 \item if \texttt{T} is a callable term it remains unchanged.
@@ -2221,7 +2221,7 @@ this stream:
 occurs
 
 \item \IdxPOD{block}: input/output operations buffer data until a given
-number (implementation dependant) of characters/bytes have been treated.
+number (implementation dependent) of characters/bytes have been treated.
 
 \end{itemize}
 
@@ -4633,7 +4633,7 @@ Format sequence  & type of the argument & Description \\
 
 \hline
 
-\texttt{\~{}i} & term & ignore the current argument \\
+\texttt{\~{}Ni} & term & ignore \texttt{N} arguments (default: 1) \\
 
 \hline
 
@@ -4665,8 +4665,8 @@ Format sequence  & type of the argument & Description \\
 
 \hline
 
-\texttt{\~{}N} & none & print a new-line character if not at the beginning
-of a line \\
+\texttt{\~{}NN} & none & print \texttt{N} new-line characters if not at the beginning
+of a line (default: 1) \\
 
 \hline
 
@@ -4899,7 +4899,7 @@ Priority & Specifier & Operators \\
 
 \hline\hline
 
-\texttt{1200} & \texttt{xfx} & \texttt{:- ~--{\gt}} \\
+\texttt{1200} & \texttt{xfx} & \texttt{:- ~-->} \\
 
 \hline
 
@@ -4915,7 +4915,7 @@ Priority & Specifier & Operators \\
 
 \hline
 
-\texttt{1050} & \texttt{xfy} & \texttt{-{\gt} *-{\gt}} \\
+\texttt{1050} & \texttt{xfy} & \texttt{-> *->} \\
 
 \hline
 
@@ -4927,8 +4927,8 @@ Priority & Specifier & Operators \\
 
 \hline
 
-\texttt{700} & \texttt{xfx} & \texttt{= ~{\bs}= ~=.. ~== ~{\bs}== ~@{\lt}
-~@={\lt} ~@{\gt} ~@{\gt}= ~is ~=:= ~={\bs}= ~{\lt} ~={\lt} ~{\gt} ~{\gt}=}
+\texttt{700} & \texttt{xfx} & \texttt{= ~{\bs}= ~=.. ~== ~{\bs}== ~@<
+~@=< ~@> ~@>= ~is ~=:= ~={\bs}= ~< ~=< ~> ~>=}
 \\
 
 \hline
@@ -4941,8 +4941,8 @@ Priority & Specifier & Operators \\
 
 \hline
 
-\texttt{400} & \texttt{yfx} & \texttt{* ~/ ~// ~rem ~mod ~div ~{\lt}{\lt}
-~{\gt}{\gt}} \\
+\texttt{400} & \texttt{yfx} & \texttt{* ~/ ~// ~rem ~mod ~div ~<<
+~>>} \\
 
 \hline
 
@@ -4964,11 +4964,11 @@ Priority & Specifier & Operators \\
 
 \hline\hline
 
-\texttt{750} & \texttt{xfy} & \texttt{\#{\lt}={\gt} ~\#{\bs}{\lt}={\gt}} \\
+\texttt{750} & \texttt{xfy} & \texttt{\#<=> ~\#{\bs}<=>} \\
 
 \hline
 
-\texttt{740} & \texttt{xfy} & \texttt{\#=={\gt} ~\#{\bs}=={\gt}} \\
+\texttt{740} & \texttt{xfy} & \texttt{\#==> ~\#{\bs}==>} \\
 
 \hline
 
@@ -4984,9 +4984,9 @@ Priority & Specifier & Operators \\
 
 \hline
 
-\texttt{700} & \texttt{xfx} & \texttt{\#= ~\#{\bs}= ~\#{\lt} ~\#={\lt}
-~\#{\gt} ~\#{\gt}= ~\#=\# ~\#{\bs}=\# ~\#{\lt}\# ~\#={\lt}\# ~\#{\gt}\#
-~\#{\gt}=\#} \\
+\texttt{700} & \texttt{xfx} & \texttt{\#= ~\#{\bs}= ~\#< ~\#=<
+~\#> ~\#>= ~\#=\# ~\#{\bs}=\# ~\#<\# ~\#=<\# ~\#>\#
+~\#>=\#} \\
 
 \hline
 
@@ -5665,9 +5665,9 @@ However the ISO reference does not include them, so they should be considered
 as a system dependent feature. Definite clause grammars are an extension of
 context-free grammars. A grammar rule is of the form:
 
-\OneLine{\textrm{head} \AddPKD{(--{\gt})/2}\texttt{--{\gt}} \textrm{body}.}
+\OneLine{\textrm{head} \AddPKD{(-->)/2}\texttt{-->} \textrm{body}.}
 
-\texttt{--{\gt}} is a predefined infix operator \RefSP{op/3:(Term-input/output)}.
+\texttt{-->} is a predefined infix operator \RefSP{op/3:(Term-input/output)}.
 
 Here are some features of definite clause grammars:
 
@@ -5686,7 +5686,7 @@ Here are some features of definite clause grammars:
 
 \item the body of a grammar rule consists of a sequence of non-terminals,
   terminals, predicate call, disjunction (using \texttt{;/2}), if-then (using
-  \texttt{(-{\gt})/2}) or cut (using \texttt{!}).
+  \texttt{(->)/2}) or cut (using \texttt{!}).
 
 \item a predicate call must be enclosed in curly brackets (using
   \texttt{{\lb}{\rb}/1}). This makes it possible to express an extra
@@ -5702,7 +5702,7 @@ into a Prolog clause that explicitly the manages the list. Two arguments
 are then added: the input list (\texttt{Start}) and the output list
 (\texttt{End}). For instance:
 
-\OneLine{p --{\gt} q.}
+\OneLine{p --> q.}
 
 is translated into:
 
@@ -5733,7 +5733,7 @@ p(X, Y, Start, End) :-
 
 Terminals are translated using unification:
 
-\OneLine{assign(X,Y) --{\gt} left(X), [:=], right(Y), [;].}
+\OneLine{assign(X,Y) --> left(X), [:=], right(Y), [;].}
 
 is translated into:
 
@@ -5753,7 +5753,7 @@ output argument of the head.
 It is possible to include a call to a prolog predicate enclosing it in curly
 brackets (to distinguish them from non-terminals):
 
-\OneLine{assign(X,Y) --{\gt} left(X), [:=], right(Y0), {\lb}Y is Y0 {\rb},
+\OneLine{assign(X,Y) --> left(X), [:=], right(Y0), {\lb}Y is Y0 {\rb},
 [;].}
 
 is translated into:
@@ -5803,14 +5803,25 @@ steps are as follows:
 \end{itemize}
 
 \texttt{term\_expansion(Term1, Term2)} is a hook predicate allowing the user
-to define a specific transformation.
+to define a specific transformation. If this predicate succeeds, \texttt{Term2} is
+compiled instead of \texttt{Term1}. \texttt{Term2} can be a list, in which case,
+all terms of the list are compiled.
 
 The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically calls
-\texttt{expand\_term/2} on each \texttt{Term1} read in. However, in the
-current release, only DCG transformation are done by the compiler (i.e.
-\texttt{term\_expansion/2} cannot be used). To use
-\texttt{term\_expansion/2}, it is necessary to call \texttt{expand\_term/2}
-explicitly.
+\texttt{expand\_term/2} on each \texttt{Term1} read in. In version prior to 1.6.0,
+only DCG transformation was done by the compiler (i.e. \texttt{term\_expansion/2}
+could not be used). Since 1.6.0, \texttt{term\_expansion/2} is supported.
+On the command line, \IdxK{gplc} \RefSP{Using-the-compiler} simply compiles
+the Prolog file, without loading it. As a result, \texttt{term\_expansion/2} cannot
+execute user Prolog code even if defined in the source (the compiler is not aware
+of its existence since it is not loaded). An initialization file can then be supplied, via
+the \IdxK{--pl-state} option. Under the top-level, when a file
+is consulted, the same command-line compiler is currently used (this may be
+changed in the future). Some parameters of the top-level are already passed to
+the compiler in an initialization file (such as operator definitions and certain
+Prolog flags). In addition, the \texttt{term\_expansion/2} clauses known by the
+top-level are also passed. In any case, the user can pass a custom initialization
+file via \texttt{consult/2} \RefSP{consult/1}.
 
 \PlErrorsNone
 
@@ -6869,16 +6880,16 @@ maplist(+callable\_term, +list, \ldots, +list)
 
 \Description
 
-\texttt{maplist(Goal, List)} succeeds if \texttt{Goal} can succesfully be
+\texttt{maplist(Goal, List)} succeeds if \texttt{Goal} can successfully be
 applied on all elements of \texttt{List}.
 
-\texttt{maplist(Goal, List1, List2)} succeeds if \texttt{Goal} can succesfully be
+\texttt{maplist(Goal, List1, List2)} succeeds if \texttt{Goal} can successfully be
 applied to all pairs of elements of \texttt{List1} and \texttt{List2}.
 
-\texttt{maplist(Goal, List1, List2, List3)} succeeds if \texttt{Goal} can succesfully be
+\texttt{maplist(Goal, List1, List2, List3)} succeeds if \texttt{Goal} can successfully be
 applied to all triples of elements of \texttt{List1}..\texttt{List3}.
 
-\texttt{maplist(Goal, List1, List2, \ldots, List$N$)} succeeds if \texttt{Goal} can succesfully be
+\texttt{maplist(Goal, List1, List2, \ldots, List$N$)} succeeds if \texttt{Goal} can successfully be
 applied to all $N$-uples ($N \leq 8$) of elements of \texttt{List1}..\texttt{List$N$}.
 
 \begin{PlErrors}
@@ -8022,11 +8033,10 @@ read\_pl\_state\_file(+source\_sink)
 
 \texttt{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
 information that influences the parsing of a term \RefSP{Term-input/output}.
-This allows a sub-process written in Prolog to read this
-file and then process any Prolog term as done by the parent process. This
-file can also be passed as argument of the \IdxK{--pl-state} option when
-invoking \IdxK{gplc} \RefSP{Using-the-compiler}. More precisely the
-following elements are saved:
+This allows a sub-process written in Prolog to read thisfile and then process
+any Prolog term as done by the parent process. This is the case of the Prolog
+to WAM compiler with the \IdxK{--pl-state} option
+\RefSP{Using-the-compiler}.  The following elements are saved:
 
 \begin{itemize}
 
@@ -8034,15 +8044,39 @@ following elements are saved:
 
 \item the character conversion table \RefSP{char-conversion/2}.
 
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes}, \IdxPF{back\_quotes},
-  \IdxPF{singleton\_warning}, \IdxPF{suspicious\_warning} and \IdxPF{multifile\_warning} \Idx{Prolog flag}s
-  \RefSP{set-prolog-flag/2}.
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes},
+  \IdxPF{back\_quotes}, \IdxPF{strict\_iso}, \IdxPF{singleton\_warning},
+  \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
+  \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
+
+\item existing user dynamic clauses for \IdxPB{term\_expansion/2}.
 
 \end{itemize}
 
-\texttt{read\_pl\_state\_file(FileName)} reads (restores) from
-\texttt{FileName} all information previously saved by
-\texttt{write\_pl\_state\_file/1.}
+\texttt{read\_pl\_state\_file(FileName)} reads and sets the Prolog state
+from \texttt{FileName}. It is mainly used by the Prolog to WAM compiler to
+set its read environment.
+
+\SPart{Prolog state file}: prior to version 1.6.0, the state file was a
+binary file produced by \texttt{write\_pl\_state\_file/1} exclusively. Since
+1.6.0, it is a (simplified) Prolog text file containing directives and
+clauses which are treated by \texttt{read\_pl\_state\_file/1} as follows:
+
+\begin{itemize}
+\item a \texttt{initialization/1} directive is directly executed.
+\item any other directive term \texttt{Term} (i.e. \texttt{Term} is of the
+  form \texttt{:- D}), is passed to predicate \texttt{add\_input\_term(Term,
+    FileName, Line1, Line2)} if defined else it is ignored (\texttt{Line1}
+  and \texttt{Line2} are begin and end line numbers of the directive in the
+  state file).  In the case of the Prolog compiler, the predicate
+  \texttt{add\_input\_term} adds the term at the beginning of the stream of
+  terms to compile (it will be treated before the Prolog file to be
+  compiled).
+\item all clauses are directly asserted (useful to define
+  \IdxPB{term\_expansion/2} and compagnion predicates).
+
+\end{itemize}
+
 
 \begin{PlErrors}
 
@@ -8065,10 +8099,12 @@ GNU Prolog predicate.
 
 \subsection{Program state}
 
-\subsubsection{\IdxPBD{consult/1},\label{consult/1}
+\subsubsection{\IdxPBD{consult/2},\label{consult/1}
+               \IdxPBD{consult/1},
                \IdxPBD{'.'/2} - program consult}
 
 \begin{TemplatesOneCol}
+consult(+atom\_or\_atom\_list, +consult\_option\_list)\\
 consult(+atom\_or\_atom\_list)\\
 '.'(+atom, +atom\_list)
 
@@ -8076,7 +8112,7 @@ consult(+atom\_or\_atom\_list)\\
 
 \Description
 
-\texttt{consult(Files)} compiles and loads into memory each file
+\texttt{consult(Files, Options)} compiles and loads into memory each file
 of the list \texttt{Files}. Each file is compiled for byte-code using the
 GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} then loaded using
 \texttt{load/1} \RefSP{load/1}. It is possible to specify \IdxPK{user} as a
@@ -8089,18 +8125,40 @@ The final file name of a file is computed using the predicates
 \IdxPB{prolog\_file\_name/2} \RefSP{prolog-file-name/2} and
 \IdxPB{absolute\_file\_name/2} \RefSP{absolute-file-name/2}.
 
+\SPart{Consult options}: \texttt{Options} is a list of consult options. If this
+list contains contradictory options, the rightmost option is the one which
+applies. Possible options are:
+
+\begin{itemize}
+
+\item \AddPOD{quiet}\texttt{quiet}: do not display compiler message. The
+  default value is determined by the \IdxPF{show\_information}
+  \Idx{Prolog flag}.
+
+\item \AddPOD{pl\_state}\texttt{pl\_state(File)}: use \texttt{File} as a Prolog
+  state file \RefSP{write-pl-state-file/1}.
+
+\end{itemize}
+
+\SPart{Shebang support}: since version 1.4.0, with the introduction of
+\Idx{shebang support}, \texttt{consult/1} ignores the first line of a Prolog
+source file which directly begins with \texttt{\#}. See
+\RefSP{Scripting-Prolog} for more information about shebang support and
+\Idx{PrologScript}.
+
+
+\texttt{consult(Files)} is equivalent to \texttt{consult(Files, [])}.
+
 \texttt{[ File | Files ]}, i.e. \texttt{'.'(File, Files)} is
 equivalent to \texttt{consult([ File | Files ])}.
-
-Since version 1.4.0, with the introduction of \Idx{shebang support},
-\texttt{consult/1} ignores the first line of a Prolog source file which
-directly begins with \texttt{\#}. See
-\RefSP{Scripting-Prolog} for more information about
-shebang support and \Idx{PrologScript}.
 
 \begin{PlErrors}
 
 \ErrCond{\texttt{Files} is a partial list or a list with an element
+\texttt{E} which is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{Options} is a partial list or a list with an element
 \texttt{E} which is a variable}
 \ErrTerm{instantiation\_error}
 
@@ -8111,9 +8169,16 @@ shebang support and \Idx{PrologScript}.
 variable nor an atom}
 \ErrTerm{type\_error(atom, E)}
 
+\ErrCond{\texttt{Options} is neither a partial list nor a list}
+\ErrTerm{type\_error(list, Options)}
+
 \ErrCond{an element \texttt{E} of the \texttt{Files} list is an atom but not
 a valid pathname}
 \ErrTerm{domain\_error(os\_path, E)}
+
+\ErrCond{an element \texttt{E} of the \texttt{Options} list is neither a
+variable nor a valid write-option}
+\ErrTerm{domain\_error(consult\_option, E)}
 
 \ErrCond{an element \texttt{E} of the \texttt{Files} list is a valid
 pathname but does not correspond to an existing source}
@@ -9589,7 +9654,7 @@ GNU Prolog predicate.
 
 \begin{TemplatesOneCol}
 exec(+atom, ?stream\_or\_alias, ?stream\_or\_alias, ?stream\_or\_alias, -integer)\\
-exec(+atom, ?stream\_or\_alias, ?stream\_or\_aliasm, ?stream\_or\_aliasm)
+exec(+atom, ?stream\_or\_alias, ?stream\_or\_alias, ?stream\_or\_aliasm)
 
 \end{TemplatesOneCol}
 
@@ -9597,33 +9662,37 @@ exec(+atom, ?stream\_or\_alias, ?stream\_or\_aliasm, ?stream\_or\_aliasm)
 
 \texttt{exec(Command, SorAIn, SorAOut, SorAErr)} invokes a new default
 shell passing \texttt{Command} for execution and associates streams to
-standard streams (input, output, error) of the created process. Each
-stream can be a variable or a stream term or alias. If a variable is
-given, a pipe is created: the variables is unified with the
-stream-term of the corresponding standard stream of
-\texttt{Command}. It is an output stream for \texttt{SorAIn}, an input
-stream for \texttt{SorAOut} and \texttt{SorAErr}). If a stream-term or
-alias is given, the corresponding file is passed to the
-\texttt{Command} (in this case \texttt{SorAIn} must be an input
-stream, \texttt{SorAOut} and \texttt{SorAErr} must be an output
-stream). In this case, the file should be a POSIX-like file (i.e. must
-have the \texttt{file\_no} property \RefSP{stream-property/2}).  For
-each stream it is also possible to pass \IdxK{null} to bind the
-\textit{null} stream : a stream which always returns EOF when read and
-has no effect when written (NB: \texttt{null} is considered as an
-alias in the error table below).
+standard streams (input, output, error) of the created process.
+
+Each stream can be a variable or a stream term or alias. If a variable is
+given, a pipe is created: the variables is unified with the stream-term of
+the corresponding standard stream of \texttt{Command}. It is an output stream
+for \texttt{SorAIn}, an input stream for \texttt{SorAOut} and
+\texttt{SorAErr}).
+
+If a stream-term or alias is given, the corresponding file is passed to the
+\texttt{Command} (in this case \texttt{SorAIn} must be an input stream,
+\texttt{SorAOut} and \texttt{SorAErr} must be an output stream). In this
+case, the file should be a POSIX-like file (i.e. must have the
+\texttt{file\_no} property \RefSP{stream-property/2}).
+
+For each stream it is also possible to pass \IdxK{null} to bind the
+\textit{null} stream : a stream which always returns EOF when read and has no
+effect when written (NB: \texttt{null} is considered as an alias in the error
+table below).
 
 Note that \texttt{exec/4} detaches the process and waits for its
 termination ; the process is thus removed from system processes table
-(classical process spawning).  On the other hand, \texttt{exec/5},
+(classical process spawning).
+
+On the other hand, \texttt{exec(Command, SorAIn, SorAOut, SorAErr, Pid)}
 unifies \texttt{Pid} with the process \textit{id} of the created
-process. This is useful either to obtain the exit status of the child
-process or when some pipes are used to communicate with the child
-process (see above). In both cases, \texttt{exec/5} must be followed by
-\texttt{wait/2} \RefSP{wait/2} to wait for the termination of the
-child process.  Until a call to \texttt{wait/2} is done the process
-remains in the system processes table (as a zombie process if
-terminated). 
+process. This is useful either to obtain the exit status of the child process
+or when some pipes are used to communicate with the child process (see
+above). In both cases, \texttt{exec/5} must be followed by \texttt{wait/2}
+\RefSP{wait/2} to wait for the termination of the child process.  Until a
+call to \texttt{wait/2} is done the process remains in the system processes
+table (as a zombie process if terminated).
 
 \begin{PlErrors}
 
@@ -10475,3 +10544,7 @@ GNU Prolog predicate.
 
 
 %HEVEA\cutend
+
+%  LocalWords:  rnd infty Expr1 Expr2 Expr1 succ Pred _fd findall findall rb
+%  LocalWords:  bagof setof eof eof eof univ lsb msb popcount acos atanh
+%  LocalWords:  acosh asinh

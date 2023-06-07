@@ -201,6 +201,9 @@ temporary_name(Template, PathName) :-
 
 temporary_file(Dir, Prefix, PathName) :-
 	set_bip_name(temporary_file, 3),
+	'$temporary_file'(Dir, Prefix, PathName).
+
+'$temporary_file'(Dir, Prefix, PathName) :-
 	'$call_c_test'('Pl_Temporary_File_3'(Dir, Prefix, PathName)).
 
 

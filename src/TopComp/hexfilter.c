@@ -332,7 +332,7 @@ Display_Help(void)
   fprintf(stderr, "Usage: %s [OPTION]... [FILE...]", HEXGPLC);
   L(" ");
   L("Options:");
-  L("  --mangling                  demangling mode (default)");
+  L("  --demangling                demangling mode (default)");
   L("  --decode                    same as --demangling");
   L("  --mangling                  mangling mode");
   L("  --encode                    same as --mangling");
@@ -340,7 +340,7 @@ Display_Help(void)
   L("  --strict                    encode/decode only predicate indicators (default)");
   L("  --quote                     quote decoded predicate names (as done by writeq)");
   L("  --no-quote                  do not quote decoded predicate names");
-  L("  --printf FORMAT             pass encoded/decoded strings to printf with FORMAT");
+  L("  --printf FORMAT             pass encoded/decoded strings to C printf with FORMAT");
   L("  --aux-father                decode auxiliary predicate as its father");
   L("  --aux-father2               decode auxiliary predicate as its father + auxiliary number");
   L("  --cmd-line                  command-line mode: encode/decode each argument of the command-line");

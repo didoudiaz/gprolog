@@ -1134,7 +1134,8 @@ Pl_Exec_5(WamWord cmd_word, WamWord sora_in_word, WamWord sora_out_word,
   arg = Pl_M_Create_Shell_Command(cmd);
 
   Pl_Flush_All_Streams();
-  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out, (merge_var_out_err) ? &f_out : &f_err);
+  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out,
+			    (merge_var_out_err) ? &f_out : &f_err);
 
   /* If the command is not found we get ENOENT under Windows. 
    * Under Unix the information is only obtained at Pl_M_Get_Status(). */
@@ -1377,8 +1378,7 @@ Select_Init_Set(WamWord list_word, fd_set *set, int check)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Select_Init_Ready_List(WamWord list_word, fd_set *set,
-		       WamWord ready_list_word)
+Select_Init_Ready_List(WamWord list_word, fd_set *set, WamWord ready_list_word)
 {
   WamWord word, tag_mask;
   WamWord *lst_adr;

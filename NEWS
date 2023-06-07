@@ -1,11 +1,15 @@
 Change in GNU Prolog version 1.6.0
 
-* fix issue #32: remove duplicate warning message
-* improve consult speed on large Prolog data bases
-  (use new map implementation to improve the linedit completion: new file completion.c)
-* improve compiler speed on large Prolog data bases
+* add a consult/2 built-in (consult with options) to pass a pl state file
+* fix issue #37: bug in format/2-3
+* fix issue #13: user meta_predicate definition is now returned by predicate_property/2
+* initial support for term_expansion/2 and new pl state file format (now it is a Prolog text)
+* speed up dynamic predicates with many clauses (for wordnet)
+* improve linedit completion with a new map implementation (improves consult of wordnet files)
+* improve compiler speed on large Prolog data bases (for wordnet)
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
   (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
+* fix issue #32: remove duplicate warning message
 * speed up bind_variables/2 (also speed up the compiler for byte-code)
 * increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
 * increase default Prolog stack sizes and MAX_ATOMS

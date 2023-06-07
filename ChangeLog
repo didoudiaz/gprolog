@@ -1,12 +1,23 @@
-2023-04-21  <daniel.diaz@univ-paris1.fr>
+2023-06-07  <daniel.diaz@univ-paris1.fr>
 
-	* use new map implementation to improve the linedit completion (new file completion.c)
-	  (each read atom is put in a completion table whose implementation was too naive)
+	* add a consult/2 built-in (consult with options) to pass a pl state file
+
+2023-06-05  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #37: bug in format/2-3
+	* update the doc
+
+2023-06-04  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #13: user meta_predicate definition is now returned by predicate_property/2
+	* initial support for term_expansion/2 and new pl state file format (now it is a Prolog text)
+	* speed up dynamic predicates with many clauses (for wordnet)
+	* improve linedit completion with a new map implementation (improves consult of wordnet files)
 	* simplify ChangeLog dates
 
 2023-04-15  <daniel.diaz@univ-paris1.fr>
 
-	* improve compiler speed on large Prolog data bases
+	* improve compiler speed on large Prolog data bases (for wordnet)
 	  (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 
 2023-04-07  <daniel.diaz@univ-paris1.fr>

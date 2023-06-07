@@ -422,14 +422,14 @@ ISO control constructs.
 
 \subsubsection{\IdxCCD{(',')/2} - conjunction,
                \IdxCCD{(;)/2} - disjunction,
-               \IdxCCD{(-{\gt})/2} - if-then, 
-               \IdxCCD{(*-{\gt})/2} - soft-cut (soft if-then)}
+               \IdxCCD{(->)/2} - if-then, 
+               \IdxCCD{(*->)/2} - soft-cut (soft if-then)}
 
 \begin{TemplatesOneCol}
 ','(+callable\_term, +callable\_term)\\
 ;(+callable\_term, +callable\_term)\\
--{\gt}(+callable\_term, +callable\_term)\\
-{*-{\gt}}(+callable\_term, +callable\_term)
+->(+callable\_term, +callable\_term)\\
+{*->}(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
 
@@ -441,13 +441,13 @@ success, executes \texttt{Goal2}.
 \texttt{Goal1 ; Goal2} first creates a choice-point and executes
 \texttt{Goal1}. On backtracking \texttt{Goal2} is executed.
 
-\texttt{Goal1 -{\gt} Goal2} first executes \texttt{Goal1} and,
+\texttt{Goal1 -> Goal2} first executes \texttt{Goal1} and,
 in case of success, removes all choice-points created by \texttt{Goal1} and
 executes \texttt{Goal2}. This control construct acts like an if-then
 (\texttt{Goal1} is the test part and \texttt{Goal2} the then part). Note that
-if \texttt{Goal1} fails \texttt{-{\gt}/2} fails also. \texttt{-{\gt}/2} is
+if \texttt{Goal1} fails \texttt{->/2} fails also. \texttt{->/2} is
 often combined with \texttt{;/2} to define an if-then-else as follows:
-\texttt{Goal1 -{\gt} Goal2 ; Goal3}. Note that \texttt{Goal1 -{\gt} Goal2}
+\texttt{Goal1 -> Goal2 ; Goal3}. Note that \texttt{Goal1 -> Goal2}
 is the first argument of the \texttt{(;)/2} and \texttt{Goal3} (the else
 part) is the second argument. Such an if-then-else control construct first
 creates a choice-point for the else-part (intuitively associated with
@@ -456,15 +456,15 @@ choice-points created by \texttt{Goal1} together with the choice-point for
 the else-part are removed and \texttt{Goal2} is executed. If \texttt{Goal1}
 fails then \texttt{Goal3} is executed.
 
-\texttt{Goal1 *-{\gt} Goal2 ; Goal3} implements the so-called
+\texttt{Goal1 *-> Goal2 ; Goal3} implements the so-called
 \Idx{soft-cut}. It acts as the above if-then-else except that if
 \texttt{Goal1} succeeds only \texttt{Goal3} is cut (the alternative solutions
 of \texttt{Goal1} are preserved and can be found by backtracking). Note that
-\texttt{Goal1 *-{\gt} Goal2} alone (i.e. without an else branch
+\texttt{Goal1 *-> Goal2} alone (i.e. without an else branch
 \texttt{Goal3}) is equivalent to \texttt{(Goal1 , Goal2)}.
 
 
-\texttt{','}, \texttt{;}, \texttt{-{\gt}} and \texttt{*-{\gt}} are predefined
+\texttt{','}, \texttt{;}, \texttt{->} and \texttt{*->} are predefined
 infix operators \RefSP{op/3:(Term-input/output)}.
 
 \begin{PlErrors}
@@ -487,7 +487,7 @@ the \texttt{unknown} Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-ISO control constructs except \texttt{(*-{\gt})/2} which is GNU Prolog specific.
+ISO control constructs except \texttt{(*->)/2} which is GNU Prolog specific.
 
 \subsubsection{\IdxCCD{call/1} \label{call/1}}
 

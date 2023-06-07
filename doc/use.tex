@@ -68,8 +68,8 @@ itself, i.e. to execute the built-in predicate
 
 \begin{Code}
 \begin{verbatim}
-GNU Prolog 1.5.1 (64 bits)
-Compiled Dec  7 2022, 10:56:46 with gcc
+GNU Prolog 1.6.0 (6.4 bits)
+Compiled Jun  4 2023, 18:48:57 with gcc
 Copyright (C) 1999-2023 Daniel Diaz
 
 | ?- 
@@ -145,8 +145,10 @@ arguments (i.e. including all recognized arguments).
 Here is an example of using execution goal options:
 
 \begin{Code}
-\% gprolog --init-goal 'write(before), nl' --entry-goal 'write(inside), nl'\\
+\begin{verbatim}
+% gprolog --init-goal 'write(before), nl' --entry-goal 'write(inside), nl'
 --query-goal 'append([a,b],[c,d],X)'
+\end{verbatim}
 \end{Code}
 
 will produce the following:
@@ -154,8 +156,8 @@ will produce the following:
 \begin{Code}
 \begin{verbatim}
 before
-GNU Prolog 1.5.0 (64 bits)
-Compiled May  3 2021, 16:36:43 with gcc
+GNU Prolog 1.6.0 (6.4 bits)
+Compiled Jun  4 2023, 18:48:57 with gcc
 Copyright (C) 1999-2023 Daniel Diaz
 
 inside
@@ -606,11 +608,11 @@ prefix \\
 
 \hline
 
-\texttt{Esc-{\lt}} & \texttt{Page Up} & recall first history line \\
+\texttt{Esc-<} & \texttt{Page Up} & recall first history line \\
 
 \hline
 
-\texttt{Esc-{\gt}} & \texttt{Page Down} & recall last history line \\
+\texttt{Esc->} & \texttt{Page Down} & recall last history line \\
 
 \hline
 
@@ -979,6 +981,7 @@ for temporary files \\
 \end{CmdOptions}
 
 \SPart{Prolog to WAM compiler options}:
+\label{pl2wam-options}
 
 \begin{CmdOptions}
 \IdxKD{--pl-state} \Param{FILE} & read \Param{FILE} to set the initial Prolog state \\
@@ -1110,7 +1113,8 @@ name(s) is the input file name(s) with the suffix associated with the last
 stage. If the link is done, the name of the executable is the name (without
 suffix) of the first file name encountered in the command-line.  Note that if
 the link is not done \texttt{-o} has no sense in the presence of multiple
-input file names. For this reason, several meta characters are available for substitution in \Param{FILE}:
+input file names. For this reason, several meta characters are available for
+substitution in \Param{FILE}:
 
 \begin{itemize}
 \item \texttt{\%f} is substitued by the whole input file name.
@@ -1129,9 +1133,10 @@ option. The resulting file can then be loaded using \IdxPB{load/1}
 
 To execute the Prolog to WAM compiler in a given \emph{read environment}
 (operator definitions, character conversion table,\ldots) use
-\texttt{--pl-state} \Param{FILE}. The state file should be
-produced by \IdxPB{write\_pl\_state\_file/1}
-\RefSP{write-pl-state-file/1}.
+\texttt{--pl-state} \Param{FILE} which immediately reads and ``loads'' the
+specified file into the compiler via the \IdxPB{read\_pl\_state\_file/1}
+\RefSP{write-pl-state-file/1}. Several \texttt{--pl-state} options can be
+provided.
 
 By default the Prolog to WAM compiler inlines calls to some deterministic
 built-in predicates (e.g. \texttt{arg/3} and \texttt{functor/3}). Namely a
@@ -1418,8 +1423,14 @@ This filter is provided as an utility that can be invoked using the
 
 \IdxKD{--encode} or \IdxKD{--mangling} & encoding mode \\
 
-\IdxKD{--relax} & decode also predicate names (not only predicate
+\IdxKD{--relax} & encode/decode also predicate names (not only predicate
 indicators) \\
+
+\IdxKD{--strict} & encode/decode only predicate indicators (default) \\
+
+\IdxKD{--quote} & quote decoded predicate names (as done by writeq) \\
+
+\IdxKD{--no-quote} & do not quote decoded predicate names \\
 
 \IdxKD{--printf} \Param{FORMAT} & pass encoded/decoded string to C
 \texttt{printf(3)} with \Param{FORMAT} \\
@@ -1431,11 +1442,11 @@ auxiliary number \\
 
 \IdxKD{--cmd-line} & encode/decode each argument of the command-line \\
 
-\IdxKD{-E} or \IdxKD{-M} & same as: \texttt{--cmd-line --encode --relax} \\
+\IdxKD{-M} or \IdxKD{-H} & same as: \texttt{--cmd-line --encode --relax} \\
 
-\IdxKD{-P} or \IdxKD{-D} & same as: \texttt{--cmd-line --decode --relax --quote} \\
+\IdxKD{-D} or \IdxKD{-P} & same as: \texttt{--cmd-line --decode --relax --quote} \\
 
-\IdxKD{--help} & print a help and exit \\
+\IdxKD{-h} or \IdxKD{--help} & print a help and exit \\
 
 \IdxKD{--version} & print version number and exit \\
 

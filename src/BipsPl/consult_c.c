@@ -62,14 +62,12 @@
 #if 1
 
 /*-------------------------------------------------------------------------*
- * PL_CONSULT_2                                                            *
+ * PL_CONSULT_3                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
+Pl_Consult_1(WamWord pl2wam_args_word)
 {
-  char *tmp_file = Pl_Rd_String_Check(tmp_file_word);
-  char *pl_file = Pl_Rd_String_Check(pl_file_word);
   StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
   StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
   int pid;
@@ -79,21 +77,25 @@ Pl_Consult_2(WamWord tmp_file_word, WamWord pl_file_word)
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
-  char *arg[16] = { "pl2wam", "-w", "--no-redef-error", 
-		    "--pl-state", tmp_file, "-o", tmp_file, pl_file };
-  int arg_i = 0;
-  while(arg[arg_i] != NULL)
-    arg_i++;
+  char *arg[2 + Pl_List_Length(pl2wam_args_word)];
+  WamWord word, tag_mask;
+  WamWord *lst_adr;
+  int n = 0;
 
-#define ADD_ARG(flag, opt_str)  if (!Flag_Value(flag))  arg[arg_i++] = opt_str
+  arg[n++] = "pl2wam";
 
-  if (Flag_Value(show_information))
-    arg[arg_i++] = "--compile-msg";
-  
-  ADD_ARG(suspicious_warning, "--no-susp-warn");
-  ADD_ARG(singleton_warning, "--no-singl-warn");
-  ADD_ARG(multifile_warning, "--no-mult-warn");
+  for (;;)
+    {
+      DEREF(pl2wam_args_word, word, tag_mask);
+      if (word == NIL_WORD)
+        break;
 
+      lst_adr = UnTag_LST(word);
+
+      arg[n++] = Pl_Rd_String(Car(lst_adr));
+      pl2wam_args_word = Cdr(lst_adr);
+    }
+  arg[n] = NULL;
 
 #ifndef NO_USE_PIPED_STDIN_FOR_CONSULT
   pf_in = &f_in;

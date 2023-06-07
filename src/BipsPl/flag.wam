@@ -92,11 +92,11 @@ predicate(write_pl_state_file/1,111,static,private,monofile,built_in,[
     put_value(y(0),0),
     call('$write_pl_state_file/1_$aux1'/1),
     put_list(0),
+    unify_atom(char_conversion),
+    unify_list,
     unify_atom(double_quotes),
     unify_list,
     unify_atom(back_quotes),
-    unify_list,
-    unify_atom(char_conversion),
     unify_list,
     unify_atom(singleton_warning),
     unify_list,
@@ -105,6 +105,8 @@ predicate(write_pl_state_file/1,111,static,private,monofile,built_in,[
     unify_atom(multifile_warning),
     unify_list,
     unify_atom(strict_iso),
+    unify_list,
+    unify_atom(show_information),
     unify_nil,
     put_value(y(0),1),
     call('$write_pl_state_file/1_$aux2'/2),
@@ -236,10 +238,10 @@ predicate('$write_pl_state_goal'/2,148,static,private,monofile,built_in,[
     execute(portray_clause/2)]).
 
 
-predicate(read_pl_state_file/1,157,static,private,monofile,built_in,[
+predicate(read_pl_state_file/1,158,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
-    allocate(8),
+    allocate(9),
     get_variable(y(0),0),
     get_variable(y(1),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_pl_state_file,1]),
@@ -252,99 +254,129 @@ predicate(read_pl_state_file/1,157,static,private,monofile,built_in,[
     put_variable(y(3),0),
     put_void(1),
     call(last_read_start_line_column/2),
-    put_value(y(2),0),
-    put_variable(y(4),1),
-    call(read/2),
-    put_value(y(2),0),
+    put_structure(read/2,0),
+    unify_local_value(y(2)),
+    unify_variable(y(4)),
     put_variable(y(5),1),
-    put_variable(y(6),2),
+    put_structure(format/2,3),
+    unify_atom('~a (state file) read caused exception ~w~n'),
+    unify_list,
+    unify_local_value(y(0)),
+    unify_list,
+    unify_local_value(y(5)),
+    unify_nil,
+    put_structure((',')/2,2),
+    unify_value(x(3)),
+    unify_atom(fail),
+    put_atom(read_pl_state_file,3),
+    put_integer(1,4),
+    put_atom(true,5),
+    call('$catch'/6),
+    put_value(y(2),0),
+    put_variable(y(6),1),
+    put_variable(y(7),2),
     call(stream_line_column/3),
-    put_value(y(6),0),
-    put_variable(y(7),1),
-    put_value(y(5),2),
+    put_value(y(7),0),
+    put_variable(y(8),1),
+    put_value(y(6),2),
     call('$read_pl_state_file/1_$aux1'/3),
     put_value(y(4),0),
-    put_value(y(0),1),
-    put_value(y(3),2),
-    put_value(y(7),3),
-    call('$read_pl_state_file/1_$aux2'/4),
+    put_value(y(5),1),
+    put_value(y(0),2),
+    put_value(y(3),3),
+    put_value(y(8),4),
+    call('$read_pl_state_file/1_$aux2'/5),
     cut(y(1)),
     put_unsafe_value(y(2),0),
     deallocate,
     execute(close/1)]).
 
 
-predicate('$read_pl_state_file/1_$aux2'/4,157,static,private,monofile,local,[
-    pragma_arity(5),
-    get_current_choice(x(4)),
-    try_me_else(9),
-    switch_on_term(3,4,fail,fail,1),
-
-label(1),
-    switch_on_structure([((:-)/1,2)]),
-
-label(2),
-    try(6),
-    trust(8),
-
-label(3),
-    try_me_else(5),
-
-label(4),
+predicate('$read_pl_state_file/1_$aux2'/5,158,static,private,monofile,local,[
+    pragma_arity(6),
+    get_current_choice(x(5)),
+    try_me_else(1),
     get_atom(end_of_file,0),
-    cut(x(4)),
+    cut(x(5)),
     proceed,
 
-label(5),
-    retry_me_else(7),
-
-label(6),
+label(1),
+    retry_me_else(2),
     allocate(0),
-    get_structure((:-)/1,0),
+    get_variable(x(6),2),
+    get_variable(x(4),0),
+    get_structure((:-)/1,4),
     unify_structure(initialization/1),
-    unify_variable(x(0)),
-    cut(x(4)),
-    put_atom(read_pl_state_file,1),
-    put_integer(1,2),
-    put_atom(true,3),
-    call('$call'/4),
+    unify_variable(x(2)),
+    cut(x(5)),
+    put_structure(once/1,0),
+    unify_value(x(2)),
+    put_structure(format/2,2),
+    unify_atom('~a:~d (state file) directive ~w caused exception ~w~n'),
+    unify_list,
+    unify_local_value(x(6)),
+    unify_list,
+    unify_local_value(x(3)),
+    unify_list,
+    unify_local_value(x(4)),
+    unify_list,
+    unify_local_value(x(1)),
+    unify_nil,
+    put_atom(read_pl_state_file,3),
+    put_integer(1,4),
+    put_atom(true,5),
+    call('$catch'/6),
     fail,
 
-label(7),
-    trust_me_else_fail,
-
-label(8),
+label(2),
+    retry_me_else(3),
     allocate(4),
-    get_variable(y(0),1),
+    get_variable(y(0),0),
     get_variable(y(1),2),
     get_variable(y(2),3),
+    get_variable(y(3),4),
+    put_value(y(0),0),
     get_structure((:-)/1,0),
-    unify_structure(add_input_term/1),
-    unify_variable(y(3)),
-    cut(x(4)),
+    unify_void(1),
+    cut(x(5)),
     put_structure((/)/2,0),
     unify_atom(add_input_term),
     unify_integer(4),
     call(current_predicate/1),
     put_structure(add_input_term/4,0),
-    unify_value(y(3)),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
     unify_local_value(y(2)),
-    put_atom(read_pl_state_file,1),
-    put_integer(1,2),
-    put_atom(true,3),
-    call('$call'/4),
+    unify_local_value(y(3)),
+    call(once/1),
     fail,
 
-label(9),
+label(3),
     trust_me_else_fail,
     allocate(0),
-    call(assertz/1),
+    get_variable(x(5),2),
+    get_variable(x(4),0),
+    put_structure(assertz/1,0),
+    unify_local_value(x(4)),
+    put_structure(format/2,2),
+    unify_atom('~a:~d (state file) assertz(~w) caused exception ~w~n'),
+    unify_list,
+    unify_local_value(x(5)),
+    unify_list,
+    unify_local_value(x(3)),
+    unify_list,
+    unify_local_value(x(4)),
+    unify_list,
+    unify_local_value(x(1)),
+    unify_nil,
+    put_atom(read_pl_state_file,3),
+    put_integer(1,4),
+    put_atom(true,5),
+    call('$catch'/6),
     fail]).
 
 
-predicate('$read_pl_state_file/1_$aux1'/3,157,static,private,monofile,local,[
+predicate('$read_pl_state_file/1_$aux1'/3,158,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -362,30 +394,30 @@ label(1),
     proceed]).
 
 
-predicate(argument_counter/1,185,static,private,monofile,built_in,[
+predicate(argument_counter/1,189,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_counter,1]),
     call_c('Pl_Argument_Counter_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(argument_value/2,192,static,private,monofile,built_in,[
+predicate(argument_value/2,196,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_value,2]),
     call_c('Pl_Argument_Value_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(argument_list/1,199,static,private,monofile,built_in,[
+predicate(argument_list/1,203,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_list,1]),
     call_c('Pl_Argument_List_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(environ/2,204,static,private,monofile,built_in,[
+predicate(environ/2,208,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[environ,2]),
     call_c('Pl_Environ_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$environ_alt'/0,209,static,private,monofile,built_in,[
+predicate('$environ_alt'/0,213,static,private,monofile,built_in,[
     call_c('Pl_Environ_Alt_0',[boolean],[]),
     proceed]).

@@ -330,9 +330,10 @@ explained in the following sections.
 \label{Input-arguments}
 An input argument is tested at run-time to check if its type conforms to the
 foreign type and then it is passed to the C function. The type of the
-associated C argument is given by the above table \RefSP{foreign/2-directive}. For instance, the effective argument \texttt{Arg} associated with
-\texttt{+positive} foreign declaration is submitted to the following
-process:
+associated C argument is given by the above table
+\RefSP{foreign/2-directive}. For instance, the effective argument
+\texttt{Arg} associated with \texttt{+positive} foreign declaration is
+submitted to the following process:
 
 \begin{itemize}
 
@@ -1016,13 +1017,15 @@ void Pl_Check_For_Un_Variable(PlTerm term)
 \end{verbatim}
 \end{Indentation}
 
-The function \texttt{Pl\_Check\_For\_Un\_List(term)} checks if \texttt{term} can
-be unified with a list. This test is done for the entire list (not only for
-the functor/arity of \texttt{term} but also recursively on the tail of the
-list). The function \texttt{Pl\_Check\_For\_Un\_Variable(term)} ensures that
-\texttt{term} is not currently instantiated. These functions can be defined
-using functions to test the type of a Prolog term \RefSP{Testing-the-type-of-Prolog-terms} and functions to raise Prolog errors \RefSP{Raising-Prolog-errors}. For instance \texttt{Pl\_Check\_For\_Un\_List(term)} is defined
-as follows:
+The function \texttt{Pl\_Check\_For\_Un\_List(term)} checks if \texttt{term}
+can be unified with a list. This test is done for the entire list (not only
+for the functor/arity of \texttt{term} but also recursively on the tail of
+the list). The function \texttt{Pl\_Check\_For\_Un\_Variable(term)} ensures
+that \texttt{term} is not currently instantiated. These functions can be
+defined using functions to test the type of a Prolog term
+\RefSP{Testing-the-type-of-Prolog-terms} and functions to raise Prolog errors
+\RefSP{Raising-Prolog-errors}. For instance
+\texttt{Pl\_Check\_For\_Un\_List(term)} is defined as follows:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1166,7 +1169,7 @@ PlLong Term_Compare(PlTerm term1, PlTerm term2)
 
 Finally, the following function gives an access to the \texttt{compare/3}
 built-in \RefSP{compare/3} unifying \texttt{cmp} with the
-atom \texttt{{\lt}}, \texttt{=} or \texttt{{\gt}} depending on the result of
+atom \texttt{<}, \texttt{=} or \texttt{>} depending on the result of
 the comparison of \texttt{term1} and \texttt{term2}.
 
 \begin{Indentation}

@@ -11,6 +11,12 @@
 \usepackage{supertabular}
 %\usepackage{longtable}
 
+% to have _ as _ in PDF (help the search)
+\usepackage[T1]{fontenc}
+% to tell LaTeX -- (double dash) in tt fonts is not a ligature but double minus sign
+\usepackage{microtype}
+\DisableLigatures{encoding = T1, family = tt* }
+
 \usepackage{ifpdf}
 \usepackage{graphicx}
 \usepackage{hyperref}

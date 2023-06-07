@@ -50,38 +50,114 @@
 
 
 :- meta_predicate(consult(:)).
+:- meta_predicate(consult(:, +)).
 
 consult(File) :-
-	set_bip_name(consult, 1),
-	'$check_atom_or_atom_list'(File), !,
-	(   atom(File),
-	    File \== [] ->
-	    '$consult2'(File)
-	;   '$consult1'(File)
-	).
+	'$consult'(File, [], 1).
 
 
-'$consult1'([]).
-
-'$consult1'([File|Files]) :-
-	'$consult2'(File),
-	'$consult1'(Files).
+consult(File, Options) :-
+	'$consult'(File, Options, 2).
 
 
-'$consult2'(File) :-
+'$consult'(File, Options, Arity) :-
+	set_bip_name(consult, Arity),
+	'$check_atom_or_atom_list'(File),
+	'$set_consult_defaults',
+	'$get_consult_options'(Options, Pl2WamArgs1, Pl2WamArgs),
+	'$add_args_for_flags'([bf(0 = 0, show_information = on, '--compile-msg'),
+			       f(suspicious_warning = off, '--no-susp-warn'),
+			       f(singleton_warning = off, '--no-singl-warn')], Pl2WamArgs1),
+	(   atom(File), File \== [] ->
+	    LFile = [File]
+	;   LFile = File
+	),
+	member(File1, LFile),
+	\+ '$consult1'(File1, Pl2WamArgs, Arity),
+	!,
+	fail.
+
+'$consult'(_, _,_).
+
+
+
+
+          % option mask in sys_var[0]:
+          %
+          %  b0
+          %  0/1
+          % quiet
+
+'$set_consult_defaults' :-
+	'$sys_var_write'(0, 0).
+
+
+
+
+'$get_consult_options'(Options, Pl2WamArgsEnd, Pl2WamArgs) :-
+	'$check_list'(Options),
+	'$get_consult_options1'(Options, Pl2WamArgsEnd, Pl2WamArgs), !.
+
+
+
+'$get_consult_options1'([], Pl2WamArgs, Pl2WamArgs).
+
+'$get_consult_options1'([X|Options], Pl2WamArgsEnd, Pl2WamArgs) :-
+	'$get_consult_options2'(X, Pl2WamArgs1, Pl2WamArgs), !,
+	'$get_consult_options1'(Options, Pl2WamArgsEnd, Pl2WamArgs1).
+
+
+'$get_consult_options2'(X, _, _) :-
+	var(X),
+	'$pl_err_instantiation'.
+
+'$get_consult_options2'(quiet, Pl2WamArgs, Pl2WamArgs) :-
+	'$sys_var_set_bit'(0, 0).
+
+'$get_consult_options2'(pl_state(X), Pl2WamArgs, ['--pl-state', X|Pl2WamArgs]) :-
+	'$check_nonvar'(X),
+	atom(X).
+
+'$get_consult_options2'(X, _, _) :-
+	'$pl_err_domain'(consult_option, X).
+
+
+
+
+'$add_args_for_flags'([], []).
+
+'$add_args_for_flags'([bf(Bit = BValue, Flag = Value, Arg)|L], [Arg|Pl2WamArgs]) :-
+	'$sys_var_get_bit'(0, Bit, BValue), 
+	current_prolog_flag(Flag, Value), !,
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+'$add_args_for_flags'([f(Flag = Value, Arg)|L], [Arg|Pl2WamArgs]) :-
+	current_prolog_flag(Flag, Value), !,
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+'$add_args_for_flags'([_|L], Pl2WamArgs) :-
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+
+
+
+'$consult1'(File, Pl2WamArgs1, Arity) :-
 	'$call_c_test'('Pl_Prolog_File_Name_2'(File, File1)),
 	(   File1 = user ->
 	    File2 = File1
 	;   '$call_c_test'('Pl_Absolute_File_Name_2'(File1, File2)),
 	    (   file_exists(File2) ->
 	        true
-	    ;   set_bip_name(consult, 1),
+	    ;   set_bip_name(consult, Arity),
 	        '$pl_err_existence'(source_sink, File1)
 	    )
 	),
+	PipedConsult = piped,	% can be spawn, exec (Prolog) or piped (see consult_c.c)
 	temporary_file('', gplc, TmpFile),
-	set_bip_name(consult, 1),
-	(   '$consult3'(TmpFile, File2) ->
+	'$consult_create_pl_state'(PipedConsult, TmpFile),
+	Pl2WamArgs = ['-w', File2, '--pl-state', TmpFile, '-o', TmpFile|Pl2WamArgs1],
+	set_bip_name(consult, Arity),	
+	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
 	    '$load_file'(TmpFile),
 	    unlink(TmpFile)
 	;   unlink(TmpFile),
@@ -91,29 +167,38 @@ consult(File) :-
 
 
 
-
-'$consult3'(TmpFile, PlFile) :-
+'$consult_create_pl_state'(piped, TmpFile) :-
+	!,
 	'$sys_var_read'(20, Say_GetC), 
 	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
 	write_pl_state_file(TmpFile),
-	'$sys_var_write'(20, Say_GetC),
-	'$call_c_test'('Pl_Consult_2'(TmpFile, PlFile)).
+	'$sys_var_write'(20, Say_GetC).
 
-/*
-'$consult3'(TmpFile, PlFile):-
-	write_pl_state_file(TmpFile),
-	Args=['-w', '--pl-state', TmpFile, '-o', TmpFile, PlFile|End],
-        (   current_prolog_flag(singleton_warning, on) ->
-	    End = End1
-	;   End = ['--no-singl-warn'|End1]
-	),
-        (   current_prolog_flag(show_information, off) ->
-	    End1 = []
-	;   End1 = ['--compile-msg']
-	),
-	spawn(pl2wam, Args, 0).
-*/
+'$consult_create_pl_state'(_, TmpFile) :-
+	write_pl_state_file(TmpFile).
 
+
+
+'$consult2'(spawn, Pl2WamArgs) :-
+	spawn(pl2wam, Pl2WamArgs, 0).
+
+'$consult2'(exec, Pl2WamArgs) :-
+	'$list_to_atom'([pl2wam|Pl2WamArgs], Cmd),
+	exec(Cmd, top_level_input, top_level_output, top_level_output, Pid),
+	wait(Pid, 0).
+
+'$consult2'(piped, Pl2WamArgs) :-
+	'$call_c_test'('Pl_Consult_1'(Pl2WamArgs)).
+
+
+'$list_to_atom'(List, Atom) :-
+	open_output_atom_stream(S),
+	(   member(A, List),
+	    write(S, A),
+	    put_char(S, ' '),
+	    fail
+	;   close_output_atom_stream(S, Atom)
+	).
 
 
 

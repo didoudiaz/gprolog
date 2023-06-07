@@ -132,6 +132,7 @@ static void
 Format(StmInf *pstm, char *format, WamWord *lst_adr)
 
 #define IMPOSS -12345678
+#define DEFAULT_N(def_n) if (!has_n) n = (def_n)
 
 {
   WamWord word;
@@ -147,7 +148,6 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
   char **top_stack;
   char buff[2048];
 
-  //  printf("d: %p\n", &d);
   top_stack = format_stack;
 
   *top_stack++ = format;
@@ -226,11 +226,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
           else
             {
               p = format;
-              n = strtol(format, &format, 10);
+              n = strtol(format, &format, 10); /* 0 is returned if no conversion is possible */
               has_n = (format != p);
             }
-
-
 
           switch (*format)
             {
@@ -247,8 +245,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (!Is_Valid_Code(x))
                 Pl_Err_Representation(pl_representation_character_code);
 
+	      DEFAULT_N(1);
               while(n-- > 0)
-                Pl_Stream_Putc((int) x, pstm);
+		Pl_Stream_Putc((int) x, pstm);
               break;
 
             case 'e':
@@ -271,6 +270,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'D':
               x = Arg_Integer(&lst_adr);
 
+	      DEFAULT_N(0);
               if (n == 0 && *format == 'd')
                 {
                   Pl_Stream_Printf(pstm, "%" PL_FMT_d, x);
@@ -314,10 +314,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
             case 'R':
               x = Arg_Integer(&lst_adr);
 
-              if (!has_n)
-                  n = 8;
-              else if (n < 2 || n > 36)
-                  Pl_Err_Domain(pl_domain_radix, Tag_INT(n));
+	      DEFAULT_N(8);
+	      if (n < 2 || n > 36)
+		Pl_Err_Domain(pl_domain_radix, Tag_INT(n));
 
               k = ((*format == 'r') ? 'a' : 'A') - 10;
 
@@ -355,7 +354,8 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               break;
 
             case 'i':
-              while (--n > 0)
+	      DEFAULT_N(1);
+              while (n-- > 0)
                 Read_Arg(&lst_adr);
               break;
 
@@ -391,9 +391,9 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
               if (pstm->line_pos == 0)
                 break;
             case 'n':
-	      do
+	      DEFAULT_N(1);
+	      while (n-- > 0)
                 Pl_Stream_Putc('\n', pstm);
-	      while (--n > 0);
               break;
 
             case '?':
