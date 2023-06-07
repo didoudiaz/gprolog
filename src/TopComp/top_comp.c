@@ -1140,7 +1140,7 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  if (Check_Arg(i, "--pl-state"))
+	  if (Check_Arg(i, "--pre-load"))
 	    {
 	      if (++i >= argc)
 		Pl_Fatal_Error("FILE missing after %s option", last_opt);
@@ -1510,7 +1510,7 @@ Display_Help(void)
   L("  --version                   print version number and exit");
   L(" ");
   L("Prolog to WAM compiler options:");
-  L("  --pl-state FILE             read FILE to set the initial Prolog state");
+  L("  --pre-load FILE             pre-load FILE to set the internal compiler state");
   L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");

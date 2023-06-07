@@ -81,16 +81,16 @@ predicate('$set_current_B'/1,107,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(write_pl_state_file/1,111,static,private,monofile,built_in,[
+predicate(write_pre_load_file/1,111,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_pl_state_file,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_pre_load_file,1]),
     put_atom(write,1),
     put_variable(y(0),2),
     put_nil(3),
     call('$open'/4),
     put_value(y(0),0),
-    call('$write_pl_state_file/1_$aux1'/1),
+    call('$write_pre_load_file/1_$aux1'/1),
     put_list(0),
     unify_atom(char_conversion),
     unify_list,
@@ -109,7 +109,7 @@ predicate(write_pl_state_file/1,111,static,private,monofile,built_in,[
     unify_atom(show_information),
     unify_nil,
     put_value(y(0),1),
-    call('$write_pl_state_file/1_$aux2'/2),
+    call('$write_pre_load_file/1_$aux2'/2),
     put_integer(20,0),
     put_variable(y(1),1),
     call('$sys_var_read'/2),
@@ -117,11 +117,11 @@ predicate(write_pl_state_file/1,111,static,private,monofile,built_in,[
     put_structure('$sys_var_write'/2,1),
     unify_integer(20),
     unify_local_value(y(1)),
-    call('$write_pl_state_goal'/2),
+    call('$write_pre_load_goal'/2),
     put_value(y(0),0),
-    call('$write_pl_state_file/1_$aux3'/1),
+    call('$write_pre_load_file/1_$aux3'/1),
     put_value(y(0),0),
-    call('$write_pl_state_file/1_$aux4'/1),
+    call('$write_pre_load_file/1_$aux4'/1),
     put_value(y(0),0),
     call(close/1),
     fail,
@@ -131,7 +131,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_pl_state_file/1_$aux4'/1,111,static,private,monofile,local,[
+predicate('$write_pre_load_file/1_$aux4'/1,111,static,private,monofile,local,[
     try_me_else(1),
     put_structure(term_expansion/2,4),
     unify_void(2),
@@ -151,7 +151,7 @@ predicate('$write_pl_state_file/1_$aux4'/1,111,static,private,monofile,local,[
     unify_atom(fail),
     put_void(1),
     put_atom(fail,2),
-    put_atom(write_pl_state_file,3),
+    put_atom(write_pre_load_file,3),
     put_integer(1,4),
     put_atom(true,5),
     execute('$catch'/6),
@@ -161,7 +161,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_pl_state_file/1_$aux3'/1,111,static,private,monofile,local,[
+predicate('$write_pre_load_file/1_$aux3'/1,111,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),0),
@@ -172,7 +172,7 @@ predicate('$write_pl_state_file/1_$aux3'/1,111,static,private,monofile,local,[
     put_structure(char_conversion/2,1),
     unify_local_value(y(1)),
     unify_local_value(y(2)),
-    call('$write_pl_state_goal'/2),
+    call('$write_pre_load_goal'/2),
     fail,
 
 label(1),
@@ -180,7 +180,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_pl_state_file/1_$aux2'/2,111,static,private,monofile,local,[
+predicate('$write_pre_load_file/1_$aux2'/2,111,static,private,monofile,local,[
     try_me_else(1),
     allocate(3),
     get_variable(y(0),1),
@@ -194,7 +194,7 @@ predicate('$write_pl_state_file/1_$aux2'/2,111,static,private,monofile,local,[
     put_structure(set_prolog_flag/2,1),
     unify_local_value(y(1)),
     unify_local_value(y(2)),
-    call('$write_pl_state_goal'/2),
+    call('$write_pre_load_goal'/2),
     fail,
 
 label(1),
@@ -202,7 +202,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_pl_state_file/1_$aux1'/1,111,static,private,monofile,local,[
+predicate('$write_pre_load_file/1_$aux1'/1,111,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),0),
@@ -222,7 +222,7 @@ predicate('$write_pl_state_file/1_$aux1'/1,111,static,private,monofile,local,[
     unify_value(y(1)),
     unify_value(y(2)),
     unify_local_value(y(3)),
-    call('$write_pl_state_goal'/2),
+    call('$write_pre_load_goal'/2),
     fail,
 
 label(1),
@@ -230,7 +230,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_pl_state_goal'/2,148,static,private,monofile,built_in,[
+predicate('$write_pre_load_goal'/2,148,static,private,monofile,built_in,[
     get_variable(x(2),1),
     put_structure((:-)/1,1),
     unify_structure(initialization/1),
@@ -238,61 +238,65 @@ predicate('$write_pl_state_goal'/2,148,static,private,monofile,built_in,[
     execute(portray_clause/2)]).
 
 
-predicate(read_pl_state_file/1,158,static,private,monofile,built_in,[
+predicate(read_pre_load_file/1,158,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
-    allocate(9),
-    get_variable(y(0),0),
-    get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_pl_state_file,1]),
-    put_value(y(0),0),
+    allocate(10),
+    get_variable(y(0),1),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[read_pre_load_file,1]),
+    put_variable(y(1),1),
+    call('$read_pre_load_file/1_$aux1'/2),
+    put_value(y(1),0),
+    put_variable(y(2),1),
+    call(absolute_file_name/2),
+    put_value(y(2),0),
     put_atom(read,1),
-    put_variable(y(2),2),
+    put_variable(y(3),2),
     put_nil(3),
     call('$open'/4),
     call(repeat/0),
-    put_variable(y(3),0),
+    put_variable(y(4),0),
     put_void(1),
     call(last_read_start_line_column/2),
     put_structure(read/2,0),
-    unify_local_value(y(2)),
-    unify_variable(y(4)),
-    put_variable(y(5),1),
+    unify_local_value(y(3)),
+    unify_variable(y(5)),
+    put_variable(y(6),1),
     put_structure(format/2,3),
-    unify_atom('~a (state file) read caused exception ~w~n'),
+    unify_atom('~a (pre-load file) read caused exception ~w~n'),
     unify_list,
-    unify_local_value(y(0)),
+    unify_local_value(y(2)),
     unify_list,
-    unify_local_value(y(5)),
+    unify_local_value(y(6)),
     unify_nil,
     put_structure((',')/2,2),
     unify_value(x(3)),
     unify_atom(fail),
-    put_atom(read_pl_state_file,3),
+    put_atom(read_pre_load_file,3),
     put_integer(1,4),
     put_atom(true,5),
     call('$catch'/6),
-    put_value(y(2),0),
-    put_variable(y(6),1),
-    put_variable(y(7),2),
+    put_value(y(3),0),
+    put_variable(y(7),1),
+    put_variable(y(8),2),
     call(stream_line_column/3),
-    put_value(y(7),0),
-    put_variable(y(8),1),
-    put_value(y(6),2),
-    call('$read_pl_state_file/1_$aux1'/3),
-    put_value(y(4),0),
-    put_value(y(5),1),
-    put_value(y(0),2),
-    put_value(y(3),3),
-    put_value(y(8),4),
-    call('$read_pl_state_file/1_$aux2'/5),
-    cut(y(1)),
-    put_unsafe_value(y(2),0),
+    put_value(y(8),0),
+    put_variable(y(9),1),
+    put_value(y(7),2),
+    call('$read_pre_load_file/1_$aux2'/3),
+    put_value(y(5),0),
+    put_value(y(6),1),
+    put_value(y(2),2),
+    put_value(y(4),3),
+    put_value(y(9),4),
+    call('$read_pre_load_file/1_$aux3'/5),
+    cut(y(0)),
+    put_unsafe_value(y(3),0),
     deallocate,
     execute(close/1)]).
 
 
-predicate('$read_pl_state_file/1_$aux2'/5,158,static,private,monofile,local,[
+predicate('$read_pre_load_file/1_$aux3'/5,158,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -312,7 +316,7 @@ label(1),
     put_structure(once/1,0),
     unify_value(x(2)),
     put_structure(format/2,2),
-    unify_atom('~a:~d (state file) directive ~w caused exception ~w~n'),
+    unify_atom('~a:~d (pre-load file) directive ~w caused exception ~w~n'),
     unify_list,
     unify_local_value(x(6)),
     unify_list,
@@ -322,7 +326,7 @@ label(1),
     unify_list,
     unify_local_value(x(1)),
     unify_nil,
-    put_atom(read_pl_state_file,3),
+    put_atom(read_pre_load_file,3),
     put_integer(1,4),
     put_atom(true,5),
     call('$catch'/6),
@@ -359,7 +363,7 @@ label(3),
     put_structure(assertz/1,0),
     unify_local_value(x(4)),
     put_structure(format/2,2),
-    unify_atom('~a:~d (state file) assertz(~w) caused exception ~w~n'),
+    unify_atom('~a:~d (pre-load file) assertz(~w) caused exception ~w~n'),
     unify_list,
     unify_local_value(x(5)),
     unify_list,
@@ -369,14 +373,14 @@ label(3),
     unify_list,
     unify_local_value(x(1)),
     unify_nil,
-    put_atom(read_pl_state_file,3),
+    put_atom(read_pre_load_file,3),
     put_integer(1,4),
     put_atom(true,5),
     call('$catch'/6),
     fail]).
 
 
-predicate('$read_pl_state_file/1_$aux1'/3,158,static,private,monofile,local,[
+predicate('$read_pre_load_file/1_$aux2'/3,158,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -394,30 +398,51 @@ label(1),
     proceed]).
 
 
-predicate(argument_counter/1,189,static,private,monofile,built_in,[
+predicate('$read_pre_load_file/1_$aux1'/2,158,static,private,monofile,local,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
+    try_me_else(1),
+    allocate(3),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    put_value(y(0),0),
+    call(file_exists/1),
+    cut(y(2)),
+    put_value(y(1),0),
+    get_value(y(0),0),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    execute(prolog_file_name/2)]).
+
+
+predicate(argument_counter/1,194,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_counter,1]),
     call_c('Pl_Argument_Counter_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(argument_value/2,196,static,private,monofile,built_in,[
+predicate(argument_value/2,201,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_value,2]),
     call_c('Pl_Argument_Value_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(argument_list/1,203,static,private,monofile,built_in,[
+predicate(argument_list/1,208,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_list,1]),
     call_c('Pl_Argument_List_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(environ/2,208,static,private,monofile,built_in,[
+predicate(environ/2,213,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[environ,2]),
     call_c('Pl_Environ_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$environ_alt'/0,213,static,private,monofile,built_in,[
+predicate('$environ_alt'/0,218,static,private,monofile,built_in,[
     call_c('Pl_Environ_Alt_0',[boolean],[]),
     proceed]).

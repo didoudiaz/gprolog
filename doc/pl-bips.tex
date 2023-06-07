@@ -5815,7 +5815,7 @@ On the command line, \IdxK{gplc} \RefSP{Using-the-compiler} simply compiles
 the Prolog file, without loading it. As a result, \texttt{term\_expansion/2} cannot
 execute user Prolog code even if defined in the source (the compiler is not aware
 of its existence since it is not loaded). An initialization file can then be supplied, via
-the \IdxK{--pl-state} option. Under the top-level, when a file
+the \IdxK{--pre-load} option. Under the top-level, when a file
 is consulted, the same command-line compiler is currently used (this may be
 changed in the future). Some parameters of the top-level are already passed to
 the compiler in an initialization file (such as operator definitions and certain
@@ -8020,22 +8020,22 @@ current\_bip\_name(?atom, ?arity)
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{write\_pl\_state\_file/1},\label{write-pl-state-file/1}
-               \IdxPBD{read\_pl\_state\_file/1}}
+\subsubsection{\IdxPBD{write\_pre\_load\_file/1},\label{write-pre-load-file/1}
+               \IdxPBD{read\_pre\_load\_file/1}}
 
 \begin{TemplatesOneCol}
-write\_pl\_state\_file(+source\_sink)\\
-read\_pl\_state\_file(+source\_sink)
+write\_pre\_load\_file(+source\_sink)\\
+read\_pre\_load\_file(+source\_sink)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{write\_pl\_state\_file(FileName)} writes onto \texttt{FileName} all
+\texttt{write\_pre\_load\_file(FileName)} writes onto \texttt{FileName} all
 information that influences the parsing of a term \RefSP{Term-input/output}.
 This allows a sub-process written in Prolog to read thisfile and then process
 any Prolog term as done by the parent process. This is the case of the Prolog
-to WAM compiler with the \IdxK{--pl-state} option
+to WAM compiler with the \IdxK{--pre-load} option
 \RefSP{Using-the-compiler}.  The following elements are saved:
 
 \begin{itemize}
@@ -8053,14 +8053,19 @@ to WAM compiler with the \IdxK{--pl-state} option
 
 \end{itemize}
 
-\texttt{read\_pl\_state\_file(FileName)} reads and sets the Prolog state
-from \texttt{FileName}. It is mainly used by the Prolog to WAM compiler to
-set its read environment.
+\texttt{read\_pre\_load\_file(FileName)} reads and sets the Prolog
+internal state from \texttt{FileName}. It is mainly used by the Prolog
+to WAM compiler to set its read environment for parsing. If
+\texttt{FileName} does not exist, it is computed using the predicate
+\IdxPB{prolog\_file\_name/2} \RefSP{prolog-file-name/2}. Then
+\IdxPB{absolute\_file\_name/2} \RefSP{absolute-file-name/2} applies.
 
-\SPart{Prolog state file}: prior to version 1.6.0, the state file was a
-binary file produced by \texttt{write\_pl\_state\_file/1} exclusively. Since
+
+\SPart{Prolog pre-load file}: prior to version 1.6.0, this file was
+called ``prolog state'' file (pl-state) and was a binary file. Since
 1.6.0, it is a (simplified) Prolog text file containing directives and
-clauses which are treated by \texttt{read\_pl\_state\_file/1} as follows:
+clauses which is treated by \texttt{read\_pre\_load\_file/1} as
+follows:
 
 \begin{itemize}
 \item a \texttt{initialization/1} directive is directly executed.
@@ -8135,8 +8140,8 @@ applies. Possible options are:
   default value is determined by the \IdxPF{show\_information}
   \Idx{Prolog flag}.
 
-\item \AddPOD{pl\_state}\texttt{pl\_state(File)}: use \texttt{File} as a Prolog
-  state file \RefSP{write-pl-state-file/1}.
+\item \AddPOD{pre\_load}\texttt{pre\_load(File)}: use \texttt{File} as
+  a Prolog pre-load file \RefSP{write-pre-load-file/1}.
 
 \end{itemize}
 

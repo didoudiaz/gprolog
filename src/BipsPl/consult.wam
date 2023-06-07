@@ -198,10 +198,10 @@ label(4),
 
 label(5),
     allocate(1),
-    get_structure(pl_state/1,0),
+    get_structure(pre_load/1,0),
     unify_variable(y(0)),
     get_list(2),
-    unify_atom('--pl-state'),
+    unify_atom('--pre-load'),
     unify_list,
     unify_value(y(0)),
     unify_local_value(x(1)),
@@ -326,13 +326,13 @@ predicate('$consult1'/3,144,static,private,monofile,built_in,[
     call(temporary_file/3),
     put_value(y(3),0),
     put_value(y(4),1),
-    call('$consult_create_pl_state'/2),
+    call('$consult_create_pre_load'/2),
     put_list(1),
     unify_atom('-w'),
     unify_list,
     unify_local_value(y(2)),
     unify_list,
-    unify_atom('--pl-state'),
+    unify_atom('--pre-load'),
     unify_list,
     unify_local_value(y(4)),
     unify_list,
@@ -415,7 +415,7 @@ label(1),
     execute('$pl_err_existence'/2)]).
 
 
-predicate('$consult_create_pl_state'/2,170,static,private,monofile,built_in,[
+predicate('$consult_create_pre_load'/2,170,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -430,7 +430,7 @@ predicate('$consult_create_pl_state'/2,170,static,private,monofile,built_in,[
     put_integer(1,1),
     call('$sys_var_write'/2),
     put_value(y(0),0),
-    call(write_pl_state_file/1),
+    call(write_pre_load_file/1),
     put_integer(20,0),
     put_unsafe_value(y(1),1),
     deallocate,
@@ -439,7 +439,7 @@ predicate('$consult_create_pl_state'/2,170,static,private,monofile,built_in,[
 label(1),
     trust_me_else_fail,
     put_value(x(1),0),
-    execute(write_pl_state_file/1)]).
+    execute(write_pre_load_file/1)]).
 
 
 predicate('$consult2'/2,182,static,private,monofile,built_in,[

@@ -114,7 +114,7 @@ consult(File, Options) :-
 '$get_consult_options2'(quiet, Pl2WamArgs, Pl2WamArgs) :-
 	'$sys_var_set_bit'(0, 0).
 
-'$get_consult_options2'(pl_state(X), Pl2WamArgs, ['--pl-state', X|Pl2WamArgs]) :-
+'$get_consult_options2'(pre_load(X), Pl2WamArgs, ['--pre-load', X|Pl2WamArgs]) :-
 	'$check_nonvar'(X),
 	atom(X).
 
@@ -154,8 +154,8 @@ consult(File, Options) :-
 	),
 	PipedConsult = piped,	% can be spawn, exec (Prolog) or piped (see consult_c.c)
 	temporary_file('', gplc, TmpFile),
-	'$consult_create_pl_state'(PipedConsult, TmpFile),
-	Pl2WamArgs = ['-w', File2, '--pl-state', TmpFile, '-o', TmpFile|Pl2WamArgs1],
+	'$consult_create_pre_load'(PipedConsult, TmpFile),
+	Pl2WamArgs = ['-w', File2, '--pre-load', TmpFile, '-o', TmpFile|Pl2WamArgs1],
 	set_bip_name(consult, Arity),	
 	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
 	    '$load_file'(TmpFile),
@@ -167,15 +167,15 @@ consult(File, Options) :-
 
 
 
-'$consult_create_pl_state'(piped, TmpFile) :-
+'$consult_create_pre_load'(piped, TmpFile) :-
 	!,
 	'$sys_var_read'(20, Say_GetC), 
 	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
-	write_pl_state_file(TmpFile),
+	write_pre_load_file(TmpFile),
 	'$sys_var_write'(20, Say_GetC).
 
-'$consult_create_pl_state'(_, TmpFile) :-
-	write_pl_state_file(TmpFile).
+'$consult_create_pre_load'(_, TmpFile) :-
+	write_pre_load_file(TmpFile).
 
 
 

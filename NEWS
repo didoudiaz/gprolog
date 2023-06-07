@@ -1,9 +1,10 @@
 Change in GNU Prolog version 1.6.0
 
-* add a consult/2 built-in (consult with options) to pass a pl state file
+* rename pl2wam --pl-state option (and concept) as --pre-load
+* add a consult/2 built-in (consult with options) to pass a pre-load file
 * fix issue #37: bug in format/2-3
 * fix issue #13: user meta_predicate definition is now returned by predicate_property/2
-* initial support for term_expansion/2 and new pl state file format (now it is a Prolog text)
+* initial support for term_expansion/2 and new pre-load file format (now it is a Prolog text)
 * speed up dynamic predicates with many clauses (for wordnet)
 * improve linedit completion with a new map implementation (improves consult of wordnet files)
 * improve compiler speed on large Prolog data bases (for wordnet)

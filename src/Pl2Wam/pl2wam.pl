@@ -323,8 +323,8 @@ cmd_line_arg1('--output', LArg, LArg1) :-
 	),
 	g_assign(wamfile, WamFile).
 
-cmd_line_arg1('--pl-state', [File|LArg], LArg) :-
-	read_pl_state_file(File),
+cmd_line_arg1('--pre-load', [File|LArg], LArg) :-
+	read_pre_load_file(File),
 	(   current_prolog_flag(singleton_warning, off) ->
 	    g_assign(singl_warn, f)
 	;   true
@@ -465,7 +465,7 @@ h('Options:').
 h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
-h('  --pl-state FILE             read FILE to set the initial Prolog state').
+h('  --pre-load FILE             pre-load FILE to set the internal compiler state').
 h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').

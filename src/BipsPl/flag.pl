@@ -108,11 +108,11 @@ current_prolog_flag(Flag, Value) :-
 	'$call_c'('Pl_Set_Current_B_1'(X)).
 
 
-write_pl_state_file(File) :-
-	set_bip_name(write_pl_state_file, 1),
+write_pre_load_file(File) :-
+	set_bip_name(write_pre_load_file, 1),
 	'$open'(File, write, S, []),
 	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
-	    '$write_pl_state_goal'(S, op(Prior, Prec, LOp)),
+	    '$write_pre_load_goal'(S, op(Prior, Prec, LOp)),
 	    fail
 	;
 	    true
@@ -121,15 +121,15 @@ write_pl_state_file(File) :-
 		  suspicious_warning, multifile_warning, strict_iso, show_information],
 	(   member(Flag, LFlags),
 	    current_prolog_flag(Flag, FlagValue),
-	    '$write_pl_state_goal'(S, set_prolog_flag(Flag, FlagValue)),
+	    '$write_pre_load_goal'(S, set_prolog_flag(Flag, FlagValue)),
 	    fail
 	;
 	    true
 	),
 	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
-	'$write_pl_state_goal'(S, '$sys_var_write'(20, SysVar)),
+	'$write_pre_load_goal'(S, '$sys_var_write'(20, SysVar)),
 	(   current_char_conversion(Ch1,Ch2),
-	    '$write_pl_state_goal'(S, char_conversion(Ch1, Ch2)),
+	    '$write_pre_load_goal'(S, char_conversion(Ch1, Ch2)),
 	    fail
 	;
 	    true
@@ -142,10 +142,10 @@ write_pl_state_file(File) :-
 	close(S),
 	fail.			% GC
 
-write_pl_state_file(_).
+write_pre_load_file(_).
 
 
-'$write_pl_state_goal'(S, Goal) :-
+'$write_pre_load_goal'(S, Goal) :-
 	portray_clause(S, (:- initialization(Goal))).
 
 
@@ -155,13 +155,18 @@ write_pl_state_file(_).
 	% other than initialization/1 to add_input_term/4.
 	% So we simply read-assert/execute the content.
 
-read_pl_state_file(File) :-
-	set_bip_name(read_pl_state_file, 1),
-	'$open'(File, read, S, []),
+read_pre_load_file(File) :-
+	set_bip_name(read_pre_load_file, 1),        
+	(   file_exists(File) ->
+	    File1 = File
+	;   prolog_file_name(File, File1)
+	),
+	absolute_file_name(File1, File2),
+	'$open'(File2, read, S, []),
 	repeat,
 	last_read_start_line_column(L1, _),
-	catch(read(S, Cl), Err, (format('~a (state file) read caused exception ~w~n',
-					[File, Err]), fail)),
+	catch(read(S, Cl), Err, (format('~a (pre-load file) read caused exception ~w~n',
+					[File2, Err]), fail)),
 	stream_line_column(S, Line, Col),
 	(   Col = 1 ->
 	    L2 is Line - 1
@@ -170,15 +175,15 @@ read_pl_state_file(File) :-
 	(   Cl = end_of_file ->
 	    true
 	;   Cl = (:- initialization(Goal)) ->
-	    catch(once(Goal), Err, format('~a:~d (state file) directive ~w caused exception ~w~n',
-					  [File, L1, Cl, Err])),
+	    catch(once(Goal), Err, format('~a:~d (pre-load file) directive ~w caused exception ~w~n',
+					  [File2, L1, Cl, Err])),
 	    fail
 	;   Cl = (:- _) ->
 	    current_predicate(add_input_term/4),
-	    once(add_input_term(Cl, File, L1, L2)),
+	    once(add_input_term(Cl, File2, L1, L2)),
 	    fail
-	;   catch(assertz(Cl), Err, format('~a:~d (state file) assertz(~w) caused exception ~w~n',
-					   [File, L1, Cl, Err])),
+	;   catch(assertz(Cl), Err, format('~a:~d (pre-load file) assertz(~w) caused exception ~w~n',
+					   [File2, L1, Cl, Err])),
 	    fail
 	), !,
 	close(S).

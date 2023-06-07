@@ -902,7 +902,7 @@ predicate(cmd_line_arg1/3,308,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('-o',3),('--output',5),('--pl-state',7),('-W',9),('--wam-for-native',11),('-w',13),('--wam-for-byte-code',15),('--wam-comment',17),('--no-susp-warn',19),('--no-singl-warn',21),('--no-redef-error',23),('--foreign-only',25),('--no-call-c',27),('--no-inline',29),('--no-reorder',31),('--no-reg-opt',33),('--min-reg-opt',35),('--no-opt-last-subterm',37),('--fast-math',39),('--keep-void-inst',41),('--statistics',43),('--compile-msg',45),('--version',47),('-h',49),('--help',51)]),
+    switch_on_atom([('-o',3),('--output',5),('--pre-load',7),('-W',9),('--wam-for-native',11),('-w',13),('--wam-for-byte-code',15),('--wam-comment',17),('--no-susp-warn',19),('--no-singl-warn',21),('--no-redef-error',23),('--foreign-only',25),('--no-call-c',27),('--no-inline',29),('--no-reorder',31),('--no-reg-opt',33),('--min-reg-opt',35),('--no-opt-last-subterm',37),('--fast-math',39),('--keep-void-inst',41),('--statistics',43),('--compile-msg',45),('--version',47),('-h',49),('--help',51)]),
 
 label(2),
     try_me_else(4),
@@ -936,11 +936,11 @@ label(6),
 
 label(7),
     allocate(0),
-    get_atom('--pl-state',0),
+    get_atom('--pre-load',0),
     get_list(1),
     unify_variable(x(0)),
     unify_local_value(x(2)),
-    call(read_pl_state_file/1),
+    call(read_pre_load_file/1),
     deallocate,
     execute('$cmd_line_arg1/3_$aux3'/0),
 
@@ -1394,7 +1394,7 @@ predicate(h/1,462,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  --pl-state FILE             read FILE to set the initial Prolog state',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
+    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  --pre-load FILE             pre-load FILE to set the internal compiler state',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
 
 label(2),
     try(6),
@@ -1446,7 +1446,7 @@ label(15),
     retry_me_else(17),
 
 label(16),
-    get_atom('  --pl-state FILE             read FILE to set the initial Prolog state',0),
+    get_atom('  --pre-load FILE             pre-load FILE to set the internal compiler state',0),
     proceed,
 
 label(17),
