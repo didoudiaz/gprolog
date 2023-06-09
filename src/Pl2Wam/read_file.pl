@@ -128,9 +128,10 @@
  *    Read at the next invocation of get_next_clause/3.                    *
  *-------------------------------------------------------------------------*/
 
-:-	op(200, fx, ?).
+:- op(200, fx, ?).
 
 read_file_init :-
+	pp_start,
 	retractall(buff_raw_clause(_, _)),
 	retractall(buff_src_clause(_, _, _)),
 	retractall(buff_aux_pred(_, _, _)),
@@ -149,7 +150,6 @@ read_file_init :-
 	g_assign(reading_dyn_pred, f),
 	g_assign(eof_reached, f),
 	g_assign(open_file_stack, []),
-	g_assign(if_stack, []),
 	g_assign(where, 0),
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
@@ -298,9 +298,7 @@ read_predicate1(Pred, N, LSrcCl) :-
 
 read_predicate1(Pred, N, [SrcCl|LSrcCl]) :-
 	retract(buff_discontig_clause(Pred, N, SrcCl)), !,  % discontiguous pred
-%	write('one discontig'(Pred,N,SrcCl)), nl, statistics(runtime, _),
 	collect_discontig_clauses(Pred, N, LSrcCl).
-%	statistics(runtime, [_, T]), write(collect_discontig_time(T)), nl.
 
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
@@ -470,69 +468,16 @@ get_next_clause2(end_of_file, _, _, Pred, N, SrcCl) :-
 	    N = 0,
 	    SrcCl = _ + end_of_file,
 	    g_assign(eof_reached, t),
-	    (   g_read(if_stack, []) ->
-		true
-	    ;
-		error('endif directive expected', [])
-	    )
-
-	;   get_next_clause(Pred, N, SrcCl)
+	    pp_stop
+	;
+	    get_next_clause(Pred, N, SrcCl)
 	).
 
-				% +++++ begin preprocessor management +++++
-get_next_clause2((:- if(Goal)), _, _, Pred, N, SrcCl) :-
-	!,
-	g_read(if_stack, IfStack),
-	(   '$catch'(Goal, Err, (warn('if directive caused exception: ~w', [Err]), fail), any, 0, false) ->
-	    g_assign(if_stack, [if(then, 1)|IfStack])
-	;
-	    g_assign(if_stack, [if(then, 0)|IfStack])
-	),
+get_next_clause2(T, _, _, Pred, N, SrcCl) :-
+	pp_handle_term(T), !,	% if succeeds, read next clause (used to skip a clause)
 	get_next_clause(Pred, N, SrcCl).
 
-get_next_clause2((:- elif(Goal)), _, _, Pred, N, SrcCl) :-
-	!,
-	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
-	    (   Keep = 0 ->
-		(   '$catch'(Goal, Err, (warn('elif directive caused exception: ~w', [Err]), fail), any, 0, false) ->
-		    g_assign(if_stack, [if(then, 1)|IfStack])
-		;
-		    g_assign(if_stack, [if(then, 0)|IfStack])
-		)
-	    ;
-		g_assign(if_stack, [if(then, 2)|IfStack])  % 2 means ignore both the then and else part
-	    )
-	;
-	    error('unexpected elif directive', [])
-	),
-	get_next_clause(Pred, N, SrcCl).
-
-get_next_clause2((:- else), _, _, Pred, N, SrcCl) :-
-	!,
-	(   g_read(if_stack, [if(then, Keep)|IfStack]) ->
-	    Keep1 is 1 - Keep,
-	    g_assign(if_stack, [if(else, Keep1)|IfStack])
-	;
-	    error('unexpected else directive', [])
-	),
-	get_next_clause(Pred, N, SrcCl).
-
-
-get_next_clause2((:- endif), _, _, Pred, N, SrcCl) :-
-	!,
-	(   g_read(if_stack, [if(_, _)|IfStack]) ->
-	    g_assign(if_stack, IfStack)
-	;
-	    error('unexpected endif directive', [])
-	),
-	get_next_clause(Pred, N, SrcCl).
-
-get_next_clause2(_, _, _, Pred, N, SrcCl) :- % preprocessor ignores a clause
-	g_read(if_stack, [if(_, Keep)|_]), Keep \== 1, !, % ignore Keep = 0 and Keep = 2 or 1-2 = -1
-	get_next_clause(Pred, N, SrcCl).
-				% +++++ end preprocessor management +++++
-
-get_next_clause2((:- D), Where, SingNames, Pred, N, SrcCl) :-
+get_next_clause2((:- D), Where, SingNames, Pred, N, SrcCl) :- % other directives than pp
 	display_singletons(SingNames, directive),
 	(   g_read(foreign_only, f)
 	;   functor(D, foreign, _)
@@ -547,14 +492,7 @@ get_next_clause2(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	(   Cl = (Head :- _)
 	;   Cl = Head
 	),
-	(   nonvar(Head) ->
-	    true
-	;   error('head is a variable', [])
-	),
-	(   callable(Head) ->
-	    true
-	;   error('head is not a callable (~q)', [Head])
-	),
+	check_callable(Head, head),
 	functor(Head, Pred, N),
 	check_head_is_module_free(Head),
 	check_module_clash(Pred, N),
@@ -626,11 +564,99 @@ get_singletons([X = _|SingNames], Sing1) :-
 
 
 
-:-	discontiguous(handle_directive/3).
+	/* +++ begin preprocessor management +++
+	 *
+	 * Use a stack PPStack = [ pp(Where, Action),... ]
+	 *   Where: in_then / in_else
+	 *   Action: keep, ignore, ignore_all (ignore in both then and else parts)
+	 *
+	 * Each read term is passed to pp_handle_term. In case of success, the
+	 * the next term will be read (get_next_clause). This is used to handle 
+	 * preprocessor directives and to ignore a term in a false branch of 
+	 * the preprocessor as with :- if(fail). term_is_ignored. :- endif.
+	 */
+
+pp_handle_term((:- D)) :-
+	check_callable(D, directive),
+	pp_handle_directive(D), !.
+
+pp_handle_term(_) :-
+	g_read(pp_stack, [pp(_, Action)|_]),
+	Action \== keep.	% success = ignore term, failure = continue with term
+
+
+
+
+pp_handle_directive(if(Goal)) :-
+	g_read(pp_stack, PPStack),
+	(   PPStack = [pp(_, Action)|_], Action \== keep -> % fail is pp_stack is empty
+	    g_assign(pp_stack, [pp(in_then, ignore_all)|PPStack])
+	;   pp_exec_if_goal(Goal, PPStack, if)
+	).
+
+pp_handle_directive(elif(Goal)) :-
+	(   g_read(pp_stack, [pp(in_then, Action)|PPStack]) ->
+	    (   Action \== ignore ->
+		g_assign(pp_stack, [pp(in_then, ignore_all)|PPStack])
+	    ;	pp_exec_if_goal(Goal, PPStack, elif)
+	    )
+	;
+	    error('unexpected elif directive', [])
+	).
+
+pp_handle_directive(else) :-
+	(   g_read(pp_stack, [pp(in_then, Action)|PPStack]) ->
+	    (	Action = keep, Action1 = ignore
+	    ;	Action = ignore, Action1 = keep
+	    ;	Action = ignore_all, Action1 = ignore_all
+	    ), !,
+	    g_assign(pp_stack, [pp(in_else, Action1)|PPStack])
+	;
+	    error('unexpected else directive', [])
+	).
+
+
+pp_handle_directive(endif) :-
+	(   g_read(pp_stack, [_|PPStack]) ->
+	    g_assign(pp_stack, PPStack)
+	;   error('unexpected endif directive', [])
+	).
+
+
+
+
+pp_exec_if_goal(Goal, PPStack, What) :-
+	(   '$catch'(Goal, Err, (warn('~a directive caused exception: ~w', [What, Err]), fail),
+		     What, 1, false) ->
+	    g_assign(pp_stack, [pp(in_then, keep)|PPStack])
+	;   g_assign(pp_stack, [pp(in_then, ignore)|PPStack])
+	).
+
+
+
+
+pp_start :-
+	g_assign(pp_stack, []).
+
+
+
+
+pp_stop :-
+	g_read(pp_stack, []), !.
+
+pp_stop :-
+	error('endif directive expected', []).
+
+
+	/* +++ end preprocessor management +++ */
+
+
+:- discontiguous(handle_directive/3).
 
 handle_directive(D, Where) :-
 	D =.. [DName|DLst],
 	handle_directive(DName, DLst, Where).
+
 
 
 handle_directive(public, DLst, _) :-
@@ -891,7 +917,7 @@ exec_directive_exception(Goal, Err) :-
 
 
 
-used_bips_via_call :-                     % to enforce the link of these bips - useless now since all bips are linked
+used_bips_via_call :-   % to enforce the link of these bips - useless now since all bips are linked
 	op(_, _, _),
 	char_conversion(_, _),
 	set_prolog_flag(_, _),
@@ -969,6 +995,21 @@ add_module_export_info(Pred / N, Module) :-
 	).
 
 
+
+
+check_callable(X, _) :-
+	callable(X), !.
+
+check_callable(X, What) :-
+	var(X), !,
+	error('~a is a variable', [What, X]).
+
+check_callable(X, What) :-
+	error('~a is not a callable (~q)', [What, X]).
+
+
+
+
 check_module_name(Module, true) :-
 	var(Module), !.
 
@@ -989,6 +1030,7 @@ check_module_name(Module, _) :-
 
 
 
+
 check_head_is_module_free(Module:Head) :-
 	!,
 	error('module qualification is not allowed for the head of a clause (~w)', [Module:Head]).
@@ -1002,10 +1044,10 @@ check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for 
 	clause(module_export(Pred, N, Module), true), !,
 	g_read(module, Module1),
 	Module \== Module1, !,
-	error('clash on ~q - defined in module ~q (here) and imported from ~w', [Pred / N, Module1, Module]).
+	error('clash on ~q - defined in module ~q (here) and imported from ~w',
+	      [Pred / N, Module1, Module]).
 
 check_module_clash(_, _).
-
 
 
 
@@ -1127,7 +1169,7 @@ test_pred_info(Flag, F, N) :-
 	InfoMask /\ 1 << Bit > 0.
 
 
-/* Alternative version with g_assign (same speed)
+/* Alternative version with g_assign (same speed) but would need a reset (like retractall)
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),

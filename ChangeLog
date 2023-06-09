@@ -1,3 +1,7 @@
+2023-06-09  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #39: bug in conditional compilation directives
+
 2023-06-07  <daniel.diaz@univ-paris1.fr>
 
 	* rename pl2wam --pl-state option (and concept) as --pre-load
