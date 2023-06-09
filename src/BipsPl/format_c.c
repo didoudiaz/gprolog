@@ -62,7 +62,7 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Format(StmInf *pstm, char *format, WamWord *lst_adr);
+static void Format(StmInf *pstm, char *format, WamWord args_word);
 
 static WamWord Read_Arg(WamWord **lst_adr);
 
@@ -105,7 +105,7 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
       strcpy(buff, Pl_Rd_Chars_Or_Codes_Check(format_word));
       str = buff;
     }
-  Format(pstm, str, &args_word);
+  Format(pstm, str, args_word);
 }
 
 
@@ -129,12 +129,13 @@ Pl_Format_2(WamWord format_word, WamWord args_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Format(StmInf *pstm, char *format, WamWord *lst_adr)
+Format(StmInf *pstm, char *format, WamWord args_word)
 
 #define IMPOSS -12345678
 #define DEFAULT_N(def_n) if (!has_n) n = (def_n)
 
 {
+  WamWord *lst_adr = &args_word;
   WamWord word;
   Bool has_n;
   PlLong generic;
@@ -410,6 +411,7 @@ Format(StmInf *pstm, char *format, WamWord *lst_adr)
         }
     }
   while (top_stack > format_stack);
+  Pl_Check_Empty_List(*lst_adr, args_word);
 }
 
 

@@ -161,6 +161,7 @@ Error_Supp_Initializer(void)
   pl_domain_flag_value = Pl_Create_Atom("flag_value");
   pl_domain_io_mode = Pl_Create_Atom("io_mode");
   pl_domain_non_empty_list = Pl_Create_Atom("non_empty_list");
+  pl_domain_number_of_arguments = Pl_Create_Atom("number_of_arguments");
   pl_domain_not_less_than_zero = Pl_Create_Atom("not_less_than_zero");
   pl_domain_operator_priority = Pl_Create_Atom("operator_priority");
   pl_domain_operator_specifier = Pl_Create_Atom("operator_specifier");

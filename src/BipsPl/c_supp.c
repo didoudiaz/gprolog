@@ -2777,3 +2777,27 @@ Pl_Mk_Variable(void)
 {
   return Pl_Put_X_Variable();
 }
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CHECK_EMPTY_LIST                                                     *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Check_Empty_List(WamWord start_word, WamWord full_list_word)
+{
+  WamWord word, tag_mask;
+
+  DEREF(start_word, word, tag_mask);
+
+  if (tag_mask == TAG_REF_MASK)
+    Pl_Err_Instantiation();
+
+  if (tag_mask == TAG_LST_MASK)
+    Pl_Err_Domain(pl_domain_number_of_arguments, full_list_word);
+
+  if (word != NIL_WORD)
+    Pl_Err_Type(pl_type_list, full_list_word);
+}

@@ -321,3 +321,6 @@ WamWord Pl_Mk_Compound(int func, int arity, WamWord *arg);
 WamWord Pl_Mk_Callable(int func, int arity, WamWord *arg);
 
 WamWord Pl_Mk_Variable(void);
+
+void Pl_Check_Empty_List(WamWord start_word, WamWord full_list_word);
+

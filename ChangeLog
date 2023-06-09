@@ -1,5 +1,6 @@
 2023-06-09  <daniel.diaz@univ-paris1.fr>
 
+	* fix issue #38: add more error detections in format/2-3
 	* fix issue #39: bug in conditional compilation directives
 
 2023-06-07  <daniel.diaz@univ-paris1.fr>

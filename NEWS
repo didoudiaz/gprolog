@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.6.0
 
+* fix issue #38: add more error detections in format/2-3
+* fix issue #39: bug in conditional compilation directives
 * rename pl2wam --pl-state option (and concept) as --pre-load
 * add a consult/2 built-in (consult with options) to pass a pre-load file
 * fix issue #37: bug in format/2-3
