@@ -4721,6 +4721,9 @@ sequence}
 \ErrCond{the \texttt{Arguments} list does not contain sufficient elements}
 \ErrTerm{domain\_error(non\_empty\_list, [])}
 
+\ErrCond{the \texttt{Arguments} list contains more elements than necessary}
+\ErrTerm{domain\_error(number\_of\_arguments, [])}
+
 \ErrCond{an element \texttt{E} of the \texttt{Arguments} list is a variable
 while a non-variable term was expected}
 \ErrTerm{instantiation\_error}

@@ -984,7 +984,7 @@ for temporary files \\
 \label{pl2wam-options}
 
 \begin{CmdOptions}
-\IdxKD{--pl-state} \Param{FILE} & read \Param{FILE} to set the initial Prolog state \\
+\IdxKD{--pre-load} \Param{FILE} & pre-load FILE to set the internal compiler state \\
 
 \IdxKD{--wam-comment} \Param{COMMENT} & emit \Param{COMMENT} as a comment in the WAM file \\
 
@@ -1131,12 +1131,12 @@ generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}
 option. The resulting file can then be loaded using \IdxPB{load/1}
 \RefSP{load/1}.
 
-To execute the Prolog to WAM compiler in a given \emph{read environment}
+To execute the Prolog to WAM compiler in a given \emph{compiler environment}
 (operator definitions, character conversion table,\ldots) use
-\texttt{--pl-state} \Param{FILE} which immediately reads and ``loads'' the
-specified file into the compiler via the \IdxPB{read\_pl\_state\_file/1}
-\RefSP{write-pl-state-file/1}. Several \texttt{--pl-state} options can be
-provided.
+\texttt{--pre-load} \Param{FILE} which immediately reads and ``loads'' the
+specified file into the compiler via the \IdxPB{read\_pre\_load\_file/1}
+\RefSP{write-pre-load-file/1}. Several \texttt{--pre-load} options can be
+provided, they are considered in order of apparition.
 
 By default the Prolog to WAM compiler inlines calls to some deterministic
 built-in predicates (e.g. \texttt{arg/3} and \texttt{functor/3}). Namely a

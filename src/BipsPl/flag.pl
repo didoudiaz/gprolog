@@ -150,10 +150,12 @@ write_pre_load_file(_).
 
 
 
-	% basically it a consult(File) but 1) as it is used in consult+pl2wam
-	% this leads to an infinite recursion and 2) it has to handle pass directives
-	% other than initialization/1 to add_input_term/4.
-	% So we simply read-assert/execute the content.
+	/* pre-load le: similar to consult(File) but uses a read-assert(or execute):
+	 * - it is used in consult+pl2wam (this leads to an infinite recursion)
+	 * - it passes directives other than initialization/1 to add_input_term/4.
+	 * - it recognizes directive add_input_term/1
+	 * So we simply read-assert/execute the content of the file.
+	 */
 
 read_pre_load_file(File) :-
 	set_bip_name(read_pre_load_file, 1),        
@@ -181,6 +183,10 @@ read_pre_load_file(File) :-
 	;   Cl = (:- _) ->
 	    current_predicate(add_input_term/4),
 	    once(add_input_term(Cl, File2, L1, L2)),
+	    fail
+	;   Cl = (:- add_input_term(Cl1)) ->
+	    current_predicate(add_input_term/4),
+	    once(add_input_term(Cl1, File2, L1, L2)),
 	    fail
 	;   catch(assertz(Cl), Err, format('~a:~d (pre-load file) assertz(~w) caused exception ~w~n',
 					   [File2, L1, Cl, Err])),

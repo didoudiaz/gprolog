@@ -119,7 +119,7 @@
  * buff_raw_clause(Cl,Where):                                              *
  *    to handle term_expansion/2 which can return a list of (raw) clauses. *
  *    The first one is handled directly, for the others we                 *
-  *   assert/retract(buff_raw_clause(Cl,Where)).                           *
+ *    assert/retract(buff_raw_clause(Cl,Where)).                           *
  *    Read at the very next invocation of get_next_clause/3.               *
  *                                                                         *
  * buff_src_clause(Pred,N,SrcCl):                                          *
@@ -573,7 +573,7 @@ get_singletons([X = _|SingNames], Sing1) :-
 	 * Each read term is passed to pp_handle_term. In case of success, the
 	 * the next term will be read (get_next_clause). This is used to handle 
 	 * preprocessor directives and to ignore a term in a false branch of 
-	 * the preprocessor as with :- if(fail). term_is_ignored. :- endif.
+	 * the preprocessor as :- if(fail). term_is_ignored. :- endif.
 	 */
 
 pp_handle_term((:- D)) :-
