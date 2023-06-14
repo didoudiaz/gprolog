@@ -33,65 +33,47 @@ label(1),
 
 
 predicate(pl2wam1/1,50,static,private,monofile,global,[
-    pragma_arity(2),
-    get_current_choice(x(1)),
-    allocate(14),
+    allocate(10),
     get_variable(y(0),0),
-    get_variable(y(1),1),
     call(read_file_init/0),
     put_value(y(0),0),
-    put_variable(y(2),1),
-    put_variable(y(3),2),
-    call(cmd_line_args/3),
-    put_value(y(2),0),
+    put_variable(y(1),1),
+    put_variable(y(2),2),
+    put_variable(y(3),3),
+    call(cmd_line_args/4),
+    put_value(y(1),0),
     put_variable(y(4),1),
     call(prolog_file_name/2),
-    put_atom(native_code,0),
-    put_variable(y(5),1),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(4),0),
-    put_value(y(5),1),
-    call(compile_msg_start/2),
-    put_value(y(2),0),
-    call(read_file_init/1),
-    put_value(y(3),0),
-    put_value(y(2),1),
-    call(emit_code_init/2),
+    call(compile_msg_start/1),
     call(init_counters/0),
-    call(repeat/0),
-    put_variable(y(6),0),
-    put_variable(y(7),1),
-    put_variable(y(8),2),
-    call(read_predicate/3),
-    put_atom(user_read_file,0),
-    put_atom(real_read_file,1),
-    call(add_counter/2),
-    put_value(y(8),0),
+    put_value(y(2),0),
     put_value(y(1),1),
-    put_value(y(5),2),
-    put_value(y(6),3),
-    put_value(y(7),4),
-    call('$pl2wam1/1_$aux1'/5),
+    call(emit_code_init/2),
+    put_value(y(3),0),
+    call(compile_pre_load/1),
+    put_value(y(4),0),
+    call(compile_and_emit_file/1),
     call(emit_ensure_linked/0),
-    put_variable(y(9),0),
-    put_variable(y(10),1),
+    put_variable(y(5),0),
+    put_variable(y(6),1),
     call(read_file_term/2),
-    put_variable(y(11),0),
-    put_variable(y(12),1),
+    put_variable(y(7),0),
+    put_variable(y(8),1),
     call(emit_code_term/2),
-    put_variable(y(13),0),
+    put_variable(y(9),0),
     call(read_file_error_nb/1),
-    put_unsafe_value(y(13),0),
+    put_unsafe_value(y(9),0),
     put_unsafe_value(y(4),1),
-    put_unsafe_value(y(9),2),
-    put_unsafe_value(y(10),3),
-    put_unsafe_value(y(11),4),
-    put_unsafe_value(y(12),5),
+    put_unsafe_value(y(5),2),
+    put_unsafe_value(y(6),3),
+    put_unsafe_value(y(7),4),
+    put_unsafe_value(y(8),5),
     deallocate,
-    execute('$pl2wam1/1_$aux2'/6)]).
+    execute('$pl2wam1/1_$aux1'/6)]).
 
 
-predicate('$pl2wam1/1_$aux2'/6,50,static,private,monofile,local,[
+predicate('$pl2wam1/1_$aux1'/6,50,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -124,7 +106,48 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$pl2wam1/1_$aux1'/5,50,static,private,monofile,local,[
+predicate(compile_pre_load/1,73,static,private,monofile,global,[
+    try_me_else(1),
+    allocate(1),
+    put_value(x(0),1),
+    put_variable(y(0),0),
+    call(member/2),
+    put_value(y(0),0),
+    call(compile_and_emit_file/1),
+    fail,
+
+label(1),
+    trust_me_else_fail,
+    proceed]).
+
+
+predicate(compile_and_emit_file/1,83,static,private,monofile,global,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    allocate(5),
+    get_variable(y(0),1),
+    call(read_file_init/1),
+    put_atom(native_code,0),
+    put_variable(y(1),1),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    call(repeat/0),
+    put_variable(y(2),0),
+    put_variable(y(3),1),
+    put_variable(y(4),2),
+    call(read_predicate/3),
+    put_atom(user_read_file,0),
+    put_atom(real_read_file,1),
+    call(add_counter/2),
+    put_unsafe_value(y(4),0),
+    put_unsafe_value(y(0),1),
+    put_unsafe_value(y(1),2),
+    put_unsafe_value(y(2),3),
+    put_unsafe_value(y(3),4),
+    deallocate,
+    execute('$compile_and_emit_file/1_$aux1'/5)]).
+
+
+predicate('$compile_and_emit_file/1_$aux1'/5,83,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -150,7 +173,7 @@ label(1),
     fail]).
 
 
-predicate(compile_and_emit_pred/4,83,static,private,monofile,global,[
+predicate(compile_and_emit_pred/4,100,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -221,7 +244,7 @@ label(5),
     execute(add_counter/2)]).
 
 
-predicate(compile_emit_inits/5,100,static,private,monofile,global,[
+predicate(compile_emit_inits/5,117,static,private,monofile,global,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -246,9 +269,9 @@ predicate(compile_emit_inits/5,100,static,private,monofile,global,[
     get_list(0),
     unify_variable(x(0)),
     unify_void(1),
-    get_structure((*)/2,0),
+    get_structure(of/3,0),
     unify_variable(x(0)),
-    unify_void(1),
+    unify_void(2),
     put_value(y(2),1),
     call(absolute_file_name/2),
     put_value(y(0),0),
@@ -258,7 +281,7 @@ predicate(compile_emit_inits/5,100,static,private,monofile,global,[
     execute(syntactic_sugar_init_pred/3)]).
 
 
-predicate(compile_lst_clause/2,110,static,private,monofile,global,[
+predicate(compile_lst_clause/2,127,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -291,7 +314,7 @@ label(4),
     execute(compile_lst_clause/2)]).
 
 
-predicate(compile_clause/3,119,static,private,monofile,global,[
+predicate(compile_clause/3,136,static,private,monofile,global,[
     allocate(8),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -339,7 +362,7 @@ predicate(compile_clause/3,119,static,private,monofile,global,[
     execute(add_counter/2)]).
 
 
-predicate(bc_compile_lst_clause/2,135,static,private,monofile,global,[
+predicate(bc_compile_lst_clause/2,152,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -375,23 +398,22 @@ label(4),
     execute(bc_compile_lst_clause/2)]).
 
 
-predicate(compile_msg_start/2,144,static,private,monofile,global,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
+predicate(compile_msg_start/1,161,static,private,monofile,global,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
     put_atom(compile_msg,0),
-    put_atom(f,1),
-    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
-    cut(x(2)),
+    put_atom(f,2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(2)]),
+    cut(x(1)),
     proceed,
 
 label(1),
     trust_me_else_fail,
     allocate(2),
     get_variable(y(0),0),
-    put_value(x(1),0),
-    put_variable(y(1),1),
-    call('$compile_msg_start/2_$aux1'/2),
+    put_variable(y(1),0),
+    call('$compile_msg_start/1_$aux1'/1),
     put_atom('compiling ~a for ~a...~n',0),
     put_list(1),
     unify_local_value(y(0)),
@@ -403,22 +425,24 @@ label(1),
     execute(flush_output/0)]).
 
 
-predicate('$compile_msg_start/2_$aux1'/2,147,static,private,monofile,local,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
+predicate('$compile_msg_start/1_$aux1'/1,164,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
-    get_atom(t,0),
-    cut(x(2)),
-    get_atom('native code',1),
+    put_atom(native_code,2),
+    put_atom(t,3),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(3)]),
+    cut(x(1)),
+    get_atom('native code',0),
     proceed,
 
 label(1),
     trust_me_else_fail,
-    get_atom('byte code',1),
+    get_atom('byte code',0),
     proceed]).
 
 
-predicate(compile_msg_end/5,158,static,private,monofile,global,[
+predicate(compile_msg_end/5,175,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -450,7 +474,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cur_pred/2,168,static,private,monofile,global,[
+predicate(cur_pred/2,185,static,private,monofile,global,[
     put_atom(cur_func,2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(0)]),
     put_atom(cur_arity,0),
@@ -458,7 +482,7 @@ predicate(cur_pred/2,168,static,private,monofile,global,[
     proceed]).
 
 
-predicate(cur_pred_without_aux/2,173,static,private,monofile,global,[
+predicate(cur_pred_without_aux/2,190,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -473,7 +497,7 @@ predicate(cur_pred_without_aux/2,173,static,private,monofile,global,[
     execute('$pred_without_aux'/4)]).
 
 
-predicate(init_counters/0,180,static,private,monofile,global,[
+predicate(init_counters/0,197,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -538,7 +562,7 @@ label(1),
     execute(last_times/2)]).
 
 
-predicate(add_counter/2,205,static,private,monofile,global,[
+predicate(add_counter/2,222,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -576,7 +600,7 @@ label(1),
     proceed]).
 
 
-predicate(last_times/2,220,static,private,monofile,global,[
+predicate(last_times/2,237,static,private,monofile,global,[
     allocate(1),
     get_variable(y(0),0),
     get_variable(x(0),1),
@@ -597,7 +621,7 @@ predicate(last_times/2,220,static,private,monofile,global,[
     execute(statistics/2)]).
 
 
-predicate(display_counters/0,227,static,private,monofile,global,[
+predicate(display_counters/0,244,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -778,7 +802,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cmd_line_args/3,270,static,private,monofile,global,[
+predicate(cmd_line_args/4,287,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -836,12 +860,13 @@ predicate(cmd_line_args/3,270,static,private,monofile,global,[
     put_atom(compile_msg,1),
     put_atom(f,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
-    call(cmd_line_args/1),
+    put_value(x(3),1),
+    call(cmd_line_args/2),
     put_atom(plfile,0),
     put_value(y(0),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
     put_value(y(0),0),
-    call('$cmd_line_args/3_$aux1'/1),
+    call('$cmd_line_args/4_$aux1'/1),
     put_atom(wamfile,0),
     put_value(y(1),1),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
@@ -849,7 +874,7 @@ predicate(cmd_line_args/3,270,static,private,monofile,global,[
     proceed]).
 
 
-predicate('$cmd_line_args/3_$aux1'/1,270,static,private,monofile,local,[
+predicate('$cmd_line_args/4_$aux1'/1,287,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -867,9 +892,9 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_args/1,301,static,private,monofile,global,[
-    pragma_arity(2),
-    get_current_choice(x(1)),
+predicate(cmd_line_args/2,318,static,private,monofile,global,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -877,27 +902,56 @@ label(1),
 
 label(2),
     get_nil(0),
+    get_nil(1),
     proceed,
 
 label(3),
     trust_me_else_fail,
 
 label(4),
-    allocate(2),
+    allocate(4),
+    get_variable(y(0),1),
     get_list(0),
     unify_variable(x(0)),
-    unify_variable(x(2)),
-    get_variable(y(0),1),
-    put_value(x(2),1),
-    put_variable(y(1),2),
+    unify_variable(x(1)),
+    get_variable(y(1),2),
+    put_atom(pre_load_file,2),
+    put_atom('',3),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(3)]),
+    put_variable(y(2),2),
     call(cmd_line_arg1/3),
-    cut(y(0)),
-    put_unsafe_value(y(1),0),
+    cut(y(1)),
+    put_atom(pre_load_file,1),
+    put_variable(x(0),2),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
+    put_value(y(0),1),
+    put_variable(y(3),2),
+    call('$cmd_line_args/2_$aux1'/3),
+    put_unsafe_value(y(2),0),
+    put_unsafe_value(y(3),1),
     deallocate,
-    execute(cmd_line_args/1)]).
+    execute(cmd_line_args/2)]).
 
 
-predicate(cmd_line_arg1/3,308,static,private,monofile,global,[
+predicate('$cmd_line_args/2_$aux1'/3,320,static,private,monofile,local,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    try_me_else(1),
+    put_atom('',4),
+    call_c('Pl_Blt_Term_Eq',[fast_call,boolean],[x(0),x(4)]),
+    cut(x(3)),
+    get_value(x(2),1),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    get_list(1),
+    unify_local_value(x(0)),
+    unify_local_value(x(2)),
+    proceed]).
+
+
+predicate(cmd_line_arg1/3,331,static,private,monofile,global,[
     try_me_else(52),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -935,14 +989,18 @@ label(6),
     retry_me_else(8),
 
 label(7),
-    allocate(0),
+    allocate(1),
     get_atom('--pre-load',0),
     get_list(1),
     unify_variable(x(0)),
     unify_local_value(x(2)),
-    call(read_pre_load_file/1),
+    put_variable(y(0),1),
+    call(prolog_file_name/2),
+    put_atom(pre_load_file,0),
+    put_unsafe_value(y(0),1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     deallocate,
-    execute('$cmd_line_arg1/3_$aux3'/0),
+    proceed,
 
 label(8),
     retry_me_else(10),
@@ -1179,7 +1237,7 @@ label(50),
 label(51),
     get_atom('--help',0),
     get_value(x(2),1),
-    execute('$cmd_line_arg1/3_$aux4'/0),
+    execute('$cmd_line_arg1/3_$aux3'/0),
 
 label(52),
     retry_me_else(53),
@@ -1207,7 +1265,7 @@ label(53),
     put_atom(plfile,1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    call('$cmd_line_arg1/3_$aux5'/1),
+    call('$cmd_line_arg1/3_$aux4'/1),
     put_atom(plfile,0),
     put_value(y(0),1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
@@ -1215,7 +1273,7 @@ label(53),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux5'/1,415,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux4'/1,435,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1235,7 +1293,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/0,399,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux3'/0,419,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1256,28 +1314,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,326,static,private,monofile,local,[
-    pragma_arity(1),
-    get_current_choice(x(0)),
-    try_me_else(1),
-    allocate(1),
-    get_variable(y(0),0),
-    put_atom(singleton_warning,0),
-    put_atom(off,1),
-    call(current_prolog_flag/2),
-    cut(y(0)),
-    put_atom(singl_warn,0),
-    put_atom(f,1),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
-    deallocate,
-    proceed,
-
-label(1),
-    trust_me_else_fail,
-    proceed]).
-
-
-predicate('$cmd_line_arg1/3_$aux2'/1,311,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux2'/1,334,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1297,7 +1334,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,311,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux1'/3,334,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1325,7 +1362,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate(display_copying/0,429,static,private,monofile,global,[
+predicate(display_copying/0,449,static,private,monofile,global,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1366,31 +1403,31 @@ predicate(display_copying/0,429,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,445,static,private,monofile,global,[
+predicate(prolog_name/1,465,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,448,static,private,monofile,global,[
+predicate(prolog_version/1,468,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,451,static,private,monofile,global,[
+predicate(prolog_date/1,471,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,454,static,private,monofile,global,[
+predicate(prolog_copyright/1,474,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,462,static,private,monofile,global,[
+predicate(h/1,482,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
@@ -1583,7 +1620,7 @@ label(54),
     proceed]).
 
 
-predicate(go/0,494,static,private,monofile,global,[
+predicate(go/0,514,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1592,5 +1629,5 @@ predicate(go/0,494,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(498,user,[
+directive(518,user,[
     execute(go/0)]).

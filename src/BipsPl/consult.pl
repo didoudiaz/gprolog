@@ -154,28 +154,77 @@ consult(File, Options) :-
 	),
 	PipedConsult = piped,	% can be spawn, exec (Prolog) or piped (see consult_c.c)
 	temporary_file('', gplc, TmpFile),
-	'$consult_create_pre_load'(PipedConsult, TmpFile),
-	Pl2WamArgs = ['-w', File2, '--pre-load', TmpFile, '-o', TmpFile|Pl2WamArgs1],
+	atom_concat(TmpFile, '.wbc', TmpByteCodeFile),
+	atom_concat(TmpFile, '.pl', TmpPreLoadFile),
+	'$create_pre_load_file'(PipedConsult, TmpPreLoadFile),
+	Pl2WamArgs = ['-w', File2, '--pre-load', TmpPreLoadFile, '-o', TmpByteCodeFile|Pl2WamArgs1],
+%	Pl2WamArgs = ['-w', File2, '-o', TmpByteCodeFile|Pl2WamArgs1], % without pre-load (for debug)
 	set_bip_name(consult, Arity),	
 	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
-	    '$load_file'(TmpFile),
-	    unlink(TmpFile)
-	;   unlink(TmpFile),
+	    '$load_file'(TmpByteCodeFile),
+	    unlink(TmpByteCodeFile),
+	    unlink(TmpPreLoadFile)
+	;   unlink(TmpByteCodeFile),
+	    unlink(TmpPreLoadFile),
 	    format(top_level_output, 'compilation failed~n', []),
 	    fail
 	).
 
 
 
-'$consult_create_pre_load'(piped, TmpFile) :-
+
+'$create_pre_load_file'(piped, PreLoadFile) :-
 	!,
 	'$sys_var_read'(20, Say_GetC), 
 	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
-	write_pre_load_file(TmpFile),
+	'$write_pre_load_file'(PreLoadFile),
 	'$sys_var_write'(20, Say_GetC).
 
-'$consult_create_pre_load'(_, TmpFile) :-
-	write_pre_load_file(TmpFile).
+'$create_pre_load_file'(_, PreLoadFile) :-
+	'$write_pre_load_file'(PreLoadFile).
+
+
+
+
+'$write_pre_load_file'(PreLoadFile) :-
+	open(PreLoadFile, write, S, []),
+	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
+	    '$write_pre_load_goal'(S, op(Prior, Prec, LOp)),
+	    fail
+	;
+	    true
+	),
+	LFlags = [char_conversion, double_quotes, back_quotes, singleton_warning,
+		  suspicious_warning, multifile_warning, strict_iso, show_information],
+	(   member(Flag, LFlags),
+	    current_prolog_flag(Flag, FlagValue),
+	    '$write_pre_load_goal'(S, set_prolog_flag(Flag, FlagValue)),
+	    fail
+	;
+	    true
+	),
+	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
+	'$write_pre_load_goal'(S, '$sys_var_write'(20, SysVar)),
+	(   current_char_conversion(Ch1,Ch2),
+	    '$write_pre_load_goal'(S, char_conversion(Ch1, Ch2)),
+	    fail
+	;
+	    true
+	),
+	(   TermHead = term_expansion(_, _),
+	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
+	;
+	    true
+	),
+	close(S),
+	fail.			% GC
+
+'$write_pre_load_file'(_).
+
+
+'$write_pre_load_goal'(S, Goal) :-
+	portray_clause(S, (:- initialization(Goal))).
+
 
 
 

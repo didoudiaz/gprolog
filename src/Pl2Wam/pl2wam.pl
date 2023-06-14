@@ -49,23 +49,13 @@ pl2wam(LArg) :-
 
 pl2wam1(LArg) :-
 	read_file_init,		% inits before read_pl_file
-	cmd_line_args(LArg, PlFile, WamFile),
+	cmd_line_args(LArg, PlFile, WamFile, LPreLoad),
 	prolog_file_name(PlFile, PlFile1),
-	g_read(native_code, NativeCode),
-	compile_msg_start(PlFile1, NativeCode),
-	read_file_init(PlFile),
-	emit_code_init(WamFile, PlFile),
+	compile_msg_start(PlFile1),
 	init_counters,
-	repeat,
-	read_predicate(Pred, N, LSrcCl),
-	add_counter(user_read_file, real_read_file),
-	(   LSrcCl = [] ->	% [] at end of file
-	    !
-	;
-	    read_file_error_nb(0),
-	    compile_and_emit_pred(NativeCode, Pred, N, LSrcCl),
-	    fail
-	),
+	emit_code_init(WamFile, PlFile),
+	compile_pre_load(LPreLoad),
+	compile_and_emit_file(PlFile1),
 	emit_ensure_linked,
 	read_file_term(InBytes, InLines),
 	emit_code_term(OutBytes, OutLines),
@@ -75,6 +65,33 @@ pl2wam1(LArg) :-
 	    compile_msg_end(PlFile1, InBytes, InLines, OutBytes, OutLines)
 	;   format('~N\t~d error(s)~n', [ErrNb]),
 	    abandon_exec
+	).
+
+
+
+
+compile_pre_load(LPreLoad) :-
+	member(PlFile, LPreLoad),
+	compile_and_emit_file(PlFile),
+	fail.
+
+compile_pre_load(_).
+
+
+
+
+compile_and_emit_file(PlFile) :-
+	read_file_init(PlFile),
+	g_read(native_code, NativeCode),
+	repeat,
+	read_predicate(Pred, N, LSrcCl),
+	add_counter(user_read_file, real_read_file),
+	(   LSrcCl = [] ->	% [] at end of file
+	    !
+	;
+	    read_file_error_nb(0),
+	    compile_and_emit_pred(NativeCode, Pred, N, LSrcCl),
+	    fail
 	).
 
 
@@ -100,7 +117,7 @@ compile_and_emit_pred(f, Pred, N, LSrcCl) :-
 compile_emit_inits(Pred, N, LSrcCl, PlFile1, PlLine) :-
 	g_assign(cur_func, Pred),
 	g_assign(cur_arity, N),
-	LSrcCl = [[PlFile * _|_] + (PlLine - _) + _|_],
+	LSrcCl = [[of(PlFile, _, _)|_] + (PlLine - _) + _|_],
 	absolute_file_name(PlFile, PlFile1),
 	syntactic_sugar_init_pred(Pred, N, PlFile1).
 
@@ -141,11 +158,11 @@ bc_compile_lst_clause([SrcCl|LSrcCl], [bc(Cl, WamCl)|LCC]) :-
 
 
 
-compile_msg_start(_, _) :-
+compile_msg_start(_) :-
 	g_read(compile_msg, f), !.
 
-compile_msg_start(PlFile, NativeCode) :-
-	(   NativeCode = t ->
+compile_msg_start(PlFile) :-
+	(   g_read(native_code, t) ->
 	    Type = 'native code'
 	;   Type = 'byte code'
 	),
@@ -267,7 +284,7 @@ display_counters :-
 
           % Command-line options reading
 
-cmd_line_args(LArg, PlFile, WamFile) :-
+cmd_line_args(LArg, PlFile, WamFile, LPreLoad) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
 	g_assign(native_code, t),
@@ -286,7 +303,7 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 	g_assign(fast_math, f),
 	g_assign(statistics, f),
 	g_assign(compile_msg, f),
-	cmd_line_args(LArg),
+	cmd_line_args(LArg, LPreLoad),
 	g_read(plfile, PlFile),
 	(   PlFile = '' ->
 	    format('no input file~n', []),
@@ -298,11 +315,17 @@ cmd_line_args(LArg, PlFile, WamFile) :-
 
 
 
-cmd_line_args([]).
+cmd_line_args([], []).
 
-cmd_line_args([Arg|LArg]) :-
+cmd_line_args([Arg|LArg], LPreLoad1) :-
+	g_assign(pre_load_file, ''),
 	cmd_line_arg1(Arg, LArg, LArg1), !,
-	cmd_line_args(LArg1).
+	g_read(pre_load_file, PreLoadFile),
+	(   PreLoadFile == '' ->
+	    LPreLoad1 = LPreLoad
+	;   LPreLoad1 = [PreLoadFile|LPreLoad]
+	),
+	cmd_line_args(LArg1, LPreLoad).
 
 
 cmd_line_arg1('-o', LArg, LArg1) :-
@@ -323,12 +346,9 @@ cmd_line_arg1('--output', LArg, LArg1) :-
 	),
 	g_assign(wamfile, WamFile).
 
-cmd_line_arg1('--pre-load', [File|LArg], LArg) :-
-	read_pre_load_file(File),
-	(   current_prolog_flag(singleton_warning, off) ->
-	    g_assign(singl_warn, f)
-	;   true
-	).
+cmd_line_arg1('--pre-load', [PreLoadFile|LArg], LArg) :-
+	prolog_file_name(PreLoadFile, PreLoadFile1),
+	g_assign(pre_load_file, PreLoadFile1).
 
 cmd_line_arg1('-W', LArg, LArg1) :-
 	cmd_line_arg1('--wam-for-native', LArg, LArg1).
@@ -465,7 +485,7 @@ h('Options:').
 h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
-h('  --pre-load FILE             pre-load FILE to set the internal compiler state').
+h('  --pre-load FILE             include FILE before starting the compilation').
 h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').

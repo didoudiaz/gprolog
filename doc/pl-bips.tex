@@ -5806,25 +5806,17 @@ steps are as follows:
 \end{itemize}
 
 \texttt{term\_expansion(Term1, Term2)} is a hook predicate allowing the user
-to define a specific transformation. If this predicate succeeds, \texttt{Term2} is
-compiled instead of \texttt{Term1}. \texttt{Term2} can be a list, in which case,
-all terms of the list are compiled.
+to define a specific transformation. If this predicate succeeds,
+\texttt{Term2} is compiled instead of \texttt{Term1}. \texttt{Term2} can be a
+list, in which case, all terms of the list are compiled.
 
 The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically calls
-\texttt{expand\_term/2} on each \texttt{Term1} read in. In version prior to 1.6.0,
-only DCG transformation was done by the compiler (i.e. \texttt{term\_expansion/2}
-could not be used). Since 1.6.0, \texttt{term\_expansion/2} is supported.
-On the command line, \IdxK{gplc} \RefSP{Using-the-compiler} simply compiles
-the Prolog file, without loading it. As a result, \texttt{term\_expansion/2} cannot
-execute user Prolog code even if defined in the source (the compiler is not aware
-of its existence since it is not loaded). An initialization file can then be supplied, via
-the \IdxK{--pre-load} option. Under the top-level, when a file
-is consulted, the same command-line compiler is currently used (this may be
-changed in the future). Some parameters of the top-level are already passed to
-the compiler in an initialization file (such as operator definitions and certain
-Prolog flags). In addition, the \texttt{term\_expansion/2} clauses known by the
-top-level are also passed. In any case, the user can pass a custom initialization
-file via \texttt{consult/2} \RefSP{consult/1}.
+\texttt{expand\_term/2} on each \texttt{Term1} read in. In version prior to
+1.6.0, only DCG transformation was done by the compiler
+(i.e. \texttt{term\_expansion/2} could not be used). Since 1.6.0,
+\texttt{term\_expansion/2} is supported. Due to separate compilation, some
+options and directives can be necessary, this is described in the
+\IdxK{pl2wam} description \RefSP{pl2wam-description}.
 
 \PlErrorsNone
 
@@ -8023,88 +8015,6 @@ current\_bip\_name(?atom, ?arity)
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{write\_pre\_load\_file/1},\label{write-pre-load-file/1}
-               \IdxPBD{read\_pre\_load\_file/1}}
-
-\begin{TemplatesOneCol}
-write\_pre\_load\_file(+source\_sink)\\
-read\_pre\_load\_file(+source\_sink)
-
-\end{TemplatesOneCol}
-
-\Description
-
-\texttt{write\_pre\_load\_file(FileName)} writes onto \texttt{FileName} all
-information that influences the parsing of a term \RefSP{Term-input/output}.
-This allows a sub-process written in Prolog to read thisfile and then process
-any Prolog term as done by the parent process. This is the case of the Prolog
-to WAM compiler with the \IdxK{--pre-load} option
-\RefSP{Using-the-compiler}.  The following elements are saved:
-
-\begin{itemize}
-
-\item all operator definitions \RefSP{op/3:(Term-input/output)}.
-
-\item the character conversion table \RefSP{char-conversion/2}.
-
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes},
-  \IdxPF{back\_quotes}, \IdxPF{strict\_iso}, \IdxPF{singleton\_warning},
-  \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
-  \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
-
-\item existing user dynamic clauses for \IdxPB{term\_expansion/2}.
-
-\end{itemize}
-
-\texttt{read\_pre\_load\_file(FileName)} reads and sets the Prolog
-internal state from \texttt{FileName}. It is mainly used by the Prolog
-to WAM compiler to set its read environment for parsing. If
-\texttt{FileName} does not exist, it is computed using the predicate
-\IdxPB{prolog\_file\_name/2} \RefSP{prolog-file-name/2}. Then
-\IdxPB{absolute\_file\_name/2} \RefSP{absolute-file-name/2} applies.
-
-
-\SPart{Prolog pre-load file}: prior to version 1.6.0, this file was
-called ``prolog state'' file (pl-state) and was a binary file. Since
-1.6.0, it is a (simplified) Prolog text file containing directives and
-clauses which is treated by \texttt{read\_pre\_load\_file/1} as
-follows:
-
-\begin{itemize}
-\item a \texttt{initialization/1} directive is directly executed.
-\item any other directive term \texttt{Term} (i.e. \texttt{Term} is of the
-  form \texttt{:- D}), is passed to predicate \texttt{add\_input\_term(Term,
-    FileName, Line1, Line2)} if defined else it is ignored (\texttt{Line1}
-  and \texttt{Line2} are begin and end line numbers of the directive in the
-  state file).  In the case of the Prolog compiler, the predicate
-  \texttt{add\_input\_term} adds the term at the beginning of the stream of
-  terms to compile (it will be treated before the Prolog file to be
-  compiled).
-\item all clauses are directly asserted (useful to define
-  \IdxPB{term\_expansion/2} and compagnion predicates).
-
-\end{itemize}
-
-
-\begin{PlErrors}
-
-\ErrCond{\texttt{FileName} is a variable}
-\ErrTerm{instantiation\_error}
-
-\ErrCond{\texttt{FileName} is neither a variable nor an atom}
-\ErrTerm{type\_error(atom, FileName)}
-
-\ErrCond{an operating system error occurs and the value of the
-\texttt{os\_error} Prolog flag is \texttt{error}
-\RefSP{set-prolog-flag/2}}
-\ErrTerm{system\_error(\textit{atom explaining the error})}
-
-\end{PlErrors}
-
-\Portability
-
-GNU Prolog predicate.
-
 \subsection{Program state}
 
 \subsubsection{\IdxPBD{consult/2},\label{consult/1}
@@ -8144,9 +8054,34 @@ applies. Possible options are:
   \Idx{Prolog flag}.
 
 \item \AddPOD{pre\_load}\texttt{pre\_load(File)}: use \texttt{File} as
-  a Prolog pre-load file \RefSP{write-pre-load-file/1}.
+  a Prolog pre-load file. This file is passed to the compiler via the
+  \IdxK{--pre-load} \RefSP{Using-the-compiler}.
 
 \end{itemize}
+
+
+\SPart{Implicit pre-load file}: due to separate compilation
+\texttt{consult/1-2} creates as pre-load file which is passed to the Prolog
+to WAM compiler \RefSP{pl2wam-description}.  It contains information
+influencing the parsing of a term \RefSP{Term-input/output} or its expansion
+\RefSP{Term-expansion} in order to reproduce the current top-le-lvel
+environment. The following elements are passed:
+
+\begin{itemize}
+
+\item all operator definitions \RefSP{op/3:(Term-input/output)}.
+
+\item the character conversion table \RefSP{char-conversion/2}.
+
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes},
+  \IdxPF{back\_quotes}, \IdxPF{strict\_iso}, \IdxPF{singleton\_warning},
+  \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
+  \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
+
+\item existing user dynamic clauses for \IdxPB{term\_expansion/2}.
+
+\end{itemize}
+
 
 \SPart{Shebang support}: since version 1.4.0, with the introduction of
 \Idx{shebang support}, \texttt{consult/1} ignores the first line of a Prolog
@@ -8541,7 +8476,7 @@ GNU Prolog predicate.
 \subsubsection{\IdxPBD{absolute\_file\_name/2}\label{absolute-file-name/2}}
 
 \begin{TemplatesOneCol}
-absolute\_file\_name(+atom, atom)
+absolute\_file\_name(+atom, ?atom)
 
 \end{TemplatesOneCol}
 

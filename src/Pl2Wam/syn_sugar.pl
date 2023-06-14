@@ -50,7 +50,7 @@ syntactic_sugar_init_pred(Pred, _, _) :-
      * These aux pred names are named p/n_$aux<K> where K is a seq number.
      * Since these predicates are also stored in the global predicate table
      * 2 clauses for p/n (defined in p1.pl and p2.pl) giving rise to aux
-     * predicates will produce 2 clasinhg p/n_$aux1.
+     * predicates will produce 2 clashing p/n_$aux1.
      * We here use the hash of the file name and a random number for the
      * starting aux number.
      */
@@ -70,9 +70,9 @@ syntactic_sugar_init_pred(Pred, N, PlFile) :-
 
 
 
-syntactic_sugar(SrcCl, Head, Body2) :-
-	(   SrcCl = (Head :- Body)
-	;   SrcCl = Head,
+syntactic_sugar(Cl, Head, Body2) :-
+	(   Cl = (Head :- Body)
+	;   Cl = Head,
 	    Body = true
 	), !,
 	normalize_cuts(Body, Body1, _HasCut),
@@ -308,8 +308,8 @@ normalize_alts1(Body, RestC, AuxPred) :-
 	init_aux_pred_name(Pred, N, AuxName, AuxN),
 	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
-	linearize(Body, AuxPred, Where, LAuxSrcCl),
-	asserta(buff_aux_pred(AuxName, AuxN, LAuxSrcCl)).
+	linearize(Body, AuxPred, Where, LAuxCl),
+	asserta(buff_aux_pred(AuxName, AuxN, LAuxCl)).
 
 normalize_alts1(P, _, P1) :-
 	pred_rewriting(P, P1), !.
@@ -332,13 +332,13 @@ init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 
 
 
-linearize(Body, AuxPred, Where, LAuxSrcCl) :-
+linearize(Body, AuxPred, Where, LAuxCl) :-
 	(   Body = (P ; Q) ->
-	    linearize(Q, AuxPred, Where, LAuxSrcCl1),
-	    linearize1(P, AuxPred, Where, LAuxSrcCl2),
-	    append(LAuxSrcCl2, LAuxSrcCl1, LAuxSrcCl)
+	    linearize(Q, AuxPred, Where, LAuxCl1),
+	    linearize1(P, AuxPred, Where, LAuxCl2),
+	    append(LAuxCl2, LAuxCl1, LAuxCl)
 	;
-	    linearize1(Body, AuxPred, Where, LAuxSrcCl)
+	    linearize1(Body, AuxPred, Where, LAuxCl)
 	).
 
 /* should no longer occurs since detected in normalize_cuts - to be removed

@@ -18,7 +18,7 @@ copy_files() {
 rm_make() {
     rm -f $*
     [ "$emul" = 1 ] && mkflags='PL2WAM=pl2wam_emul'
-    #[ "$emul" = 1 ] && echo CHECK IN EMULATED Mode with make $mkflags
+#    [ "$emul" = 1 ] && echo CHECK IN EMULATED Mode with make $mkflags
     make $mkflags >/tmp/make.log 2>&1 || (echo /tmp/make.log ; exit 1)
     fix_wam $*
     #make $mkflags || exit 1

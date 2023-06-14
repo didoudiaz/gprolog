@@ -1510,7 +1510,7 @@ Display_Help(void)
   L("  --version                   print version number and exit");
   L(" ");
   L("Prolog to WAM compiler options:");
-  L("  --pre-load FILE             pre-load FILE to set the internal compiler state");
+  L("  --pre-load FILE             include FILE at the beginning of the compilation");
   L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");

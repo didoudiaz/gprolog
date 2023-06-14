@@ -38,12 +38,19 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
+
 
 #include "engine_pl.h"
 #include "bips_pl.h"
 
 
 #define DEBUG_LEVEL 0
+#ifdef DEBUG_LEVEL
+#undef Free
+/* set it to null to increase chance of error if reusing a free space */
+#define Free(p) do {memset(p, 0, sizeof(*p)); free(p); } while(0)
+#endif
 
 
 /* see dynam_supp.h to deactivate and below for explanation */

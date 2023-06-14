@@ -90,7 +90,6 @@ predicate_property(Head, _) :-
 
 
 
-
 '$predicate_property_pi'(PI, Property) :-
 	'$current_predicate_bips'(PI),
 	PI = Func/Arity,

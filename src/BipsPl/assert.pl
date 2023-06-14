@@ -98,11 +98,6 @@ retractall(_).
 
 
 
-'$retract_last_found' :-
-	'$call_c'('Pl_Retract_Last_Found_0').
-
-
-
 :- meta_predicate(clause(:, ?)).
 
 clause(H, B) :-
@@ -116,12 +111,18 @@ clause(H, B) :-
 	'$call_c_test'('Pl_Clause_3'(H, B, ForWhat)).
 
 
-
+ /* really seems unused, wait and consider destroying it */
+/*
 '$instance_for_setarg'(H, B) :-
 	'$call_c_test'('Pl_Clause_3'(H, B, 0)).
 
 '$setarg_in_last_found'(ArgNo, NewValue) :-
-	'$call_c'('Pl_Setarg_Of_Last_Found_2'(ArgNo, NewValue)).
+	'$call_c'('Pl_Setarg_in_Last_Found_2'(ArgNo, NewValue)).
+
+'$retract_last_found' :-
+	'$call_c'('Pl_Retract_Last_Found_0').
+*/
+
 
 
 

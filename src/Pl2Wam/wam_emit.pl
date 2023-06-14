@@ -99,12 +99,11 @@
  * L      : integer >= 1 (with no "holes") or 'fail' inside switch_on_term *
  *-------------------------------------------------------------------------*/
 
-emit_code_init(WamFile0, PlFile0) :-
-	prolog_file_name(PlFile0, PlFile),
-	emit_code_files(WamFile0, PlFile, WamFile),
-	(   WamFile = user ->
+emit_code_init(WamFile, PlFile) :-
+	emit_code_files(WamFile, PlFile, WamFile1),
+	(   WamFile1 = user ->
 	    current_output(Stream)
-	;   open(WamFile, write, Stream)
+	;   open(WamFile1, write, Stream)
 	),
 	g_assign(streamwamfile, Stream),
 	g_assign(cur_pl_file, ''),

@@ -89,12 +89,7 @@ label(2),
     proceed]).
 
 
-predicate('$retract_last_found'/0,101,static,private,monofile,built_in,[
-    call_c('Pl_Retract_Last_Found_0',[],[]),
-    proceed]).
-
-
-predicate(clause/2,108,static,private,monofile,built_in,[
+predicate(clause/2,103,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -108,39 +103,28 @@ predicate(clause/2,108,static,private,monofile,built_in,[
     execute('$clause'/3)]).
 
 
-predicate('$clause'/3,114,static,private,monofile,built_in,[
+predicate('$clause'/3,109,static,private,monofile,built_in,[
     call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$instance_for_setarg'/2,120,static,private,monofile,built_in,[
-    put_integer(0,2),
-    call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
-    proceed]).
-
-
-predicate('$setarg_in_last_found'/2,123,static,private,monofile,built_in,[
-    call_c('Pl_Setarg_Of_Last_Found_2',[],[x(0),x(1)]),
-    proceed]).
-
-
-predicate(abolish/1,130,static,private,monofile,built_in,[
+predicate(abolish/1,131,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[abolish,1]),
     call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$remove_predicate'/2,137,static,private,monofile,built_in,[
+predicate('$remove_predicate'/2,138,static,private,monofile,built_in,[
     call_c('Pl_Remove_Predicate_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$scan_dyn_test_alt'/0,143,static,private,monofile,built_in,[
+predicate('$scan_dyn_test_alt'/0,144,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$scan_dyn_jump_alt'/0,146,static,private,monofile,built_in,[
+predicate('$scan_dyn_jump_alt'/0,147,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[jump],[]),
     proceed]).
 
@@ -177,7 +161,7 @@ predicate('$$prop_meta_pred/3_$aux4'/3,86,static,private,monofile,local,[
     proceed]).
 
 
-predicate('$$prop_meta_pred/3_$aux5'/3,106,static,private,monofile,local,[
+predicate('$$prop_meta_pred/3_$aux5'/3,101,static,private,monofile,local,[
     get_atom(clause,0),
     get_integer(2,1),
     get_structure(clause/2,2),
@@ -186,7 +170,7 @@ predicate('$$prop_meta_pred/3_$aux5'/3,106,static,private,monofile,local,[
     proceed]).
 
 
-predicate('$$prop_meta_pred/3_$aux6'/3,128,static,private,monofile,local,[
+predicate('$$prop_meta_pred/3_$aux6'/3,129,static,private,monofile,local,[
     get_atom(abolish,0),
     get_integer(1,1),
     get_structure(abolish/1,2),
@@ -250,7 +234,7 @@ directive(86,system,[
     execute('$add_clause_term'/2)]).
 
 
-directive(106,system,[
+directive(101,system,[
     call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(clause),
@@ -262,7 +246,7 @@ directive(106,system,[
     execute('$add_clause_term'/2)]).
 
 
-directive(128,system,[
+directive(129,system,[
     call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(abolish),

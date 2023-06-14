@@ -40,21 +40,24 @@
  * Data structures:                                                        *
  *                                                                         *
  * the stack of opened files (for nested includes):                        *
- *    global variable open_file_stack = [PlFile*Stream,...]                *
- *    from last to first.                                                  *
+ *    global variable open_file_stack = [of(PlFile,Stream,ParIncLine),...] *
+ *    PlFile    : the file                                                 *
+ *    Stream    : input stream                                             *
+ *    ParIncLine: line no of :- include in its parent (next of element)    *
+ *    if foo:16 includes bar the stack = [of(bar,S2,16),of(foo,S1,0)]      *
  *                                                                         *
  * the context (where occurs an error):                                    *
  *    global variable where = OpenFileStack+(L1-L2)                        *
- *    L1 = first line of the current clause (resp. directive).             *
- *    L2 = last  line of the current clause (resp. directive).             *
+ *    L1: first line of the current clause (resp. directive).              *
+ *    L2: last  line of the current clause (resp. directive).              *
  *                                                                         *
  * read_predicate(Pred,N,LSrcCl):                                          *
  *    the structure of the compiler is a repeat/fail loop on 1 predicate   *
  *    calling read_predicate(Pred,N,LSrcCl) to obtain next predicate.      *
- *    Pred   = predicate name (an atom).                                   *
- *    N      = arity (an integer >=0).                                     *
- *    LSrcCl = [SrcCl,...], list of source clauses, with                   *
- *     SrcCl = Where+Cl where Cl is the raw source clause read.            *
+ *    Pred  : predicate name (an atom).                                    *
+ *    N     : arity (an integer >=0).                                      *
+ *    LSrcCl: [SrcCl,...], list of source clauses, with                    *
+ *     SrcCl: Where+Cl where Cl is the raw source clause read.             *
  *                                                                         *
  * Buffers for special predicate management (with assert/retract):         *
  *                                                                         *
@@ -147,16 +150,19 @@ read_file_init :-
 	g_assign(module, user),
 	g_assign(module_already_seen, f),
 	g_assign(default_kind, user),
-	g_assign(reading_dyn_pred, f),
-	g_assign(eof_reached, f),
 	g_assign(open_file_stack, []),
 	g_assign(where, 0),
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
 	g_assign(in_bytes, 0).
 
+
+
+
 read_file_init(PlFile) :-
-	open_new_prolog_file(PlFile).
+	g_assign(reading_dyn_pred, f),
+	g_assign(eof_reached, f),
+	open_new_prolog_file(PlFile, 0). % 0 means parent = command-line
 
 
 
@@ -174,11 +180,10 @@ read_file_error_nb(SynErrNb) :-
 
 
 
-open_new_prolog_file(PlFile0) :-
+open_new_prolog_file(PlFile, ParIncLine) :-
 	g_read(open_file_stack, OpenFileStack),
-	prolog_file_name(PlFile0, PlFile),
 	open_new_prolog_file1(PlFile, OpenFileStack, PlFile1, Stream), !,
-	g_assign(open_file_stack, [PlFile1 * Stream|OpenFileStack]),
+	g_assign(open_file_stack, [of(PlFile1, Stream, ParIncLine)|OpenFileStack]),
 	(   peek_char(Stream, '#'), % ignore #! starting line (for shebang support)
 	    repeat,
 	    get_char(Stream, X),
@@ -208,7 +213,7 @@ open_new_prolog_file1(PlFile, _, _, _) :-
 	 * If found return the new name (to have correct error msg and file_name in .wam)
 	 */
 
-try_other_directory([PlFile1 * _|_], PlFile, PlFile2, Stream) :-
+try_other_directory([of(PlFile1, _, _)|_], PlFile, PlFile2, Stream) :-
 	decompose_file_name(PlFile1, Directory, _, _),
 	Directory \== '',
 	atom_concat(Directory, PlFile, PlFile2),
@@ -224,7 +229,7 @@ try_other_directory([_|OpenFileStack], PlFile, PlFile1, Stream) :-
 
 
 close_last_prolog_file :-
-	g_read(open_file_stack, [_ * Stream|OpenFileStack]),
+	g_read(open_file_stack, [of(_, Stream, _)|OpenFileStack]),
 	g_assign(open_file_stack, OpenFileStack),
 	g_read(in_bytes, Bytes1),
 	g_read(in_lines, Lines1),
@@ -271,8 +276,7 @@ read_predicate_next(_, _, _).
 
 
 read_predicate1(Pred, N, LSrcCl) :-
-	retract(buff_aux_pred(Pred, N, LSrcCl)), !.
-                                                   % aux. pred (cf syn_sugar)
+	retract(buff_aux_pred(Pred, N, LSrcCl)), !. % aux. pred (cf syn_sugar)
 
 read_predicate1(Pred, N, LSrcCl) :-
 	g_read(eof_reached, f), !,
@@ -405,7 +409,7 @@ create_exe_clauses_for_pub_pred([Where + Cl|LSrcCl]) :-
 	create_exe_clauses_for_pub_pred(LSrcCl).
 
 
-get_file_name([PlFile * _|_] + _, PlFile).
+get_file_name([of(PlFile, _, _)|_] + _, PlFile).
 
 
 
@@ -423,7 +427,7 @@ get_next_clause(Pred, N, SrcCl) :-
 
 get_next_clause(Pred, N, SrcCl) :-
 	g_read(open_file_stack, OpenFileStack),
-	OpenFileStack = [_ * Stream|_],
+	OpenFileStack = [of(_, Stream, _)|_],
 	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
@@ -512,9 +516,12 @@ get_next_clause2(_, _, _, Pred, N, SrcCl) :-
 
 				% called by read_pl_state_file/1
 add_input_term(Cl, PlFile, L1, L2):-
-	Where  = [PlFile * _] + (L1 - L2),
+	Where  = [of(PlFile, _, 0)] + (L1 - L2),
 	assertz(buff_raw_clause(Cl, Where)).
 
+add_to_input(Cl):-
+	Where  = [of(command_line_option, _, 0)] + (0 - 0),
+	assertz(buff_raw_clause(Cl, Where)).
 
 
 
@@ -714,9 +721,11 @@ handle_directive(ensure_loaded, _, _) :-
 	!,
 	warn('ensure_loaded directive not supported - directive ignored', []).
 
-handle_directive(include, [PlFile], _) :-
+handle_directive(include, [PlFile], Where) :-
 	!,
-	open_new_prolog_file(PlFile).
+	Where = _ + (L1 - _),
+	prolog_file_name(PlFile, PlFile1),
+	open_new_prolog_file(PlFile1, L1).
 
 handle_directive(op, [X, Y, Z], Where) :-
 	!,
@@ -1292,7 +1301,7 @@ disp_msg(MsgType, Column, Msg, LArg) :-
 	g_read(where, Where),
 	(   Where = OpenFileStack + L12,
 	    L12 = _ - _ ->
-	    disp_file_name(OpenFileStack, _),
+	    disp_file_name(OpenFileStack, _, _),
 	    disp_lines(L12),
 	    disp_column(Column)
 	;   true
@@ -1304,12 +1313,21 @@ disp_msg(MsgType, Column, Msg, LArg) :-
 
 
 
-disp_file_name([], '') :-
+disp_file_name([], _, _) :-
 	!.
 
-disp_file_name([FileName * _|OpenFileStack], ' including ') :-
-	disp_file_name(OpenFileStack, Before),
-	format('~a~a', [Before, FileName]).
+disp_file_name([of(PlFile, _, ParIncLine1)|OpenFileStack], First, ParIncLine) :-
+	disp_file_name(OpenFileStack, First, ParIncLine1),
+	(   var(ParIncLine) ->
+	    format('~a', [PlFile])
+	;
+	    (	var(First) ->
+		First = f,
+		Prefix = 'In file included'
+	    ;	Prefix = '                '
+	    ),
+	    format('~a from ~a:~d~n', [Prefix, PlFile, ParIncLine])
+	).
 
 
 
