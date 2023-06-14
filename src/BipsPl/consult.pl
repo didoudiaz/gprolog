@@ -177,17 +177,18 @@ consult(File, Options) :-
 	!,
 	'$sys_var_read'(20, Say_GetC), 
 	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
-	'$write_pre_load_file'(PreLoadFile),
+	write_pre_load_file(PreLoadFile),
 	'$sys_var_write'(20, Say_GetC).
 
 '$create_pre_load_file'(_, PreLoadFile) :-
-	'$write_pre_load_file'(PreLoadFile).
+	write_pre_load_file(PreLoadFile).
 
 
 
 
-'$write_pre_load_file'(PreLoadFile) :-
-	open(PreLoadFile, write, S, []),
+write_pre_load_file(PreLoadFile) :-
+	set_bip_name(write_pre_load_file, 1),
+	'$open'(PreLoadFile, write, S, []),
 	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
 	    '$write_pre_load_goal'(S, op(Prior, Prec, LOp)),
 	    fail
@@ -219,7 +220,7 @@ consult(File, Options) :-
 	close(S),
 	fail.			% GC
 
-'$write_pre_load_file'(_).
+write_pre_load_file(_).
 
 
 '$write_pre_load_goal'(S, Goal) :-

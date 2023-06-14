@@ -154,7 +154,8 @@ read_file_init :-
 	g_assign(where, 0),
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
-	g_assign(in_bytes, 0).
+	g_assign(in_bytes, 0),
+	set_pred_info(pragma_load, term_expansion, 2).
 
 
 
@@ -492,36 +493,27 @@ get_next_clause2((:- D), Where, SingNames, Pred, N, SrcCl) :- % other directives
 	get_next_clause(Pred, N, SrcCl).
 
 get_next_clause2(Cl, Where, SingNames, Pred, N, Where + Cl) :-
-	g_read(foreign_only, f), !,
-	(   Cl = (Head :- _)
+	(   Cl = (Head :- _) ->
+	    true
 	;   Cl = Head
 	),
 	check_callable(Head, head),
-	functor(Head, Pred, N),
 	check_head_is_module_free(Head),
+	functor(Head, Pred, N),
 	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
 	display_singletons(SingNames, Pred / N),
-	(   Pred = term_expansion, N = 2 ->
+	(   test_pred_info(pragma_load, Pred, N) ->
 	    assertz(Cl)
 	;   true
-	).
+	),
+	g_read(foreign_only, f),
+ 	test_not_pred_info(pragma_dont_compile, Pred, N), !.
 
-                                          % ignore clause with --foreign-only
+                                          % ignore clause with --foreign-only or if it has pragma_dont_compile
 get_next_clause2(_, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
-
-
-
-				% called by read_pl_state_file/1
-add_input_term(Cl, PlFile, L1, L2):-
-	Where  = [of(PlFile, _, 0)] + (L1 - L2),
-	assertz(buff_raw_clause(Cl, Where)).
-
-add_to_input(Cl):-
-	Where  = [of(command_line_option, _, 0)] + (0 - 0),
-	assertz(buff_raw_clause(Cl, Where)).
 
 
 
@@ -660,66 +652,84 @@ pp_stop :-
 
 :- discontiguous(handle_directive/3).
 
+% in pp_handle_directive the directive has been checked: it is a callable
+
 handle_directive(D, Where) :-
-	D =.. [DName|DLst],
+	D =.. [DName|DLst],	% to handle include(a/1, b/2, c/3) and include([a/1, b/2, c/3]) as lists
 	handle_directive(DName, DLst, Where).
 
 
 
 handle_directive(public, DLst, _) :-
 	!,
-	DLst \== [],
+	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, pub).
 
 handle_directive(dynamic, DLst, Where) :-
 	!,
-	DLst \== [],
+	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, dyn),
 	set_flag_for_preds(DLst, pub),
 	add_empty_dyn(DLst, Where).
 
 handle_directive(multifile, DLst, Where) :-
 	!,
-	DLst \== [],
+	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, multi),
 	add_empty_dyn(DLst, Where).
 
 handle_directive(discontiguous, DLst, _) :-
 	!,
-	DLst \== [],
+	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, discontig).
+
+handle_directive(pragma_execute, [Goal], _) :-
+	!,
+	exec_directive(Goal).
+
+handle_directive(pragma_load, DLst, _) :-
+	!,
+	check_pi_list(DLst, f),
+	set_flag_for_preds(DLst, pragma_load).
+
+handle_directive(pragma_load_only, DLst, _) :-
+	!,
+	check_pi_list(DLst, f),
+	set_flag_for_preds(DLst, pragma_load),
+	set_flag_for_preds(DLst, pragma_dont_compile).
 
 handle_directive(built_in, DLst, _) :-
 	!,
-	(   DLst == [],
+	check_pi_list(DLst, t),
+	(   DLst = [] ->
 	    g_assign(default_kind, built_in)
-	;   DLst \== [],
-	    set_flag_for_preds(DLst, bpl)
-	), !.
+	;   set_flag_for_preds(DLst, bpl)
+	).
 
 handle_directive(built_in_fd, DLst, _) :-
 	!,
-	(   DLst == [],
+	check_pi_list(DLst, t),
+	(   DLst = [] ->
 	    g_assign(default_kind, built_in_fd)
-	;   DLst \== [],
-	    set_flag_for_preds(DLst, bfd)
+	;   set_flag_for_preds(DLst, bfd)
 	).
 
 handle_directive(ensure_linked, DLst, _) :-
 	!,
+	check_pi_list(DLst, f),
 	(   g_read(native_code, f) ->
 	    warn('ensure_linked directive ignored in byte-code compilation mode', [])
-	;   DLst \== [],
-	    add_ensure_linked(DLst)
+	;   add_ensure_linked(DLst)
 	).
+
+handle_directive(ensure_loaded, DLst, _) :-
+	!,
+	check_pi_list(DLst, f),
+	warn('ensure_loaded directive not supported - directive ignored', []).
 
 handle_directive(encoding, _, _) :-
 	!,
 	warn('encoding directive not supported - directive ignored', []).
-
-handle_directive(ensure_loaded, _, _) :-
-	!,
-	warn('ensure_loaded directive not supported - directive ignored', []).
 
 handle_directive(include, [PlFile], Where) :-
 	!,
@@ -750,11 +760,11 @@ handle_directive(initialization, [Body], Where) :-
 	!,
 	handle_initialization(user, Body, Where).
 
-
 handle_directive(module, [Module, DLst], _) :-
 	!,
+	check_pi_list(DLst, f),
+	check_module_name(Module, f),
 	(   g_read(module_already_seen, f) ->
-	    check_module_name(Module, false),
 	    g_assign(module_already_seen, t),
 	    g_assign(module, Module),
 	    add_module_export_info(DLst, Module)
@@ -764,7 +774,7 @@ handle_directive(module, [Module, DLst], _) :-
 
 handle_directive(use_module, [Module, DLst], _) :-
 	!,
-	check_module_name(Module, false),
+	check_module_name(Module, f),
 	add_module_export_info(DLst, Module).
 
 handle_directive(meta_predicate, [MetaDecl], Where) :-
@@ -901,7 +911,7 @@ foreign_check_arg(term).
 
 handle_directive(DName, LArgs, _) :-
 	length(LArgs, N),
-	warn('unknown directive ~q - maybe use initialization/1 - directive ignored', [DName / N]).
+	warn('unknown or invalid directive ~q - maybe use initialization/1 - directive ignored', [DName / N]).
 
 
 
@@ -916,21 +926,14 @@ handle_initialization(user, Body, Where) :-
 
 
 exec_directive(Goal) :-
+	check_callable(Goal, 'directive goal'),
 	'$catch'(Goal, Err, exec_directive_exception(Goal, Err), any, 0, false), !.
 
 exec_directive(Goal) :-
-	warn('directive failed (~q)', [Goal]).
+	warn('directive goal failed (~q)', [Goal]).
 
 exec_directive_exception(Goal, Err) :-
-	warn('directive failed (~q) with exception (~q)', [Goal, Err]).
-
-
-
-used_bips_via_call :-   % to enforce the link of these bips - useless now since all bips are linked
-	op(_, _, _),
-	char_conversion(_, _),
-	set_prolog_flag(_, _),
-	expand_term(_, _).
+	warn('directive goal failed (~q) with exception (~q)', [Goal, Err]).
 
 
 
@@ -1006,12 +1009,45 @@ add_module_export_info(Pred / N, Module) :-
 
 
 
+	% check_pi_list(DLst, EmptyOK)
+check_pi_list(DLst, _) :-
+	var(DLst), !,
+	error('directive argument is a variable', []).
+
+check_pi_list([], f) :-
+	!,
+	error('directive argument missing', []).
+
+check_pi_list([], _) :-
+	!.
+
+check_pi_list([P1|P2], _) :-
+	!,
+	check_pi_list(P1, t),
+	check_pi_list(P2, t).
+
+check_pi_list((P1, P2), _) :-
+	!,
+	check_pi_list(P1, t),
+	check_pi_list(P2, t).
+
+check_pi_list(Pred / N, _) :-
+	atom(Pred),
+	integer(N),
+	N >= 0, !.
+
+check_pi_list(P, _) :-
+	error('directive argument is not a valid predicate indicator (~q)', [P]).
+
+
+
+
 check_callable(X, _) :-
 	callable(X), !.
 
 check_callable(X, What) :-
 	var(X), !,
-	error('~a is a variable', [What, X]).
+	error('~a is a variable', [What]).
 
 check_callable(X, What) :-
 	error('~a is not a callable (~q)', [What, X]).
@@ -1019,7 +1055,8 @@ check_callable(X, What) :-
 
 
 
-check_module_name(Module, true) :-
+	% check_module_name(Module, VarOK)
+check_module_name(Module, t) :-	
 	var(Module), !.
 
 check_module_name(Module, _) :-
@@ -1034,7 +1071,7 @@ check_module_name(Module, _) :-
 	\+ atom_property(Module, needs_quotes), !.
 
 check_module_name(Module, _) :-
-	error('invalid module name (~q) should only containts lower chars', [Module]).
+	error('invalid module name (~q) should only contain lower chars', [Module]).
 */
 
 
@@ -1146,6 +1183,8 @@ flag_bit(discontig, 5).
 flag_bit(need_cut_level, 6).
 flag_bit(meta, 7).
 flag_bit(multi, 8).
+flag_bit(pragma_load, 9).
+flag_bit(pragma_dont_compile, 10).
 
 
 
@@ -1178,6 +1217,18 @@ test_pred_info(Flag, F, N) :-
 	InfoMask /\ 1 << Bit > 0.
 
 
+
+
+test_not_pred_info(Flag, F, N) :-
+	flag_bit(Flag, Bit),
+	clause(pred_info(F, N, InfoMask), _), !,
+	InfoMask /\ 1 << Bit =:= 0.
+
+test_not_pred_info(_, _, _).	% succeeds if not clause defined for F/N
+
+
+
+
 /* Alternative version with g_assign (same speed) but would need a reset (like retractall)
 set_pred_info(Flag, F, N) :-
 	flag_bit(Flag, Bit),
@@ -1204,6 +1255,16 @@ test_pred_info(Flag, F, N) :-
 	f_n_to_key(F, N, Key),
 	g_read(Key, InfoMask),
 	InfoMask /\ 1 << Bit > 0.
+
+
+
+   
+test_not_pred_info(Flag, F, N) :-
+	flag_bit(Flag, Bit),
+	f_n_to_key(F, N, Key),
+	g_read(Key, InfoMask),
+	InfoMask /\ 1 << Bit =:= 0.
+
 
 
 

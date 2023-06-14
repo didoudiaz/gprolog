@@ -61,7 +61,8 @@
 % Some characters in tt font (< and > are no longer useful)
 
 % backslash
-\def\bs{\char'134}
+% \def\bs{\char'134} % this one causes warning with hyperref
+\def\bs{\textbackslash}
 % less than
 % \def\lt{\char'074}
 % greater than
@@ -434,3 +435,4 @@
 \newcommand{\AddFK} [1]{\IndT    {#1}{#1 \textrm{(FD)}}}
 \newcommand{\IdxFKD}[1]{\TxtIndTD{#1}{#1}{#1 \textrm{(FD)}}}
 \newcommand{\IdxFK} [1]{\TxtIndT {#1}{#1}{#1 \textrm{(FD)}}}
+

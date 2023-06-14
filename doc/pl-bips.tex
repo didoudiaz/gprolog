@@ -8024,7 +8024,7 @@ GNU Prolog predicate.
 \begin{TemplatesOneCol}
 consult(+atom\_or\_atom\_list, +consult\_option\_list)\\
 consult(+atom\_or\_atom\_list)\\
-'.'(+atom, +atom\_list)
+'.'(+atom, +atom\_list) \\
 
 \end{TemplatesOneCol}
 
@@ -8062,26 +8062,8 @@ applies. Possible options are:
 
 \SPart{Implicit pre-load file}: due to separate compilation
 \texttt{consult/1-2} creates as pre-load file which is passed to the Prolog
-to WAM compiler \RefSP{pl2wam-description}.  It contains information
-influencing the parsing of a term \RefSP{Term-input/output} or its expansion
-\RefSP{Term-expansion} in order to reproduce the current top-le-lvel
-environment. The following elements are passed:
-
-\begin{itemize}
-
-\item all operator definitions \RefSP{op/3:(Term-input/output)}.
-
-\item the character conversion table \RefSP{char-conversion/2}.
-
-\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes},
-  \IdxPF{back\_quotes}, \IdxPF{strict\_iso}, \IdxPF{singleton\_warning},
-  \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
-  \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
-
-\item existing user dynamic clauses for \IdxPB{term\_expansion/2}.
-
-\end{itemize}
-
+to WAM compiler \RefSP{pl2wam-description}. This is done by calling
+\texttt{write\_pre\_load\_file/1} \RefSP{write-pre-load-file/1}.
 
 \SPart{Shebang support}: since version 1.4.0, with the introduction of
 \Idx{shebang support}, \texttt{consult/1} ignores the first line of a Prolog
@@ -8094,6 +8076,7 @@ source file which directly begins with \texttt{\#}. See
 
 \texttt{[ File | Files ]}, i.e. \texttt{'.'(File, Files)} is
 equivalent to \texttt{consult([ File | Files ])}.
+
 
 \begin{PlErrors}
 
@@ -8135,6 +8118,55 @@ pathname but does not correspond to an existing source}
 \Portability
 
 GNU Prolog predicates.
+
+\subsubsection{\IdxPBD{write\_pre\_load\_file/1}}\label{write-pre-load-file/1}
+
+\begin{TemplatesOneCol}
+write\_pre\_load\_file(+source\_sink)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{write\_pre\_load\_file(FileName)} writes onto \texttt{FileName}
+relevant information influencing the parsing of a term
+\RefSP{Term-input/output} or its expansion \RefSP{Term-expansion}. This
+allows a sub-process written in Prolog to first process this file in order to
+later process any Prolog term as would be done by the parent process. The
+following elements are saved in the \texttt{FileName}:
+
+\begin{itemize}
+
+\item all operator definitions \RefSP{op/3:(Term-input/output)}.
+
+\item the character conversion table \RefSP{char-conversion/2}.
+
+\item the value of \IdxPF{char\_conversion}, \IdxPF{double\_quotes},
+  \IdxPF{back\_quotes}, \IdxPF{strict\_iso}, \IdxPF{singleton\_warning},
+  \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
+  \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
+
+\item existing dynamic clauses defining \IdxPB{term\_expansion/2}.
+
+\end{itemize}
+\begin{PlErrors}
+
+\ErrCond{\texttt{FileName} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{FileName} is neither a variable nor an atom}
+\ErrTerm{type\_error(atom, FileName)}
+
+\ErrCond{an operating system error occurs and the value of the
+\texttt{os\_error} Prolog flag is \texttt{error}
+\RefSP{set-prolog-flag/2}}
+\ErrTerm{system\_error(\textit{atom explaining the error})}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{load/1}\label{load/1}}
 
