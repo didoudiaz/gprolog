@@ -134,7 +134,7 @@
 indexing(LCC, WamCode1) :-
 	indexing1(LCC, f, _, [_|WamCode]),       % ignore the unused label(0)
 	cur_pred(Pred, N),
-	(   test_pred_info(need_cut_level, Pred, N) ->
+	(   test_pred_flag(need_cut_level, Pred, N) ->
 	    N1 is N + 1,
 	    WamCode1 = [pragma_arity(N1), get_current_choice(x(N))|WamCode]
 	;   WamCode1 = WamCode

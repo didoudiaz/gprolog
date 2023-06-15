@@ -56,7 +56,7 @@ syntactic_sugar_init_pred(Pred, _, _) :-
      */
 
 syntactic_sugar_init_pred(Pred, N, PlFile) :-
-	(   g_read(native_code, f), test_pred_info(multi, Pred, N) ->
+	(   g_read(native_code, f), test_pred_flag(multi, Pred, N) ->
 	    randomize,
 	    term_hash(PlFile, H),
 	    Max is (1 << 26),
@@ -322,10 +322,10 @@ init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 	Aux1 is (Aux + 1) /\ (1 << 26 - 1),  % avoid negative numbers
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
-	(   test_pred_info(bpl, Pred, N), % useful ?
-	    set_pred_info(bpl, AuxName, AuxN)
-	;   test_pred_info(bfd, Pred, N),
-	    set_pred_info(bfd, AuxName, AuxN)
+	(   test_pred_flag(bpl, Pred, N), % useful ?
+	    set_pred_flag(bpl, AuxName, AuxN)
+	;   test_pred_flag(bfd, Pred, N),
+	    set_pred_flag(bfd, AuxName, AuxN)
 	;   true
 	), !.
 

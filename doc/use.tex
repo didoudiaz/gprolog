@@ -885,7 +885,7 @@ Suffix of the file & Type of the file & Handled by: \\
 \texttt{.ma} & Mini-assembly source file & \IdxK{ma2asm} \\
 
 \hline
-
+ 
 \texttt{.s} & Assembly source file & the \Idx{assembler} \\
 
 \hline
@@ -984,7 +984,7 @@ for temporary files \\
 \label{pl2wam-options}
 
 \begin{CmdOptions}
-\IdxKD{--pre-load} \Param{FILE} & include FILE at the beginning of the compilation \\
+\IdxKD{--include} \Param{FILE} & include FILE at the beginning of the compilation \\
 
 \IdxKD{--wam-comment} \Param{COMMENT} & emit \Param{COMMENT} as a comment in the WAM file \\
 
@@ -1136,29 +1136,27 @@ read and compiled, \emph{but not loaded} into the compiler (this may change
 in the future). Exceptions are a few directives such as \IdxDi{op/3},
 \IdxDi{char\_conversion/2} which are executed by \texttt{pl2wam}. Since
 version 1.6.0, GNU prolog supports \IdxPB{term\_expansion/2}. This mechanism
-may require the execution of user code during compilation. Various
-directives, such as \IdxDi{load\_only/1} or \IdxDi{load\_also/1}, are avaible
-to inform about predicates to be loaded into the compiler.
-
-This kind of code can be part of the Prolog file to compile (directly or via
-a \IdxDi{include/1} directive) or can be given in a separate file and passed
-to the compiler with the \texttt{--pre-load} option. A pre-load file is a
-Prolog text which is included by the compiler when started (as by the
-\IdxDi{include/1} directive). Several \texttt{--pre-load} options can be
-provided, they are considered in order of apparition.
+may require the execution of user code during compilation. This can be
+controlled via \IdxDi{pragma/1} directives. This user code can be part of the
+Prolog file to compile (directly or via a \IdxDi{include/1} directive) or can
+be given in a separate file and passed to the compiler with the
+\texttt{--include} option. An include file is a Prolog text which is included
+by the compiler when started (as by the \IdxDi{include/1} directive). Several
+\texttt{--include} options can be provided, they are considered in order of
+apparition.
 
 By default, \texttt{pl2wam} runs in the native-code compilation scheme. To
 generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}
 option. The resulting file can then be quickly loaded using \IdxPB{load/1}
 \RefSP{load/1}. This is used by \IdxPB{consult/1} which invokes the compiler
-as a command line subprocess (spawn). A pre-load file is created by
-\texttt{consult/1} and passed to the compiler to to reproduce certain
+as a command line subprocess (spawn). A default include file is created by
+\texttt{consult/1-2} and passed to the compiler to reproduce certain
 parameters of the top-level's internal state: operator definitions, Prolog
 flag values, etc. \RefSP{consult/1}. Prior to version 1.6.0, another
 mechanism was used, based on ``prolog state'' (pl-state) and stored in binary
-files. Since 1.6.0, this has been replaced by pre-load files (simple Prolog
-text files) and new directives (e.g. \texttt{load\_only}).  The built-in
-predicate \IdxPB{consult/2} can be used to pass additional pre-load files.
+files. Since 1.6.0, this has been replaced by include files (simple Prolog
+text files) and new directives (e.g. \texttt{load\_only}). The built-in
+predicate \IdxPB{consult/2} can be used to pass additional include files.
 
 By default the Prolog to WAM compiler inlines calls to some deterministic
 built-in predicates (e.g. \texttt{arg/3} and \texttt{functor/3}). Namely a

@@ -41,7 +41,7 @@ predicate('$indexing/2_$aux1'/4,134,static,private,monofile,local,[
     put_value(x(0),1),
     put_atom(need_cut_level,0),
     put_value(y(0),2),
-    call(test_pred_info/3),
+    call(test_pred_flag/3),
     cut(y(3)),
     math_fast_load_value(y(0),0),
     call_c('Pl_Fct_Fast_Inc',[fast_call,x(1)],[x(0)]),

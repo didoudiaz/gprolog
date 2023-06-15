@@ -180,15 +180,15 @@ emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
 
 emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	emit_file_name_if_needed(PlFile, Stream),
-	(   test_pred_info(dyn, Pred, N) ->
+	(   test_pred_flag(dyn, Pred, N) ->
 	    StaDyn = dynamic
 	;   StaDyn = static
 	),
-	(   test_pred_info(pub, Pred, N) ->
+	(   test_pred_flag(pub, Pred, N) ->
 	    PubPriv = public
 	;   PubPriv = private
 	),
-	(   test_pred_info(multi, Pred, N) ->
+	(   test_pred_flag(multi, Pred, N) ->
 	    MonoMulti = multifile
 	;   MonoMulti = monofile
 	),
@@ -204,13 +204,13 @@ export_type(Pred, _, Module, Module, local) :-
 	'$aux_name'(Pred), !.
 
 export_type(Pred, N, Module, Module, local) :-
-	test_pred_info(multi, Pred, N), !.
+	test_pred_flag(multi, Pred, N), !.
 
 export_type(Pred, N, _, system, built_in) :-
-	test_pred_info(bpl, Pred, N), !.
+	test_pred_flag(bpl, Pred, N), !.
 
 export_type(Pred, N, _, system, built_in_fd) :-
-	test_pred_info(bfd, Pred, N), !.
+	test_pred_flag(bfd, Pred, N), !.
 
 export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
 	is_exported(Pred, N), !.

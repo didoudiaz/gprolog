@@ -389,10 +389,45 @@ prototype is \texttt{Template} according to the options given by
 
 GNU Prolog directive.
 
+\subsubsection{\IdxDiD{pragma/1}}
+
+\begin{TemplatesOneCol}
+pragma(+callable\_term)\\
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{pragma(Pragma)} is a directive allowing to control the Prolog
+to WAM compiler (\IdxK{pl2wam}) internal state (compiler
+environment). Possible pragmas are:
+
+\begin{itemize}
+
+\item \texttt{load(PI)}: loads the predicate identified par the
+  predicate indicator \texttt{PI} into \texttt{pl2wam} (asserted). The
+  predicate is then ignored (not compiled). \texttt{PI} can be a list
+  or a sequence of predicate indicators (as in
+  \texttt{discontiguous/1} directive).
+
+\item \texttt{load\_and\_compile(PI)}: similar to \texttt{load(PI)} but
+  the predicate is then compiled and emitted.
+
+\item \texttt{execute(Goal)}: immediately executes \texttt{Goal}.
+
+\end{itemize}
+
+By default, a \texttt{pragma(load{term\_expansion/2})} is defined,
+i.e. all clauses defining \IdxPB{term\_expansion/2} are loaded in the
+internal state of the compiler.
+
+\Portability
+
+GNU Prolog directive.
+
 \subsection{Prolog control constructs}
 \label{control-construct}
 
-GNU Prolog follows the ISO notion of \Idx{control constructs}. 
+GNU Prolog follows the ISO notion of \Idx{control constructs}.
 
 \subsubsection{\IdxCCD{true/0},
                \IdxCCD{fail/0},

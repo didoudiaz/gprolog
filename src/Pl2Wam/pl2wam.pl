@@ -49,12 +49,12 @@ pl2wam(LArg) :-
 
 pl2wam1(LArg) :-
 	read_file_init,		% inits before read_pl_file
-	cmd_line_args(LArg, PlFile, WamFile, LPreLoad),
+	cmd_line_args(LArg, PlFile, WamFile, LInclude),
 	prolog_file_name(PlFile, PlFile1),
 	compile_msg_start(PlFile1),
 	init_counters,
 	emit_code_init(WamFile, PlFile),
-	compile_pre_load(LPreLoad),
+	compile_list_include(LInclude),
 	compile_and_emit_file(PlFile1),
 	emit_ensure_linked,
 	read_file_term(InBytes, InLines),
@@ -70,12 +70,12 @@ pl2wam1(LArg) :-
 
 
 
-compile_pre_load(LPreLoad) :-
-	member(PlFile, LPreLoad),
+compile_list_include(LInclude) :-
+	member(PlFile, LInclude),
 	compile_and_emit_file(PlFile),
 	fail.
 
-compile_pre_load(_).
+compile_list_include(_).
 
 
 
@@ -284,7 +284,7 @@ display_counters :-
 
           % Command-line options reading
 
-cmd_line_args(LArg, PlFile, WamFile, LPreLoad) :-
+cmd_line_args(LArg, PlFile, WamFile, LInclude) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
 	g_assign(native_code, t),
@@ -303,7 +303,7 @@ cmd_line_args(LArg, PlFile, WamFile, LPreLoad) :-
 	g_assign(fast_math, f),
 	g_assign(statistics, f),
 	g_assign(compile_msg, f),
-	cmd_line_args(LArg, LPreLoad),
+	cmd_line_args(LArg, LInclude),
 	g_read(plfile, PlFile),
 	(   PlFile = '' ->
 	    format('no input file~n', []),
@@ -317,15 +317,15 @@ cmd_line_args(LArg, PlFile, WamFile, LPreLoad) :-
 
 cmd_line_args([], []).
 
-cmd_line_args([Arg|LArg], LPreLoad1) :-
-	g_assign(pre_load_file, ''),
+cmd_line_args([Arg|LArg], LInclude1) :-
+	g_assign(include_file, ''),
 	cmd_line_arg1(Arg, LArg, LArg1), !,
-	g_read(pre_load_file, PreLoadFile),
-	(   PreLoadFile == '' ->
-	    LPreLoad1 = LPreLoad
-	;   LPreLoad1 = [PreLoadFile|LPreLoad]
+	g_read(include_file, IncludeFile),
+	(   IncludeFile == '' ->
+	    LInclude1 = LInclude
+	;   LInclude1 = [IncludeFile|LInclude]
 	),
-	cmd_line_args(LArg1, LPreLoad).
+	cmd_line_args(LArg1, LInclude).
 
 
 cmd_line_arg1('-o', LArg, LArg1) :-
@@ -346,9 +346,12 @@ cmd_line_arg1('--output', LArg, LArg1) :-
 	),
 	g_assign(wamfile, WamFile).
 
-cmd_line_arg1('--pre-load', [PreLoadFile|LArg], LArg) :-
-	prolog_file_name(PreLoadFile, PreLoadFile1),
-	g_assign(pre_load_file, PreLoadFile1).
+cmd_line_arg1('-i', LArg, LArg1) :-
+	cmd_line_arg1('--include', LArg, LArg1).
+
+cmd_line_arg1('--include', [File|LArg], LArg) :-
+	prolog_file_name(File, PlFile),
+	g_assign(include_file, PlFile).
 
 cmd_line_arg1('-W', LArg, LArg1) :-
 	cmd_line_arg1('--wam-for-native', LArg, LArg1).
@@ -485,7 +488,7 @@ h('Options:').
 h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
-h('  --pre-load FILE             include FILE before starting the compilation').
+h('  -i FILE, --include FILE     include FILE at the beginning of the compilation').
 h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').

@@ -1,18 +1,25 @@
 Change in GNU Prolog version 1.6.0
 
+* fix issue #31: support for term_expansion/2, with new mechanisms:
+  replace the compiler (pl2wam) concept of pl-state by simple include files (Prolog text):
+  - rename gplc (pl2wam) --pl-state option as --include
+  - remove built_in predicates read_pl_state_file_file/1 and write_pl_state_file_file/1
+  - add new built-in predicate write_default_include_file/1 (used by consult/1)
+  - add new built-in predicate consult/2 to pass options (with option include(File))
+  new pragma/1 directive (to help pl2wam) whose argument can be:
+  - load(Pred): predicate is loaded into pl2wam (asserted) and then ignored
+  - load_and_compile(Pred): as load(Pred) but the predicate is also compiled and emitted
+  - execute(Goal): the Goal is immediately executed  
 * fix issue #38: add more error detections in format/2-3
 * fix issue #39: bug in conditional compilation directives
-* rename pl2wam --pl-state option (and concept) as --pre-load
-* add a consult/2 built-in (consult with options) to pass a pre-load file
 * fix issue #37: bug in format/2-3
 * fix issue #13: user meta_predicate definition is now returned by predicate_property/2
-* initial support for term_expansion/2 and new pre-load file format (now it is a Prolog text)
+* fix issue #32: remove duplicate warning message
 * speed up dynamic predicates with many clauses (for wordnet)
 * improve linedit completion with a new map implementation (improves consult of wordnet files)
 * improve compiler speed on large Prolog data bases (for wordnet)
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
   (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
-* fix issue #32: remove duplicate warning message
 * speed up bind_variables/2 (also speed up the compiler for byte-code)
 * increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
 * increase default Prolog stack sizes and MAX_ATOMS

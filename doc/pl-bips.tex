@@ -5810,13 +5810,16 @@ to define a specific transformation. If this predicate succeeds,
 \texttt{Term2} is compiled instead of \texttt{Term1}. \texttt{Term2} can be a
 list, in which case, all terms of the list are compiled.
 
-The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically calls
-\texttt{expand\_term/2} on each \texttt{Term1} read in. In version prior to
-1.6.0, only DCG transformation was done by the compiler
-(i.e. \texttt{term\_expansion/2} could not be used). Since 1.6.0,
-\texttt{term\_expansion/2} is supported. Due to separate compilation, some
-options and directives can be necessary, this is described in the
-\IdxK{pl2wam} description \RefSP{pl2wam-description}.
+The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically
+calls \texttt{expand\_term/2} on each \texttt{Term1} read in. In
+version prior to 1.6.0, only DCG transformation was done by the
+compiler (i.e. \texttt{term\_expansion/2} could not be used). Since
+1.6.0, \texttt{term\_expansion/2} is supported. Due to separate
+compilation, some \IdxK{pl2wam} options and directives can be
+necessary \RefSP{pl2wam-description}. Basically, it is necesary to
+inform the Prolog to WAM compiler that a predicate must be ``loaded''
+in its internal state (so it can be executed during term
+expansion). This can be done with \IdxDi{pragma/1} directives.
 
 \PlErrorsNone
 
@@ -8053,17 +8056,18 @@ applies. Possible options are:
   default value is determined by the \IdxPF{show\_information}
   \Idx{Prolog flag}.
 
-\item \AddPOD{pre\_load}\texttt{pre\_load(File)}: use \texttt{File} as
-  a Prolog pre-load file. This file is passed to the compiler via the
-  \IdxK{--pre-load} \RefSP{Using-the-compiler}.
+\item \AddPOD{include}\texttt{include(File)}: use \texttt{File} as
+  a Prolog include file. This file is passed to the compiler via the
+  \IdxK{--include} \RefSP{Using-the-compiler}.
 
 \end{itemize}
 
 
-\SPart{Implicit pre-load file}: due to separate compilation
-\texttt{consult/1-2} creates as pre-load file which is passed to the Prolog
-to WAM compiler \RefSP{pl2wam-description}. This is done by calling
-\texttt{write\_pre\_load\_file/1} \RefSP{write-pre-load-file/1}.
+\SPart{Implicit include file}: due to separate compilation
+\texttt{consult/1-2} creates an include file which is passed to the
+Prolog to WAM compiler \RefSP{pl2wam-description}. This is done by
+calling \texttt{write\_default\_include\_file/1}
+\RefSP{write-default-include-file/1}.
 
 \SPart{Shebang support}: since version 1.4.0, with the introduction of
 \Idx{shebang support}, \texttt{consult/1} ignores the first line of a Prolog
@@ -8119,21 +8123,22 @@ pathname but does not correspond to an existing source}
 
 GNU Prolog predicates.
 
-\subsubsection{\IdxPBD{write\_pre\_load\_file/1}}\label{write-pre-load-file/1}
+\subsubsection{\IdxPBD{write\_default\_include\_file/1}}\label{write-default-include-file/1}
 
 \begin{TemplatesOneCol}
-write\_pre\_load\_file(+source\_sink)
+write\_default\_include\_file(+source\_sink)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{write\_pre\_load\_file(FileName)} writes onto \texttt{FileName}
-relevant information influencing the parsing of a term
-\RefSP{Term-input/output} or its expansion \RefSP{Term-expansion}. This
-allows a sub-process written in Prolog to first process this file in order to
-later process any Prolog term as would be done by the parent process. The
-following elements are saved in the \texttt{FileName}:
+\texttt{write\_default\_include\_file(FileName)} writes onto
+\texttt{FileName} relevant information influencing the parsing of a
+term \RefSP{Term-input/output} or its expansion
+\RefSP{Term-expansion}. This allows a sub-process written in Prolog to
+first process this file in order to later process any Prolog term as
+would be done by the parent process. The following elements are saved
+in the \texttt{FileName} using the \IdxDi{pragma/1} directive:
 
 \begin{itemize}
 
@@ -8146,9 +8151,8 @@ following elements are saved in the \texttt{FileName}:
   \IdxPF{suspicious\_warning}, \IdxPF{multifile\_warning} and
   \IdxPF{show\_information} \Idx{Prolog flag}s \RefSP{set-prolog-flag/2}.
 
-\item existing dynamic clauses defining \IdxPB{term\_expansion/2}.
-
 \end{itemize}
+
 \begin{PlErrors}
 
 \ErrCond{\texttt{FileName} is a variable}

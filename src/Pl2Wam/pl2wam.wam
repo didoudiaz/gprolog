@@ -51,7 +51,7 @@ predicate(pl2wam1/1,50,static,private,monofile,global,[
     put_value(y(1),1),
     call(emit_code_init/2),
     put_value(y(3),0),
-    call(compile_pre_load/1),
+    call(compile_list_include/1),
     put_value(y(4),0),
     call(compile_and_emit_file/1),
     call(emit_ensure_linked/0),
@@ -106,7 +106,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate(compile_pre_load/1,73,static,private,monofile,global,[
+predicate(compile_list_include/1,73,static,private,monofile,global,[
     try_me_else(1),
     allocate(1),
     put_value(x(0),1),
@@ -915,13 +915,13 @@ label(4),
     unify_variable(x(0)),
     unify_variable(x(1)),
     get_variable(y(1),2),
-    put_atom(pre_load_file,2),
+    put_atom(include_file,2),
     put_atom('',3),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(2),x(3)]),
     put_variable(y(2),2),
     call(cmd_line_arg1/3),
     cut(y(1)),
-    put_atom(pre_load_file,1),
+    put_atom(include_file,1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
     put_value(y(0),1),
@@ -952,11 +952,11 @@ label(1),
 
 
 predicate(cmd_line_arg1/3,331,static,private,monofile,global,[
-    try_me_else(52),
+    try_me_else(54),
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('-o',3),('--output',5),('--pre-load',7),('-W',9),('--wam-for-native',11),('-w',13),('--wam-for-byte-code',15),('--wam-comment',17),('--no-susp-warn',19),('--no-singl-warn',21),('--no-redef-error',23),('--foreign-only',25),('--no-call-c',27),('--no-inline',29),('--no-reorder',31),('--no-reg-opt',33),('--min-reg-opt',35),('--no-opt-last-subterm',37),('--fast-math',39),('--keep-void-inst',41),('--statistics',43),('--compile-msg',45),('--version',47),('-h',49),('--help',51)]),
+    switch_on_atom([('-o',3),('--output',5),('-i',7),('--include',9),('-W',11),('--wam-for-native',13),('-w',15),('--wam-for-byte-code',17),('--wam-comment',19),('--no-susp-warn',21),('--no-singl-warn',23),('--no-redef-error',25),('--foreign-only',27),('--no-call-c',29),('--no-inline',31),('--no-reorder',33),('--no-reg-opt',35),('--min-reg-opt',37),('--no-opt-last-subterm',39),('--fast-math',41),('--keep-void-inst',43),('--statistics',45),('--compile-msg',47),('--version',49),('-h',51),('--help',53)]),
 
 label(2),
     try_me_else(4),
@@ -989,31 +989,39 @@ label(6),
     retry_me_else(8),
 
 label(7),
-    allocate(1),
-    get_atom('--pre-load',0),
-    get_list(1),
-    unify_variable(x(0)),
-    unify_local_value(x(2)),
-    put_variable(y(0),1),
-    call(prolog_file_name/2),
-    put_atom(pre_load_file,0),
-    put_unsafe_value(y(0),1),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
-    deallocate,
-    proceed,
+    get_atom('-i',0),
+    put_atom('--include',0),
+    execute(cmd_line_arg1/3),
 
 label(8),
     retry_me_else(10),
 
 label(9),
-    get_atom('-W',0),
-    put_atom('--wam-for-native',0),
-    execute(cmd_line_arg1/3),
+    allocate(1),
+    get_atom('--include',0),
+    get_list(1),
+    unify_variable(x(0)),
+    unify_local_value(x(2)),
+    put_variable(y(0),1),
+    call(prolog_file_name/2),
+    put_atom(include_file,0),
+    put_unsafe_value(y(0),1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    deallocate,
+    proceed,
 
 label(10),
     retry_me_else(12),
 
 label(11),
+    get_atom('-W',0),
+    put_atom('--wam-for-native',0),
+    execute(cmd_line_arg1/3),
+
+label(12),
+    retry_me_else(14),
+
+label(13),
     get_atom('--wam-for-native',0),
     get_value(x(2),1),
     put_atom(native_code,0),
@@ -1021,18 +1029,18 @@ label(11),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
-label(12),
-    retry_me_else(14),
-
-label(13),
-    get_atom('-w',0),
-    put_atom('--wam-for-byte-code',0),
-    execute(cmd_line_arg1/3),
-
 label(14),
     retry_me_else(16),
 
 label(15),
+    get_atom('-w',0),
+    put_atom('--wam-for-byte-code',0),
+    execute(cmd_line_arg1/3),
+
+label(16),
+    retry_me_else(18),
+
+label(17),
     get_atom('--wam-for-byte-code',0),
     get_value(x(2),1),
     put_atom(native_code,0),
@@ -1046,10 +1054,10 @@ label(15),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
-label(16),
-    retry_me_else(18),
+label(18),
+    retry_me_else(20),
 
-label(17),
+label(19),
     get_atom('--wam-comment',0),
     get_list(1),
     unify_variable(x(1)),
@@ -1058,24 +1066,13 @@ label(17),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
-label(18),
-    retry_me_else(20),
-
-label(19),
-    get_atom('--no-susp-warn',0),
-    get_value(x(2),1),
-    put_atom(susp_warn,0),
-    put_atom(f,1),
-    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
-    proceed,
-
 label(20),
     retry_me_else(22),
 
 label(21),
-    get_atom('--no-singl-warn',0),
+    get_atom('--no-susp-warn',0),
     get_value(x(2),1),
-    put_atom(singl_warn,0),
+    put_atom(susp_warn,0),
     put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1084,9 +1081,9 @@ label(22),
     retry_me_else(24),
 
 label(23),
-    get_atom('--no-redef-error',0),
+    get_atom('--no-singl-warn',0),
     get_value(x(2),1),
-    put_atom(redef_error,0),
+    put_atom(singl_warn,0),
     put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1095,10 +1092,10 @@ label(24),
     retry_me_else(26),
 
 label(25),
-    get_atom('--foreign-only',0),
+    get_atom('--no-redef-error',0),
     get_value(x(2),1),
-    put_atom(foreign_only,0),
-    put_atom(t,1),
+    put_atom(redef_error,0),
+    put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1106,10 +1103,10 @@ label(26),
     retry_me_else(28),
 
 label(27),
-    get_atom('--no-call-c',0),
+    get_atom('--foreign-only',0),
     get_value(x(2),1),
-    put_atom(call_c,0),
-    put_atom(f,1),
+    put_atom(foreign_only,0),
+    put_atom(t,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1117,9 +1114,9 @@ label(28),
     retry_me_else(30),
 
 label(29),
-    get_atom('--no-inline',0),
+    get_atom('--no-call-c',0),
     get_value(x(2),1),
-    put_atom(inline,0),
+    put_atom(call_c,0),
     put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1128,9 +1125,9 @@ label(30),
     retry_me_else(32),
 
 label(31),
-    get_atom('--no-reorder',0),
+    get_atom('--no-inline',0),
     get_value(x(2),1),
-    put_atom(reorder,0),
+    put_atom(inline,0),
     put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1139,10 +1136,10 @@ label(32),
     retry_me_else(34),
 
 label(33),
-    get_atom('--no-reg-opt',0),
+    get_atom('--no-reorder',0),
     get_value(x(2),1),
-    put_atom(reg_opt,0),
-    put_integer(0,1),
+    put_atom(reorder,0),
+    put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1150,10 +1147,10 @@ label(34),
     retry_me_else(36),
 
 label(35),
-    get_atom('--min-reg-opt',0),
+    get_atom('--no-reg-opt',0),
     get_value(x(2),1),
     put_atom(reg_opt,0),
-    put_integer(1,1),
+    put_integer(0,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1161,10 +1158,10 @@ label(36),
     retry_me_else(38),
 
 label(37),
-    get_atom('--no-opt-last-subterm',0),
+    get_atom('--min-reg-opt',0),
     get_value(x(2),1),
-    put_atom(opt_last_subterm,0),
-    put_atom(f,1),
+    put_atom(reg_opt,0),
+    put_integer(1,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1172,10 +1169,10 @@ label(38),
     retry_me_else(40),
 
 label(39),
-    get_atom('--fast-math',0),
+    get_atom('--no-opt-last-subterm',0),
     get_value(x(2),1),
-    put_atom(fast_math,0),
-    put_atom(t,1),
+    put_atom(opt_last_subterm,0),
+    put_atom(f,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1183,9 +1180,9 @@ label(40),
     retry_me_else(42),
 
 label(41),
-    get_atom('--keep-void-inst',0),
+    get_atom('--fast-math',0),
     get_value(x(2),1),
-    put_atom(keep_void_inst,0),
+    put_atom(fast_math,0),
     put_atom(t,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1194,9 +1191,9 @@ label(42),
     retry_me_else(44),
 
 label(43),
-    get_atom('--statistics',0),
+    get_atom('--keep-void-inst',0),
     get_value(x(2),1),
-    put_atom(statistics,0),
+    put_atom(keep_void_inst,0),
     put_atom(t,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1205,9 +1202,9 @@ label(44),
     retry_me_else(46),
 
 label(45),
-    get_atom('--compile-msg',0),
+    get_atom('--statistics',0),
     get_value(x(2),1),
-    put_atom(compile_msg,0),
+    put_atom(statistics,0),
     put_atom(t,1),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
@@ -1216,6 +1213,17 @@ label(46),
     retry_me_else(48),
 
 label(47),
+    get_atom('--compile-msg',0),
+    get_value(x(2),1),
+    put_atom(compile_msg,0),
+    put_atom(t,1),
+    call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
+    proceed,
+
+label(48),
+    retry_me_else(50),
+
+label(49),
     allocate(0),
     get_atom('--version',0),
     get_value(x(2),1),
@@ -1223,24 +1231,24 @@ label(47),
     deallocate,
     execute(stop/0),
 
-label(48),
-    retry_me_else(50),
+label(50),
+    retry_me_else(52),
 
-label(49),
+label(51),
     get_atom('-h',0),
     put_atom('--help',0),
     execute(cmd_line_arg1/3),
 
-label(50),
+label(52),
     trust_me_else_fail,
 
-label(51),
+label(53),
     get_atom('--help',0),
     get_value(x(2),1),
     execute('$cmd_line_arg1/3_$aux3'/0),
 
-label(52),
-    retry_me_else(53),
+label(54),
+    retry_me_else(55),
     allocate(1),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -1257,7 +1265,7 @@ label(52),
     deallocate,
     execute(abandon_exec/0),
 
-label(53),
+label(55),
     trust_me_else_fail,
     allocate(1),
     get_variable(y(0),0),
@@ -1273,7 +1281,7 @@ label(53),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/1,435,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux4'/1,438,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1293,7 +1301,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,419,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux3'/0,422,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1362,7 +1370,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate(display_copying/0,449,static,private,monofile,global,[
+predicate(display_copying/0,452,static,private,monofile,global,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1403,35 +1411,35 @@ predicate(display_copying/0,449,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,465,static,private,monofile,global,[
+predicate(prolog_name/1,468,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,468,static,private,monofile,global,[
+predicate(prolog_version/1,471,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,471,static,private,monofile,global,[
+predicate(prolog_date/1,474,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,474,static,private,monofile,global,[
+predicate(prolog_copyright/1,477,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,482,static,private,monofile,global,[
+predicate(h/1,485,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  --pre-load FILE             include FILE before starting the compilation',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
+    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  -i FILE, --include FILE     include FILE at the beginning of the compilation',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
 
 label(2),
     try(6),
@@ -1483,7 +1491,7 @@ label(15),
     retry_me_else(17),
 
 label(16),
-    get_atom('  --pre-load FILE             include FILE before starting the compilation',0),
+    get_atom('  -i FILE, --include FILE     include FILE at the beginning of the compilation',0),
     proceed,
 
 label(17),
@@ -1620,7 +1628,7 @@ label(54),
     proceed]).
 
 
-predicate(go/0,514,static,private,monofile,global,[
+predicate(go/0,517,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1629,5 +1637,5 @@ predicate(go/0,514,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(518,user,[
+directive(521,user,[
     execute(go/0)]).

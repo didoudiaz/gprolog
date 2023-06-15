@@ -1,3 +1,8 @@
+2023-06-15  <daniel.diaz@univ-paris1.fr>
+
+	* rename gplc/pl2wam --pre-load option simply as --include
+	* add pragma directives to inform the compiler about term expansion
+
 2023-06-09  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #38: add more error detections in format/2-3
@@ -9,7 +14,7 @@
 
 2023-06-07  <daniel.diaz@univ-paris1.fr>
 
-	* add a consult/2 built-in (consult with options) to pass a pre-load file
+	* add a consult/2 built-in (consult with options)
 
 2023-06-05  <daniel.diaz@univ-paris1.fr>
 

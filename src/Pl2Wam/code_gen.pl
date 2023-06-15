@@ -479,7 +479,7 @@ gen_inline_pred('$get_cut_level', 1, [var(VarName, Info)], WamNext, WamNext) :-
 
 gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	cur_pred(Pred, N),
-	set_pred_info(need_cut_level, Pred, N),
+	set_pred_flag(need_cut_level, Pred, N),
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
 gen_inline_pred('$get_current_choice', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-

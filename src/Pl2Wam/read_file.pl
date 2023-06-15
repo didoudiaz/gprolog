@@ -155,7 +155,7 @@ read_file_init :-
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
 	g_assign(in_bytes, 0),
-	set_pred_info(pragma_load, term_expansion, 2).
+	set_pred_flag(pragma_load, term_expansion, 2).
 
 
 
@@ -261,14 +261,14 @@ read_predicate(Pred, N, LSrcCl) :-
 
 
 read_predicate_next(Pred, N, LSrcCl) :-
-	(test_pred_info(dyn, Pred, N) ; test_pred_info(multi, Pred, N)), !,
+	(test_pred_flag(dyn, Pred, N) ; test_pred_flag(multi, Pred, N)), !,
 	LSrcCl = [Where + _|_],
 	add_dyn_interf_clause(Pred, N, Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N),
 	fail.                              % backtrack to repeat of main loop
 
 read_predicate_next(Pred, N, LSrcCl) :-
-	test_pred_info(pub, Pred, N), !,
+	test_pred_flag(pub, Pred, N), !,
 	create_exe_clauses_for_pub_pred(LSrcCl).
 
 read_predicate_next(_, _, _).
@@ -285,13 +285,13 @@ read_predicate1(Pred, N, LSrcCl) :-
 	get_next_clause(Pred, N, SrcCl),
 	SrcCl = _ + Cl,
 	retractall(empty_dyn_pred(Pred, N, _)),
-	(   test_pred_info(discontig, Pred, N) ->
+	(   test_pred_flag(discontig, Pred, N) ->
 	    assertz(buff_discontig_clause(Pred, N, SrcCl)),
 	    define_predicate(Pred, N),
 	    fail                               % backtrack to read_predicate1
 	;   true
 	),
-	(   test_pred_info(def, Pred, N) ->
+	(   test_pred_flag(def, Pred, N) ->
 	    warn('discontiguous predicate ~q - clause ignored', [Pred / N]),
 	    fail                               % backtrack to read_predicate1
 	;   true
@@ -432,7 +432,7 @@ get_next_clause(Pred, N, SrcCl) :-
 	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
-	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), dcg_error(Err), any, 0, false),
+	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), expand_error(Err), any, 0, false),
 	    stream_line_column(Stream, Line, Col),
 	    (   Col = 1 ->
 	        L2 is Line - 1
@@ -503,14 +503,14 @@ get_next_clause2(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
 	display_singletons(SingNames, Pred / N),
-	(   test_pred_info(pragma_load, Pred, N) ->
+	(   test_pred_flag(pragma_load, Pred, N) ->
 	    assertz(Cl)
 	;   true
 	),
 	g_read(foreign_only, f),
- 	test_not_pred_info(pragma_dont_compile, Pred, N), !.
+ 	test_not_pred_flag(pragma_dont_compile, Pred, N), !.
 
-                                          % ignore clause with --foreign-only or if it has pragma_dont_compile
+		% ignore clause with --foreign-only or if it has pragma_dont_compile
 get_next_clause2(_, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
@@ -529,11 +529,11 @@ after_syn_error :-
 
 
 
-dcg_error(Err) :-
+expand_error(Err) :-
 	last_read_start_line_column(Line, _),
 	g_read(open_file_stack, OpenFileStack),
 	g_assign(where, OpenFileStack + (Line - Line)),
-	error('DCG error raised: ~w', [Err]).
+	error('term rewriting (DCG or term_expansion/2) raised exception: ~q', [Err]).
 
 
 
@@ -625,7 +625,7 @@ pp_handle_directive(endif) :-
 
 
 pp_exec_if_goal(Goal, PPStack, What) :-
-	(   '$catch'(Goal, Err, (warn('~a directive caused exception: ~w', [What, Err]), fail),
+	(   '$catch'(Goal, Err, (warn('~a directive raised exception: ~q', [What, Err]), fail),
 		     What, 1, false) ->
 	    g_assign(pp_stack, [pp(in_then, keep)|PPStack])
 	;   g_assign(pp_stack, [pp(in_then, ignore)|PPStack])
@@ -656,7 +656,11 @@ pp_stop :-
 
 handle_directive(D, Where) :-
 	D =.. [DName|DLst],	% to handle include(a/1, b/2, c/3) and include([a/1, b/2, c/3]) as lists
-	handle_directive(DName, DLst, Where).
+	handle_directive(DName, DLst, Where), !.
+
+handle_directive(D, _) :-
+	warn('invalid directive is ignored: ~q', [D]).
+
 
 
 
@@ -683,20 +687,29 @@ handle_directive(discontiguous, DLst, _) :-
 	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, discontig).
 
-handle_directive(pragma_execute, [Goal], _) :-
+handle_directive(pragma, [Pragma], _) :-
+	!,
+	check_callable(Pragma, 'pragma directive'),
+	handle_pragma(Pragma).
+
+	/* begin pragma directives (for setting compilation environment and for term expansion) */
+
+handle_pragma(execute(Goal)) :-
 	!,
 	exec_directive(Goal).
 
-handle_directive(pragma_load, DLst, _) :-
+handle_pragma(load_and_compile(DLst)) :-
 	!,
 	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, pragma_load).
 
-handle_directive(pragma_load_only, DLst, _) :-
+handle_pragma(load(DLst)) :-
 	!,
 	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, pragma_load),
 	set_flag_for_preds(DLst, pragma_dont_compile).
+
+	/* end pragma directives */
 
 handle_directive(built_in, DLst, _) :-
 	!,
@@ -787,7 +800,7 @@ handle_directive(meta_predicate, [MetaDecl], Where) :-
 	    set_flag_for_preds('$prop_meta_pred'/3, multi),
 	    assertz(buff_discontig_clause('$prop_meta_pred', 3, Where+'$prop_meta_pred'(Pred, N, MetaDecl)))
 	;
-	    error('invalide directive meta_predicate/1 ~w', [MetaDecl])
+	    error('invalide directive meta_predicate/1 ~q', [MetaDecl])
 	).
 
 handle_directive(foreign, [Template], Where) :-
@@ -803,7 +816,7 @@ handle_directive(foreign, [Template, Options], Where) :-
 	callable(Template),
 	list(Options),
 	functor(Template, Pred, N),
-	(   test_pred_info(pub, Pred, N) ->
+	(   test_pred_flag(pub, Pred, N) ->
 	    error('foreign predicate ~q should not be public/dynamic', [Pred/N])
 	;   true),
 	define_predicate(Pred, N),
@@ -909,13 +922,6 @@ foreign_check_arg(term).
 
 
 
-handle_directive(DName, LArgs, _) :-
-	length(LArgs, N),
-	warn('unknown or invalid directive ~q - maybe use initialization/1 - directive ignored', [DName / N]).
-
-
-
-
 handle_initialization(system, Body, Where) :-
 	assertz(buff_exe_system(Where + Body)).
 
@@ -933,7 +939,7 @@ exec_directive(Goal) :-
 	warn('directive goal failed (~q)', [Goal]).
 
 exec_directive_exception(Goal, Err) :-
-	warn('directive goal failed (~q) with exception (~q)', [Goal, Err]).
+	warn('directive goal failed (~q): raised exception ~q', [Goal, Err]).
 
 
 
@@ -997,11 +1003,11 @@ add_module_export_info((P1, P2), Module) :-
 
 add_module_export_info(Pred / N, _) :-
 	clause(module_export(Pred, N, Module1), true), !,
-	error('predicate ~w already exported from module ~w', [Pred/N, Module1]).
+	error('predicate ~q already exported from module ~q', [Pred/N, Module1]).
 
 add_module_export_info(Pred / N, Module) :-
 	assertz(module_export(Pred, N, Module)),
-	(   test_pred_info(def, Pred, N) ->
+	(   test_pred_flag(def, Pred, N) ->
 	    check_module_clash(Pred, N)
 	;   true
 	).
@@ -1079,7 +1085,8 @@ check_module_name(Module, _) :-
 
 check_head_is_module_free(Module:Head) :-
 	!,
-	error('module qualification is not allowed for the head of a clause (~w)', [Module:Head]).
+	error('module qualification is not allowed for the head of a clause (~q)',
+	      [Module:Head]).
 
 check_head_is_module_free(_).
 
@@ -1090,7 +1097,7 @@ check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for 
 	clause(module_export(Pred, N, Module), true), !,
 	g_read(module, Module1),
 	Module \== Module1, !,
-	error('clash on ~q - defined in module ~q (here) and imported from ~w',
+	error('clash on ~q - defined in module ~q (here) and imported from ~q',
 	      [Pred / N, Module1, Module]).
 
 check_module_clash(_, _).
@@ -1114,9 +1121,9 @@ is_exported(Pred, N) :-
 
 get_module_of_cur_pred(Module) :-
 	cur_pred(Pred, N),
-	(   test_pred_info(bpl, Pred, N) ->
+	(   test_pred_flag(bpl, Pred, N) ->
 	    Module = system
-	;   test_pred_info(bfd, Pred, N) ->
+	;   test_pred_flag(bfd, Pred, N) ->
 	    Module = system
 	;   g_read(module, Module)
 	).
@@ -1140,34 +1147,34 @@ set_flag_for_preds((P1, P2), Flag) :-
 set_flag_for_preds(Pred / N, Flag) :-
 	atom(Pred),
 	integer(N),
-	(   test_pred_info(def, Pred, N) ->
+	(   test_pred_flag(def, Pred, N) ->
 	    warn('directive occurs after definition of ~q - directive ignored', [Pred / N])
 	;   (   Flag = bpl,
-	        unset_pred_info(bfd, Pred, N)
+	        unset_pred_flag(bfd, Pred, N)
 	    ;   Flag = bfd,
-	        unset_pred_info(bpl, Pred, N)
+	        unset_pred_flag(bpl, Pred, N)
 	    ;   true
 	    ), !,
-	    set_pred_info(Flag, Pred, N)
+	    set_pred_flag(Flag, Pred, N)
 	).
 
 
 
 
 define_predicate(F, N) :-
-	set_pred_info(def, F, N),
-	test_pred_info(bpl, F, N), !.
+	set_pred_flag(def, F, N),
+	test_pred_flag(bpl, F, N), !.
 
 define_predicate(F, N) :-
-	test_pred_info(bfd, F, N), !.
+	test_pred_flag(bfd, F, N), !.
 
 define_predicate(F, N) :-
 	g_read(default_kind, built_in), !,
-	set_pred_info(bpl, F, N).
+	set_pred_flag(bpl, F, N).
 
 define_predicate(F, N) :-
 	g_read(default_kind, built_in_fd), !,
-	set_pred_info(bfd, F, N).
+	set_pred_flag(bfd, F, N).
 
 define_predicate(_, _).
 
@@ -1189,7 +1196,7 @@ flag_bit(pragma_dont_compile, 10).
 
 
 /* Version with assert/retract */
-set_pred_info(Flag, F, N) :-
+set_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	(   retract(pred_info(F, N, InfoMask)), !
 	;   InfoMask = 0
@@ -1200,18 +1207,18 @@ set_pred_info(Flag, F, N) :-
 
 
 
-unset_pred_info(Flag, F, N) :-
+unset_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	retract(pred_info(F, N, InfoMask)), !,
 	InfoMask1 is InfoMask /\ \ (1 << Bit),
 	assertz(pred_info(F, N, InfoMask1)).
 
-unset_pred_info(_, _, _).
+unset_pred_flag(_, _, _).
 
 
 
 
-test_pred_info(Flag, F, N) :-
+test_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, InfoMask), _), !,
 	InfoMask /\ 1 << Bit > 0.
@@ -1219,18 +1226,18 @@ test_pred_info(Flag, F, N) :-
 
 
 
-test_not_pred_info(Flag, F, N) :-
+test_not_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	clause(pred_info(F, N, InfoMask), _), !,
 	InfoMask /\ 1 << Bit =:= 0.
 
-test_not_pred_info(_, _, _).	% succeeds if not clause defined for F/N
+test_not_pred_flag(_, _, _).	% succeeds if not clause defined for F/N
 
 
 
 
 /* Alternative version with g_assign (same speed) but would need a reset (like retractall)
-set_pred_info(Flag, F, N) :-
+set_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),
 	g_read(Key, InfoMask),
@@ -1240,7 +1247,7 @@ set_pred_info(Flag, F, N) :-
 
 
 
-unset_pred_info(Flag, F, N) :-
+unset_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),
 	g_read(Key, InfoMask),
@@ -1250,7 +1257,7 @@ unset_pred_info(Flag, F, N) :-
 
 
 
-test_pred_info(Flag, F, N) :-
+test_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),
 	g_read(Key, InfoMask),
@@ -1259,7 +1266,7 @@ test_pred_info(Flag, F, N) :-
 
 
    
-test_not_pred_info(Flag, F, N) :-
+test_not_pred_flag(Flag, F, N) :-
 	flag_bit(Flag, Bit),
 	f_n_to_key(F, N, Key),
 	g_read(Key, InfoMask),

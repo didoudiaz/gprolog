@@ -114,7 +114,7 @@ consult(File, Options) :-
 '$get_consult_options2'(quiet, Pl2WamArgs, Pl2WamArgs) :-
 	'$sys_var_set_bit'(0, 0).
 
-'$get_consult_options2'(pre_load(X), Pl2WamArgs, ['--pre-load', X|Pl2WamArgs]) :-
+'$get_consult_options2'(include(X), Pl2WamArgs, ['--include', X|Pl2WamArgs]) :-
 	'$check_nonvar'(X),
 	atom(X).
 
@@ -155,17 +155,17 @@ consult(File, Options) :-
 	PipedConsult = piped,	% can be spawn, exec (Prolog) or piped (see consult_c.c)
 	temporary_file('', gplc, TmpFile),
 	atom_concat(TmpFile, '.wbc', TmpByteCodeFile),
-	atom_concat(TmpFile, '.pl', TmpPreLoadFile),
-	'$create_pre_load_file'(PipedConsult, TmpPreLoadFile),
-	Pl2WamArgs = ['-w', File2, '--pre-load', TmpPreLoadFile, '-o', TmpByteCodeFile|Pl2WamArgs1],
-%	Pl2WamArgs = ['-w', File2, '-o', TmpByteCodeFile|Pl2WamArgs1], % without pre-load (for debug)
+	atom_concat(TmpFile, '.pl', TmpIncludeFile),
+	'$create_include_file'(PipedConsult, TmpIncludeFile),
+%	Pl2WamArgs = ['-w', File2, '--include', TmpIncludeFile, '-o', TmpByteCodeFile|Pl2WamArgs1],
+	Pl2WamArgs = ['-w', File2, '-o', TmpByteCodeFile|Pl2WamArgs1], % without --include (for debug)
 	set_bip_name(consult, Arity),	
 	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
 	    '$load_file'(TmpByteCodeFile),
 	    unlink(TmpByteCodeFile),
-	    unlink(TmpPreLoadFile)
+	    unlink(TmpIncludeFile)
 	;   unlink(TmpByteCodeFile),
-	    unlink(TmpPreLoadFile),
+	    unlink(TmpIncludeFile),
 	    format(top_level_output, 'compilation failed~n', []),
 	    fail
 	).
@@ -173,24 +173,25 @@ consult(File, Options) :-
 
 
 
-'$create_pre_load_file'(piped, PreLoadFile) :-
+'$create_include_file'(piped, IncludeFile) :-
 	!,
 	'$sys_var_read'(20, Say_GetC), 
 	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
-	write_pre_load_file(PreLoadFile),
+	write_default_include_file(IncludeFile),
 	'$sys_var_write'(20, Say_GetC).
 
-'$create_pre_load_file'(_, PreLoadFile) :-
-	write_pre_load_file(PreLoadFile).
+'$create_include_file'(_, IncludeFile) :-
+	write_default_include_file(IncludeFile).
 
 
 
 
-write_pre_load_file(PreLoadFile) :-
-	set_bip_name(write_pre_load_file, 1),
-	'$open'(PreLoadFile, write, S, []),
+write_default_include_file(IncludeFile) :-
+	set_bip_name(write_default_include_file, 1),
+	'$prolog_file_name'(IncludeFile, PlFile),
+	'$open'(PlFile, write, S, []),
 	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
-	    '$write_pre_load_goal'(S, op(Prior, Prec, LOp)),
+	    '$write_include_goal'(S, op(Prior, Prec, LOp)),
 	    fail
 	;
 	    true
@@ -199,32 +200,35 @@ write_pre_load_file(PreLoadFile) :-
 		  suspicious_warning, multifile_warning, strict_iso, show_information],
 	(   member(Flag, LFlags),
 	    current_prolog_flag(Flag, FlagValue),
-	    '$write_pre_load_goal'(S, set_prolog_flag(Flag, FlagValue)),
+	    '$write_include_goal'(S, set_prolog_flag(Flag, FlagValue)),
 	    fail
 	;
 	    true
 	),
 	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
-	'$write_pre_load_goal'(S, '$sys_var_write'(20, SysVar)),
+	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)),
 	(   current_char_conversion(Ch1,Ch2),
-	    '$write_pre_load_goal'(S, char_conversion(Ch1, Ch2)),
+	    '$write_include_goal'(S, char_conversion(Ch1, Ch2)),
 	    fail
 	;
 	    true
 	),
+	/*
 	(   TermHead = term_expansion(_, _),
+	    format(S, ':- pragma(load(term_expansion/2)).~n', []),
 	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
 	;
 	    true
 	),
+	*/
 	close(S),
 	fail.			% GC
 
-write_pre_load_file(_).
+write_default_include_file(_).
 
 
-'$write_pre_load_goal'(S, Goal) :-
-	portray_clause(S, (:- initialization(Goal))).
+'$write_include_goal'(S, Goal) :-
+	portray_clause(S, (:- pragma(execute(Goal)))).
 
 
 
