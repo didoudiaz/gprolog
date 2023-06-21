@@ -6,10 +6,7 @@ Change in GNU Prolog version 1.6.0
   - remove built_in predicates read_pl_state_file_file/1 and write_pl_state_file_file/1
   - add new built-in predicate write_default_include_file/1 (used by consult/1)
   - add new built-in predicate consult/2 to pass options (with option include(File))
-  new pragma/1 directive (to help pl2wam) whose argument can be:
-  - load(Pred): predicate is loaded into pl2wam (asserted) and then ignored
-  - load_and_compile(Pred): as load(Pred) but the predicate is also compiled and emitted
-  - execute(Goal): the Goal is immediately executed  
+  - new compiler_mode/1 directive to control the compiler environment.
 * fix issue #38: add more error detections in format/2-3
 * fix issue #39: bug in conditional compilation directives
 * fix issue #37: bug in format/2-3

@@ -146,7 +146,54 @@ only invoke the monofile wrapper predicate).
 
 \Portability
 
-ISO directive. 
+ISO directive.
+
+\subsubsection{\IdxDiD{compiler\_mode/1}}
+
+\begin{TemplatesOneCol}
+compiler\_mode(+atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{compiler\_mode(Mode)} changes the Prolog to WAM compiler (\IdxK{pl2wam})
+processing mode. In its \emph{default} behavior, the compiler simply compiles
+the Prolog code without loading it into its internal environment (compiler
+environment). Only a few directives are also executed (like \texttt{op/3} to
+update the compiler operator table and enable terms using this operator to be
+read).  The \texttt{compiler\_mode/1} directive is provided to allow the
+compiler environment to be explicitly updated with predicate definitions (which
+are asserted) and/or directives (which are immediately executed) -- this is the
+\emph{embed} mode. \texttt{Mode} can be:
+
+
+\begin{itemize}
+\item \IdxCMD{default}: predicate definitions are not embeded into the
+  compiler. They are compiled (their corresponding code is emitted onto the
+  output file). The only exception is \IdxPB{term\_expansion/2} which is both
+  embeded and compiled (as when using \texttt{embed\_compile}). Directives are
+  also compiled (thus will be present at run-time). However, the following
+  directives influencing the reading of a term are also immediately executed by
+  the compiler (embeded): \IdxDi{op/3}, \IdxDi{char\_conversion/2} and
+  \IdxDi{set\_prolog\_flag/2}.
+  
+\item \IdxCMD{embed}: in this mode, everything is exclusively embeded: read
+  clauses are immediately asserted (as dynamic code) and the above directives
+  are immediately executed (and not reflected in the generated code). The
+  \IdxDi{intialization/1} directive is thus immediately executed by the compiler
+  (and does not give rise to any code in the generated code).
+  
+\item \IdxCMD{compile}: this is the opposite of \texttt{embed}: everything is
+  exclusively compiled and nothing is added to the current compiler environment.
+  
+\item \IdxCMD{embed\_compile}: this mode is cumulative: everything is first
+  embeded and then compiled.
+\end{itemize}  
+
+\Portability
+
+GNU Prolog directive.
 
 \subsubsection{\IdxDiD{ensure\_linked/1}}
 
@@ -384,41 +431,6 @@ prototype is \texttt{Template} according to the options given by
 \RefSP{Calling-C-from-Prolog}.
 
 \texttt{foreign(Template)} is equivalent to \texttt{foreign(Template, [])}.
-
-\Portability
-
-GNU Prolog directive.
-
-\subsubsection{\IdxDiD{pragma/1}}
-
-\begin{TemplatesOneCol}
-pragma(+callable\_term)\\
-\end{TemplatesOneCol}
-
-\Description
-
-\texttt{pragma(Pragma)} is a directive allowing to control the Prolog
-to WAM compiler (\IdxK{pl2wam}) internal state (compiler
-environment). Possible pragmas are:
-
-\begin{itemize}
-
-\item \texttt{load(PI)}: loads the predicate identified par the
-  predicate indicator \texttt{PI} into \texttt{pl2wam} (asserted). The
-  predicate is then ignored (not compiled). \texttt{PI} can be a list
-  or a sequence of predicate indicators (as in
-  \texttt{discontiguous/1} directive).
-
-\item \texttt{load\_and\_compile(PI)}: similar to \texttt{load(PI)} but
-  the predicate is then compiled and emitted.
-
-\item \texttt{execute(Goal)}: immediately executes \texttt{Goal}.
-
-\end{itemize}
-
-By default, a \texttt{pragma(load{term\_expansion/2})} is defined,
-i.e. all clauses defining \IdxPB{term\_expansion/2} are loaded in the
-internal state of the compiler.
 
 \Portability
 

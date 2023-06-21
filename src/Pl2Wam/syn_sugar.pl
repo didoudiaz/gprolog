@@ -204,7 +204,7 @@ normalize_cuts1((P, Q), CutVar, (P1, Q1), HasCut) :-
 	normalize_cuts1(Q, CutVar, Q1, HasCut).
 
 normalize_cuts1(Module:G, CutVar, Body, HasCut) :-
-	check_module_name(Module, true),
+	check_module_name(Module, t),
 	normalize_cuts1(G, CutVar, G1, HasCut),
 	distrib_module_qualif(G1, Module, G2),
 	(   G2 = M2:_, var(M2) ->
@@ -266,7 +266,7 @@ distrib_module_qualif((P , Q), M, (P1 , Q1)) :-
 
 distrib_module_qualif(M:G, _, G1) :-
 	!,
-	check_module_name(M, true),
+	check_module_name(M, t),
 	distrib_module_qualif(G, M, G1).
 
 distrib_module_qualif(!, _, !) :-
@@ -277,7 +277,7 @@ distrib_module_qualif(P, M, M:P).
 distrib_module_qualif_goal(G, _, G) :-
 	nonvar(G),
 	G = M:_, !,		% already qualifed with a module
-	check_module_name(M, true).
+	check_module_name(M, t).
 
 distrib_module_qualif_goal(G, M, M:G).
 

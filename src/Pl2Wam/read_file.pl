@@ -155,7 +155,8 @@ read_file_init :-
 	g_assign(syn_error_nb, 0),
 	g_assign(in_lines, 0),
 	g_assign(in_bytes, 0),
-	set_pred_flag(pragma_load, term_expansion, 2).
+	g_assign(compiler_mode, default),
+	set_pred_flag(dyn, term_expansion, 2).
 
 
 
@@ -396,7 +397,7 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
 	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	handle_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
+	record_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
 
@@ -406,8 +407,10 @@ create_exe_clauses_for_pub_pred([]).
 
 create_exe_clauses_for_pub_pred([Where + Cl|LSrcCl]) :-
 	get_file_name(Where, PlFile),
-	handle_initialization(system, '$add_clause_term'(Cl, PlFile), Where),
+	record_initialization(system, '$add_clause_term'(Cl, PlFile), Where),
 	create_exe_clauses_for_pub_pred(LSrcCl).
+
+
 
 
 get_file_name([of(PlFile, _, _)|_] + _, PlFile).
@@ -432,7 +435,7 @@ get_next_clause(Pred, N, SrcCl) :-
 	'$catch'(read_term(Stream, Cl, [singletons(SingNames)]), error(syntax_error(Err), _), after_syn_error, any, 0, false),
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
-	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), expand_error(Err), any, 0, false),
+	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), expand_error(Err, Cl, Cl1), any, 0, false),
 	    stream_line_column(Stream, Line, Col),
 	    (   Col = 1 ->
 	        L2 is Line - 1
@@ -483,7 +486,7 @@ get_next_clause2(T, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
 get_next_clause2((:- D), Where, SingNames, Pred, N, SrcCl) :- % other directives than pp
-	display_singletons(SingNames, directive),
+	display_singletons(SingNames),
 	(   g_read(foreign_only, f)
 	;   functor(D, foreign, _)
 	),
@@ -502,15 +505,11 @@ get_next_clause2(Cl, Where, SingNames, Pred, N, Where + Cl) :-
 	functor(Head, Pred, N),
 	check_module_clash(Pred, N),
 	check_predicate(Pred, N),
-	display_singletons(SingNames, Pred / N),
-	(   test_pred_flag(pragma_load, Pred, N) ->
-	    assertz(Cl)
-	;   true
-	),
-	g_read(foreign_only, f),
- 	test_not_pred_flag(pragma_dont_compile, Pred, N), !.
+	display_singletons(SingNames),
+	g_read(foreign_only, f),	    % fail if --foreign-only
+	embed_clause(Pred, N, Cl), !.    % fail if embed only (no compiled)
 
-		% ignore clause with --foreign-only or if it has pragma_dont_compile
+		% ignore clause with --foreign-only or if embed only
 get_next_clause2(_, _, _, Pred, N, SrcCl) :-
 	get_next_clause(Pred, N, SrcCl).
 
@@ -529,24 +528,27 @@ after_syn_error :-
 
 
 
-expand_error(Err) :-
+expand_error(existence_error(procedure,'$expand_term1'/3), Cl, Cl) :-
+	!. 	% when bootstrapped with an old version of gprolog not having '$expand_term1'
+
+expand_error(Err, Cl, Cl) :-
 	last_read_start_line_column(Line, _),
 	g_read(open_file_stack, OpenFileStack),
 	g_assign(where, OpenFileStack + (Line - Line)),
-	error('term rewriting (DCG or term_expansion/2) raised exception: ~q', [Err]).
+	warn('term rewriting (DCG or term_expansion/2) raised exception: ~q', [Err]).
 
 
 
 
-display_singletons(SingNames, PI) :-
+display_singletons(SingNames) :-
 	g_read(singl_warn, t), !,
 	get_singletons(SingNames, Sing),
 	(   Sing = [] ->
 	    true
-	;   warn('singleton variables ~w for ~q', [Sing, PI])
+	;   warn('singleton variables ~w', [Sing])
 	).
 
-display_singletons(_, _).
+display_singletons(_).
 
 
 
@@ -687,29 +689,13 @@ handle_directive(discontiguous, DLst, _) :-
 	check_pi_list(DLst, f),
 	set_flag_for_preds(DLst, discontig).
 
-handle_directive(pragma, [Pragma], _) :-
+handle_directive(compiler_mode, [CompMode], _) :-
 	!,
-	check_callable(Pragma, 'pragma directive'),
-	handle_pragma(Pragma).
-
-	/* begin pragma directives (for setting compilation environment and for term expansion) */
-
-handle_pragma(execute(Goal)) :-
-	!,
-	exec_directive(Goal).
-
-handle_pragma(load_and_compile(DLst)) :-
-	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, pragma_load).
-
-handle_pragma(load(DLst)) :-
-	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, pragma_load),
-	set_flag_for_preds(DLst, pragma_dont_compile).
-
-	/* end pragma directives */
+	(   memberchk(CompMode, [default, embed, compile]),
+	    g_assign(compiler_mode, CompMode)
+	;   memberchk(CompMode, [embed_compile, both, embed+compile, compile+embed]),
+	    g_assign(compiler_mode, embed_compile)
+	), !.
 
 handle_directive(built_in, DLst, _) :-
 	!,
@@ -752,26 +738,23 @@ handle_directive(include, [PlFile], Where) :-
 
 handle_directive(op, [X, Y, Z], Where) :-
 	!,
-	exec_directive(op(X, Y, Z)),
-	handle_initialization(system, op(X, Y, Z), Where).
+	handle_init_directive(op(X, Y, Z), system, Where).
 
 handle_directive(char_conversion, [X, Y], Where) :-
 	!,
-	exec_directive(char_conversion(X, Y)),
-	handle_initialization(system, char_conversion(X, Y), Where).
+	handle_init_directive(char_conversion(X, Y), system, Where).
 
 handle_directive(set_prolog_flag, [X, Y], Where) :-
 	!,
-	exec_directive(set_prolog_flag(X, Y)),
+	handle_init_directive(set_prolog_flag(X, Y), system, Where),
 	(   current_prolog_flag(singleton_warning, off) ->
 	    g_assign(singl_warn, f)
 	;   g_assign(singl_warn, t)
-	),
-	handle_initialization(system, set_prolog_flag(X, Y), Where).
+	).
 
-handle_directive(initialization, [Body], Where) :-
+handle_directive(initialization, [Goal], Where) :-
 	!,
-	handle_initialization(user, Body, Where).
+	handle_init_directive(Goal, user, Where).
 
 handle_directive(module, [Module, DLst], _) :-
 	!,
@@ -922,11 +905,48 @@ foreign_check_arg(term).
 
 
 
-handle_initialization(system, Body, Where) :-
-	assertz(buff_exe_system(Where + Body)).
+embed_clause(Pred, N, Cl) :-
+	g_read(compiler_mode, CompMode),
+	(   CompMode = default, Pred = term_expansion, N = 2
+	;   CompMode = embed
+	;   CompMode = embed_compile
+	), !,
+	(   test_pred_flag(embed, Pred, N) ->
+	    true
+	;   set_pred_flag(embed, Pred, N),
+	    functor(Head, Pred, N),
+	    retractall(Head)	% reinit when pl2wam executed under top-level
+	),
+	assertz(Cl),
+	CompMode \== embed.	% fail if embed only (do not compile)
 
-handle_initialization(user, Body, Where) :-
-	assertz(buff_exe_user(Where + Body)).
+embed_clause(_, _, _).
+
+
+
+
+handle_init_directive(Goal, SystemUser, Where) :-
+	embed_directive(Goal, SystemUser), !, % fail if embed only
+	record_initialization(SystemUser, Goal, Where).
+
+handle_init_directive(_, _, _).
+	
+
+
+embed_directive(Goal, SystemUser) :-
+	g_read(compiler_mode, CompMode),
+	(   CompMode = default, SystemUser = system
+	;   CompMode = embed
+	;   CompMode = embed_compile
+	), !,
+	exec_directive(Goal),
+	(   current_prolog_flag(singleton_warning, off) -> % in case of :- set_prolog_flag
+	    g_assign(singl_warn, f)
+	;   g_assign(singl_warn, t)
+	),
+	CompMode \== embed.	% fail if embed only (do not compile)
+
+embed_directive(_, _).
 
 
 
@@ -938,12 +958,22 @@ exec_directive(Goal) :-
 exec_directive(Goal) :-
 	warn('directive goal failed (~q)', [Goal]).
 
+
 exec_directive_exception(Goal, Err) :-
 	warn('directive goal failed (~q): raised exception ~q', [Goal, Err]).
 
 
 
 
+record_initialization(system, Body, Where) :-
+	assertz(buff_exe_system(Where + Body)).
+
+record_initialization(user, Body, Where) :-
+	assertz(buff_exe_user(Where + Body)).
+
+
+
+	
 add_empty_dyn([], _) :-
 	!.
 
@@ -1145,18 +1175,32 @@ set_flag_for_preds((P1, P2), Flag) :-
 	set_flag_for_preds(P2, Flag).
 
 set_flag_for_preds(Pred / N, Flag) :-
-	atom(Pred),
-	integer(N),
-	(   test_pred_flag(def, Pred, N) ->
-	    warn('directive occurs after definition of ~q - directive ignored', [Pred / N])
-	;   (   Flag = bpl,
-	        unset_pred_flag(bfd, Pred, N)
-	    ;   Flag = bfd,
-	        unset_pred_flag(bpl, Pred, N)
-	    ;   true
-	    ), !,
-	    set_pred_flag(Flag, Pred, N)
-	).
+	set_flag_for_preds1(Flag, Pred, N).
+	
+
+set_flag_for_preds1(_, Pred, N) :-
+	test_pred_flag(def, Pred, N), !,
+	warn('directive occurs after definition of ~q - directive ignored',
+	     [Pred / N]).
+
+set_flag_for_preds1(-Flag, Pred, N) :-
+	!,
+	unset_pred_flag(Flag, Pred, N).
+
+set_flag_for_preds1(bpl, Pred, N) :-
+	unset_pred_flag(bfd, Pred, N),
+	fail.
+
+set_flag_for_preds1(bfd, Pred, N) :-
+	unset_pred_flag(bpl, Pred, N),
+	fail.
+
+set_flag_for_preds1(bfd, Pred, N) :-
+	unset_pred_flag(bpl, Pred, N),
+	fail.
+
+set_flag_for_preds1(Flag, Pred, N) :-
+	set_pred_flag(Flag, Pred, N).
 
 
 
@@ -1190,8 +1234,8 @@ flag_bit(discontig, 5).
 flag_bit(need_cut_level, 6).
 flag_bit(meta, 7).
 flag_bit(multi, 8).
-flag_bit(pragma_load, 9).
-flag_bit(pragma_dont_compile, 10).
+flag_bit(embed, 9).
+
 
 
 

@@ -1,4 +1,8 @@
-2023-06-15  <daniel.diaz@univ-paris1.fr>
+2023-06-20  <daniel.diaz@univ-paris1.fr>
+
+	* replace previous pragma directives by the unique compiler_mode/1 directive.
+
+ 2023-06-15  <daniel.diaz@univ-paris1.fr>
 
 	* rename gplc/pl2wam --pre-load option simply as --include
 	* add pragma directives to inform the compiler about term expansion

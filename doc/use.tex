@@ -1129,21 +1129,21 @@ substitution in \Param{FILE}:
 \SPart{The Prolog to WAM compiler (\texttt{pl2wam})}\label{pl2wam-description}
 
 The \IdxKD{pl2wam} (sub)compiler translates a Prolog program into WAM code
-intended to produce either native code or byte-code. It is written in GNU
-Prolog and bootstrapped to produce a native executable that can be invoked
-from the command line (e.g. by \texttt{gplc}). Currently, the Prolog file is
-read and compiled, \emph{but not loaded} into the compiler (this may change
-in the future). Exceptions are a few directives such as \IdxDi{op/3},
-\IdxDi{char\_conversion/2} which are executed by \texttt{pl2wam}. Since
-version 1.6.0, GNU prolog supports \IdxPB{term\_expansion/2}. This mechanism
-may require the execution of user code during compilation. This can be
-controlled via \IdxDi{pragma/1} directives. This user code can be part of the
-Prolog file to compile (directly or via a \IdxDi{include/1} directive) or can
-be given in a separate file and passed to the compiler with the
-\texttt{--include} option. An include file is a Prolog text which is included
-by the compiler when started (as by the \IdxDi{include/1} directive). Several
-\texttt{--include} options can be provided, they are considered in order of
-apparition.
+intended to produce either native code or byte-code. It is written in GNU Prolog
+and bootstrapped to produce a native executable that can be invoked from the
+command line (e.g. by \texttt{gplc}). Currently, the Prolog file is read and
+compiled, \emph{but not loaded} into the compiler (this may change in the
+future). Exceptions are a few directives such as \IdxDi{op/3},
+\IdxDi{char\_conversion/2} which are executed by \texttt{pl2wam}. Since version
+1.6.0, GNU prolog supports \IdxPB{term\_expansion/2}. This mechanism may require
+the execution of user Prolog code during compilation. For this, the code must be
+declared as \Idx{embeded} via the \IdxDi{compiler\_mode/1} directive. This user
+code can be part of the Prolog file to compile (directly or via a
+\IdxDi{include/1} directive) or can be given in a separate file and passed to
+the compiler with the \texttt{--include} option. An include file is a Prolog
+text which is included by the compiler when started (as by the \IdxDi{include/1}
+directive). Several \texttt{--include} options can be provided, they are
+considered in order of apparition.
 
 By default, \texttt{pl2wam} runs in the native-code compilation scheme. To
 generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}

@@ -442,7 +442,7 @@ term \texttt{T} which is a renamed copy of \texttt{Term1}.
 ISO predicate.
 
 \subsubsection{\IdxPBD{term\_variables/2},
-		\IdxPBD{term\_variables/3}}
+               \IdxPBD{term\_variables/3}}
 
 \label{term_variables/2-3}
 
@@ -2900,7 +2900,7 @@ by character until the required position is reached.
 GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{set\_stream\_alias/2}, \label{set-stream-alias/2}
-		\IdxPBD{add\_stream\_alias/2}}
+               \IdxPBD{add\_stream\_alias/2}}
 
 \begin{TemplatesOneCol}
 set\_stream\_alias(+stream\_or\_alias, +atom)\\
@@ -3527,7 +3527,7 @@ ISO predicates.
 
 \subsubsection{\IdxPBD{get\_key/2},
                \IdxPBD{get\_key/1}
-	       \IdxPBD{get\_key\_no\_echo/2},
+               \IdxPBD{get\_key\_no\_echo/2},
                \IdxPBD{get\_key\_no\_echo/1}}
 
 \begin{TemplatesOneCol}
@@ -4324,7 +4324,7 @@ last\_read\_start\_line\_column(?integer, ?integer)
 
 \texttt{last\_read\_start\_line\_column(Line, Column)} unifies \texttt{Line}
 and \texttt{Column} with the line number and the column number associated with
-the start of the last read predicate. This predicate can be used after
+the start of the last read term. This predicate can be used after
 calling one of the following predicates: \IdxPB{read\_term/3},
 \IdxPB{read\_term/2}, \IdxPB{read/2}, \IdxPB{read/1}
 \RefSP{read-term/3}, \IdxPB{read\_atom/2}, \IdxPB{read\_atom/1},
@@ -5805,23 +5805,75 @@ steps are as follows:
 
 \end{itemize}
 
-\texttt{term\_expansion(Term1, Term2)} is a hook predicate allowing the user
-to define a specific transformation. If this predicate succeeds,
-\texttt{Term2} is compiled instead of \texttt{Term1}. \texttt{Term2} can be a
-list, in which case, all terms of the list are compiled.
+\texttt{term\_expansion(Term1, Term2)} is a hook predicate allowing the user to
+define a specific transformation. If this predicate succeeds, \texttt{Term2} is
+compiled instead of \texttt{Term1}. \texttt{Term2} can be a list, in which case,
+all terms of the list are compiled.
 
-The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically
-calls \texttt{expand\_term/2} on each \texttt{Term1} read in. In
-version prior to 1.6.0, only DCG transformation was done by the
-compiler (i.e. \texttt{term\_expansion/2} could not be used). Since
-1.6.0, \texttt{term\_expansion/2} is supported. Due to separate
-compilation, some \IdxK{pl2wam} options and directives can be
-necessary \RefSP{pl2wam-description}. Basically, it is necesary to
-inform the Prolog to WAM compiler that a predicate must be ``loaded''
-in its internal state (so it can be executed during term
-expansion). This can be done with \IdxDi{pragma/1} directives.
+The GNU Prolog compiler \RefSP{The-GNU-Prolog-compiler} automatically calls
+\texttt{expand\_term/2} on each \texttt{Term1} read in. In version prior to
+1.6.0, only DCG transformation was done by the compiler
+(i.e. \texttt{term\_expansion/2} could not be used). Since 1.6.0,
+\texttt{term\_expansion/2} is supported. Due to separate compilation, some
+\IdxK{pl2wam} options and directives can be necessary
+\RefSP{pl2wam-description}. Basically, it is necesary to inform the Prolog to
+WAM compiler that a predicate must be \Idx{embeded} in its internal state (so it
+can be executed during term expansion). By default, only
+\texttt{term\_expansion/2} clauses are implicitely embeded. All other predicates
+(directly or indirectly) called by \texttt{term\_expansion/2} must be declared
+as embeded. This can be done with \IdxDi{compiler\_modes/1} directive. Here is
+an example of \texttt{term\_expansion} calling an auxiliary predicate
+\texttt{mk\_postfix/3}:
 
-\PlErrorsNone
+\begin{Code}
+\begin{verbatim}
+:- compiler_mode(embed).   % use embed_compile to also compile this part
+
+mk_postfix(E, NextP, P1) :-
+        callable(E), !,
+        functor(E, F, 2), !,
+        arg(1, E, E1),
+        arg(2, E, E2),
+        mk_postfix(E1, P2, P1),
+        mk_postfix(E2, [F|NextP], P2).
+mk_postfix(E, NextP, [E|NextP]) :-
+        number(E), !.
+
+term_expansion((expr(E)), (eval(E, R) :- eval_postfix(P, [], R))) :-
+        mk_postfix(E, [], P).
+
+:- compiler_mode(default).
+
+expr(12 + 3*8).             % expressions to be converted
+expr((6-2-1) * 8).
+
+eval_postfix([], [R], R).   % postfix expression evaluation
+eval_postfix([X|P], S, R) :-
+        number(X), !,
+        eval_postfix(P, [X|S], R).
+eval_postfix([Op|P], [Y, X|S], R) :-
+        Expr =.. [Op, X, Y],
+        Z is Expr,
+        eval_postfix(P, [Z|S], R).
+\end{verbatim}
+\end{Code}
+
+The following clauses will then be obtained by expansion and compiled (in addition to the
+predicate \texttt{eval\_postif/2}):
+
+\begin{Code}
+\begin{verbatim}
+eval(12 + 3*8, A) :-
+        eval_postfix([12, 3, 8, *, +], [], A).
+eval((6-2-1) * 8, A) :-
+        eval_postfix([6, 2, -, 1, -, 8, *], [], A).
+\end{verbatim}
+\end{Code}
+
+\Errors
+
+Any error which can occur when invoking \texttt{call(term\_expansion(Term1,
+  Term2))}.
 
 \Portability
 
@@ -5932,7 +5984,7 @@ predicates.
 
 \subsubsection{\IdxPBD{false/0}, \IdxPBD{once/1}, \IdxPBD{({\bs}+)/1} - not provable,
                \IdxPBD{call/2-11},
-	       \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{forall/2}}
+               \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{forall/2}}
 
 \begin{TemplatesOneCol}
 false\\
@@ -7361,7 +7413,7 @@ my_g_inc(Var, Old, New) :-
         g_read(Var, Old),
         N is Value + 1,
         g_assign(Var, X),
-	New = N.
+        New = N.
 \end{verbatim}
 \end{Indentation}
 
@@ -8138,7 +8190,7 @@ term \RefSP{Term-input/output} or its expansion
 \RefSP{Term-expansion}. This allows a sub-process written in Prolog to
 first process this file in order to later process any Prolog term as
 would be done by the parent process. The following elements are saved
-in the \texttt{FileName} using the \IdxDi{pragma/1} directive:
+in the \texttt{FileName} surrounded by \IdxDi{compiler\_mode/1} directives:
 
 \begin{itemize}
 
