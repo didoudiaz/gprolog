@@ -130,6 +130,8 @@ evaluable_property(Head, _) :-
 
 '$check_evaluable_prop'(dynamic).
 
+'$check_evaluable_prop'(iso).
+
 '$check_evaluable_prop'(template(_, _)).
 
 '$check_evaluable_prop'(Property) :-

@@ -2,7 +2,7 @@
 % file    : arith_inl.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/arith_inl.pl').
+file_name('/Users/diaz/GP/src/BipsPl/arith_inl.pl').
 
 
 predicate('$use_arith_inl'/0,41,static,private,monofile,built_in,[
@@ -173,11 +173,11 @@ predicate('$check_evaluable_prop'/1,122,static,private,monofile,built_in,[
     proceed,
 
 label(1),
-    retry_me_else(13),
-    switch_on_term(3,2,fail,fail,12),
+    retry_me_else(15),
+    switch_on_term(3,2,fail,fail,14),
 
 label(2),
-    switch_on_atom([(built_in,4),(foreign,6),(static,8),(dynamic,10)]),
+    switch_on_atom([(built_in,4),(foreign,6),(static,8),(dynamic,10),(iso,12)]),
 
 label(3),
     try_me_else(5),
@@ -208,21 +208,28 @@ label(10),
     proceed,
 
 label(11),
-    trust_me_else_fail,
+    retry_me_else(13),
 
 label(12),
+    get_atom(iso,0),
+    proceed,
+
+label(13),
+    trust_me_else_fail,
+
+label(14),
     get_structure(template/2,0),
     unify_void(2),
     proceed,
 
-label(13),
+label(15),
     trust_me_else_fail,
     put_value(x(0),1),
     put_atom(evaluable_property,0),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$evaluable_property2'/3,141,static,private,monofile,built_in,[
+predicate('$evaluable_property2'/3,143,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,9),
 
 label(1),
@@ -265,7 +272,7 @@ label(9),
     execute('$evaluable_prop_template'/4)]).
 
 
-predicate('$evaluable_prop_template'/4,165,static,private,monofile,built_in,[
+predicate('$evaluable_prop_template'/4,167,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
