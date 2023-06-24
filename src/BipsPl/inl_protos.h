@@ -233,15 +233,15 @@ WamWord FC Pl_Fct_Sub(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Mul(WamWord x, WamWord y);
 
-WamWord FC Pl_Fct_Div(WamWord x, WamWord y);
-
 WamWord FC Pl_Fct_Float_Div(WamWord x, WamWord y);
+
+WamWord FC Pl_Fct_Integer_Div(WamWord x, WamWord y);
+
+WamWord FC Pl_Fct_Integer_Div2(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Rem(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_Mod(WamWord x, WamWord y);
-
-WamWord FC Pl_Fct_Div2(WamWord x, WamWord y);
 
 WamWord FC Pl_Fct_And(WamWord x, WamWord y);
 
@@ -325,7 +325,7 @@ WamWord FC Pl_Fct_Truncate(WamWord x);
 
 WamWord FC Pl_Fct_Float_Fract_Part(WamWord x);
 
-WamWord FC Pl_Fct_Float_Integ_Part(WamWord x);
+WamWord FC Pl_Fct_Float_Integer_Part(WamWord x);
 
 WamWord FC Pl_Fct_Identity(WamWord x);
 

@@ -48,9 +48,8 @@
 #include "engine_pl.h"
 #include "bips_pl.h"
 
-#ifdef _MSC_VER
-#define rint(x)  (floor((x) + (double) 0.5))
-#endif
+/* ISO round/1 (neither lrint nor lround) - see Core 1, section 9.1.6.1 */
+#define pl_round(x)  (floor((x) + (double) 0.5))
 
 
 /* PI and E */
@@ -80,7 +79,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define START_ARITH_TBL_SIZE       64
+#define START_EVALUABLE_TBL_SIZE    64
 
 
 
@@ -91,10 +90,12 @@
 
 typedef struct
 {
-  WamWord f_n;
-  WamWord (FC *fct) ();
+  PlLong f_n;			/* key is <functor_atom,arity>    */
+  int signat_atom;		/* signature (e.g. IFxIFtoIF)     */
+  Bool is_iso;			/* normalized in ISO ?            */
+  WamWord (FC *fct) ();		/* pointer to associated function */
 }
-ArithInf;
+EvaluableInf;
 
 
 
@@ -103,13 +104,7 @@ ArithInf;
  * Global Variables                *
  *---------------------------------*/
 
-static char *arith_tbl;
-
-static int atom_pi;
-static int atom_e;
-static int atom_epsilon;
-
-
+static char *evaluable_tbl;
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -121,14 +116,22 @@ static double To_Double(WamWord x);
 
 static WamWord Load_Math_Expression(WamWord exp);
 
-static double Integ_Pow(double x, double y);
+static double Integer_Pow(double x, double y);
 
 
 
-#define ADD_ARITH_OPER(atom_str, arity, f)                         \
-  arith_info.f_n = Functor_Arity(Pl_Create_Atom(atom_str), arity); \
-  arith_info.fct = f;                                              \
-  Pl_Hash_Insert(arith_tbl, (char *) &arith_info, FALSE)
+#define Pl_Lookup_Evaluable(func, arity) \
+  (EvaluableInf *) Pl_Hash_Find(evaluable_tbl, Functor_Arity(func, arity))
+
+
+
+
+#define ADD_EVALUABLE(atom_str, arity, signat_str, iso, f)             \
+  evaluable_info.f_n = Functor_Arity(Pl_Create_Atom(atom_str), arity); \
+  evaluable_info.signat_atom = Pl_Create_Atom(signat_str);             \
+  evaluable_info.is_iso = iso;             			       \
+  evaluable_info.fct = f;                                              \
+  Pl_Hash_Insert(evaluable_tbl, (char *) &evaluable_info, FALSE)
 
 
 
@@ -140,69 +143,66 @@ static double Integ_Pow(double x, double y);
 static void
 Arith_Initializer(void)
 {
-  ArithInf arith_info;
+  EvaluableInf evaluable_info;
 
-  arith_tbl = Pl_Hash_Alloc_Table(START_ARITH_TBL_SIZE, sizeof(ArithInf));
+  evaluable_tbl = Pl_Hash_Alloc_Table(START_EVALUABLE_TBL_SIZE, sizeof(EvaluableInf));
 
-  ADD_ARITH_OPER("+", 1, Pl_Fct_Identity);
-
-  ADD_ARITH_OPER("-", 1, Pl_Fct_Neg);
-  ADD_ARITH_OPER("inc", 1, Pl_Fct_Inc);
-  ADD_ARITH_OPER("dec", 1, Pl_Fct_Dec);
-  ADD_ARITH_OPER("+", 2, Pl_Fct_Add);
-  ADD_ARITH_OPER("-", 2, Pl_Fct_Sub);
-  ADD_ARITH_OPER("*", 2, Pl_Fct_Mul);
-  ADD_ARITH_OPER("//", 2, Pl_Fct_Div);
-  ADD_ARITH_OPER("/", 2, Pl_Fct_Float_Div);
-  ADD_ARITH_OPER("rem", 2, Pl_Fct_Rem);
-  ADD_ARITH_OPER("mod", 2, Pl_Fct_Mod);
-  ADD_ARITH_OPER("div", 2, Pl_Fct_Div2);
-  ADD_ARITH_OPER("/\\", 2, Pl_Fct_And);
-  ADD_ARITH_OPER("\\/", 2, Pl_Fct_Or);
-  ADD_ARITH_OPER("xor", 2, Pl_Fct_Xor);
-  ADD_ARITH_OPER("\\", 1, Pl_Fct_Not);
-  ADD_ARITH_OPER("<<", 2, Pl_Fct_Shl);
-  ADD_ARITH_OPER(">>", 2, Pl_Fct_Shr);
-  ADD_ARITH_OPER("lsb", 1, Pl_Fct_LSB);
-  ADD_ARITH_OPER("msb", 1, Pl_Fct_MSB);
-  ADD_ARITH_OPER("popcount", 1, Pl_Fct_Popcount);
-  ADD_ARITH_OPER("abs", 1, Pl_Fct_Abs);
-  ADD_ARITH_OPER("sign", 1, Pl_Fct_Sign);
-
-  ADD_ARITH_OPER("gcd", 2, Pl_Fct_GCD);
-  ADD_ARITH_OPER("min", 2, Pl_Fct_Min);
-  ADD_ARITH_OPER("max", 2, Pl_Fct_Max);
-  ADD_ARITH_OPER("^", 2, Pl_Fct_Integer_Pow);
-  ADD_ARITH_OPER("**", 2, Pl_Fct_Pow);
-  ADD_ARITH_OPER("sqrt", 1, Pl_Fct_Sqrt);
-  ADD_ARITH_OPER("tan", 1, Pl_Fct_Tan);
-  ADD_ARITH_OPER("atan", 1, Pl_Fct_Atan);
-  ADD_ARITH_OPER("atan2", 2, Pl_Fct_Atan2);
-  ADD_ARITH_OPER("cos", 1, Pl_Fct_Cos);
-  ADD_ARITH_OPER("acos", 1, Pl_Fct_Acos);
-  ADD_ARITH_OPER("sin", 1, Pl_Fct_Sin);
-  ADD_ARITH_OPER("asin", 1, Pl_Fct_Asin);
-  ADD_ARITH_OPER("tanh", 1, Pl_Fct_Tanh);
-  ADD_ARITH_OPER("atanh", 1, Pl_Fct_Atanh);
-  ADD_ARITH_OPER("cosh", 1, Pl_Fct_Cosh);
-  ADD_ARITH_OPER("acosh", 1, Pl_Fct_Acosh);
-  ADD_ARITH_OPER("sinh", 1, Pl_Fct_Sinh);
-  ADD_ARITH_OPER("asinh", 1, Pl_Fct_Asinh);
-  ADD_ARITH_OPER("exp", 1, Pl_Fct_Exp);
-  ADD_ARITH_OPER("log", 1, Pl_Fct_Log);
-  ADD_ARITH_OPER("log10", 1, Pl_Fct_Log10);
-  ADD_ARITH_OPER("log", 2, Pl_Fct_Log_Radix);
-  ADD_ARITH_OPER("float", 1, Pl_Fct_Float);
-  ADD_ARITH_OPER("ceiling", 1, Pl_Fct_Ceiling);
-  ADD_ARITH_OPER("floor", 1, Pl_Fct_Floor);
-  ADD_ARITH_OPER("round", 1, Pl_Fct_Round);
-  ADD_ARITH_OPER("truncate", 1, Pl_Fct_Truncate);
-  ADD_ARITH_OPER("float_fractional_part", 1, Pl_Fct_Float_Fract_Part);
-  ADD_ARITH_OPER("float_integer_part", 1, Pl_Fct_Float_Integ_Part);
-
-  atom_pi = Pl_Create_Atom("pi");
-  atom_e = Pl_Create_Atom("e");
-  atom_epsilon = Pl_Create_Atom("epsilon");
+  ADD_EVALUABLE("pi",                    0, "=F",       TRUE,  Pl_Fct_PI);
+  ADD_EVALUABLE("e",                     0, "=F",       FALSE, Pl_Fct_E);
+  ADD_EVALUABLE("epsilon",               0, "=F",       FALSE, Pl_Fct_Epsilon);
+  ADD_EVALUABLE("+",                     1, "IF=IF",    TRUE,  Pl_Fct_Identity);
+  ADD_EVALUABLE("-",                     1, "IF=IF",    TRUE,  Pl_Fct_Neg);
+  ADD_EVALUABLE("inc",                   1, "IF=IF",    FALSE, Pl_Fct_Inc);
+  ADD_EVALUABLE("dec",                   1, "IF=IF",    FALSE, Pl_Fct_Dec);
+  ADD_EVALUABLE("+",                     2, "IF,IF=IF", TRUE,  Pl_Fct_Add);
+  ADD_EVALUABLE("-",                     2, "IF,IF=IF", TRUE,  Pl_Fct_Sub);
+  ADD_EVALUABLE("*",                     2, "IF,IF=IF", TRUE,  Pl_Fct_Mul);
+  ADD_EVALUABLE("/",                     2, "IF,IF=F",  TRUE,  Pl_Fct_Float_Div);
+  ADD_EVALUABLE("//",                    2, "I,I=I",    TRUE,  Pl_Fct_Integer_Div);
+  ADD_EVALUABLE("div",                   2, "I,I=I",    TRUE,  Pl_Fct_Integer_Div2);
+  ADD_EVALUABLE("rem",                   2, "I,I=I",    TRUE,  Pl_Fct_Rem);
+  ADD_EVALUABLE("mod",                   2, "I,I=I",    TRUE,  Pl_Fct_Mod);
+  ADD_EVALUABLE("/\\",                   2, "I,I=I",    TRUE,  Pl_Fct_And);
+  ADD_EVALUABLE("\\/",                   2, "I,I=I",    TRUE,  Pl_Fct_Or);
+  ADD_EVALUABLE("xor",                   2, "I,I=I",    TRUE,  Pl_Fct_Xor);
+  ADD_EVALUABLE("\\",                    1, "I=I",      TRUE,  Pl_Fct_Not);
+  ADD_EVALUABLE("<<",                    2, "I,I=I",    TRUE,  Pl_Fct_Shl);
+  ADD_EVALUABLE(">>",                    2, "I,I=I",    TRUE,  Pl_Fct_Shr);
+  ADD_EVALUABLE("lsb",                   1, "I=I",      FALSE, Pl_Fct_LSB);
+  ADD_EVALUABLE("msb",                   1, "I=I",      FALSE, Pl_Fct_MSB);
+  ADD_EVALUABLE("popcount",              1, "I=I",      FALSE, Pl_Fct_Popcount);
+  ADD_EVALUABLE("abs",                   1, "IF=IF",    TRUE,  Pl_Fct_Abs);
+  ADD_EVALUABLE("sign",                  1, "IF=IF",    TRUE,  Pl_Fct_Sign);
+  ADD_EVALUABLE("min",                   2, "IF,IF=?",  TRUE,  Pl_Fct_Min);
+  ADD_EVALUABLE("max",                   2, "IF,IF=?",  TRUE,  Pl_Fct_Max);
+  ADD_EVALUABLE("gcd",                   2, "I,I=I",    FALSE, Pl_Fct_GCD);
+  ADD_EVALUABLE("^",                     2, "IF,IF=IF", TRUE,  Pl_Fct_Integer_Pow);
+  ADD_EVALUABLE("**",                    2, "IF,IF=F",  TRUE,  Pl_Fct_Pow);
+  ADD_EVALUABLE("sqrt",                  1, "IF=F",     TRUE,  Pl_Fct_Sqrt);
+  ADD_EVALUABLE("tan",                   1, "IF=F",     TRUE,  Pl_Fct_Tan);
+  ADD_EVALUABLE("atan",                  1, "IF=F",     TRUE,  Pl_Fct_Atan);
+  ADD_EVALUABLE("atan2",                 2, "IF,IF=F",  TRUE,  Pl_Fct_Atan2);
+  ADD_EVALUABLE("cos",                   1, "IF=F",     TRUE,  Pl_Fct_Cos);
+  ADD_EVALUABLE("acos",                  1, "IF=F",     TRUE,  Pl_Fct_Acos);
+  ADD_EVALUABLE("sin",                   1, "IF=F",     TRUE,  Pl_Fct_Sin);
+  ADD_EVALUABLE("asin",                  1, "IF=F",     TRUE,  Pl_Fct_Asin);
+  ADD_EVALUABLE("tanh",                  1, "IF=F",     TRUE,  Pl_Fct_Tanh);
+  ADD_EVALUABLE("atanh",                 1, "IF=F",     FALSE, Pl_Fct_Atanh);
+  ADD_EVALUABLE("cosh",                  1, "IF=F",     FALSE, Pl_Fct_Cosh);
+  ADD_EVALUABLE("acosh",                 1, "IF=F",     FALSE, Pl_Fct_Acosh);
+  ADD_EVALUABLE("sinh",                  1, "IF=F",     FALSE, Pl_Fct_Sinh);
+  ADD_EVALUABLE("asinh",                 1, "IF=F",     FALSE, Pl_Fct_Asinh);
+  ADD_EVALUABLE("exp",                   1, "IF=F",     TRUE,  Pl_Fct_Exp);
+  ADD_EVALUABLE("log",                   1, "IF=F",     TRUE,  Pl_Fct_Log);
+  ADD_EVALUABLE("log10",                 1, "IF=F",     FALSE, Pl_Fct_Log10);
+  ADD_EVALUABLE("log",                   2, "IF,IF=F",  FALSE, Pl_Fct_Log_Radix);
+  ADD_EVALUABLE("float",                 1, "IF=F",     TRUE,  Pl_Fct_Float);
+  ADD_EVALUABLE("ceiling",               1, "F=I",      TRUE,  Pl_Fct_Ceiling);
+  ADD_EVALUABLE("floor",                 1, "F=I",      TRUE,  Pl_Fct_Floor);
+  ADD_EVALUABLE("round",                 1, "F=I",      TRUE,  Pl_Fct_Round);
+  ADD_EVALUABLE("truncate",              1, "F=I",      TRUE,  Pl_Fct_Truncate);
+  ADD_EVALUABLE("float_fractional_part", 1, "F=F",      TRUE,  Pl_Fct_Float_Fract_Part);
+  ADD_EVALUABLE("float_integer_part",    1, "F=F",      TRUE,  Pl_Fct_Float_Integer_Part);
 }
 
 
@@ -234,7 +234,7 @@ Pl_Define_Math_Bip_2(WamWord func_word, WamWord arity_word)
 int
 Pl_Classify_Double(double x)
 {
-#ifdef fpclassify 
+#ifdef fpclassify
   switch(fpclassify(x))
     {
     case FP_NAN:
@@ -303,7 +303,7 @@ Check_Double_Errors(double x, Bool for_int)
 	Pl_Err_Evaluation(pl_evaluation_int_overflow);
       else
 	Pl_Err_Evaluation(pl_evaluation_float_overflow);
-      
+
 #if 0  /* ignored for the moment, maybe add prolog_flags to control this, see swi */
     case PL_FP_SUBNORMAL:
       Pl_Err_Evaluation(pl_evaluation_underflow);
@@ -338,7 +338,7 @@ Double_To_PlLong(double d)
   PlLong x = (PlLong) d;
   if ((double) x != d || x < INT_LOWEST_VALUE || x > INT_GREATEST_VALUE)
       Pl_Err_Evaluation(pl_evaluation_int_overflow);
-    
+
   return x;
 }
 
@@ -403,7 +403,7 @@ Make_Tagged_Float(double d)
 }
 
 
-  
+
 
 /*-------------------------------------------------------------------------*
  * TO_DOUBLE                                                               *
@@ -429,15 +429,28 @@ Load_Math_Expression(WamWord exp)
   WamWord word, tag_mask;
   WamWord *adr;
   WamWord *lst_adr;
-  ArithInf *arith;
-  int atom;
+  WamWord func, arity;
+  EvaluableInf *evaluable;
 
   DEREF(exp, word, tag_mask);
 
   if (tag_mask == TAG_INT_MASK || tag_mask == TAG_FLT_MASK)
     return word;
 
-  if (tag_mask == TAG_LST_MASK)
+  func = arity = 0;		/* init for the compiler */
+
+  if (tag_mask == TAG_STC_MASK)	/* most common case first for efficiency */
+    {
+      adr = UnTag_STC(word);
+      func = Functor(adr);
+      arity = Arity(adr);
+    }
+  else if (tag_mask == TAG_ATM_MASK)
+    {
+      func = UnTag_ATM(word);
+      arity = 0;
+    }
+  else if (tag_mask == TAG_LST_MASK)
     {
       lst_adr = UnTag_LST(word);
       DEREF(Cdr(lst_adr), word, tag_mask);
@@ -458,64 +471,46 @@ Load_Math_Expression(WamWord exp)
 	}
       return word;
     }
-
-  if (tag_mask == TAG_STC_MASK)
-    {
-      adr = UnTag_STC(word);
-
-      arith = (ArithInf *) Pl_Hash_Find(arith_tbl, Functor_And_Arity(adr));
-      if (arith == NULL)
-	{
-	  word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-	  Pl_Unify_Atom(Functor(adr));
-	  Pl_Unify_Integer(Arity(adr));
-	  Pl_Err_Type(pl_type_evaluable, word);
-	}
-
-#define CALL_MATH_FCT_1(x)    (* (WamWord (*)(WamWord))          (arith->fct)) (x)
-#define CALL_MATH_FCT_2(x, y) (* (WamWord (*)(WamWord, WamWord)) (arith->fct)) (x, y)
-
-      if (Arity(adr) == 1)
-	return CALL_MATH_FCT_1(Load_Math_Expression(Arg(adr, 0)));
-      else
-	return CALL_MATH_FCT_2(Load_Math_Expression(Arg(adr, 0)), Load_Math_Expression(Arg(adr, 1)));
-    }
-
-  if (tag_mask == TAG_REF_MASK)
+  else if (tag_mask == TAG_REF_MASK)
     Pl_Err_Instantiation();
+  else
+    Pl_Err_Type(pl_type_evaluable, word);
 
-  if (tag_mask == TAG_ATM_MASK)
+  /* here it is an evaluable (callable) func/arity */
+
+  evaluable = Pl_Lookup_Evaluable(func, arity);
+  if (evaluable == NULL)
     {
-      atom = UnTag_ATM(word);
-      if (atom == atom_pi)
-	return Pl_Fct_PI();
-
-      if (atom == atom_e)
-	return Pl_Fct_E();
-
-      if (atom == atom_epsilon)
-	return Pl_Fct_Epsilon();
-
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
-      Pl_Unify_Value(exp);
-      Pl_Unify_Integer(0);		/* then type_error */
+      Pl_Unify_Atom(func);
+      Pl_Unify_Integer(arity);
+      Pl_Err_Type(pl_type_evaluable, word);
     }
 
-  Pl_Err_Type(pl_type_evaluable, word);
-  return word;
+#define CALL_MATH_FCT_0(x)    (* (WamWord (*)())                 (evaluable->fct)) ()
+#define CALL_MATH_FCT_1(x)    (* (WamWord (*)(WamWord))          (evaluable->fct)) (x)
+#define CALL_MATH_FCT_2(x, y) (* (WamWord (*)(WamWord, WamWord)) (evaluable->fct)) (x, y)
+
+  if (arity == 2)
+    return CALL_MATH_FCT_2(Load_Math_Expression(Arg(adr, 0)), Load_Math_Expression(Arg(adr, 1)));
+
+  if (arity == 1)
+    return CALL_MATH_FCT_1(Load_Math_Expression(Arg(adr, 0)));
+
+  return CALL_MATH_FCT_0(Load_Math_Expression());
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_ARITH_EVAL_2                                                         *
+ * PL_ARITH_EVALUATE_2                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Arith_Eval_2(WamWord exp_word, WamWord x_word)
+Pl_Arith_Evaluate_2(WamWord x_word, WamWord exp_word)
 {
-  return Pl_Unify(Load_Math_Expression(exp_word), x_word);
+  return Pl_Unify(x_word, Load_Math_Expression(exp_word));
 }
 
 
@@ -610,7 +605,7 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 
 
 
-       /* FtoI is ONLY used for rounding functions */
+       /* FtoI is ONLY used for rounding evaluables */
 #define FtoI(x, c_op)                            \
   double d;                                      \
   if (Tag_Is_INT(x))            /* error case */ \
@@ -688,7 +683,7 @@ Pl_Fct_Fast_Mul(WamWord x, WamWord y)
 }
 
 WamWord FC
-Pl_Fct_Fast_Div(WamWord x, WamWord y)
+Pl_Fct_Fast_Integer_Div(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
@@ -697,6 +692,26 @@ Pl_Fct_Fast_Div(WamWord x, WamWord y)
     Pl_Err_Evaluation(pl_evaluation_zero_divisor);
 
   return Tag_INT(vx / vy);
+}
+
+WamWord FC
+Pl_Fct_Fast_Integer_Div2(WamWord x, WamWord y)
+{
+  PlLong vx = UnTag_INT(x);
+  PlLong vy = UnTag_INT(y);
+  PlLong m;
+
+  if (vy == 0)
+    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
+
+  m = vx % vy;
+
+  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
+    m += vy;
+
+  m = (vx - m) / vy;
+
+  return Tag_INT(m);
 }
 
 WamWord FC
@@ -725,26 +740,6 @@ Pl_Fct_Fast_Mod(WamWord x, WamWord y)
 
   if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
     m += vy;
-
-  return Tag_INT(m);
-}
-
-WamWord FC
-Pl_Fct_Fast_Div2(WamWord x, WamWord y)
-{
-  PlLong vx = UnTag_INT(x);
-  PlLong vy = UnTag_INT(y);
-  PlLong m;
-
-  if (vy == 0)
-    Pl_Err_Evaluation(pl_evaluation_zero_divisor);
-
-  m = vx % vy;
-
-  if (m != 0 && (m ^ vy) < 0)	/* have m and vy different signs ? */
-    m += vy;
-
-  m = (vx - m) / vy;
 
   return Tag_INT(m);
 }
@@ -855,11 +850,11 @@ Pl_Fct_Fast_Integer_Pow(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
-  
+
   if (vx != 1 && vy <= -1)
     Pl_Err_Type(pl_type_float, x);
 
-  double r = Integ_Pow((double) vx, (double) vy);
+  double r = Integer_Pow((double) vx, (double) vy);
   PlLong p = Double_To_PlLong(r);
   return Tag_INT(p);
 }
@@ -905,16 +900,23 @@ Pl_Fct_Mul(WamWord x, WamWord y)
 }
 
 WamWord FC
-Pl_Fct_Div(WamWord x, WamWord y)
-{
-  IxItoI(x, y, Pl_Fct_Fast_Div);
-}
-
-WamWord FC
 Pl_Fct_Float_Div(WamWord x, WamWord y)
 {
   IFxIFtoF(x, y, C_Div);
 }
+
+WamWord FC
+Pl_Fct_Integer_Div(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_Integer_Div);
+}
+
+WamWord FC
+Pl_Fct_Integer_Div2(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_Integer_Div2);
+}
+
 
 WamWord FC
 Pl_Fct_Rem(WamWord x, WamWord y)
@@ -927,13 +929,6 @@ Pl_Fct_Mod(WamWord x, WamWord y)
 {
   IxItoI(x, y, Pl_Fct_Fast_Mod);
 }
-
-WamWord FC
-Pl_Fct_Div2(WamWord x, WamWord y)
-{
-  IxItoI(x, y, Pl_Fct_Fast_Div2);
-}
-
 WamWord FC
 Pl_Fct_And(WamWord x, WamWord y)
 {
@@ -1000,15 +995,6 @@ Pl_Fct_Sign(WamWord x)
   IFtoIF(x, DSign, Pl_Fct_Fast_Sign);
 }
 
-
-WamWord FC
-Pl_Fct_GCD(WamWord x, WamWord y)
-{
-  IxItoI(x, y, Pl_Fct_Fast_GCD);
-}
-
-
-
 WamWord FC
 Pl_Fct_Min(WamWord x, WamWord y)
 {
@@ -1040,22 +1026,28 @@ Pl_Fct_Max(WamWord x, WamWord y)
 }
 
 WamWord FC
+Pl_Fct_GCD(WamWord x, WamWord y)
+{
+  IxItoI(x, y, Pl_Fct_Fast_GCD);
+}
+
+WamWord FC
 Pl_Fct_Integer_Pow(WamWord x, WamWord y)
 {
-  IFxIFtoIF(x, y, Integ_Pow, Pl_Fct_Fast_Integer_Pow);
+  IFxIFtoIF(x, y, Integer_Pow, Pl_Fct_Fast_Integer_Pow);
 }
 
 
 /* ISO Tech Corr. 3 9.3.10 - special error cases for integer power (^)/2 */
 static double
-Integ_Pow(double x, double y)
+Integer_Pow(double x, double y)
 {
   if (x == 0.0 && y < 0)
     return Pl_NaN();
 
   if (x == 1.0)
     return x;
-  
+
   return pow(x, y);
 }
 
@@ -1126,7 +1118,7 @@ Pl_Fct_Atanh(WamWord x)
 #ifdef HAVE_ATANH
   IFtoF(x, atanh);
 #else
-  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  Pl_Err_Resource(Pl_Create_Atom("unavailable evaluable"));
   return 0;			/* anything for the compiler */
 #endif
 }
@@ -1143,7 +1135,7 @@ Pl_Fct_Acosh(WamWord x)
 #ifdef HAVE_ACOSH
   IFtoF(x, acosh);
 #else
-  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  Pl_Err_Resource(Pl_Create_Atom("unavailable evaluable"));
   return 0;			/* anything for the compiler */
 #endif
 }
@@ -1160,7 +1152,7 @@ Pl_Fct_Asinh(WamWord x)
 #ifdef HAVE_ASINH
   IFtoF(x, asinh);
 #else
-  Pl_Err_Resource(Pl_Create_Atom("unavailable function"));
+  Pl_Err_Resource(Pl_Create_Atom("unavailable evaluable"));
   return 0;			/* anything for the compiler */
 #endif
 }
@@ -1210,7 +1202,7 @@ Pl_Fct_Floor(WamWord x)
 WamWord FC
 Pl_Fct_Round(WamWord x)
 {
-  FtoI(x, rint);
+  FtoI(x, pl_round);
 }
 
 WamWord FC
@@ -1226,7 +1218,7 @@ Pl_Fct_Float_Fract_Part(WamWord x)
 }
 
 WamWord FC
-Pl_Fct_Float_Integ_Part(WamWord x)
+Pl_Fct_Float_Integer_Part(WamWord x)
 {
   FtoF(x, DInteg);
 }
@@ -1348,4 +1340,202 @@ Bool FC
 Pl_Blt_Gte(WamWord x, WamWord y)
 {
   Cmp_IFxIF(x, y, >=, Pl_Blt_Fast_Gte);
+}
+
+
+
+
+#define CURRENT_EVALUABLE_ALT   X1_2463757272656E745F6576616C7561626C655F616C74
+
+Prolog_Prototype(CURRENT_EVALUABLE_ALT, 0);
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CURRENT_EVALUABLE_1                                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Current_Evaluable_1(WamWord func_indic_word)
+{
+  WamWord name_word, arity_word;
+  HashScan scan;
+  EvaluableInf *evaluable;
+  int func, arity;
+  int func1, arity1;
+  Bool all;
+
+  func = Pl_Get_Pred_Indicator(func_indic_word, FALSE, &arity);
+  name_word = pl_pi_name_word;
+  arity_word = pl_pi_arity_word;
+
+  if (func >= 0 && arity >= 0)
+    {
+      evaluable = Pl_Lookup_Evaluable(func, arity);
+      return evaluable != NULL;
+    }
+
+				/* here func or arity == -1 (or both) */
+  all = (func == -1 && arity == -1);
+
+  evaluable = (EvaluableInf *) Pl_Hash_First(evaluable_tbl, &scan);
+  for (;;)
+    {
+      if (evaluable == NULL)
+	return FALSE;
+
+      func1 = Functor_Of(evaluable->f_n);
+      arity1 = Arity_Of(evaluable->f_n);
+
+      if (all || func == func1 || arity == arity1)
+	break;
+
+      evaluable = (EvaluableInf *) Pl_Hash_Next(&scan);
+    }
+
+				/* non deterministic case */
+  A(0) = name_word;
+  A(1) = arity_word;
+  A(2) = (WamWord) scan.endt;
+  A(3) = (WamWord) scan.cur_t;
+  A(4) = (WamWord) scan.cur_p;
+  Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_EVALUABLE_ALT, 0), 5);
+
+  return Pl_Get_Atom(Functor_Of(evaluable->f_n), name_word) &&
+    Pl_Get_Integer(Arity_Of(evaluable->f_n), arity_word);
+  /*
+  return Pl_Un_Atom_Check(Functor_Of(evaluable->f_n), name_word) &&
+    Pl_Un_Integer_Check(Arity_Of(evaluable->f_n), arity_word);
+  */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_CURRENT_EVALUABLE_ALT_0                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Current_Evaluable_Alt_0(void)
+{
+  WamWord name_word, arity_word;
+  HashScan scan;
+  EvaluableInf *evaluable;
+  int func, arity;
+  int func1, arity1;
+  Bool all;
+
+  Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_EVALUABLE_ALT, 0), 0);
+
+  name_word = AB(B, 0);
+  arity_word = AB(B, 1);
+  scan.endt = (char *) AB(B, 2);
+  scan.cur_t = (char *) AB(B, 3);
+  scan.cur_p = (char *) AB(B, 4);
+
+  func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
+  arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : (int) UnTag_INT(arity_word);
+
+				/* here func or arity == -1 (or both) */
+  all = (func == -1 && arity == -1);
+
+  for (;;)
+    {
+      evaluable = (EvaluableInf *) Pl_Hash_Next(&scan);
+      if (evaluable == NULL)
+	{
+	  Delete_Last_Choice_Point();
+	  return FALSE;
+	}
+
+      func1 = Functor_Of(evaluable->f_n);
+      arity1 = Arity_Of(evaluable->f_n);
+
+      if (all || func == func1 || arity == arity1)
+	break;
+    }
+
+				/* non deterministic case */
+
+#if 0				/* the following data is unchanged */
+  AB(B, 0) = name_word;
+  AB(B, 1) = arity_word;
+  AB(B, 2) = (WamWord) scan.endt;
+#endif
+  AB(B, 3) = (WamWord) scan.cur_t;
+  AB(B, 4) = (WamWord) scan.cur_p;
+
+  return Pl_Get_Atom(Functor_Of(evaluable->f_n), name_word) &&
+    Pl_Get_Integer(Arity_Of(evaluable->f_n), arity_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EVALUABLE_PROP_BUILT_IN_2                                               *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Evaluable_Prop_Built_In_2(WamWord func_word, WamWord arity_word)
+{
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_C_Int(arity_word);
+  EvaluableInf *evaluable = Pl_Lookup_Evaluable(func, arity);
+
+  return evaluable != NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EVALUABLE_PROP_STATIC_2                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Evaluable_Prop_Static_2(WamWord func_word, WamWord arity_word)
+{
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_C_Int(arity_word);
+  EvaluableInf *evaluable = Pl_Lookup_Evaluable(func, arity);
+
+  return evaluable != NULL;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EVALUABLE_PROP_ISO_2                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Evaluable_Prop_ISO_2(WamWord func_word, WamWord arity_word)
+{
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_C_Int(arity_word);
+  EvaluableInf *evaluable = Pl_Lookup_Evaluable(func, arity);
+
+  return evaluable != NULL && evaluable->is_iso;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * EVALUABLE_PROP_SIGNATURE_3                                              *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Pl_Evaluable_Prop_Signature_3(WamWord func_word, WamWord arity_word,
+			      WamWord signature_word)
+{
+  int func = Pl_Rd_Atom(func_word);
+  int arity = Pl_Rd_C_Int(arity_word);
+  EvaluableInf *evaluable = Pl_Lookup_Evaluable(func, arity);
+
+  return evaluable != NULL && Pl_Get_Atom(evaluable->signat_atom, signature_word);
 }

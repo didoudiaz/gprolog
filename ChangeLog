@@ -1,3 +1,8 @@
+2023-06-24  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #41: ISO requires: round(4.5) = 5 and round(-4.5) = -4
+	* fix issue #40: new builts-in predicates: current_evaluable/1 and evaluable_property/2
+
 2023-06-20  <daniel.diaz@univ-paris1.fr>
 
 	* replace previous pragma directives by the unique compiler_mode/1 directive.

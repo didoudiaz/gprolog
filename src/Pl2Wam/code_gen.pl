@@ -671,10 +671,10 @@ fast_exp_functor_name(dec, 1, 'Pl_Fct_Fast_Dec').
 fast_exp_functor_name(+, 2, 'Pl_Fct_Fast_Add').
 fast_exp_functor_name(-, 2, 'Pl_Fct_Fast_Sub').
 fast_exp_functor_name(*, 2, 'Pl_Fct_Fast_Mul').
-fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Div').
+fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Integer_Div').
+fast_exp_functor_name(div, 2, 'Pl_Fct_Fast_Integer_Div2').
 fast_exp_functor_name(rem, 2, 'Pl_Fct_Fast_Rem').
 fast_exp_functor_name(mod, 2, 'Pl_Fct_Fast_Mod').
-fast_exp_functor_name(div, 2, 'Pl_Fct_Fast_Div2').
 fast_exp_functor_name(/\, 2, 'Pl_Fct_Fast_And').
 fast_exp_functor_name(\/, 2, 'Pl_Fct_Fast_Or').
 fast_exp_functor_name(xor, 2, 'Pl_Fct_Fast_Xor').
@@ -691,17 +691,21 @@ fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_Integer_Pow').
 
 
 
+math_exp_functor_name(pi, 0, 'Pl_Fct_PI').
+math_exp_functor_name(e, 0, 'Pl_Fct_E').
+math_exp_functor_name(epsilon, 0, 'Pl_Fct_Epsilon').
+/* +X is compiled as X (identity) */
 math_exp_functor_name(-, 1, 'Pl_Fct_Neg').
 math_exp_functor_name(inc, 1, 'Pl_Fct_Inc').
 math_exp_functor_name(dec, 1, 'Pl_Fct_Dec').
 math_exp_functor_name(+, 2, 'Pl_Fct_Add').
 math_exp_functor_name(-, 2, 'Pl_Fct_Sub').
 math_exp_functor_name(*, 2, 'Pl_Fct_Mul').
-math_exp_functor_name(//, 2, 'Pl_Fct_Div').
 math_exp_functor_name(/, 2, 'Pl_Fct_Float_Div').
+math_exp_functor_name(//, 2, 'Pl_Fct_Integer_Div').
+math_exp_functor_name(div, 2, 'Pl_Fct_Integer_Div2').
 math_exp_functor_name(rem, 2, 'Pl_Fct_Rem').
 math_exp_functor_name(mod, 2, 'Pl_Fct_Mod').
-math_exp_functor_name(div, 2, 'Pl_Fct_Div2').
 math_exp_functor_name(/\, 2, 'Pl_Fct_And').
 math_exp_functor_name(\/, 2, 'Pl_Fct_Or').
 math_exp_functor_name(xor, 2, 'Pl_Fct_Xor').
@@ -713,10 +717,9 @@ math_exp_functor_name(msb, 1, 'Pl_Fct_MSB').
 math_exp_functor_name(popcount, 1, 'Pl_Fct_Popcount').
 math_exp_functor_name(abs, 1, 'Pl_Fct_Abs').
 math_exp_functor_name(sign, 1, 'Pl_Fct_Sign').
-
-math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
 math_exp_functor_name(min, 2, 'Pl_Fct_Min').
 math_exp_functor_name(max, 2, 'Pl_Fct_Max').
+math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
 math_exp_functor_name(^, 2, 'Pl_Fct_Integer_Pow').
 math_exp_functor_name(**, 2, 'Pl_Fct_Pow').
 math_exp_functor_name(sqrt, 1, 'Pl_Fct_Sqrt').
@@ -744,11 +747,6 @@ math_exp_functor_name(round, 1, 'Pl_Fct_Round').
 math_exp_functor_name(truncate, 1, 'Pl_Fct_Truncate').
 math_exp_functor_name(float_fractional_part, 1, 'Pl_Fct_Float_Fract_Part').
 math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integ_Part').
-
-
-math_exp_functor_name(pi, 0, 'Pl_Fct_PI').
-math_exp_functor_name(e, 0, 'Pl_Fct_E').
-math_exp_functor_name(epsilon, 0, 'Pl_Fct_Epsilon').
 
 
 gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-

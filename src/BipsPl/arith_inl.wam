@@ -64,12 +64,352 @@ predicate((>=)/2,62,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$arith_eval'/2,66,static,private,monofile,built_in,[
-    call_c('Pl_Arith_Eval_2',[],[x(0),x(1)]),
+predicate('$arith_evaluate'/2,66,static,private,monofile,built_in,[
+    call_c('Pl_Arith_Evaluate_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(succ/2,70,static,private,monofile,built_in,[
+predicate(succ/2,72,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[succ,2]),
     call_c('Pl_Succ_2',[boolean],[x(0),x(1)]),
+    proceed]).
+
+
+predicate(current_evaluable/1,79,static,private,monofile,built_in,[
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_evaluable,1]),
+    execute('$current_evaluable'/1)]).
+
+
+predicate('$current_evaluable'/1,83,static,private,monofile,built_in,[
+    call_c('Pl_Current_Evaluable_1',[boolean],[x(0)]),
+    proceed]).
+
+
+predicate('$current_evaluable_alt'/0,86,static,private,monofile,built_in,[
+    call_c('Pl_Current_Evaluable_Alt_0',[boolean],[]),
+    proceed]).
+
+
+predicate(evaluable_property/2,92,static,private,monofile,built_in,[
+    pragma_arity(3),
+    get_current_choice(x(2)),
+    try_me_else(1),
+    get_variable(x(3),1),
+    get_variable(x(4),0),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[evaluable_property,2]),
+    call_c('Pl_Blt_Callable',[fast_call,boolean],[x(4)]),
+    cut(x(2)),
+    put_variable(x(0),2),
+    put_variable(x(1),5),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(4),x(2),x(5)]),
+    put_value(x(3),2),
+    execute('$evaluable_property1'/3),
+
+label(1),
+    retry_me_else(2),
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    cut(x(2)),
+    put_structure((/)/2,0),
+    unify_variable(y(2)),
+    unify_variable(y(3)),
+    call('$current_evaluable'/1),
+    put_value(y(0),0),
+    put_value(y(2),1),
+    put_value(y(3),2),
+    call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
+    put_value(y(2),0),
+    put_value(y(3),1),
+    put_value(y(1),2),
+    deallocate,
+    execute('$evaluable_property1'/3),
+
+label(2),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(callable,0),
+    execute('$pl_err_type'/2)]).
+
+
+predicate('$evaluable_property_pi'/2,110,static,private,monofile,built_in,[
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    put_value(y(0),0),
+    call('$current_evaluable'/1),
+    put_value(y(0),0),
+    get_structure((/)/2,0),
+    unify_variable(x(0)),
+    unify_variable(x(1)),
+    put_value(y(1),2),
+    deallocate,
+    execute('$evaluable_property1'/3)]).
+
+
+predicate('$evaluable_property1'/3,115,static,private,monofile,built_in,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
+    allocate(4),
+    get_variable(y(0),0),
+    get_variable(y(1),1),
+    get_variable(y(2),2),
+    get_variable(y(3),3),
+    put_value(y(2),0),
+    call('$check_evaluable_prop'/1),
+    cut(y(3)),
+    put_value(y(2),0),
+    put_value(y(0),1),
+    put_value(y(1),2),
+    deallocate,
+    execute('$evaluable_property2'/3)]).
+
+
+predicate('$check_evaluable_prop'/1,122,static,private,monofile,built_in,[
+    try_me_else(1),
+    call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
+    proceed,
+
+label(1),
+    retry_me_else(13),
+    switch_on_term(3,2,fail,fail,12),
+
+label(2),
+    switch_on_atom([(built_in,4),(foreign,6),(static,8),(dynamic,10)]),
+
+label(3),
+    try_me_else(5),
+
+label(4),
+    get_atom(built_in,0),
+    proceed,
+
+label(5),
+    retry_me_else(7),
+
+label(6),
+    get_atom(foreign,0),
+    proceed,
+
+label(7),
+    retry_me_else(9),
+
+label(8),
+    get_atom(static,0),
+    proceed,
+
+label(9),
+    retry_me_else(11),
+
+label(10),
+    get_atom(dynamic,0),
+    proceed,
+
+label(11),
+    trust_me_else_fail,
+
+label(12),
+    get_structure(template/2,0),
+    unify_void(2),
+    proceed,
+
+label(13),
+    trust_me_else_fail,
+    put_value(x(0),1),
+    put_atom(evaluable_property,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$evaluable_property2'/3,141,static,private,monofile,built_in,[
+    switch_on_term(2,1,fail,fail,9),
+
+label(1),
+    switch_on_atom([(built_in,3),(static,5),(iso,7)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom(built_in,0),
+    call_c('Pl_Evaluable_Prop_Built_In_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_atom(static,0),
+    call_c('Pl_Evaluable_Prop_Static_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_atom(iso,0),
+    call_c('Pl_Evaluable_Prop_ISO_2',[boolean],[x(1),x(2)]),
+    proceed,
+
+label(8),
+    trust_me_else_fail,
+
+label(9),
+    get_variable(x(4),2),
+    get_structure(template/2,0),
+    unify_variable(x(2)),
+    unify_variable(x(3)),
+    put_variable(x(0),5),
+    call_c('Pl_Evaluable_Prop_Signature_3',[boolean],[x(1),x(4),x(5)]),
+    execute('$evaluable_prop_template'/4)]).
+
+
+predicate('$evaluable_prop_template'/4,165,static,private,monofile,built_in,[
+    switch_on_term(2,1,fail,fail,fail),
+
+label(1),
+    switch_on_atom([('=F',3),('F=F',5),('F=I',7),('I=I',9),('IF=F',11),('IF=IF',13),('I,I=I',15),('IF,IF=F',17),('IF,IF=IF',19),('IF,IF=?',21)]),
+
+label(2),
+    try_me_else(4),
+
+label(3),
+    get_atom('=F',0),
+    get_value(x(1),2),
+    get_atom(float,3),
+    proceed,
+
+label(4),
+    retry_me_else(6),
+
+label(5),
+    get_atom('F=F',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(float),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(float,3),
+    proceed,
+
+label(6),
+    retry_me_else(8),
+
+label(7),
+    get_atom('F=I',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(integer),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(float,3),
+    proceed,
+
+label(8),
+    retry_me_else(10),
+
+label(9),
+    get_atom('I=I',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(integer),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(integer,3),
+    proceed,
+
+label(10),
+    retry_me_else(12),
+
+label(11),
+    get_atom('IF=F',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(number),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(float,3),
+    proceed,
+
+label(12),
+    retry_me_else(14),
+
+label(13),
+    get_atom('IF=IF',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(number),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(number,3),
+    proceed,
+
+label(14),
+    retry_me_else(16),
+
+label(15),
+    get_atom('I,I=I',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(integer),
+    unify_list,
+    unify_atom(integer),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(integer,3),
+    proceed,
+
+label(16),
+    retry_me_else(18),
+
+label(17),
+    get_atom('IF,IF=F',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(number),
+    unify_list,
+    unify_atom(number),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(float,3),
+    proceed,
+
+label(18),
+    retry_me_else(20),
+
+label(19),
+    get_atom('IF,IF=IF',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(number),
+    unify_list,
+    unify_atom(number),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(number,3),
+    proceed,
+
+label(20),
+    trust_me_else_fail,
+
+label(21),
+    get_atom('IF,IF=?',0),
+    put_list(0),
+    unify_local_value(x(1)),
+    unify_list,
+    unify_atom(number),
+    unify_list,
+    unify_atom(number),
+    unify_nil,
+    call_c('Pl_Blt_Univ',[fast_call,boolean],[x(2),x(0)]),
+    get_atom(number,3),
     proceed]).

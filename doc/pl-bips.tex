@@ -923,16 +923,16 @@ IF, IF $\rightarrow$ F & Y \\
 
 \hline
 
+\texttt{E1 div E2} & $\lfloor$(\textit{eval}(\texttt{E1}) -
+\textit{eval}(\texttt{E1}) \texttt{mod} \textit{eval}(\texttt{E2})) /
+\textit{eval}(\texttt{E2})$\rfloor$ & I, I $\rightarrow$ I & Y \\
+
+\hline
+
 \texttt{E1 rem E2} & \textit{eval}(\texttt{E1}) -
 (\textit{rnd}(\textit{eval}(\texttt{E1}) /
 \textit{eval}(\texttt{E2})) * \textit{eval}(\texttt{E2})) & I, I $\rightarrow$
 I & Y \\
-
-\hline
-
-\texttt{E1 div E2} & $\lfloor$(\textit{eval}(\texttt{E1}) -
-\textit{eval}(\texttt{E1}) \texttt{mod} \textit{eval}(\texttt{E2})) /
-\textit{eval}(\texttt{E2})$\rfloor$ & I, I $\rightarrow$ I & Y \\
 
 \hline
 
@@ -1242,6 +1242,93 @@ and which are GNU Prolog extensions. For efficiency reasons, GNU
 Prolog does not detect the following ISO arithmetic errors:
 \texttt{float\_overflow},
 \texttt{int\_overflow, int\_underflow}, and \texttt{undefined}.
+
+\subsubsection{\IdxPBD{current\_evaluable/1}\label{current-evaluable/1}}
+
+\begin{TemplatesOneCol}
+current\_evaluable(?predicate\_indicator)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{current\_evaluable(EI)} succeeds if there exists an evaluable indicator
+(using the same syntax as a predicate indicator) of a defined evaluable functor
+(that unifies with \texttt{EI}. This predicate is re-executable on backtracking.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{EI} is neither a variable nor a predicate indicator}
+\ErrTerm{type\_error(predicate\_indicator, EI)}
+
+\ErrCond{\texttt{EI} is a term \texttt{Name/Arity} and \texttt{Arity} is
+neither a variable nor an integer}
+\ErrTerm{type\_error(integer, Arity)}
+
+\ErrCond{\texttt{EI} is a term \texttt{Name/Arity} and \texttt{Name} is
+neither a variable nor an atom}
+\ErrTerm{type\_error(atom, Name)}
+
+\ErrCond{\texttt{EI} is a term \texttt{Name/Arity} and \texttt{Arity} is
+an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Arity)}
+
+\ErrCond{\texttt{EI} is a term \texttt{Name/Arity} and \texttt{Arity} is
+an integer $>$ \texttt{max\_arity} flag \RefSP{set-prolog-flag/2}}
+\ErrTerm{representation\_error(max\_arity)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
+
+\subsubsection{\IdxPBD{evaluable\_property/2}\label{evaluable-property/2}}
+
+\begin{TemplatesOneCol}
+evaluable\_property(?callable, ?evaluable\_property)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{evaluable\_property(Evaluable, Property)} succeeds if the prototype
+\texttt{Evaluable} refers to an evaluable functor that has a property
+\texttt{Property}. This predicate is re-executable on backtracking.
+
+\SPart{Evaluable properties}:
+
+\begin{itemize}
+
+\item \IdxPPD{built\_in}: if the evaluable functor is built-in.
+
+\item \IdxPPD{foreign}: if the evaluable functor is defined via the foreign
+  interface (for future use).
+
+\item \IdxPPD{static}: if the evaluable functor is static.
+
+\item \IdxPPD{dynamic}: if the evaluable functor is dynamic (for future use).
+
+\item \IdxPPD{iso}: if the evaluable functor is ISO.
+
+\item \IdxPPD{template(Args, Ret)}: a specification for both the type of
+  arguments (\texttt{Args}) and the type of returned value (\texttt{Ret}).
+
+\end{itemize}
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{Evaluable} is neither a variable nor a callable term}
+\ErrTerm{type\_error(callable, Evaluable)}
+
+\ErrCond{\texttt{Property} is neither a variable nor an evaluable property term}
+\ErrTerm{domain\_error(evaluable\_property, Property)}
+
+\end{PlErrors}
+
+\Portability
+
+GNU Prolog predicate.
 
 \subsubsection{\IdxPBD{(is)/2} - evaluate expression}
 
@@ -1682,10 +1769,10 @@ predicate\_property(?callable, ?predicate\_property)
 
 \Description
 
-\texttt{predicate\_property(Head, Property)} succeeds if \texttt{Head} refers
-to a predicate that has a property \texttt{Property}. All user defined
-procedures and built-in predicates are found. Internal system procedures
-whose name begins with \texttt{'\$'} are not found. This predicate is
+\texttt{predicate\_property(Head, Property)} succeeds if the prototype
+\texttt{Head} refers to a predicate that has a property \texttt{Property}. All
+user defined procedures and built-in predicates are found. Internal system
+procedures whose name begins with \texttt{'\$'} are not found. This predicate is
 re-executable on backtracking.
 
 Since version 1.4.0, \texttt{predicate\_property/2} no longer accepts a
@@ -5482,6 +5569,60 @@ character code list which is then unified with the first argument
 \Portability
 
 GNU Prolog predicates.
+
+\iffalse
+\subsection{Reading utilities}
+
+\subsubsection{\IdxPBD{read\_line\_to\_chars/2},
+               \IdxPBD{read\_line\_to\_codes/2}}
+
+
+\begin{TemplatesOneCol}
+read\_line\_to\_chars(+stream\_or\_alias, ?in\_character\_list\_or\_atom)\\
+read\_line\_to\_codes(+stream\_or\_alias, ?in\_character\_code\_list\_or\_atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{read\_line\_to\_chars(SorA, Chars)} succeeds if \texttt{Chars} unifies
+with the next line read from the stream associated with the stream-term or alias
+\texttt{SorA}. \texttt{Chars} is a list of characters or \IdxK{end\_of\_file} if
+the stream is exhausted.
+
+\texttt{read\_line\_to\_codes(SorA, Codes)} is similar but deals with character
+codes.
+
+\begin{PlErrors}
+
+\ErrCond{\texttt{SorA} is a variable}
+\ErrTerm{instantiation\_error}
+
+\ErrCond{\texttt{SorA} is neither a variable nor a stream-term or alias}
+\ErrTerm{domain\_error(stream\_or\_alias, SorA)}
+
+\ErrCond{\texttt{SorA} is not associated with an open stream}
+\ErrTerm{existence\_error(stream, SorA)}
+
+\ErrCond{\texttt{SorA} is an output stream}
+\ErrTerm{permission\_error(input, stream, SorA)}
+
+\ErrCond{\texttt{SorA} is associated with a binary stream}
+\ErrTerm{permission\_error(input, binary\_stream, SorA)}
+
+\ErrCond{\texttt{SorA} has stream properties \texttt{end\_of\_stream(past)}
+and \texttt{eof\_action(error)}}
+\ErrTerm{permission\_error(input, past\_end\_of\_stream, SorA)}
+
+\ErrCond{The entity input from the stream is not a character}
+\ErrTerm{representation\_error(character)}
+
+\end{PlErrors}
+
+\Portability
+
+ISO predicates.
+\fi
 
 \subsection{DEC-10 compatibility input/output}
 
