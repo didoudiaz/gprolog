@@ -79,6 +79,46 @@ call_det(Goal, Deterministic) :-
 
 
 
+:- meta_predicate(call_nth(0, ?)).
+
+call_nth(Goal, Nth) :-
+	var(Nth), !,		% most common case first
+	'$call_nth_exec'(Goal, Nth).
+
+call_nth(Goal, Nth) :-
+	integer(Nth), !,
+	'$call_nth_int'(Goal, Nth).
+
+call_nth(_, Nth) :-
+	set_bip_name(call_nth, 2),
+	'$pl_err_type'(integer, Nth).
+
+
+'$call_nth_int'(Goal, Nth) :-
+	Nth > 0,
+	!,
+	'$call_nth_exec'(Goal, N),
+	N = Nth, !.		% cut since execute only once
+
+'$call_nth_int'(_, Nth) :-	% simply fail if Nth = 0
+	Nth < 0,
+	!,
+	set_bip_name(call_nth, 2),
+	'$pl_err_domain'(not_less_than_zero, Nth).
+
+
+'$call_nth_exec'(Goal, Nth) :-
+	Counter = '$call_nth_counter'(0),
+	'$call'(Goal, call_nth, 2, true),
+	arg(1, Counter, N),
+	succ(N, Nth),		% use this to trigger int_overflow if needed
+	setarg(1, Counter, Nth, false).
+
+
+
+
+	% the internal call predicate (also called by pl2wam)
+
 '$call'(Goal, Func, Arity, DebugCall) :-
 	'$call_c'('Pl_Save_Call_Info_3'(Func, Arity, DebugCall)),
 	'$call1'(Goal, 0).

@@ -82,7 +82,7 @@
   DEREF(start_word, word, tag_mask);                                        \
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_INT_MASK)                 \
     Pl_Err_Type(pl_type_integer, word);                                     \
-  if (tag_mask == TAG_INT_MASK && UnTag_INT(word)<0)                        \
+  if (tag_mask == TAG_INT_MASK && UnTag_INT(word) < 0)                      \
     Pl_Err_Domain(pl_domain_not_less_than_zero, word)
 
 

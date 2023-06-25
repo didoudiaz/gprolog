@@ -1,3 +1,9 @@
+2023-06-26  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
+	* add built-in nb_setarg/3 (special case of setarg/4)
+	* fix issue #26: missing int_overflow for succ/2
+
 2023-06-24  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #41: ISO requires: round(4.5) = 5 and round(-4.5) = -4

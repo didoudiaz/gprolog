@@ -522,11 +522,30 @@ Bool
 Pl_Succ_2(WamWord x_word, WamWord y_word)
 {
   WamWord word, tag_mask;
-  PlLong x;
+  PlLong x, y;
 
   DEREF(x_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK)
-    return Pl_Un_Positive_Check(Pl_Rd_Positive_Check(word) + 1, y_word);
+    {
+      x = Pl_Rd_Positive_Check(x_word);
+      
+      DEREF(y_word, word, tag_mask);
+      if (tag_mask == TAG_INT_MASK)
+	{
+	  y = UnTag_INT(y_word);
+	  if (y < 0)
+	    Pl_Err_Domain(pl_domain_not_less_than_zero, y_word);
+	}
+      else if (tag_mask == TAG_REF_MASK)
+	{
+	  if (x == INT_GREATEST_VALUE)
+	    Pl_Err_Evaluation(pl_evaluation_int_overflow); /* only if y is a var (else fail) */
+	}
+      else
+	Pl_Err_Type(pl_type_integer, y_word);
+
+      return Pl_Get_Integer(x + 1, y_word);
+    }
 
   Pl_Check_For_Un_Positive(word);
   x = Pl_Rd_Positive_Check(y_word) - 1;

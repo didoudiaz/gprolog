@@ -91,6 +91,11 @@ copy_term(T1, T2) :-
 
 
 
+nb_setarg(ArgNo, Term, NewValue) :-
+	set_bip_name(nb_setarg, 3),
+	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, false)).
+
+
 setarg(ArgNo, Term, NewValue) :-
 	set_bip_name(setarg, 3),
 	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, true)).

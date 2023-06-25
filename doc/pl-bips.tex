@@ -578,12 +578,13 @@ These predicates are useful to implement hash tables or argument indexing.
 
 GNU Prolog predicate.
 
-\subsubsection{\IdxPBD{setarg/4},
-               \IdxPBD{setarg/3}}
+\subsubsection{\IdxPBD{setarg/4}, 
+               \IdxPBD{setarg/3}, \IdxPBD{nb\_setarg/3},}
 
 \begin{TemplatesOneCol}
 setarg(+integer, +compound\_term, +term, +boolean)\\
-setarg(+integer, +compound\_term, +term)
+setarg(+integer, +compound\_term, +term)\\
+nb\_setarg(+integer, +compound\_term, +term)
 
 \end{TemplatesOneCol}
 
@@ -598,6 +599,9 @@ either an atom or an integer.
 
 \texttt{setarg(N, Term, NewValue)} is equivalent to \texttt{setarg(N, Term,
 NewValue, true)}.
+
+\texttt{nb\_setarg(N, Term, NewValue)} is equivalent to \texttt{setarg(N, Term,
+NewValue, false)}.
 
 \begin{PlErrors}
 
@@ -1439,6 +1443,10 @@ succ(-integer, +integer)
 
 \ErrCond{\texttt{Y} is an integer $<$ 0}
 \ErrTerm{domain\_error(not\_less\_than\_zero, Y)}
+
+\ErrCond{\IdxPF{bounded} \Idx{Prolog flag} is true and \texttt{X} is
+  \emph{maxint} and \texttt{Y} is a variable}
+\ErrTerm{evaluation\_error(int\_overflow)}
 
 \end{PlErrors}
 
@@ -6125,7 +6133,7 @@ predicates.
 
 \subsubsection{\IdxPBD{false/0}, \IdxPBD{once/1}, \IdxPBD{({\bs}+)/1} - not provable,
                \IdxPBD{call/2-11},
-               \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{forall/2}}
+               \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{call\_nth/2}, \IdxPBD{forall/2}}
 
 \begin{TemplatesOneCol}
 false\\
@@ -6134,6 +6142,7 @@ once(+callable\_term)\\
 call(+callable\_term, +term,\ldots, +term)\\
 call\_with\_args(+atom, +term,\ldots, +term)\\
 call\_det(+callable\_term, ?boolean) \\
+call\_nth(+callable\_term, ?integer) \\
 forall(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
@@ -6165,6 +6174,12 @@ succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 \texttt{Goal} has not created any choice-points, with \texttt{false}
 otherwise.
 
+\texttt{call\_nth(Goal, Nth)} succeeds if \texttt{call(Goal)} is true and
+\texttt{Nth} unifies with the integer being the $N+1$st re-execution of
+\texttt{call(Goal)}. If \texttt{Nth} = 0, \texttt{call\_nth/2} simply fails
+without testing the validity of its arguments. This predicate only succeeds
+once.
+
 \texttt{forall(Condition, Action)} succeeds if for all alternative bindings of
 \texttt{Condition}, \texttt{Action} can be proven.
 It is equivalent to \texttt{{\bs}+ (Condition, {\bs}+ Action)}.
@@ -6177,8 +6192,8 @@ It is equivalent to \texttt{{\bs}+ (Condition, {\bs}+ Action)}.
 \ErrCond{\texttt{Goal} (or \texttt{Condition} or \texttt{Action}) is a variable}
 \ErrTerm{instantiation\_error}
 
-\ErrCond{\texttt{Goal} (or \texttt{Condition} or \texttt{Action}) is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, Goal)}
+\ErrCond{\texttt{Goal} (or \texttt{Condition} or \texttt{Action}) is neither a
+  variable nor a callable term} \ErrTerm{type\_error(callable, Goal)}
 
 \ErrCond{The predicate indicator \texttt{Pred} of \texttt{Goal} does not
 correspond to an existing procedure and the value of the \texttt{unknown}
@@ -6194,8 +6209,15 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 \ErrCond{\texttt{Deterministic} is neither a variable nor a boolean}
 \ErrTerm{type\_error(boolean, Deterministic)}
 
-\ErrCond{for \texttt{call/2-11} the resulting arity of \texttt{Goal} (arity of $\texttt{Closure} + \texttt{N}$) is an integer $>$ \texttt{max\_arity} flag \RefSP{set-prolog-flag/2}}
-\ErrTerm{representation\_error(max\_arity)}
+\ErrCond{\texttt{Nth} is neither a variable nor an intger}
+\ErrTerm{type\_error(integer, Nth)}
+
+\ErrCond{\texttt{Nth} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, Nth)}
+
+\ErrCond{for \texttt{call/2-11} the resulting arity of \texttt{Goal} (arity of
+  $\texttt{Closure} + \texttt{N}$) is an integer $>$ \texttt{max\_arity} flag
+  \RefSP{set-prolog-flag/2}} \ErrTerm{representation\_error(max\_arity)}
 
 \end{PlErrors}
 
