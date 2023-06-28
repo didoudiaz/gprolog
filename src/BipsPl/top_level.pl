@@ -42,7 +42,7 @@
 
 
 top_level :-
-	(   current_prolog_flag(show_information, on) ->
+	(   current_prolog_flag(show_banner, on) ->
 	    '$banner'(top_level_output),
 	    nl(top_level_output)
 	;   true
@@ -358,9 +358,9 @@ break :-
 /* interface with command-line option consulting files */
 
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
-%	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+%	'$catch_internal'(consult(File), error(Err, _), true, false),
 %	nonvar(Err),
-				%	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+%	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	'$exec_cmd_consult_file'(File),
 	fail.
 	
@@ -376,7 +376,7 @@ break :-
 	% e.g. important for a commannd-line goal calling abort
 	'$get_current_B'(B),	% the current choice-point
 	'$sys_var_write'(11, B),
-	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	'$catch_internal'(consult(File), error(Err, _), true, false),
 	nonvar(Err),
 	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.

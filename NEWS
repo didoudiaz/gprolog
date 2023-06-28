@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.6.0
 
+* add/modify Prolog flags: show_banner, show_information
 * fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
 * add built-in nb_setarg/3 (special case of setarg/4)
 * fix issue #26: missing int_overflow for succ/2
@@ -19,7 +20,7 @@ Change in GNU Prolog version 1.6.0
 * fix issue #32: remove duplicate warning message
 * speed up dynamic predicates with many clauses (for wordnet)
 * improve linedit completion with a new map implementation (improves consult of wordnet files)
-* improve compiler speed on large Prolog data bases (for wordnet)
+* improve compiler speed on large Prolog databases (for wordnet)
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
   (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 * speed up bind_variables/2 (also speed up the compiler for byte-code)

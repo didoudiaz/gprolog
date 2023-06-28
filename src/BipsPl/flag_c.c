@@ -82,8 +82,29 @@ SFOp;
  *---------------------------------*/
 
 static int atom_on;
+static int atom_off;
+
 static int atom_the_dialect;
 static int atom_the_cc;
+
+static int atom_toward_zero;
+static int atom_down;
+
+static int atom_error;
+static int atom_warning;
+static int atom_fail;
+
+static int atom_chars;
+static int atom_codes;
+static int atom_atom;
+static int atom_chars_no_escape;
+static int atom_codes_no_escape;
+static int atom_atom_no_escape;
+
+static int atom_silent;
+static int atom_normal;
+static int atom_informational;
+
 
 
 
@@ -123,73 +144,97 @@ Flag_Initializer(void)
 #endif
 
   atom_on = Pl_Create_Atom("on");
+  atom_off = Pl_Create_Atom("off");
+
   atom_the_dialect = Pl_Create_Atom(PROLOG_DIALECT);
   atom_the_cc = Pl_Create_Atom(CC);
 
+  atom_toward_zero = Pl_Create_Atom("toward_zero");
+  atom_down = Pl_Create_Atom("down");
+
+  atom_error = Pl_Create_Atom("error");
+  atom_warning = Pl_Create_Atom("warning");
+  atom_fail = Pl_Create_Atom("fail");
+
+  atom_chars = Pl_Create_Atom("chars");
+  atom_codes = Pl_Create_Atom("codes");
+  atom_atom = Pl_Create_Atom("atom");
+  atom_chars_no_escape = Pl_Create_Atom("chars_no_escape");
+  atom_codes_no_escape = Pl_Create_Atom("codes_no_escape");
+  atom_atom_no_escape = Pl_Create_Atom("atom_no_escape");
+
+  atom_silent = Pl_Create_Atom("silent");
+  atom_normal = Pl_Create_Atom("normal");
+  atom_informational = Pl_Create_Atom("informational");
+
   /* Unchangeable flags */
 
-  NEW_FLAG_R_ATOM   (prolog_name,               PROLOG_NAME);
-  NEW_FLAG_R_ATOM   (prolog_version,            PROLOG_VERSION);
-  NEW_FLAG_R_ATOM   (prolog_date,               PROLOG_DATE);
-  NEW_FLAG_R_ATOM   (prolog_copyright,          PROLOG_COPYRIGHT);
+  NEW_FLAG_R_ATOM    (prolog_name,               PROLOG_NAME);
+  NEW_FLAG_R_ATOM    (prolog_version,            PROLOG_VERSION);
+  NEW_FLAG_R_ATOM    (prolog_date,               PROLOG_DATE);
+  NEW_FLAG_R_ATOM    (prolog_copyright,          PROLOG_COPYRIGHT);
 
-  NEW_FLAG_R_ATOM   (dialect,                   PROLOG_DIALECT);
+  NEW_FLAG_R_ATOM    (dialect,                   PROLOG_DIALECT);
 
-  NEW_FLAG_R_INTEGER(version,                   __GPROLOG_VERSION__);
-  Pl_New_Prolog_Flag("version_data",            FALSE, PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
-  NEW_FLAG_R_BOOL   (bounded,                   TRUE);
+  NEW_FLAG_R_INTEGER (version,                   __GPROLOG_VERSION__);
+  NEW_FLAG_R         (version_data,              PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
+  NEW_FLAG_R_BOOL    (bounded,                   TRUE);
 
-  NEW_FLAG_R_INTEGER(max_integer,               INT_GREATEST_VALUE);    
-  NEW_FLAG_R_INTEGER(min_integer,               INT_LOWEST_VALUE);
-  NEW_FLAG_R_ROUND  (integer_rounding_function, ((-3 / 2) == -1) ? PF_ROUND_ZERO : PF_ROUND_DOWN);
+  NEW_FLAG_R_INTEGER (max_integer,               INT_GREATEST_VALUE);    
+  NEW_FLAG_R_INTEGER (min_integer,               INT_LOWEST_VALUE);
+  NEW_FLAG_R_ATOM_TBL(integer_rounding_function, ((-3 / 2) == -1) ? 0 : 1, atom_toward_zero, atom_down);
 
-  NEW_FLAG_R_INTEGER(max_arity,                 MAX_ARITY);
-  NEW_FLAG_R_INTEGER(max_atom,                  pl_max_atom);
-  NEW_FLAG_R_INTEGER(max_unget,                 STREAM_PB_SIZE);
+  NEW_FLAG_R_INTEGER (max_arity,                 MAX_ARITY);
+  NEW_FLAG_R_INTEGER (max_atom,                  pl_max_atom);
+  NEW_FLAG_R_INTEGER (max_unget,                 STREAM_PB_SIZE);
 
-  NEW_FLAG_R_ATOM   (home,                      pl_home ? pl_home : "");
-  NEW_FLAG_R_ATOM   (host_os,                   M_OS);
-  NEW_FLAG_R_ATOM   (host_vendor,               M_VENDOR);
-  NEW_FLAG_R_ATOM   (host_cpu,                  M_CPU);
-  NEW_FLAG_R_ATOM   (host,                      M_CPU "-" M_VENDOR "-" M_OS);
-  NEW_FLAG_R_ATOM   (arch,                      M_CPU "-" M_OS);
-  NEW_FLAG_R_INTEGER(address_bits,              WORD_SIZE);
-  NEW_FLAG_R_BOOL   (unix,                      is_unix);
+  NEW_FLAG_R_ATOM    (home,                      pl_home ? pl_home : "");
+  NEW_FLAG_R_ATOM    (host_os,                   M_OS);
+  NEW_FLAG_R_ATOM    (host_vendor,               M_VENDOR);
+  NEW_FLAG_R_ATOM    (host_cpu,                  M_CPU);
+  NEW_FLAG_R_ATOM    (host,                      M_CPU "-" M_VENDOR "-" M_OS);
+  NEW_FLAG_R_ATOM    (arch,                      M_CPU "-" M_OS);
+  NEW_FLAG_R_INTEGER (address_bits,              WORD_SIZE);
+  NEW_FLAG_R_BOOL    (unix,                      is_unix);
 
-  NEW_FLAG_R_ATOM   (compiled_at,               COMPILED_AT); /* see arch_dep.h */
-  NEW_FLAG_R_ATOM   (c_cc,                      CC);
-  Pl_New_Prolog_Flag("c_cc_version_data",       FALSE, PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
-  NEW_FLAG_R_ATOM   (c_cflags,                  CFLAGS_MACHINE " " CFLAGS);
-  NEW_FLAG_R_ATOM   (c_ldflags,                 LDFLAGS);                            
+  NEW_FLAG_R_ATOM    (compiled_at,               COMPILED_AT); /* see arch_dep.h */
+  NEW_FLAG_R_ATOM    (c_cc,                      CC);
+  NEW_FLAG_R         (c_cc_version_data,         PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
+  NEW_FLAG_R_ATOM    (c_cflags,                  CFLAGS_MACHINE " " CFLAGS);
+  NEW_FLAG_R_ATOM    (c_ldflags,                 LDFLAGS);                            
 
-  Pl_New_Prolog_Flag("argv",                    FALSE, PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
+  NEW_FLAG_R         (argv,                      PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
 
-  /* changeable flags */
+  /* Changeable flags */
 
-  NEW_FLAG_W_ON_OFF (char_conversion,           0);
-  NEW_FLAG_W_ON_OFF (singleton_warning,         1);
-  NEW_FLAG_W_ON_OFF (suspicious_warning,        1);
-  NEW_FLAG_W_ON_OFF (multifile_warning,         1);
-  NEW_FLAG_W_ON_OFF (show_information,          1);
-  NEW_FLAG_W_ON_OFF (strict_iso,                1);
+  NEW_FLAG_W_ON_OFF  (char_conversion,           0);
+  NEW_FLAG_W_ON_OFF  (singleton_warning,         1);
+  NEW_FLAG_W_ON_OFF  (suspicious_warning,        1);
+  NEW_FLAG_W_ON_OFF  (multifile_warning,         1);
+  NEW_FLAG_W_ON_OFF  (show_banner,               1);
+  NEW_FLAG_W_ATOM_TBL(show_information,          PF_SHOW_INFO_NORMAL, atom_silent, atom_normal, atom_informational);
+  //  NEW_FLAG_W_ATOM_TBL(show_error,                PF_SHOW_ERR_ERROR, atom_silent, atom_warning, atom_error);
+  NEW_FLAG_W_ON_OFF  (strict_iso,                1);
 #if 0
-  NEW_FLAG_W_ON_OFF (debug,                     0);
+  NEW_FLAG_W_ON_OFF  (debug,                     0);
 #else  /* to have a customized Set function */
-  pl_flag_debug = Pl_New_Prolog_Flag("debug",   TRUE, PF_TYPE_ON_OFF, 0, NULL, NULL, Fct_Set_Debug);
+  NEW_FLAG_W         (debug,                     PF_TYPE_ATOM_TBL, 0, NULL, NULL, Fct_Set_Debug, atom_off, atom_on, -1);
 #endif
 
 
-  NEW_FLAG_W_QUOTES (double_quotes,             PF_QUOT_AS_CODES);
+  NEW_FLAG_W_ATOM_TBL(double_quotes,             PF_QUOT_AS_CODES, atom_codes, atom_chars, atom_atom,
+		                                 atom_codes_no_escape, atom_chars_no_escape, atom_atom_no_escape);
 
   /* DON'T CHANGE back_quotes default: no_escape is useful under
    * Windows when assoc .pl to gprolog (see InnoSetup) and avoid \ (backslash)
    * to be misinterpreted in pathnames (e.g. c:\foo\bar).
    */
-  NEW_FLAG_W_QUOTES (back_quotes,               PF_QUOT_AS_ATOM | PF_QUOT_NO_ESCAPE_MASK);
+  NEW_FLAG_W_ATOM_TBL(back_quotes,               PF_QUOT_AS_ATOM_NO_ESCAPE, atom_codes, atom_chars, atom_atom,
+		                                 atom_codes_no_escape, atom_chars_no_escape, atom_atom_no_escape);
 
-  NEW_FLAG_W_ERR    (unknown,                   PF_ERR_ERROR);
-  NEW_FLAG_W_ERR    (syntax_error,              PF_ERR_ERROR);
-  NEW_FLAG_W_ERR    (os_error,                  PF_ERR_ERROR);
+  NEW_FLAG_W_ATOM_TBL(unknown,                   PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
+  NEW_FLAG_W_ATOM_TBL(syntax_error,              PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
+  NEW_FLAG_W_ATOM_TBL(os_error,                  PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
 
   SYS_VAR_LINEDIT = pl_stream_use_linedit;
 }

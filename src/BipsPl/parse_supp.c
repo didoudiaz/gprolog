@@ -350,8 +350,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       flag_value = (pl_token.type == TOKEN_STRING) ?
 	Flag_Value(double_quotes) : Flag_Value(back_quotes);
 
-      flag_value &= PF_QUOT_AS_PART_MASK;
-      if (flag_value == PF_QUOT_AS_ATOM)
+      if (flag_value == PF_QUOT_AS_ATOM || flag_value == PF_QUOT_AS_ATOM_NO_ESCAPE)
 	{
 	  atom = Pl_Create_Allocate_Atom(pl_token.name);
 	  goto a_name;
@@ -362,7 +361,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       while (i--)
 	{
 	  term1 = Pl_Put_List();
-	  if (flag_value == PF_QUOT_AS_CODES)
+	  if (flag_value == PF_QUOT_AS_CODES || flag_value == PF_QUOT_AS_CODES_NO_ESCAPE)
 	    Pl_Unify_Integer(pl_token.name[i]);
 	  else
 	    Pl_Unify_Atom(ATOM_CHAR(pl_token.name[i]));

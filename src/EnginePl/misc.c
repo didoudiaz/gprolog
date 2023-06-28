@@ -87,10 +87,10 @@ Init_Dl_Malloc(void) {
  * PL_MALLOC_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-char *
+void *
 Pl_Malloc_Check(size_t size, char *src_file, int src_line)
 {
-  char *m = malloc(size);
+  void *m = malloc(size);
 
   if (m == NULL)
     Pl_Fatal_Error(ERR_ALLOC_FAULT, "malloc", src_file, src_line);
@@ -105,10 +105,10 @@ Pl_Malloc_Check(size_t size, char *src_file, int src_line)
  * PL_CALLOC_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-char *
+void *
 Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line)
 {
-  char *m = calloc(nb, size);
+  void *m = calloc(nb, size);
 
   if (m == NULL)
     Pl_Fatal_Error(ERR_ALLOC_FAULT, "calloc", src_file, src_line);
@@ -123,10 +123,10 @@ Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line)
  * PL_REALLOC_CHECK                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-char *
-Pl_Realloc_Check(char *ptr, size_t size, char *src_file, int src_line)
+void *
+Pl_Realloc_Check(void *ptr, size_t size, char *src_file, int src_line)
 {
-  char *m = realloc(ptr, size);
+  void *m = realloc(ptr, size);
 
   if (m == NULL)
     Pl_Fatal_Error(ERR_ALLOC_FAULT, "realloc", src_file, src_line);

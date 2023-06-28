@@ -171,7 +171,7 @@ Main_Wrapper(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--quiet"))
 	    {
-	      Flag_Value(show_information) = 0;
+	      Flag_Value(show_banner) = 0;
 	      continue;
 	    }
 

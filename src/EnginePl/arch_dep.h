@@ -51,11 +51,15 @@
 
 
 
-#define CPP_STR1(s) #s
-#define CPP_STR(s) CPP_STR1(s)
+/* C Preprocessor utilities */
 
-#define CPP_CAT1(x, y)   x ## y
-#define CPP_CAT(x, y)    CPP_CAT1(x, y)
+#define PP_STR1(s) #s
+#define PP_STR(s) PP_STR1(s)
+
+#define PP_CAT1(x, y)   x ## y
+#define PP_CAT(x, y)    PP_CAT1(x, y)
+
+
 
 
 /* C compiler version (for more general handling see http://sourceforge.net/projects/predef) */
@@ -456,4 +460,3 @@ int closedir(DIR *dir);
 #endif
 
 #endif /* !_ARCH_DEP_H */
-

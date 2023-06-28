@@ -64,7 +64,7 @@ void Pl_New_Object(void (*fct_obj_init)(), void (*fct_exec_system) (), void (*fc
 
 static void OBJ_INIT(void);
 
-#define OBJ_CTOR  CPP_CAT(OBJ_INIT,_ctor)
+#define OBJ_CTOR  PP_CAT(OBJ_INIT,_ctor)
 
 
 #ifdef __GNUC__

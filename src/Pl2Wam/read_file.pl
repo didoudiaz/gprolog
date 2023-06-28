@@ -750,6 +750,10 @@ handle_directive(set_prolog_flag, [X, Y], Where) :-
 	(   current_prolog_flag(singleton_warning, off) ->
 	    g_assign(singl_warn, f)
 	;   g_assign(singl_warn, t)
+	),
+	(   current_prolog_flag(suspicious_warning, off) ->
+	    g_assign(susp_warn, f)
+	;   g_assign(susp_warn, t)
 	).
 
 handle_directive(initialization, [Goal], Where) :-

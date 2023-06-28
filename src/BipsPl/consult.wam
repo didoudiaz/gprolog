@@ -52,7 +52,7 @@ predicate('$consult'/3,63,static,private,monofile,built_in,[
     unify_integer(0),
     put_structure((=)/2,0),
     unify_atom(show_information),
-    unify_atom(on),
+    unify_atom(informational),
     put_structure(bf/3,3),
     unify_value(x(1)),
     unify_value(x(0)),

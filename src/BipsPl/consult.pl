@@ -65,7 +65,7 @@ consult(File, Options) :-
 	'$check_atom_or_atom_list'(File),
 	'$set_consult_defaults',
 	'$get_consult_options'(Options, Pl2WamArgs1, Pl2WamArgs),
-	'$add_args_for_flags'([bf(0 = 0, show_information = on, '--compile-msg'),
+	'$add_args_for_flags'([bf(0 = 0, show_information = informational, '--compile-msg'),
 			       f(suspicious_warning = off, '--no-susp-warn'),
 			       f(singleton_warning = off, '--no-singl-warn')], Pl2WamArgs1),
 	(   atom(File), File \== [] ->

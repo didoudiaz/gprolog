@@ -54,11 +54,11 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Pl_Malloc_Check(size_t size, char *src_file, int src_line);
+void *Pl_Malloc_Check(size_t size, char *src_file, int src_line);
 
-char *Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line);
+void *Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line);
 
-char *Pl_Realloc_Check(char *ptr, size_t size, char *src_file, int src_line);
+void *Pl_Realloc_Check(void *ptr, size_t size, char *src_file, int src_line);
 
 char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 

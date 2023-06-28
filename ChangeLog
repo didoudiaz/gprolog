@@ -1,3 +1,9 @@
+2023-06-28  <daniel.diaz@univ-paris1.fr>
+
+	* add/modify Prolog flags: show_banner, show_information
+	* remove consult statistics (only if show_information=informational)
+	* fix issue #44: misleading error for inexistent file in gprolog --consult-file
+
 2023-06-26  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
@@ -46,7 +52,7 @@
 
 2023-04-15  <daniel.diaz@univ-paris1.fr>
 
-	* improve compiler speed on large Prolog data bases (for wordnet)
+	* improve compiler speed on large Prolog databases (for wordnet)
 	  (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 
 2023-04-07  <daniel.diaz@univ-paris1.fr>
@@ -61,7 +67,7 @@
 
 2023-03-10  <daniel.diaz@univ-paris1.fr>
 
-	* improve compiler speed on large Prolog data bases
+	* improve compiler speed on large Prolog databases
 	  (speed up generation of indexing instructions switch_on_atom/integer/structure)
 	* speed up bind_variables/2 (also speed up the compiler for byte-code)
 	* increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 

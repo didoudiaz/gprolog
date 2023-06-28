@@ -530,7 +530,7 @@ Scan_Quoted(StmInf *pstm)
 
   s = pl_token.name;
   c0 = c;
-  no_escape = i >> PF_QUOT_NO_ESCAPE_BIT;
+  no_escape = (i >= PF_QUOT_AS_CODES_NO_ESCAPE);
 
   for (;;)
     {
@@ -882,12 +882,14 @@ Pl_Scan_Next_Atom(StmInf *pstm)
       break;
 
     case DQ:			/* double quote */
-      if ((Flag_Value(double_quotes) & PF_QUOT_AS_PART_MASK) != PF_QUOT_AS_ATOM)
+      if (Flag_Value(double_quotes) != PF_QUOT_AS_ATOM &&
+	  Flag_Value(double_quotes) != PF_QUOT_AS_ATOM_NO_ESCAPE)
 	goto error;
       goto do_scan_quoted;
 
     case BQ:			/* back quote */
-      if ((Flag_Value(back_quotes) & PF_QUOT_AS_PART_MASK) != PF_QUOT_AS_ATOM)
+      if (Flag_Value(back_quotes) != PF_QUOT_AS_ATOM &&
+	  Flag_Value(back_quotes) != PF_QUOT_AS_ATOM_NO_ESCAPE)
 	goto error;
     case QT:			/* quote */
     do_scan_quoted:

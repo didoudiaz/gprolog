@@ -51,12 +51,20 @@
 
 
      /* values for double_quotes and back_quotes */
-#define PF_QUOT_AS_CODES           0	/* bit 2 is set if no_escape */
+#define PF_QUOT_AS_CODES           0
 #define PF_QUOT_AS_CHARS           1
 #define PF_QUOT_AS_ATOM            2
-#define PF_QUOT_NO_ESCAPE_BIT      2
-#define PF_QUOT_AS_PART_MASK       ((1 << PF_QUOT_NO_ESCAPE_BIT) - 1)
-#define PF_QUOT_NO_ESCAPE_MASK     ((1 << PF_QUOT_NO_ESCAPE_BIT))
+#define PF_QUOT_AS_CODES_NO_ESCAPE 3
+#define PF_QUOT_AS_CHARS_NO_ESCAPE 4
+#define PF_QUOT_AS_ATOM_NO_ESCAPE  5
+
+
+
+
+     /* values for show_information */
+#define PF_SHOW_INFO_SILENT        0
+#define PF_SHOW_INFO_NORMAL        1
+#define PF_SHOW_INFO_INFORMATIONAL 2
 
 
 
@@ -74,27 +82,23 @@ typedef Bool    (*FlagFctSet)(FlagInfP flag, WamWord value_word);
 
 typedef enum
 {
-  PF_TYPE_INTEGER,		/* an integer (value = int)        */
-  PF_TYPE_ATOM,			/* an atom (value = int of atom)   */
-  PF_TYPE_ROUND,		/* toward_zero/down (see PF_ROUND_)*/
-  PF_TYPE_BOOL,			/* false/true                      */
-  PF_TYPE_ON_OFF,		/* off/on (value = 0/1)            */
-  PF_TYPE_ERR,			/* error,warning,fail (see PF_ERR_)*/
-  PF_TYPE_QUOTES,		/* chars,... (see PF_QUOTES_)      */
-  PF_TYPE_ANY			/* other (value = user handled)    */
+  PF_TYPE_INTEGER,		/* an integer (value = int)           */
+  PF_TYPE_ATOM,			/* any atom (value = int of atom)     */
+  PF_TYPE_ATOM_TBL,		/* an atom in tbl (value = tbl index) */
+  PF_TYPE_ANY			/* other (value = user handled)       */
 }FlagType;
 
 
-
-typedef struct flag_inf		/* flag information                */
-{				/* ------------------------------- */
-  int atom_name;		/* atom of the flag name           */
-  Bool modifiable;		/* is it modifiable ?              */
-  FlagType type;		/* type see PF_TYPE_xxx            */
-  PlLong value;			/* flag value (generic value)      */
-  FlagFctGet fct_get;		/* value -> term (curr prolog flag)*/
-  FlagFctChk fct_chk;		/* check term (for set prolog flag)*/
-  FlagFctSet fct_set;		/* term -> value  (set prolog flag)*/
+typedef struct flag_inf		/* flag information                   */
+{				/* ---------------------------------- */
+  int atom_name;		/* atom of the flag name              */
+  Bool modifiable;		/* is it modifiable ?                 */
+  FlagType type;		/* type see PF_TYPE_xxx               */
+  PlLong value;			/* flag value (generic value)         */
+  int *tbl_atom;		/* tbl possib atoms (modifiable flag) */
+  FlagFctGet fct_get;		/* value -> term (curr prolog flag)   */
+  FlagFctChk fct_chk;		/* check term (for set prolog flag)   */
+  FlagFctSet fct_set;		/* term -> value  (set prolog flag)   */
 }FlagInf;
 
 
@@ -110,28 +114,38 @@ typedef struct flag_inf		/* flag information                */
  *---------------------------------*/
 
 FlagInf *Pl_New_Prolog_Flag(char *name, Bool modifiable, FlagType type, PlLong value,
-			    FlagFctGet fct_get, FlagFctChk fct_chk, FlagFctSet fct_set);
-
+			    FlagFctGet fct_get, FlagFctChk fct_chk, FlagFctSet fct_set, ...);
 
 /* macros to create flags of predefined types.
  * modifiable flags give rise to global variable pl_flag_xxx
  */
 
-#define NEW_FLAG_R_INTEGER(f, v) Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
+	 /* do not include set fct to avoid empty __VA_ARGS__ 
+	  * since trick ,##__VA_ARGS__ to remove comma is not normalized */
+#define NEW_FLAG0(flag, modif, type, val, get, chk, ...) \
+  Pl_New_Prolog_Flag(#flag, modif, type, val, get, chk, __VA_ARGS__)
 
-#define NEW_FLAG_R_ATOM_A(f, v)  Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, v, NULL, NULL, NULL)
+#define NEW_FLAG_R(flag, type, val, get, chk, ...) \
+  NEW_FLAG0(flag, FALSE, type, val, get, chk, __VA_ARGS__)
 
-#define NEW_FLAG_R_ATOM(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
+#define NEW_FLAG_W(flag, type, val, get, chk, ...) \
+  pl_flag_##flag = NEW_FLAG0(flag, TRUE, type, val, get, chk, __VA_ARGS__)
 
-#define NEW_FLAG_R_ROUND(f, v)   Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_ROUND, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_R_BOOL(f, v)    Pl_New_Prolog_Flag(#f, FALSE, PF_TYPE_BOOL, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_W_ON_OFF(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ON_OFF, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_W_ERR(f, v)     pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_ERR, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_INTEGER(f, v)       NEW_FLAG_R(f, PF_TYPE_INTEGER, v, NULL, NULL, NULL)
 
-#define NEW_FLAG_W_QUOTES(f, v)  pl_flag_##f = Pl_New_Prolog_Flag(#f, TRUE, PF_TYPE_QUOTES, v, NULL, NULL, NULL)
+#define NEW_FLAG_R_ATOM(f, v)          NEW_FLAG_R(f, PF_TYPE_ATOM, Pl_Create_Atom(v), NULL, NULL, NULL)
+
+#define NEW_FLAG_R_ATOM_TBL(f, v, ...) NEW_FLAG_R(f, PF_TYPE_ATOM_TBL, v, NULL, NULL, NULL, __VA_ARGS__, -1);
+
+#define NEW_FLAG_W_ATOM_TBL(f, v, ...) NEW_FLAG_W(f, PF_TYPE_ATOM_TBL, v, NULL, NULL, NULL, __VA_ARGS__, -1);
+
+	/* bootstrapped (special case of ATOM_TBL) */
+#define NEW_FLAG_R_BOOL(f, v)          NEW_FLAG_R_ATOM_TBL(f, v, pl_atom_false, pl_atom_true)
+
+#define NEW_FLAG_W_ON_OFF(f, v)        NEW_FLAG_W_ATOM_TBL(f, v, atom_off, atom_on)
 
 
 
@@ -188,6 +202,8 @@ FlagInf *pl_flag_multifile_warning;
 FlagInf *pl_flag_os_error;
 FlagInf *pl_flag_singleton_warning;
 FlagInf *pl_flag_suspicious_warning;
+FlagInf *pl_flag_show_banner;
+FlagInf *pl_flag_show_error;
 FlagInf *pl_flag_show_information;
 FlagInf *pl_flag_strict_iso;
 FlagInf *pl_flag_syntax_error;
@@ -205,6 +221,8 @@ extern FlagInf *pl_flag_multifile_warning;
 extern FlagInf *pl_flag_os_error;
 extern FlagInf *pl_flag_singleton_warning;
 extern FlagInf *pl_flag_suspicious_warning;
+extern FlagInf *pl_flag_show_banner;
+extern FlagInf *pl_flag_show_error;
 extern FlagInf *pl_flag_show_information;
 extern FlagInf *pl_flag_strict_iso;
 extern FlagInf *pl_flag_syntax_error;
@@ -213,11 +231,6 @@ extern FlagInf *pl_flag_unknown;
 #endif
 
 
-
-
-Bool Pl_Read_Pl_State_File(WamWord file_word);
-
-Bool Pl_Write_Pl_State_File(WamWord file_word);
 
 
 /*-------------------------------------------------------------------------*
