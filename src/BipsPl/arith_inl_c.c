@@ -337,7 +337,7 @@ Double_To_PlLong(double d)
 
   PlLong x = (PlLong) d;
   if ((double) x != d || x < INT_LOWEST_VALUE || x > INT_GREATEST_VALUE)
-      Pl_Err_Evaluation(pl_evaluation_int_overflow);
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
 
   return x;
 }
@@ -660,6 +660,8 @@ WamWord FC
 Pl_Fct_Fast_Neg(WamWord x)
 {
   PlLong vx = UnTag_INT(x);
+  if (vx == INT_LOWEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return Tag_INT(-vx);
 }
 
@@ -686,7 +688,10 @@ Pl_Fct_Fast_Add(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
-  return Tag_INT(vx + vy);
+  PlLong vz = vx + vy;
+  if (vz < INT_LOWEST_VALUE || vz > INT_GREATEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
+  return Tag_INT(vz);
 }
 
 WamWord FC
@@ -694,7 +699,10 @@ Pl_Fct_Fast_Sub(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
-  return Tag_INT(vx - vy);
+  PlLong vz = vx - vy;
+  if (vz < INT_LOWEST_VALUE || vz > INT_GREATEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
+  return Tag_INT(vz);
 }
 
 WamWord FC
@@ -702,6 +710,13 @@ Pl_Fct_Fast_Mul(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
+  if (
+    (vx > 0 && vy > 0 && vy > INT_GREATEST_VALUE / vx)
+    || (vx > 0 && vy < 0 && vy < INT_LOWEST_VALUE / vx)
+    || (vx < 0 && vy > 0 && vy > INT_LOWEST_VALUE / vx)
+    || (vx < 0 && vy < 0 && vy < INT_GREATEST_VALUE / vx)
+    )
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return Tag_INT(vx * vy);
 }
 
@@ -713,6 +728,8 @@ Pl_Fct_Fast_Integer_Div(WamWord x, WamWord y)
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evaluation_zero_divisor);
+  if (vx == INT_LOWEST_VALUE && vy == -1)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
 
   return Tag_INT(vx / vy);
 }
@@ -726,6 +743,8 @@ Pl_Fct_Fast_Integer_Div2(WamWord x, WamWord y)
 
   if (vy == 0)
     Pl_Err_Evaluation(pl_evaluation_zero_divisor);
+  if (vx == INT_LOWEST_VALUE && vy == -1)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
 
   m = vx % vy;
 
@@ -798,6 +817,8 @@ Pl_Fct_Fast_Shl(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
+  if (vx > (INT_GREATEST_VALUE >> vy))
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return Tag_INT(vx << vy);
 }
 
@@ -834,6 +855,8 @@ WamWord FC
 Pl_Fct_Fast_Abs(WamWord x)
 {
   PlLong vx = UnTag_INT(x);
+  if (vx == INT_LOWEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return (vx < 0) ? Tag_INT(-vx) : x;
 }
 
@@ -849,6 +872,11 @@ Pl_Fct_Fast_GCD(WamWord x, WamWord y)
 {
   PlLong vx = UnTag_INT(x);
   PlLong vy = UnTag_INT(y);
+
+  if (
+    (vx == INT_LOWEST_VALUE && vy == 0) || (vx == 0 && vy == INT_LOWEST_VALUE)
+    )
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
 
   if (vx < 0)
     vx = -vx;
