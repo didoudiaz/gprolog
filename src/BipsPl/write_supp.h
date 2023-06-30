@@ -78,7 +78,11 @@ extern int pl_last_writing;
 void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 		   WamWord term_word);
 
+/* useful for debugging */
 void Pl_Write(WamWord term_word);
+void Pl_Writeln(WamWord term_word);
+void Pl_Nl_0(void);
+
 
 void Pl_Write_A_Full_Stop(StmInf *pstm);
 

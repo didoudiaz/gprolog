@@ -414,34 +414,34 @@ pred_rewriting(term_hash(Term, Depth, Range, Hash), Pred1) :-
 	pred_rewriting('$call_c'('Pl_Un_Integer_Check'(Hash1, Hash), [boolean, by_value]), T2),
 	Pred1 = (T, T2).
 
-          % The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
-          % LCOpt is a list containing:
-          %   jump/boolean
-          %   fast_call (use a fact call convention)
-          %   tagged (use tagged calls for atom, integers and F/N)
-          %   by_value (pass atom, numbers, F/N by value not by WamWord)
-          %   use_x_regs (the function can destroy any X register)
-          %
-          % Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
-          % kept for the moment...
+	/* The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
+	 * LCOpt is a list possibly containing:
+	 *   a Ret: either void, jump, boolean or ret(RetVar)
+	 *   fast_call (use a fact call convention)
+	 *   tagged (use tagged calls for atom, integers and F/N)
+	 *   by_value (pass atom, numbers, F/N by value not by WamWord)
+	 *   use_x_regs (the function can destroy any X register)
+	 *
+	 * At end of syn_sugar any '$call_c' becomes a '$call_c'/2.
+	 * Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
+	 * kept for the moment...
+	 */
 
-          % do not use LCOpt1 = '$no_internal_transf$'(LCOpt) for bootstrapping
 pred_rewriting('$call_c'(F, LCOpt), '$call_c'(F, LCOpt1)) :-
-	test_c_call_allowed('$call_c' / 2),
-	no_internal_transf(LCOpt, LCOpt1).
+	test_c_call_allowed('$call_c'/2),
+	check_callable(F, 'C function name'),
+	mk_no_internal_transf(LCOpt, LCOpt1).   % keep "as is"
 
-pred_rewriting('$call_c'(F), T) :-
-	test_c_call_allowed('$call_c' / 1),
+pred_rewriting('$call_c'(F), T) :-		% shortcut version
+	test_c_call_allowed('$call_c'/1),
 	pred_rewriting('$call_c'(F, []), T).
 
-						% backward compatibility
-pred_rewriting('$call_c_test'(F), T) :-
-	test_c_call_allowed('$call_c_test' / 1),
+pred_rewriting('$call_c_test'(F), T) :-		% backward compatibility
+	test_c_call_allowed('$call_c_test'/1),
 	pred_rewriting('$call_c'(F, [boolean]), T).
 
-						% backward compatibility
-pred_rewriting('$call_c_jump'(F), T) :-
-	test_c_call_allowed('$call_c_jump' / 1),
+pred_rewriting('$call_c_jump'(F), T) :-		% backward compatibility
+	test_c_call_allowed('$call_c_jump'/1),
 	pred_rewriting('$call_c'(F, [jump]), T).
 
 pred_rewriting(P, P).
@@ -453,6 +453,7 @@ test_c_call_allowed(_) :-
 
 test_c_call_allowed(X) :-
 	error('~q not allowed in this mode', [X]).
+
 
 
 

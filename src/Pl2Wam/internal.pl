@@ -128,7 +128,7 @@ format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F / N, ArgLst1), InlinePred
 	(   (   inline_predicate(F, N)
             ;   F = '$call_c',
 	        N = 2,
-		ArgLst1 = [_, LCOpt],  % $no_internal_transf$ removed here
+		ArgLst1 = [_FctName, LCOpt],  % no_internal_transf marker has been removed
 	        not_dangerous_c_call(LCOpt)
 	    ) ->
 	    InlinePred = t
@@ -151,9 +151,12 @@ format_arg(Var, NoPred, DicoVar, V) :-
 	var(Var),
 	add_var_to_dico(DicoVar, Var, NoPred, V).
 
-
-format_arg(T, _, _, T1) :-
-	no_internal_transf(T1, T).
+format_arg(T, NoPred, DicoVar, T2) :-
+	mk_no_internal_transf(T1, T), % has T the no_internal_transf marker ?
+	(   ground(T1) ->
+	    T2 = T1
+	;   format_arg_only_var(T1, NoPred, DicoVar, T2)
+	).
 
 format_arg([], _, _, nil).
 
@@ -166,22 +169,58 @@ format_arg(N, _, _, int(N)) :-
 format_arg(N, _, _, flt(N)) :-
 	float(N).
 
-format_arg(Fonc, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
-	functor(Fonc, F, N),
-	Fonc =.. [_|ArgLst],
+format_arg(T, NoPred, DicoVar, stc(F, N, ArgLst1)) :-
+	functor(T, F, N),
+	T =.. [_|ArgLst],
 	format_arg_lst(ArgLst, NoPred, DicoVar, ArgLst1).
 
 
 
 
-          % creates a term T1 equivalent to T which will not be transformed
-          % in the internal format. This can only by used for arguments of
-          % inlined predicates and requires T is ground.
-          %
-          % NB: do not use T1 = '$no_internal_transf$'(T) for bootstrapping.
+	% as above but only variables are put in internal format (no_internal_transf)
 
-no_internal_transf(T, T1) :-
-	functor(T1, '$no_internal_tranf$', 1),
+format_arg_lst_only_var([], _, _, []).
+
+format_arg_lst_only_var([Arg|ArgLst], NoPred, DicoVar, [Arg1|ArgLst1]) :-
+	format_arg_only_var(Arg, NoPred, DicoVar, Arg1), !,
+	format_arg_lst_only_var(ArgLst, NoPred, DicoVar, ArgLst1).
+
+
+
+
+format_arg_only_var(Var, NoPred, DicoVar, V) :-
+	var(Var),
+	format_arg(Var, NoPred, DicoVar, V).
+
+format_arg_only_var(T, _, _, T) :-
+	atomic(T).
+
+format_arg_only_var(T, NoPred, DicoVar, T1) :-
+	functor(T, F, N),
+	(   F = '.', N = 2 ->	% a list
+	    format_arg_lst_only_var(T, NoPred, DicoVar, T1)
+	;   T =.. [_|ArgLst],
+	    format_arg_lst_only_var(ArgLst, NoPred, DicoVar, ArgLst1),
+	    T1 =.. [F|ArgLst1]
+	).
+
+
+
+
+	/* Creates a term T1 equivalent to T marked as no_internal_transf
+	 * The T1 ground subterms will not transformed in the internal format
+	 * (vars will be transformed - used for '$call_c' with a RetVar).
+	 * This can only by used for arguments of some inlined predicates.
+	 *
+	 * Mark is done with a special functor '$no_internal_transf$'/1.
+	 * Use mk_no_internal_transf to create such a term (so this is
+	 * the only location defining the marker term and for bootstrapping).
+	 * Change the mark here if needed.
+	 */
+
+          % NB: do not use T1 = '$no_internal_transf$'(T) for bootstrapping.
+mk_no_internal_transf(T, T1) :-
+	functor(T1, '$no_internal_transf$', 1), % the only location the marker is defined/used
 	arg(1, T1, T).
 
 

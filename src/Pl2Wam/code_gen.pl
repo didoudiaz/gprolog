@@ -90,20 +90,25 @@ generate_body([p(NoPred, Module, Pred / N, LArg)|Body], NbChunk, WamPred) :-
 generate_body1(fail, 0, _, _, _, _, _, [fail]) :-
 	!.
 
-generate_body1('$call_c', 2, _, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
+generate_body1('$call_c', 2, _, [Fct, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	!,
-	(   Arg = atm(Name),
-	    LStcArg = []
+	(   Fct = atm(FctName), LStcArg = [] ->
+	    true
 	;
-	    Arg = stc(Name, _, LStcArg)
+	    Fct = stc(FctName, _, LStcArg)
 	),
 	(   Body \== [], memberchk(jump, LCOpt) ->
 	    LCOpt1 = [set_cp|LCOpt]
 	;
 	    LCOpt1 = LCOpt
         ),
+	(   select(ret(var(VarName, _)), LCOpt1, LCOpt2) ->
+	    LCOpt3 = [VarName|LCOpt2]
+	;
+	    LCOpt3 = LCOpt1
+	),
 	load_c_call_args(LCOpt, LStcArg, LValue, WamCallC1, WamArgs),
-	WamCallCInst = call_c(Name, LCOpt1, LValue),
+	WamCallCInst = call_c(FctName, LCOpt3, LValue),
 	(   Body = [] ->
 	    (   NoPred > 1 ->
 	        WamCallC1 = [deallocate, WamCallCInst, proceed]
@@ -590,7 +595,7 @@ gen_inline_pred(is, 2, [var(VN1, Info1), stc(+, 2, [var(VN2, Info2), int(1)])], 
 	;   true
 	),
 	Info1 = not_in_cur_env,
-	WamMath = [call_c('Math_X_is_inc_y',[fast],[&,VN1,VN2])|WamNext].
+	WamMath = [call_c('Math_X_Is_Inc_Y', [fast], [&,VN1, VN2])|WamNext].
 */
 gen_inline_pred(is, 2, [Arg1, Arg2], WamNext, WamMath) :-
 	load_math_expr(Arg2, Reg, WamUnif, WamMath), !,

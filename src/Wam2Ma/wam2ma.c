@@ -1653,9 +1653,9 @@ F_soft_cut(ArgVal arg[])
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *
- *    - jump/boolean/x(X) (jump at / test / move returned value)           *
+ *    - jump/boolean/x(X)/y(Y) (jump at / test / move returned value)      *
  *    - set_cp (set CP before the call at the next instruction)            *
- *    - fast_call (use a fact call convention)                             *
+ *    - fast_call (use a fast call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
  *   W= atom  &,fun,arity  integer  double  x(X)  y(Y)  &,x(X)  &,y(Y)     *
  *-------------------------------------------------------------------------*/
@@ -1686,7 +1686,7 @@ F_call_c(ArgVal arg[])
   for (i = 0; i < nb_elem; i++)
     {
       LOAD_C_INT(arg_type);
-      if (arg_type == X_Y)	/* move_ret x(X) (or y(Y) but not used) */
+      if (arg_type == X_Y)	/* move_ret x(X) or y(Y) */
 	{
 	  LOAD_X_Y(xy);
 	  ret = 3;

@@ -2,7 +2,7 @@
 % file    : call.pl
 
 
-file_name('/home/diaz/GP/src/BipsPl/call.pl').
+file_name('/Users/diaz/GP/src/BipsPl/call.pl').
 
 
 predicate('$use_call'/0,41,static,private,monofile,built_in,[
@@ -140,19 +140,15 @@ predicate('$call_nth_int'/2,97,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
-    allocate(3),
-    get_variable(y(0),1),
-    get_variable(y(1),2),
+    allocate(1),
+    get_variable(y(0),2),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
-    math_load_value(y(0),1),
-    put_integer(0,2),
-    call_c('Pl_Blt_Gt',[fast_call,boolean],[x(1),x(2)]),
-    cut(y(1)),
-    put_variable(y(2),1),
+    math_load_value(x(1),2),
+    put_integer(0,3),
+    call_c('Pl_Blt_Gt',[fast_call,boolean],[x(2),x(3)]),
+    cut(y(0)),
     call('$call_nth_exec'/2),
-    put_unsafe_value(y(2),0),
-    get_value(y(0),0),
-    cut(y(1)),
+    cut(y(0)),
     deallocate,
     proceed,
 
@@ -168,43 +164,36 @@ label(1),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$call_nth_exec'/2,110,static,private,monofile,built_in,[
+predicate('$call_nth_exec'/2,126,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),1),
     put_variable(y(1),1),
-    get_structure('$call_nth_counter'/1,1),
-    unify_integer(0),
+    get_integer(0,1),
     put_atom(call_nth,1),
     put_integer(2,2),
     put_atom(true,3),
     call('$call'/4),
-    put_integer(1,1),
-    put_value(y(1),2),
-    put_variable(x(0),3),
-    call_c('Pl_Blt_Arg',[fast_call,boolean],[x(1),x(2),x(3)]),
-    put_value(y(0),1),
-    call(succ/2),
-    put_integer(1,0),
-    put_unsafe_value(y(1),1),
-    put_value(y(0),2),
-    put_atom(false,3),
+    put_unsafe_value(y(1),0),
+    call_c('Pl_Fct_Inc',[y(1),fast_call],[x(0)]),
+    put_value(y(0),0),
+    get_value(y(1),0),
     deallocate,
-    execute(setarg/4)]).
+    proceed]).
 
 
-predicate('$call'/4,122,static,private,monofile,built_in,[
+predicate('$call'/4,137,static,private,monofile,built_in,[
     call_c('Pl_Save_Call_Info_3',[],[x(1),x(2),x(3)]),
     put_integer(0,1),
     execute('$call1'/2)]).
 
 
-predicate('$call1'/2,126,static,private,monofile,built_in,[
+predicate('$call1'/2,141,static,private,monofile,built_in,[
     put_integer(1,2),
     call_c('Pl_Load_Call_Info_Arg_1',[],[x(2)]),
     execute('$call_internal'/2)]).
 
 
-predicate('$call_internal'/2,130,static,private,monofile,built_in,[
+predicate('$call_internal'/2,145,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -222,7 +211,7 @@ predicate('$call_internal'/2,130,static,private,monofile,built_in,[
     execute('$call_internal1'/2)]).
 
 
-predicate('$$call_internal/2_$aux1'/1,130,static,private,monofile,local,[
+predicate('$$call_internal/2_$aux1'/1,145,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -235,13 +224,13 @@ label(1),
     proceed]).
 
 
-predicate('$call_internal1'/2,140,static,private,monofile,built_in,[
+predicate('$call_internal1'/2,155,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_internal_with_cut'/3,147,static,private,monofile,built_in,[
+predicate('$call_internal_with_cut'/3,162,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(23),
@@ -388,7 +377,7 @@ label(23),
     proceed]).
 
 
-predicate('$call_internal_or'/4,197,static,private,monofile,built_in,[
+predicate('$call_internal_or'/4,212,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(6),
@@ -440,7 +429,7 @@ label(7),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$$call_internal_or/4_$aux2'/5,204,static,private,monofile,local,[
+predicate('$$call_internal_or/4_$aux2'/5,219,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),1),
@@ -463,7 +452,7 @@ label(1),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$$call_internal_or/4_$aux1'/6,197,static,private,monofile,local,[
+predicate('$$call_internal_or/4_$aux1'/6,212,static,private,monofile,local,[
     try_me_else(1),
     allocate(4),
     get_variable(y(0),1),
@@ -486,17 +475,17 @@ label(1),
     execute('$call_internal_with_cut'/3)]).
 
 
-predicate('$call_from_debugger'/2,220,static,private,monofile,built_in,[
+predicate('$call_from_debugger'/2,235,static,private,monofile,built_in,[
     put_integer(0,2),
     call_c('Pl_BC_Call_Terminal_Pred_3',[jump],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate(false/0,225,static,private,monofile,built_in,[
+predicate(false/0,240,static,private,monofile,built_in,[
     fail]).
 
 
-predicate(forall/2,231,static,private,monofile,built_in,[
+predicate(forall/2,246,static,private,monofile,built_in,[
     get_variable(x(2),0),
     put_structure((',')/2,0),
     unify_local_value(x(2)),
@@ -509,11 +498,11 @@ predicate(forall/2,231,static,private,monofile,built_in,[
     execute('$not'/3)]).
 
 
-predicate('$not'/3,235,static,private,monofile,built_in,[
+predicate('$not'/3,250,static,private,monofile,built_in,[
     execute('$$not/3_$aux1'/3)]).
 
 
-predicate('$$not/3_$aux1'/3,235,static,private,monofile,local,[
+predicate('$$not/3_$aux1'/3,250,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -563,7 +552,7 @@ predicate('$$prop_meta_pred/3_$aux5'/3,82,static,private,monofile,local,[
     proceed]).
 
 
-predicate('$$prop_meta_pred/3_$aux6'/3,229,static,private,monofile,local,[
+predicate('$$prop_meta_pred/3_$aux6'/3,244,static,private,monofile,local,[
     get_atom(forall,0),
     get_integer(2,1),
     get_structure(forall/2,2),
@@ -630,7 +619,7 @@ directive(82,system,[
     execute('$add_clause_term'/2)]).
 
 
-directive(229,system,[
+directive(244,system,[
     call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(forall),

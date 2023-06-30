@@ -95,24 +95,39 @@ call_nth(_, Nth) :-
 
 
 '$call_nth_int'(Goal, Nth) :-
-	Nth > 0,
-	!,
-	'$call_nth_exec'(Goal, N),
-	N = Nth, !.		% cut since execute only once
+	Nth > 0, !,			% cut for if-then-else
+	'$call_nth_exec'(Goal, Nth), !.	% cut since execute only once
 
 '$call_nth_int'(_, Nth) :-	% simply fail if Nth = 0
-	Nth < 0,
-	!,
+	Nth < 0, !,
 	set_bip_name(call_nth, 2),
 	'$pl_err_domain'(not_less_than_zero, Nth).
 
+/* version storing the counter in a term and modify across
+ * backtracking with nb_setarg
+ *
+'$call_nth_exec'(Goal, Nth) :-
+	CounterTerm = '$call_nth_counter'(0, _), % see issue #45 (for future representation sharing)
+	'$call'(Goal, call_nth, 2, true),
+	arg(1, CounterTerm, Counter),
+	Counter1 is Counter + 1,   
+	setarg(1, CounterTerm, Counter1, false),
+	Nth = Counter1.		% must be after counter increment
+ */
+
+/* Optimized version storing the counter in a WAM permanent Y variable
+ * (see issue #45). For this, add a new option to '$call_c': ret(RetVar).
+ * RetVar must be "local" variable (i.e. a Y var stored in the environment).
+ * The '$call_c' performs a C-like assignment: Counter += 1
+ * To test int_overflow, init with:
+ *	Counter = 1152921504606846974,
+ */
 
 '$call_nth_exec'(Goal, Nth) :-
-	Counter = '$call_nth_counter'(0),
+	Counter = 0,		% Counter stored in a WAM Y variable
 	'$call'(Goal, call_nth, 2, true),
-	arg(1, Counter, N),
-	succ(N, Nth),		% use this to trigger int_overflow if needed
-	setarg(1, Counter, Nth, false).
+	'$call_c'('Pl_Fct_Inc'(Counter), [fast_call, ret(Counter)]),
+	Nth = Counter.		% do not pass Nth directly above !
 
 
 

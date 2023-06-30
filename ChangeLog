@@ -1,3 +1,7 @@
+2023-06-30  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #45: improve call_nth/2 with a add new '$call_c' option ret(RetVar)
+
 2023-06-28  <daniel.diaz@univ-paris1.fr>
 
 	* add/modify Prolog flags: show_banner, show_information

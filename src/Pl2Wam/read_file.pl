@@ -817,7 +817,7 @@ handle_directive(foreign, [Template, Options], Where) :-
 	g_read(foreign_return, Return),
 	g_read(foreign_bip, BipPred),
 	g_read(foreign_choice_size, ChcSize),
-	no_internal_transf(args(FctName, Return, BipPred, ChcSize, LType), Args),
+	mk_no_internal_transf(args(FctName, Return, BipPred, ChcSize, LType), Args),
 	functor(Head, Pred, N),
 	SrcCl = Where + (Head :- '$foreign_call_c'(Args)),
 	assertz(buff_discontig_clause(Pred, N, SrcCl)),

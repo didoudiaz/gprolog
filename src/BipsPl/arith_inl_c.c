@@ -667,6 +667,8 @@ WamWord FC
 Pl_Fct_Fast_Inc(WamWord x)
 {
   PlLong vx = UnTag_INT(x);
+  if (vx == INT_GREATEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return Tag_INT(vx + 1);
 }
 
@@ -674,6 +676,8 @@ WamWord FC
 Pl_Fct_Fast_Dec(WamWord x)
 {
   PlLong vx = UnTag_INT(x);
+  if (vx == INT_LOWEST_VALUE)
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);
   return Tag_INT(vx - 1);
 }
 

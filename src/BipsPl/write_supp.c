@@ -246,7 +246,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 
 /*-------------------------------------------------------------------------*
  * PL_WRITE                                                                *
- *                                                                         *
+ * useful for debugging                                                    *
  *-------------------------------------------------------------------------*/
 void
 Pl_Write(WamWord term_word)
@@ -255,6 +255,23 @@ Pl_Write(WamWord term_word)
 
   Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
   /* like write/1 */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_WRITELN                                                              *
+ * useful for debugging                                                    *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Writeln(WamWord term_word)
+{
+  StmInf *pstm = pl_stm_tbl[pl_stm_current_output];
+
+  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
+  Pl_Nl_0();
+  /* like write/1+nl/0 */
 }
 
 

@@ -80,7 +80,7 @@
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *
- *    - jump/boolean/x(X) (jump at / test / move returned value)           *
+ *    - jump/boolean/V (jump at / test / move return value to x(X) or y(Y) *
  *    - set_cp (set CP before the call at the next instruction)            *
  *    - fast_call (use a fact call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
