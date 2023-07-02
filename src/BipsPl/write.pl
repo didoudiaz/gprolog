@@ -104,7 +104,8 @@ display(SorA, Term) :-
           %  1=true      1=true     1=true     1=true     1=true       1=true    1=true
           %
           % max_depth in sys_var[1]
-          % priority in sys_var[2]
+	  % priority in sys_var[2]
+	  % above in sys_var[3]
 
 
 write_term(Term, Options) :-

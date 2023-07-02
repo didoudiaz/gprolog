@@ -1,3 +1,9 @@
+2023-07-02  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #50: top-level: flush_output after each answer display
+	* improve top-level: write a space to separate argmunets of compound terms
+	* fix pl2wam --susp-warn (deactivated wrongly after a set_prolog_flag/2 directive)
+
 2023-06-30  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #45: improve call_nth/2 with a add new '$call_c' option ret(RetVar)
@@ -5,7 +11,7 @@
 2023-06-28  <daniel.diaz@univ-paris1.fr>
 
 	* add/modify Prolog flags: show_banner, show_information
-	* remove consult statistics (only if show_information=informational)
+	* remove default consult summary statistics (to display set show_information=informational)
 	* fix issue #44: misleading error for inexistent file in gprolog --consult-file
 
 2023-06-26  <daniel.diaz@univ-paris1.fr>

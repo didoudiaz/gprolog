@@ -240,7 +240,10 @@ break :-
 	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
 
 '$read_query'(X, QueryVars) :-
-	read_term(top_level_input, X, [variable_names(QueryVars)]),
+	read_term(top_level_input, X, [variable_names(QueryVars)]), !,
+	'$PB_empty_buffer'(top_level_input).
+
+'$read_query'(fail, []) :-   % read_term can fail if flag syntax_error = fail
 	'$PB_empty_buffer'(top_level_input).
 
 
@@ -305,7 +308,7 @@ break :-
 	).
 
 '$write_solution'(ToDispVars, _, _) :-
-	( current_op(Prior, xfx, =) ; Prior = 700), !,
+	( current_op(Prior, xfx, =) ; Prior = 700 ), !,
 	Prior1 is Prior - 1,
 	'$write_solution1'(ToDispVars, Prior1).
 
@@ -315,7 +318,9 @@ break :-
 '$write_solution1'([Name = Value|ToDispVars], Prior) :-
 	(   acyclic_term(Value) ->
 	    format(top_level_output, '~n~a = ', [Name]),
-	    write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)])
+	    write_term(top_level_output, Value,
+		       [quoted(true), numbervars(false), namevars(true), priority(Prior), space_args(true)]),
+	    flush_output(top_level_output)
 	;
 	    format(top_level_output, '~ncannot display cyclic term for ~a', [Name])
 	),

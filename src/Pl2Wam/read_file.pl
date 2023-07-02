@@ -747,13 +747,19 @@ handle_directive(char_conversion, [X, Y], Where) :-
 handle_directive(set_prolog_flag, [X, Y], Where) :-
 	!,
 	handle_init_directive(set_prolog_flag(X, Y), system, Where),
-	(   current_prolog_flag(singleton_warning, off) ->
-	    g_assign(singl_warn, f)
-	;   g_assign(singl_warn, t)
+	(   X = singleton_warning -> % singl_warn and singleton_warning flag can be decorelated (use only flag ?)
+	    (   current_prolog_flag(singleton_warning, off) ->
+		g_assign(singl_warn, f)
+	    ;   g_assign(singl_warn, t)
+	    )
+	;   true
 	),
-	(   current_prolog_flag(suspicious_warning, off) ->
-	    g_assign(susp_warn, f)
-	;   g_assign(susp_warn, t)
+	(   X = suspicious_warning -> % idem for susp_warn and suspicious_warning flag
+	    (   current_prolog_flag(suspicious_warning, off) ->
+		g_assign(susp_warn, f)
+	    ;   g_assign(susp_warn, t)
+	    )
+	;   true
 	).
 
 handle_directive(initialization, [Goal], Where) :-

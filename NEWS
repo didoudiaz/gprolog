@@ -1,6 +1,7 @@
 Change in GNU Prolog version 1.6.0
 
 * add/modify Prolog flags: show_banner, show_information
+* remove default consult summary statistics (to display set show_information=informational)
 * fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
 * add built-in nb_setarg/3 (special case of setarg/4)
 * fix issue #26: missing int_overflow for succ/2
