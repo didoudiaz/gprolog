@@ -361,25 +361,6 @@ Pl_NaN(void)
 
 
 /*-------------------------------------------------------------------------*
- * DOUBLE_TO_PLLONG                                                        *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static PlLong
-Double_To_PlLong(double d)
-{
-  Check_Double_Errors(d, TRUE);
-
-  PlLong x = (PlLong) d;
-  if ((double) x != d || TEST_INT_OVERFLOW(x))
-    Pl_Err_Evaluation(pl_evaluation_int_overflow);
-
-  return x;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
  * PL_MATH_LOAD_VALUE                                                      *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -612,8 +593,8 @@ mul_overflow(PlLong a, PlLong b, PlLong *r)
 /* Similar to mul_overflow() but for integer power
  * Returns an int: 
  *     0 = OK, 1 = overflow, 
- *     2 = not an integer (only OK for an integer a) 
- *     3 = not an integer (undefined
+ *     2 = undefined (division by 0)
+ *     3 = not an integer (result would be OK as a float)
  */
 static inline int
 pow_overflow(PlLong a, PlLong b, PlLong *r)
@@ -630,17 +611,22 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
       return 0;
     }
 
-  if (a == 0 && b >= 0)		/* undefined if div by 0, e.g. 0^-3 */
+  if (a == 0)
     {
-      *r = (b == 0);
-      return 0;
+      if (b >= 0)
+	{
+	  *r = (b == 0);
+	  return 0;
+	}
+      return 2;		/* undefined if div by 0, e.g. 0^-3 */
     }
 
-  if (b < -1)
-    return 2;
+  /* here abs(a) > 1 */
+  if (b < 0)
+    return 3;	    /* not an integer (result would be a float) */
 
-  /* remark: here b should < 64, else overflow occurs even on 64 bits, 
-   * this could exploited to unroll the loop 6 times (b has at most 6 bits) 
+  /* here 0 < b. b sould be < 64, else overflow occurs even on 64 bits, 
+   * this could exploited to unroll the loop 6 times (b has at most 6 bits)
    */
   *r = 1;
   for(;;)			/* inifinte loop: don't test b twice */
@@ -657,8 +643,9 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
   return 0;
 }
 
-/* on 64bits, some PlLong are not exactly represented as double
- * do not cast PlLong to double to compare them (min/2, max/2)
+/* On 64bits, some PlLong are not exactly represented as double.
+ * Comparing a PlLong with a double (used by min/2, max/2) requires
+ * more work than a simple cast to double 
  */
 
 #define CMP_SAME_TYPE(a, b) ((a) < (b) ? -1 : (a) != (b))
@@ -666,7 +653,7 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
 static inline int
 compare_with_double(PlLong a, double b)
 {
-#if WORD_SIZE == 64 && HAS_AN_EFFECTIVE_LONG_DOUBLE
+#if WORD_SIZE == 64 && defined(HAS_AN_EFFECTIVE_LONG_DOUBLE)
 
   long double lda = (long double) a;
   long double ldb = (long double) b;
@@ -956,7 +943,22 @@ Pl_Fct_Fast_Shl(WamWord x_word, WamWord y_word)
 {
   PlLong x = UnTag_INT(x_word);
   PlLong y = UnTag_INT(y_word);
-  return Tag_INT(x << y);
+  PlLong z;
+
+  if (y >= WORD_SIZE)
+    {
+      if (x)
+	Pl_Err_Evaluation(pl_evaluation_int_overflow);
+      z = 0;
+    }
+  else
+    {
+      if (x > (INT_GREATEST_VALUE >> y))
+	Pl_Err_Evaluation(pl_evaluation_int_overflow);
+      z = x << y;
+    }
+
+  return Tag_INT(z);
 }
 
 WamWord FC
@@ -964,7 +966,11 @@ Pl_Fct_Fast_Shr(WamWord x_word, WamWord y_word)
 {
   PlLong x = UnTag_INT(x_word);
   PlLong y = UnTag_INT(y_word);
-  return Tag_INT(x >> y);
+  PlLong z;
+
+  z = (y >= WORD_SIZE) ? 0 : (x >> y);
+
+  return Tag_INT(z);
 }
 
 WamWord FC
@@ -1031,7 +1037,7 @@ Pl_Fct_Fast_GCD(WamWord x_word, WamWord y_word)
 
 
 
-/* see ISO TC#2-9.3.10.3 - special error cases for integer power (^)/2 */
+/* see ISO TC#2-9.3.10.3 (corr. TC#3)- special error cases for integer power (^)/2 */
 WamWord FC
 Pl_Fct_Fast_IPow(WamWord x_word, WamWord y_word)
 {
@@ -1041,10 +1047,10 @@ Pl_Fct_Fast_IPow(WamWord x_word, WamWord y_word)
   int s = pow_overflow(x, y, &z);
 
   if (s == 2)
-    Pl_Err_Type(pl_type_float, x_word);
+    Pl_Err_Evaluation(pl_evaluation_undefined);
 
   if (s == 3)
-    Pl_Err_Evaluation(pl_evaluation_undefined);
+    Pl_Err_Type(pl_type_float, x_word);
 
   if (s || TEST_INT_OVERFLOW(z))
     Pl_Err_Evaluation(pl_evaluation_int_overflow);
@@ -1261,7 +1267,7 @@ Pl_Fct_GCD(WamWord x_word, WamWord y_word)
 }
 
 
-/* see ISO TC#3 - 9.3.10.3 - special error cases for integer power (^)/2 */
+/* see ISO TC#2-9.3.10.3 (corr. TC#3)- special error cases for integer power (^)/2 */
 static inline double
 IPow(double x, double y)
 {

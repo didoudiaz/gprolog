@@ -1,10 +1,13 @@
+2023-07-06  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #47: add integer overflow detection
+	* fix issue #48: error in min/2 and (^)/2.
+
 2023-07-03  <daniel.diaz@univ-paris1.fr>
 
 	* fix domain_error in write_term
-
-2023-07-03  <daniel.diaz@univ-paris1.fr>
-
-	* modify min/2 and max/2: in case of equality between an integer and a float, return the float
+	* modify min/2 and max/2: in case of equality between an integer and a float,
+	  return the float
 	* fix issue #46: write options: wrong precedence
 	* fix issue #50: top-level: flush_output after each answer display
 	* improve top-level: write a space to separate argmunets of compound terms
@@ -17,7 +20,8 @@
 2023-06-28  <daniel.diaz@univ-paris1.fr>
 
 	* add/modify Prolog flags: show_banner, show_information
-	* remove default consult summary statistics (to display set show_information=informational)
+	* remove default consult summary statistics
+	  (to display set show_information=informational)
 	* fix issue #44: misleading error for inexistent file in gprolog --consult-file
 
 2023-06-26  <daniel.diaz@univ-paris1.fr>
@@ -61,9 +65,11 @@
 2023-06-04  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #13: user meta_predicate definition is now returned by predicate_property/2
-	* initial support for term_expansion/2 and new pre-load file format (now it is a Prolog text)
+	* initial support for term_expansion/2 and new pre-load file format
+	  (now it is a Prolog text)
 	* speed up dynamic predicates with many clauses (for wordnet)
-	* improve linedit completion with a new map implementation (improves consult of wordnet files)
+	* improve linedit completion with a new map implementation
+	  (improves consult of wordnet files)
 	* simplify ChangeLog dates
 
 2023-04-15  <daniel.diaz@univ-paris1.fr>
