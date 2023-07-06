@@ -643,6 +643,7 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
   return 0;
 }
 
+
 /* On 64bits, some PlLong are not exactly represented as double.
  * Comparing a PlLong with a double (used by min/2, max/2) requires
  * more work than a simple cast to double 
