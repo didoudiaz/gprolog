@@ -110,7 +110,7 @@ call_nth(_, Nth) :-
 	CounterTerm = '$call_nth_counter'(0, _), % see issue #45 (for future representation sharing)
 	'$call'(Goal, call_nth, 2, true),
 	arg(1, CounterTerm, Counter),
-	Counter1 is Counter + 1,   
+	Counter1 is Counter + 1,
 	setarg(1, CounterTerm, Counter1, false),
 	Nth = Counter1.		% must be after counter increment
  */

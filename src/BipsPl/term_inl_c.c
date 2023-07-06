@@ -78,9 +78,9 @@ static Bool Check_Variable(WamWord *adr, WamWord var_word);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Eq(WamWord x, WamWord y)
+Pl_Blt_Term_Eq(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) == 0;
+  return Pl_Term_Compare(x_word, y_word) == 0;
 }
 
 
@@ -91,9 +91,9 @@ Pl_Blt_Term_Eq(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Neq(WamWord x, WamWord y)
+Pl_Blt_Term_Neq(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) != 0;
+  return Pl_Term_Compare(x_word, y_word) != 0;
 }
 
 
@@ -104,9 +104,9 @@ Pl_Blt_Term_Neq(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Lt(WamWord x, WamWord y)
+Pl_Blt_Term_Lt(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) < 0;
+  return Pl_Term_Compare(x_word, y_word) < 0;
 }
 
 
@@ -117,9 +117,9 @@ Pl_Blt_Term_Lt(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Lte(WamWord x, WamWord y)
+Pl_Blt_Term_Lte(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) <= 0;
+  return Pl_Term_Compare(x_word, y_word) <= 0;
 }
 
 
@@ -130,9 +130,9 @@ Pl_Blt_Term_Lte(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Gt(WamWord x, WamWord y)
+Pl_Blt_Term_Gt(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) > 0;
+  return Pl_Term_Compare(x_word, y_word) > 0;
 }
 
 
@@ -143,9 +143,9 @@ Pl_Blt_Term_Gt(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Term_Gte(WamWord x, WamWord y)
+Pl_Blt_Term_Gte(WamWord x_word, WamWord y_word)
 {
-  return Pl_Term_Compare(x, y) >= 0;
+  return Pl_Term_Compare(x_word, y_word) >= 0;
 }
 
 
@@ -156,7 +156,7 @@ Pl_Blt_Term_Gte(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
+Pl_Blt_Compare(WamWord cmp_word, WamWord x_word, WamWord y_word)
 {
   PlLong cmp;
   char c;
@@ -164,7 +164,7 @@ Pl_Blt_Compare(WamWord cmp_word, WamWord x, WamWord y)
 
   Pl_Set_C_Bip_Name("compare", 3);
 
-  cmp = Pl_Term_Compare(x, y);
+  cmp = Pl_Term_Compare(x_word, y_word);
   c = (cmp < 0) ? '<' : (cmp == 0) ? '=' : '>';
 
   res = Pl_Un_Atom_Check(ATOM_CHAR(c), cmp_word);
