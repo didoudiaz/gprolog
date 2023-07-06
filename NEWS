@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.6.0
 
+* modify min/2 and max/2: in case of equality between an integer and a float, return the float
+* improve top-level: write a space to separate argmunets of compound terms
 * add/modify Prolog flags: show_banner, show_information
 * remove default consult summary statistics (to display set show_information=informational)
 * fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)

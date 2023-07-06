@@ -1002,12 +1002,12 @@ $\rightarrow$ IF & Y \\
 \hline
 
 \texttt{min(E1,E2)} & minimal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & Y \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ IF$_s$ & Y \\
 
 \hline
 
 \texttt{max(E1,E2)} & maximal value between \textit{eval}(\texttt{E1}) and
-\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ ? & Y \\
+\textit{eval}(\texttt{E2}) & IF, IF $\rightarrow$ IF$_s$ & Y \\
 
 \hline
 
@@ -1152,32 +1152,33 @@ The meaning of the signature field is as follows:
 \begin{itemize}
 
 \item I $\rightarrow$ I: unary function, the operand must be an integer and
-the result is an integer.
+  the result is an integer.
 
-\item F $\rightarrow$ F: unary function, the operand must be a floating
-point number and the result is a floating point number.
+\item F $\rightarrow$ F: unary function, the operand must be a floating point
+  number and the result is a floating point number.
 
-\item F $\rightarrow$ I: unary function, the operand must be a floating
-point number and the result is an integer.
+\item F $\rightarrow$ I: unary function, the operand must be a floating point
+  number and the result is an integer.
 
 \item IF $\rightarrow$ F: unary function, the operand can be an integer or a
-floating point number and the result is a floating point number.
+  floating point number and the result is a floating point number.
 
-\item IF $\rightarrow$ IF: unary function, the operand can be an integer or
-a floating point number and the result has the same type as the operand.
+\item IF $\rightarrow$ IF: unary function, the operand can be an integer or a
+  floating point number and the result has the same type as the operand.
 
 \item I, I $\rightarrow$ I: binary function: each operand must be an integer
-and the result is an integer.
+  and the result is an integer.
 
 \item IF, IF $\rightarrow$ IF: binary function: each operand can be an
-integer or a floating point number and the result is a floating point number
-if at least one operand is a floating point number, an integer otherwise.
+  integer or a floating point number and the result is a floating point
+  number if at least one operand is a floating point number, an integer
+  otherwise.
 
-\item IF, IF $\rightarrow$ ?: binary function: each operand can be an
-integer or a floating point number and the result has the same type as the
-selected operand. This is used for \texttt{min} and \texttt{max}. Note that
-in case of equality between an integer and a floating point number the
-result is an integer.
+\item IF, IF $\rightarrow$ IF$_s$: binary function: each operand can be an
+  integer or a floating point number and the result has the same type as the
+  selected operand. This is used for \texttt{min} and \texttt{max}. Note that
+  in case of equality between an integer and a floating point number the
+  result is a float (before 1.6.0 it was the integer, changed .
 
 \end{itemize}
 

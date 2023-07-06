@@ -1,5 +1,11 @@
-2023-07-02  <daniel.diaz@univ-paris1.fr>
+2023-07-03  <daniel.diaz@univ-paris1.fr>
 
+	* fix domain_error in write_term
+
+2023-07-03  <daniel.diaz@univ-paris1.fr>
+
+	* modify min/2 and max/2: in case of equality between an integer and a float, return the float
+	* fix issue #46: write options: wrong precedence
 	* fix issue #50: top-level: flush_output after each answer display
 	* improve top-level: write a space to separate argmunets of compound terms
 	* fix pl2wam --susp-warn (deactivated wrongly after a set_prolog_flag/2 directive)
