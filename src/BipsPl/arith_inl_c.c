@@ -573,24 +573,33 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 
 	/* --- Helper functions for int_overflow detection --- */
 
-/* Similar to __builtin_xxx_overflow:
- * signature: operands, pointer to result -> Bool 
- * return true iff overflow
+/* Muliplication with overflow checking between PlLong types.
+ * (PlLong could be replaced by int64_t).
  *
- * Tests overflow wrt. PlLong (PlLong could be replaced by int64_t).
- * It accepts ALL representable integers in the range of a PlLong.
+ * Similar to GCC __builtin_mul_overflow. Returns true iff overflow
+ *
+ * Accepts ALL representable integers in the range of a PlLong.
  * So, it DOES NOT test if the PlLong is a representable Prolog integer.
  */
 static inline Bool
 mul_overflow(PlLong a, PlLong b, PlLong *r)
 {
+  /* GCC/clang __bultin_mul_oveflow deactivated since the asm code 
+   * is better without (due to optimlization after inlining since 
+   * INT_LOWEST_VALUE/INT_GREATEST_VALUE wrt INT64_MIN/INT64_MAX)
+   */
+#if 0//defined(__GNUC__) // also includes clang (else test __clang__)
+  return __builtin_mul_overflow(a, b, r);
+#else
   PlLong res = a * b;
   *r = res;
     
   return (a != 0 && res / a != b);/* this also detects the case INT64_MIN * -1 */
+#endif
 }
 
-/* Similar to mul_overflow() but for integer power
+
+/* Similarly for integer power with overflow checking between PlLong types.
  * Returns an int: 
  *     0 = OK, 1 = overflow, 
  *     2 = undefined (division by 0)
@@ -623,9 +632,9 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
 
   /* here abs(a) > 1 */
   if (b < 0)
-    return 3;	    /* not an integer (result would be a float) */
+    return 3;	    /* not an integer (result would be OK as a float) */
 
-  /* here 0 < b. b sould be < 64, else overflow occurs even on 64 bits, 
+  /* here 0 <= b. b sould be < 64, else overflow occurs even on 64 bits, 
    * this could exploited to unroll the loop 6 times (b has at most 6 bits)
    */
   *r = 1;
@@ -644,9 +653,10 @@ pow_overflow(PlLong a, PlLong b, PlLong *r)
 }
 
 
-/* On 64bits, some PlLong are not exactly represented as double.
+/* Comparison between a PlLong and a double.
+ * On 64bits, some PlLong are not exactly represented as double.
  * Comparing a PlLong with a double (used by min/2, max/2) requires
- * more work than a simple cast to double 
+ * more work than a simple cast to double.
  */
 
 #define CMP_SAME_TYPE(a, b) ((a) < (b) ? -1 : (a) != (b))
@@ -684,7 +694,8 @@ compare_with_double(PlLong a, double b)
 }
 
 
-	/* --- End helper function for int_overflow detection --- */
+	/* --- End helper functions for int_overflow detection --- */
+
 
 #define C_Neg(x)     (- (x))
 
@@ -726,6 +737,15 @@ compare_with_double(PlLong a, double b)
 
 
 
+#define IFxIFtoF_chk(x_word, y_word, c_op, chk_code)	\
+  double x = To_Double(x_word);				\
+  double y = To_Double(y_word);				\
+  chk_code;						\
+  double z = c_op(x, y);				\
+  return Make_Tagged_Float(z)
+
+
+
 #define IxItoI(x_word, y_word, fast_op)				\
   if (Tag_Is_FLT(x_word))		/* error case */	\
     Pl_Err_Type(pl_type_integer, x_word);			\
@@ -752,20 +772,31 @@ compare_with_double(PlLong a, double b)
   return Make_Tagged_Float(c_op(To_Double(x_word)))
 
 
+#define IFtoF_chk(x_word, c_op, chk_code)	\
+  double x = To_Double(x_word);			\
+  chk_code;					\
+  double y = c_op(x);				\
+  return Make_Tagged_Float(y)
 
-       /* FtoI is ONLY used for rounding evaluables */
+
+
+       /* FtoI is ONLY used for rounding functions, c_op returns a double */
 #define FtoI(x_word, c_op)				\
-  double d;						\
+  double x, y;						\
+  PlLong ly;						\
   if (Tag_Is_INT(x_word))            /* error case */	\
     {							\
-      if (Flag_Value(strict_iso))			\
+      if (Flag_Value(strict_iso)) /*before 1.6.0 */	\
          Pl_Err_Type(pl_type_float, x_word);		\
 							\
       return x_word;					\
     }							\
-  else							\
-    d = Pl_Obtain_Float(UnTag_FLT(x_word));		\
-  return Tag_INT((PlLong) c_op(d))
+  x = Pl_Obtain_Float(UnTag_FLT(x_word));		\
+  y = c_op(x);						\
+  ly = (PlLong) y;					\
+  if ((double) ly != y || TEST_INT_OVERFLOW(ly))	\
+    Pl_Err_Evaluation(pl_evaluation_int_overflow);	\
+  return Tag_INT(ly)
 
 
 
@@ -946,6 +977,9 @@ Pl_Fct_Fast_Shl(WamWord x_word, WamWord y_word)
   PlLong y = UnTag_INT(y_word);
   PlLong z;
 
+  if (y < 0)
+    return Pl_Fct_Fast_Shr(x_word, Tag_INT(-y));
+  
   if (y >= WORD_SIZE)
     {
       if (x)
@@ -969,6 +1003,9 @@ Pl_Fct_Fast_Shr(WamWord x_word, WamWord y_word)
   PlLong y = UnTag_INT(y_word);
   PlLong z;
 
+  if (y < 0)
+    return Pl_Fct_Fast_Shl(x_word, Tag_INT(-y));
+  
   z = (y >= WORD_SIZE) ? 0 : (x >> y);
 
   return Tag_INT(z);
@@ -978,6 +1015,8 @@ WamWord FC
 Pl_Fct_Fast_LSB(WamWord x_word)
 {
   PlLong x = UnTag_INT(x_word);
+  if (x < 0)
+    Pl_Err_Domain(pl_domain_not_less_than_zero, x);
   return Tag_INT((x == 0) ? -1 : Pl_Least_Significant_Bit(x));
 }
 
@@ -985,6 +1024,8 @@ WamWord FC
 Pl_Fct_Fast_MSB(WamWord x_word)
 {
   PlLong x = UnTag_INT(x_word);
+  if (x < 0)
+    Pl_Err_Domain(pl_domain_not_less_than_zero, x);
   return Tag_INT((x == 0) ? -1 : Pl_Most_Significant_Bit(x));
 }
 
@@ -992,6 +1033,8 @@ WamWord FC
 Pl_Fct_Fast_Popcount(WamWord x_word)
 {
   PlLong x = UnTag_INT(x_word);
+  if (x < 0)
+    Pl_Err_Domain(pl_domain_not_less_than_zero, x);
   return Tag_INT(Pl_Count_Set_Bits(x));
 }
 
@@ -1270,10 +1313,10 @@ Pl_Fct_GCD(WamWord x_word, WamWord y_word)
 
 /* see ISO TC#2-9.3.10.3 (corr. TC#3)- special error cases for integer power (^)/2 */
 static inline double
-IPow(double x, double y)
+Pow(double x, double y)
 {
-  if (x == 0.0 && y < 0)
-    return Pl_NaN();
+  if (x == 0.0 && y < 0.0)
+    Pl_Err_Evaluation(pl_evaluation_undefined);
 
   if (x == 1.0)
     return x;
@@ -1285,14 +1328,14 @@ IPow(double x, double y)
 WamWord FC
 Pl_Fct_IPow(WamWord x_word, WamWord y_word)
 {
-  IFxIFtoIF(x_word, y_word, IPow, Pl_Fct_Fast_IPow);
+  IFxIFtoIF(x_word, y_word, Pow, Pl_Fct_Fast_IPow);
 }
 
 
 WamWord FC
 Pl_Fct_Pow(WamWord x_word, WamWord y_word)
 {
-  IFxIFtoF(x_word, y_word, pow);
+  IFxIFtoF(x_word, y_word, Pow);
 }
 
 WamWord FC
@@ -1316,7 +1359,8 @@ Pl_Fct_Atan(WamWord x_word)
 WamWord FC
 Pl_Fct_Atan2(WamWord x_word, WamWord y_word)
 {
-  IFxIFtoF(x_word, y_word, atan2);
+  IFxIFtoF_chk(x_word, y_word, atan2,
+	       if (x == 0.0 && y == 0.0) Pl_Err_Evaluation(pl_evaluation_undefined));
 }
 
 WamWord FC
@@ -1353,7 +1397,9 @@ WamWord FC
 Pl_Fct_Atanh(WamWord x_word)
 {
 #ifdef HAVE_ATANH
-  IFtoF(x_word, atanh);
+  IFtoF_chk(x_word, atanh,
+	    if (x <= -1.0 || x >= 1.0) Pl_Err_Evaluation(pl_evaluation_undefined));
+  /*  we could test the result: if isinf(y) */
 #else
   Pl_Err_Resource(Pl_Create_Atom("unavailable evaluable"));
   return 0;			/* anything for the compiler */
@@ -1403,19 +1449,22 @@ Pl_Fct_Exp(WamWord x_word)
 WamWord FC
 Pl_Fct_Log(WamWord x_word)
 {
-  IFtoF(x_word, log);
+  IFtoF_chk(x_word, log,
+	    if (x <= 0) Pl_Err_Evaluation(pl_evaluation_undefined));
 }
 
 WamWord FC
 Pl_Fct_Log10(WamWord x_word)
 {
-  IFtoF(x_word, log10);
+  IFtoF_chk(x_word, log10,
+	    if (x <= 0) Pl_Err_Evaluation(pl_evaluation_undefined));
 }
 
 WamWord FC
 Pl_Fct_Log_Radix(WamWord b_word, WamWord x_word)
 {
-  IFxIFtoF(b_word, x_word, Log_Radix);
+  IFxIFtoF_chk(b_word, x_word, Log_Radix,
+	   if (x <= 0 || y <= 0) Pl_Err_Evaluation(pl_evaluation_undefined));
 }
 
 WamWord FC
@@ -1445,7 +1494,7 @@ Pl_Fct_Round(WamWord x_word)
 WamWord FC
 Pl_Fct_Truncate(WamWord x_word)
 {
-  FtoI(x_word, Identity);
+  FtoI(x_word, trunc);
 }
 
 WamWord FC

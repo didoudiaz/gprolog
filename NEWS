@@ -1,10 +1,7 @@
 Change in GNU Prolog version 1.6.0
 
-<<<<<<< HEAD
 * fix issue #47: add integer overflow detection
 * fix issue #48: error in min/2 and (^)/2.
-=======
->>>>>>> 2e4903cdce8897dfe0893e73a4a39c020a8a2792
 * modify min/2 and max/2: in case of equality between an integer and a float, return the float
 * improve top-level: write a space to separate argmunets of compound terms
 * add/modify Prolog flags: show_banner, show_information
