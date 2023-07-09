@@ -969,7 +969,7 @@ Pl_Fct_Fast_Not(WamWord x_word)
   return Tag_INT(~x);
 }
 
-
+/* shl/shr: what are the pertinent error to detect (overflow? bad arguments?) */
 WamWord FC
 Pl_Fct_Fast_Shl(WamWord x_word, WamWord y_word)
 {
@@ -978,9 +978,13 @@ Pl_Fct_Fast_Shl(WamWord x_word, WamWord y_word)
   PlLong z;
 
   if (y < 0)
-    return Pl_Fct_Fast_Shr(x_word, Tag_INT(-y));
+    {
+      if (y == INT_LOWEST_VALUE)
+	  return Tag_INT(0);
+      return Pl_Fct_Fast_Shr(x_word, Tag_INT(-y));
+    }
   
-  if (y >= WORD_SIZE)
+  if (y >= VALUE_SIZE)
     {
       if (x)
 	Pl_Err_Evaluation(pl_evaluation_int_overflow);
@@ -1004,9 +1008,17 @@ Pl_Fct_Fast_Shr(WamWord x_word, WamWord y_word)
   PlLong z;
 
   if (y < 0)
-    return Pl_Fct_Fast_Shl(x_word, Tag_INT(-y));
+    {
+      if (y == INT_LOWEST_VALUE)
+	{
+	  if (x == 0)
+	    return x_word;
+	  Pl_Err_Evaluation(pl_evaluation_int_overflow);
+	}
+      return Pl_Fct_Fast_Shl(x_word, Tag_INT(-y));
+    }
   
-  z = (y >= WORD_SIZE) ? 0 : (x >> y);
+  z = (y >= WORD_SIZE) ? 0 : (x >> y); /* really? -1>>70 gives 0 or -1 ? */
 
   return Tag_INT(z);
 }

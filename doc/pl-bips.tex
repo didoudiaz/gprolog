@@ -4648,15 +4648,17 @@ replacing each format control sequence \texttt{F} by the corresponding
 element of \texttt{Arguments} (formatted according to \texttt{F}) to the
 stream associated with the stream-term or alias \texttt{SorA}.
 
-\SPart{Format control sequences}: the general format of a control sequence
-is \texttt{'\~{}NC'}. The character \texttt{C} determines the type of
-the control sequence. \texttt{N} is an optional numeric argument. An
-alternative form of \texttt{N} is \texttt{'*'}. \texttt{'*'} implies
-that the next argument \texttt{Arg} in \texttt{Arguments} should be
-used as a numeric argument in the control sequence. The use of C
-\texttt{printf()} formatting sequence (beginning by the character
-\texttt{\%}) is also allowed. The following control sequences are
-available:
+\SPart{Format control sequences}: the general format of a control sequence is
+\texttt{\~{}NC}. The character \texttt{C} determines the type of the
+control sequence. \texttt{N} is an optional numeric argument. An alternative
+form of \texttt{N} is \texttt{*}. A \texttt{*} implies that the next
+argument \texttt{Arg} in \texttt{Arguments} should be used as a numeric
+argument in the control sequence.
+
+As an extension, the use of C \texttt{printf()} formatting sequence is also
+recognized. It must be introduced by \texttt{\~{}\%} (in versions prior to
+1.6.0. a single \texttt{\%} was enough but this created too many
+compatibility issues when writing portable code displaying a \texttt{\%}).
 
 \begin{tabular}{|C{1.4cm}|C{2.8cm}|p{10.45cm}|}
 \hline
@@ -4768,7 +4770,7 @@ of a line (default: 1) \\
 
 \hline
 
-\texttt{\%F} & atom, integer or float expression & interface to the C function
+\texttt{\~{}\%F} & atom, integer or float expression & interface to the C function
                                                    \texttt{printf(3)} for outputting
                                                    atoms (C string), integers and
                                                    floating point numbers.
@@ -8590,6 +8592,8 @@ time (user + system) elapsed since the start of Prolog.
 
 \texttt{real\_time(Time)} unifies \texttt{Time} with the
 absolute time elapsed since the start of Prolog.
+
+All times are given in milliseconds.
 
 \begin{PlErrors}
 

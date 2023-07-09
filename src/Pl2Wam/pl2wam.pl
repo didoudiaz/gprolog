@@ -268,16 +268,16 @@ display_counters :-
 	UMisc is UTotal - U,
 	RMisc is RTotal - R,
 	format('   Statistics (in ms)     user     real~n', []),
-	format('   source reading     : %6d   %6d~n', [UReadFile, RReadFile]),
-	format('   syntactic sugar    : %6d   %6d~n', [USynSugar, RSynSugar]),
-	format('   internal format    : %6d   %6d~n', [UInternal, RInternal]),
-	format('   code generation    : %6d   %6d~n', [UCodeGen, RCodeGen]),
-	format('   register allocation: %6d   %6d~n', [URegAlloc, RRegAlloc]),
-	format('   indexing           : %6d   %6d~n', [UIndexing, RIndexing]),
-	format('   first arg computing: %6d   %6d~n', [UFirstArg, RFirstArg]),
-	format('   code emission      : %6d   %6d~n', [UWamEmit, RWamEmit]),
-	format('   other              : %6d   %6d~n', [UMisc, RMisc]),
-	format('                Total : %6d   %6d~n', [UTotal, RTotal]).
+	format('   source reading     : ~%6d   ~%6d~n', [UReadFile, RReadFile]),
+	format('   syntactic sugar    : ~%6d   ~%6d~n', [USynSugar, RSynSugar]),
+	format('   internal format    : ~%6d   ~%6d~n', [UInternal, RInternal]),
+	format('   code generation    : ~%6d   ~%6d~n', [UCodeGen, RCodeGen]),
+	format('   register allocation: ~%6d   ~%6d~n', [URegAlloc, RRegAlloc]),
+	format('   indexing           : ~%6d   ~%6d~n', [UIndexing, RIndexing]),
+	format('   first arg computing: ~%6d   ~%6d~n', [UFirstArg, RFirstArg]),
+	format('   code emission      : ~%6d   ~%6d~n', [UWamEmit, RWamEmit]),
+	format('   other              : ~%6d   ~%6d~n', [UMisc, RMisc]),
+	format('                Total : ~%6d   ~%6d~n', [UTotal, RTotal]).
 
 
 

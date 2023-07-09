@@ -510,7 +510,7 @@ nospyall.
 
 %disp_B(Msg):-
 %'$get_current_B'(B),
-%format(' ~w B:%d (%#x)\n',[Msg, B, B]).
+%format(' ~w B:~d (~%#x)\n',[Msg, B, B]).
 
 
 '$debug_call1'(Goal, CallInfo, Invoc1, Index1, NewAncLst, DebugInfo, _, OldAncLst) :-
@@ -518,7 +518,7 @@ nospyall.
 	'$get_current_B'(B),
 	'$catch_internal'('$debug_call_port'(Goal, CallInfo, Invoc1, Index1, NewAncLst), Ball, '$debug_exception_port'(Goal, Invoc1, Index1, NewAncLst, Ball), 0),
 	'$get_current_B'(B1),
-%format('DBG: after effective call: ~w B(start):%#x B1(end):%#x~n',[Goal,B,B1]),
+%format('DBG: after effective call: ~w B(start):~%#x B1(end):~%#x~n',[Goal,B,B1]),
 %disp_B('before end call'),
 	'$debug_end_call'(Goal, Invoc1, Index1, NewAncLst, DebugInfo, OldAncLst),
 %disp_B('after end call and before test determin'),
@@ -870,7 +870,7 @@ nospyall.
 	;   Indic = (+)
 	),
 	'$debug_port_pretty'(Port, Port1),
-	format(debugger_output, '~N ~a %4d %4d  ~a', [Indic, Invoc, Index, Port1]),
+	format(debugger_output, '~N ~a ~%4d ~%4d  ~a', [Indic, Invoc, Index, Port1]),
 	write_term(debugger_output, Goal, [quoted(true), max_depth(Depth)]).
 
 

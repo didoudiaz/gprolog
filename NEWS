@@ -1,5 +1,7 @@
 Change in GNU Prolog version 1.6.0
 
+* modify format/2-3: now C printf format must start by ~%
+  (backward compatibility issue)
 * fix issue #47: add integer overflow detection
 * fix issue #48: error in min/2 and (^)/2.
 * modify min/2 and max/2: in case of equality between an integer and a float, return the float

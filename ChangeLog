@@ -1,3 +1,8 @@
+2023-09-06  <daniel.diaz@univ-paris1.fr>
+
+	* modify format/2-3: now C printf format must start by ~%
+	  (backward compatibility issue)
+
 2023-07-06  <daniel.diaz@univ-paris1.fr>
 
 	* improve other arithmetic error detection (in both integer and float functions)

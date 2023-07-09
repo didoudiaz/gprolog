@@ -158,59 +158,6 @@ Format(StmInf *pstm, char *format, WamWord args_word)
 
       while (*format)
         {
-          if (*format == '%')   /* C printf format */
-            {
-              if (format[1] == '%')
-                {
-                  Pl_Stream_Putc('%', pstm);
-                  format += 2;
-                  continue;
-                }
-
-              p = buff;
-              n = n1 = IMPOSS;
-
-              do
-                if ((*p++ = *format++) == '*')
-                  {
-                    if (n == IMPOSS)
-                      n = Arg_Integer(&lst_adr);
-                    else
-                      n1 = Arg_Integer(&lst_adr);
-                  }
-              while ((char *) strchr("diouxXpnceEfgGs", p[-1]) == NULL);
-
-              *p = '\0';
-              if (strchr("eEfgG", p[-1]) == NULL)
-                {
-                  generic = (p[-1] == 's') ? (PlLong) Arg_Atom(&lst_adr)
-                    : Arg_Integer(&lst_adr);
-                  if (n != IMPOSS)
-                    {
-                      if (n1 != IMPOSS)
-                        Pl_Stream_Printf(pstm, buff, n, n1, generic);
-                      else
-                        Pl_Stream_Printf(pstm, buff, n, generic);
-                    }
-                  else
-                    Pl_Stream_Printf(pstm, buff, generic);
-                }
-              else
-                {
-                  d = Arg_Float(&lst_adr);
-                  if (n != IMPOSS)
-                    {
-                      if (n1 != IMPOSS)
-                        Pl_Stream_Printf(pstm, buff, n, n1, d);
-                      else
-                        Pl_Stream_Printf(pstm, buff, n, d);
-                    }
-                  else
-                    Pl_Stream_Printf(pstm, buff, d);
-                }
-              continue;
-            }
-
           if (*format != '~')
             {
               Pl_Stream_Putc(*format, pstm);
@@ -403,6 +350,57 @@ Format(StmInf *pstm, char *format, WamWord args_word)
 
               format = Arg_Atom(&lst_adr);
               continue;
+
+            case '%':
+              if (format[1] == '%')
+                {
+                  Pl_Stream_Putc('%', pstm);
+                  format += 2;
+                  continue;
+                }
+
+              p = buff;
+              n = n1 = IMPOSS;
+
+              do
+                if ((*p++ = *format++) == '*')
+                  {
+                    if (n == IMPOSS)
+                      n = Arg_Integer(&lst_adr);
+                    else
+                      n1 = Arg_Integer(&lst_adr);
+                  }
+              while ((char *) strchr("diouxXpnceEfgGs", p[-1]) == NULL);
+
+              *p = '\0';
+              if (strchr("eEfgG", p[-1]) == NULL)
+                {
+                  generic = (p[-1] == 's') ? (PlLong) Arg_Atom(&lst_adr)
+                    : Arg_Integer(&lst_adr);
+                  if (n != IMPOSS)
+                    {
+                      if (n1 != IMPOSS)
+                        Pl_Stream_Printf(pstm, buff, n, n1, generic);
+                      else
+                        Pl_Stream_Printf(pstm, buff, n, generic);
+                    }
+                  else
+                    Pl_Stream_Printf(pstm, buff, generic);
+                }
+              else
+                {
+                  d = Arg_Float(&lst_adr);
+                  if (n != IMPOSS)
+                    {
+                      if (n1 != IMPOSS)
+                        Pl_Stream_Printf(pstm, buff, n, n1, d);
+                      else
+                        Pl_Stream_Printf(pstm, buff, n, d);
+                    }
+                  else
+                    Pl_Stream_Printf(pstm, buff, d);
+                }
+	      continue;
 
             default:
               Pl_Err_Domain(pl_domain_format_control_sequence, Tag_ATM(ATOM_CHAR(*format)));

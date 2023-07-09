@@ -25,7 +25,7 @@ predicate(emit_code_init/2,102,static,private,monofile,global,[
     put_variable(y(4),0),
     call(prolog_version/1),
     put_value(y(2),0),
-    put_atom('%% compiler: ~a ~a~n',1),
+    put_atom('% compiler: ~a ~a~n',1),
     put_list(2),
     unify_local_value(y(3)),
     unify_list,
@@ -33,7 +33,7 @@ predicate(emit_code_init/2,102,static,private,monofile,global,[
     unify_nil,
     call(format/3),
     put_value(y(2),0),
-    put_atom('%% file    : ~a~n',1),
+    put_atom('% file    : ~a~n',1),
     put_list(2),
     unify_local_value(y(0)),
     unify_nil,
@@ -60,7 +60,7 @@ label(1),
     unify_local_value(x(0)),
     unify_nil,
     put_value(x(1),0),
-    put_atom('%%           ~a~n',1),
+    put_atom('%           ~a~n',1),
     execute(format/3)]).
 
 
