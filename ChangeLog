@@ -1,5 +1,6 @@
 2023-09-06  <daniel.diaz@univ-paris1.fr>
 
+	* add built-in predicate countall/2
 	* modify format/2-3: now C printf format must start by ~%
 	  (backward compatibility issue)
 

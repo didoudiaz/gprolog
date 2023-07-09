@@ -6134,7 +6134,7 @@ predicates.
 
 \subsubsection{\IdxPBD{false/0}, \IdxPBD{once/1}, \IdxPBD{({\bs}+)/1} - not provable,
                \IdxPBD{call/2-11},
-               \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{call\_nth/2}, \IdxPBD{forall/2}}
+               \IdxPBD{call\_with\_args/1-11}, \IdxPBD{call\_det/2}, \IdxPBD{call\_nth/2}, \IdxPBD{countall/2}, \IdxPBD{forall/2}}
 
 \begin{TemplatesOneCol}
 false\\
@@ -6144,6 +6144,7 @@ call(+callable\_term, +term,\ldots, +term)\\
 call\_with\_args(+atom, +term,\ldots, +term)\\
 call\_det(+callable\_term, ?boolean) \\
 call\_nth(+callable\_term, ?integer) \\
+countall(+callable\_term, ?integer) \\
 forall(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
@@ -6180,6 +6181,10 @@ otherwise.
 \texttt{call(Goal)}. If \texttt{Nth} = 0, \texttt{call\_nth/2} simply fails
 without testing the validity of its arguments. This predicate only succeeds
 once.
+
+\texttt{countall(Goal, N)} executes all solutions of \texttt{call(Goal)} and
+unifies \texttt{N} with this number of solutions. This predicate only
+succeeds once.
 
 \texttt{forall(Condition, Action)} succeeds if for all alternative bindings of
 \texttt{Condition}, \texttt{Action} can be proven.

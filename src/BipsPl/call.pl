@@ -103,7 +103,7 @@ call_nth(_, Nth) :-
 	set_bip_name(call_nth, 2),
 	'$pl_err_domain'(not_less_than_zero, Nth).
 
-/* version storing the counter in a term and modify across
+/* version storing the counter in a term and modifying across
  * backtracking with nb_setarg
  *
 '$call_nth_exec'(Goal, Nth) :-
@@ -116,11 +116,11 @@ call_nth(_, Nth) :-
  */
 
 /* Optimized version storing the counter in a WAM permanent Y variable
- * (see issue #45). For this, add a new option to '$call_c': ret(RetVar).
+ * (see issue #45). For this, use the (new) option to '$call_c': ret(RetVar).
  * RetVar must be "local" variable (i.e. a Y var stored in the environment).
  * The '$call_c' performs a C-like assignment: Counter += 1
  * To test int_overflow, init with:
- *	Counter = 1152921504606846974,
+ *	Counter = 1152921504606846974, (max_integer-1) to have 1 success
  */
 
 '$call_nth_exec'(Goal, Nth) :-
@@ -128,6 +128,40 @@ call_nth(_, Nth) :-
 	'$call'(Goal, call_nth, 2, true),
 	'$call_c'('Pl_Fct_Inc'(Counter), [fast_call, ret(Counter)]),
 	Nth = Counter.		% do not pass Nth directly above !
+
+
+
+
+/* Optimized version storing the counter in a WAM permanent Y variable
+ * (see issue #45). For this, use the (new) option to '$call_c': ret(RetVar).
+ * RetVar must be "local" variable (i.e. a Y var stored in the environment).
+ * The '$call_c' performs a C-like assignment: Counter += 1
+ * NB: the counter must remain in a same Y variable. Must not be incremented 
+ * in an auxiliary predicate (so not in a if-then-else construct).
+ * For this we use an exec_goal which always succeeds, increment counter and
+ * then test last case, so succeeds at least once (init counter with -1, this
+ * is important to detect int_overflow.
+ * To test int_overflow, init with:
+ *	Counter = 1152921504606846973, (max_integer-2) to have 1 success
+ */
+
+:- meta_predicate(countall(0, ?)).
+
+countall(Goal, N) :-
+	set_bip_name(countall, 2),
+	'$call_c'('Pl_Check_For_Un_Positive'(N)),
+	Counter = -1,		% Counter stored in a WAM Y variable
+	'$countall_exec_goal'(Goal, Stop),
+	'$call_c'('Pl_Fct_Inc'(Counter), [fast_call, ret(Counter)]),
+	( var(Stop) ->
+	    fail
+	;   N = Counter
+	).
+
+'$countall_exec_goal'(Goal, _Stop) :-
+	'$call'(Goal, countall, 2, true).
+
+'$countall_exec_goal'(_Goal, stop).
 
 
 
