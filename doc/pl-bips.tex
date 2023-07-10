@@ -6176,14 +6176,13 @@ succeeds and unifies \texttt{Deterministic} with \texttt{true} if
 \texttt{Goal} has not created any choice-points, with \texttt{false}
 otherwise.
 
-\texttt{call\_nth(Goal, Nth)} succeeds if \texttt{call(Goal)} is true and
-\texttt{Nth} unifies with the integer being the $N+1$st re-execution of
-\texttt{call(Goal)}. If \texttt{Nth} = 0, \texttt{call\_nth/2} simply fails
-without testing the validity of its arguments. This predicate only succeeds
-once.
+\texttt{call\_nth(Goal, N)} succeeds if \texttt{Goal} succeeded for
+the\texttt{N}th time. If \texttt{N} = 0, \texttt{call\_nth/2} simply fails
+without testing the validity of its arguments. This predicate fails or only
+succeeds once (deterministic).
 
-\texttt{countall(Goal, N)} executes all solutions of \texttt{call(Goal)} and
-unifies \texttt{N} with this number of solutions. This predicate only
+\texttt{countall(Goal, N)} executes all solutions of \texttt{Goal} and
+unifies \texttt{N} with this number of solutions. This predicate always
 succeeds once.
 
 \texttt{forall(Condition, Action)} succeeds if for all alternative bindings of
@@ -6215,11 +6214,11 @@ Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 \ErrCond{\texttt{Deterministic} is neither a variable nor a boolean}
 \ErrTerm{type\_error(boolean, Deterministic)}
 
-\ErrCond{\texttt{Nth} is neither a variable nor an intger}
-\ErrTerm{type\_error(integer, Nth)}
+\ErrCond{\texttt{N} is neither a variable nor an integer}
+\ErrTerm{type\_error(integer, N)}
 
-\ErrCond{\texttt{Nth} is an integer $<$ 0}
-\ErrTerm{domain\_error(not\_less\_than\_zero, Nth)}
+\ErrCond{\texttt{N} is an integer $<$ 0}
+\ErrTerm{domain\_error(not\_less\_than\_zero, N)}
 
 \ErrCond{for \texttt{call/2-11} the resulting arity of \texttt{Goal} (arity of
   $\texttt{Closure} + \texttt{N}$) is an integer $>$ \texttt{max\_arity} flag
