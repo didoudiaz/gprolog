@@ -1,6 +1,7 @@
 2023-07-11  <daniel.diaz@univ-paris1.fr>
 
 	* fix for x >> y with too large y and x negative
+	* fix issue #58: fix pl2wam compiling integer power
 
 2023-07-09  <daniel.diaz@univ-paris1.fr>
 

@@ -692,7 +692,7 @@ fast_exp_functor_name(popcount, 1, 'Pl_Fct_Fast_Popcount').
 fast_exp_functor_name(abs, 1, 'Pl_Fct_Fast_Abs').
 fast_exp_functor_name(sign, 1, 'Pl_Fct_Fast_Sign').
 fast_exp_functor_name(gcd, 2, 'Pl_Fct_Fast_GCD').
-fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_Integer_Pow').
+fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_IPow').
 
 
 
@@ -725,7 +725,7 @@ math_exp_functor_name(sign, 1, 'Pl_Fct_Sign').
 math_exp_functor_name(min, 2, 'Pl_Fct_Min').
 math_exp_functor_name(max, 2, 'Pl_Fct_Max').
 math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
-math_exp_functor_name(^, 2, 'Pl_Fct_Integer_Pow').
+math_exp_functor_name(^, 2, 'Pl_Fct_IPow').
 math_exp_functor_name(**, 2, 'Pl_Fct_Pow').
 math_exp_functor_name(sqrt, 1, 'Pl_Fct_Sqrt').
 math_exp_functor_name(tan, 1, 'Pl_Fct_Tan').

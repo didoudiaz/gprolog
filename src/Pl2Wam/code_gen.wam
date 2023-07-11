@@ -2674,7 +2674,7 @@ label(47),
 label(48),
     get_atom(^,0),
     get_integer(2,1),
-    get_atom('Pl_Fct_Fast_Integer_Pow',2),
+    get_atom('Pl_Fct_Fast_IPow',2),
     proceed]).
 
 
@@ -3002,7 +3002,7 @@ label(60),
 label(61),
     get_atom(^,0),
     get_integer(2,1),
-    get_atom('Pl_Fct_Integer_Pow',2),
+    get_atom('Pl_Fct_IPow',2),
     proceed,
 
 label(62),

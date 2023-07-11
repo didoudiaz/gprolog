@@ -29,6 +29,7 @@
  *    t_fd.fd (FD constraint part)
  */
 
+:- if(fail).
 /*
 ind(X) :-
 	fd_min(X, Min),
@@ -393,4 +394,4 @@ qw:-X=1, clause(w(X,Y,Z),_), write(w(X,Y,Z)),nl,retract(w(X,V,W)),write(retract(
 qw.
 
 %:- initialization(qw).
-
+:- endif.
