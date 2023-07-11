@@ -1,4 +1,8 @@
-2023-09-06  <daniel.diaz@univ-paris1.fr>
+2023-07-11  <daniel.diaz@univ-paris1.fr>
+
+	* fix for x >> y with too large y and x negative
+
+2023-07-09  <daniel.diaz@univ-paris1.fr>
 
 	* add built-in predicate countall/2
 	* modify format/2-3: now C printf format must start by ~%
@@ -7,9 +11,6 @@
 2023-07-06  <daniel.diaz@univ-paris1.fr>
 
 	* improve other arithmetic error detection (in both integer and float functions)
-
-2023-07-06  <daniel.diaz@univ-paris1.fr>
-
 	* fix issue #47: add integer overflow detection
 	* fix issue #48: error in min/2 and (^)/2.
 

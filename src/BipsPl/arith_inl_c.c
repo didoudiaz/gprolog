@@ -999,7 +999,7 @@ Pl_Fct_Fast_Shl(WamWord x_word, WamWord y_word)
 
   return Tag_INT(z);
 }
-
+/* shift arithmetic right */
 WamWord FC
 Pl_Fct_Fast_Shr(WamWord x_word, WamWord y_word)
 {
@@ -1017,8 +1017,8 @@ Pl_Fct_Fast_Shr(WamWord x_word, WamWord y_word)
 	}
       return Pl_Fct_Fast_Shl(x_word, Tag_INT(-y));
     }
-  
-  z = (y >= WORD_SIZE) ? 0 : (x >> y); /* really? -1>>70 gives 0 or -1 ? */
+  /* assume right arithmetic with two's complement: keeps the sign of x */
+  z = (y >= WORD_SIZE) ? ((x >= 0) ? 0 : -1) : (x >> y);
 
   return Tag_INT(z);
 }
