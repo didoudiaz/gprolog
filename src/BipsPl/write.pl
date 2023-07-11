@@ -223,6 +223,7 @@ write_term(_, _, _).
 '$get_write_options2'(max_depth(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	integer(X),
+	X >= 0,
 	'$sys_var_write'(1, X).
 
 '$get_write_options2'(priority(X), VarNames, VarNames) :-

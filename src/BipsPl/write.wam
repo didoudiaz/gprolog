@@ -341,6 +341,10 @@ label(20),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
+    math_load_value(y(0),0),
+    put_integer(0,1),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
     put_integer(1,0),
     put_value(y(0),1),
     deallocate,
@@ -520,7 +524,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$name_variables'/1,239,static,private,monofile,built_in,[
+predicate('$name_variables'/1,240,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -565,7 +569,7 @@ label(5),
     execute('$name_variables'/1)]).
 
 
-predicate('$$name_variables/1_$aux1'/2,246,static,private,monofile,local,[
+predicate('$$name_variables/1_$aux1'/2,247,static,private,monofile,local,[
     try_me_else(1),
     get_structure('$VARNAME'/1,0),
     unify_local_value(x(1)),
@@ -576,18 +580,18 @@ label(1),
     proceed]).
 
 
-predicate('$is_valid_var_name'/1,260,static,private,monofile,built_in,[
+predicate('$is_valid_var_name'/1,261,static,private,monofile,built_in,[
     call_c('Pl_Is_Valid_Var_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(nl/0,265,static,private,monofile,built_in,[
+predicate(nl/0,266,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,0]),
     call_c('Pl_Nl_0',[],[]),
     proceed]).
 
 
-predicate(nl/1,269,static,private,monofile,built_in,[
+predicate(nl/1,270,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,1]),
     call_c('Pl_Nl_1',[],[x(0)]),
     proceed]).

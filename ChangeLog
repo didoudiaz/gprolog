@@ -2,6 +2,7 @@
 
 	* fix for x >> y with too large y and x negative
 	* fix issue #58: fix pl2wam compiling integer power
+	* fix issue #55: fix write_term (domain_error for max_depth and max_depth(0 = no limit)
 
 2023-07-09  <daniel.diaz@univ-paris1.fr>
 

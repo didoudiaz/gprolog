@@ -238,6 +238,9 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
   last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
 
+  if (depth == 0)
+    depth = -1;
+
   Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
 }
 
