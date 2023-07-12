@@ -189,7 +189,7 @@ static void Show_Float(double x);
 
 static void Show_Number_Str(char *str);
 
-static void Show_List_Arg(int depth, WamWord *lst_adr);
+static void Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr);
 
 static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
@@ -237,9 +237,8 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
   last_is_space = FALSE;
   last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
-
   if (depth == 0)
-    depth = -1;
+    depth = (1 << 30);
 
   Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
 }
@@ -551,7 +550,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       else
 	{
 	  Out_Char('[');
-	  Show_List_Arg(depth, adr);
+	  Show_List_Arg(TRUE, depth, adr);
 	  Out_Char(']');
 	}
       break;
@@ -783,21 +782,38 @@ Show_Number_Str(char *str)
 #endif
 
 static void
-Show_List_Arg(int depth, WamWord *lst_adr)
+Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr)
 {
   WamWord word, tag_mask;
 
  terminal_rec:
   depth--;
 
-  Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(lst_adr));
-
-  if (depth == 0)		/* dots already written by Show_Term */
-    return;
+  if (depth != 0 || first_arg)
+    {
+      if (!first_arg)
+	{
+	  Out_Char(',');
+	  if (space_args)
+	    Out_Space();
+	}
+      Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(lst_adr));
+    }
 
 
   DEREF(Cdr(lst_adr), word, tag_mask);
+  if (depth == 0)
+    {
+      if (!first_arg || word != NIL_WORD)
+	{
+	  SHOW_LIST_PIPE;
+	  Out_String("...");
+	}
+      return;
+    }
 
+  first_arg = FALSE;
+  
   switch (Tag_From_Tag_Mask(tag_mask))
     {
     case REF:
@@ -843,9 +859,6 @@ Show_List_Arg(int depth, WamWord *lst_adr)
       break;
 
     case LST:
-      Out_Char(',');
-      if (space_args)
-	Out_Space();
       lst_adr = UnTag_LST(word);
       goto terminal_rec;
       break;

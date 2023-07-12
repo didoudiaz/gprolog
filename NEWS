@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.6.0
 
+* fix write_term/2-3 max_depth handling
 * add built-in predicate countall/2
 * modify format/2-3: now C printf format must start by ~%
   (backward compatibility issue)

@@ -101,7 +101,7 @@ predicate('$set_write_defaults'/0,132,static,private,monofile,built_in,[
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_integer(1,0),
-    put_integer(-1,1),
+    put_integer(0,1),
     call('$sys_var_write'/2),
     put_integer(2,0),
     put_integer(1200,1),

@@ -115,7 +115,7 @@ void
 Pl_Write_1(WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(NOT_A_WAM_WORD, term_word);
@@ -132,7 +132,7 @@ void
 Pl_Write_2(WamWord sora_word, WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(sora_word, term_word);
@@ -149,7 +149,7 @@ void
 Pl_Writeq_1(WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(NOT_A_WAM_WORD, term_word);
@@ -166,7 +166,7 @@ void
 Pl_Writeq_2(WamWord sora_word, WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(sora_word, term_word);
@@ -183,7 +183,7 @@ void
 Pl_Write_Canonical_1(WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_IGNORE_OP | WRITE_QUOTED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(NOT_A_WAM_WORD, term_word);
@@ -200,7 +200,7 @@ void
 Pl_Write_Canonical_2(WamWord sora_word, WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_IGNORE_OP | WRITE_QUOTED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(sora_word, term_word);
@@ -217,7 +217,7 @@ void
 Pl_Display_1(WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_IGNORE_OP;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(NOT_A_WAM_WORD, term_word);
@@ -234,7 +234,7 @@ void
 Pl_Display_2(WamWord sora_word, WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_IGNORE_OP;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(sora_word, term_word);
@@ -253,7 +253,7 @@ void
 Pl_Print_1(WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_PORTRAYED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(NOT_A_WAM_WORD, term_word);
@@ -270,7 +270,7 @@ void
 Pl_Print_2(WamWord sora_word, WamWord term_word)
 {
   SYS_VAR_OPTION_MASK = WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_PORTRAYED;
-  SYS_VAR_WRITE_DEPTH = -1;
+  SYS_VAR_WRITE_DEPTH = 0;
   SYS_VAR_WRITE_PREC = MAX_PREC;
 
   Pl_Write_Term_2(sora_word, term_word);

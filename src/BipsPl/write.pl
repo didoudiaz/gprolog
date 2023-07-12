@@ -103,7 +103,7 @@ display(SorA, Term) :-
           %  0=false     0=false    0=false    0=false    0=false      0=false   0=false
           %  1=true      1=true     1=true     1=true     1=true       1=true    1=true
           %
-          % max_depth in sys_var[1]
+          % max_depth in sys_var[1] (0 = no limit)
 	  % priority in sys_var[2]
 	  % above in sys_var[3]
 
@@ -131,7 +131,7 @@ write_term(_, _, _).
 
 '$set_write_defaults' :-
 	'$sys_var_write'(0, 0),                               % default mask
-	'$sys_var_write'(1, -1),
+	'$sys_var_write'(1, 0),
 	'$sys_var_write'(2, 1200),
 	'$sys_var_write'(3, 0).
 
