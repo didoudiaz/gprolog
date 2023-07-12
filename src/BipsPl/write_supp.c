@@ -189,7 +189,7 @@ static void Show_Float(double x);
 
 static void Show_Number_Str(char *str);
 
-static void Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr);
+static void Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr);
 
 static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
@@ -550,7 +550,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       else
 	{
 	  Out_Char('[');
-	  Show_List_Arg(TRUE, depth, adr);
+	  Show_List_Element(TRUE, depth, adr);
 	  Out_Char(']');
 	}
       break;
@@ -771,7 +771,7 @@ Show_Number_Str(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * SHOW_LIST_ARG                                                           *
+ * SHOW_LIST_ELEMENT                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
@@ -782,16 +782,19 @@ Show_Number_Str(char *str)
 #endif
 
 static void
-Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr)
+Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr)
 {
   WamWord word, tag_mask;
 
  terminal_rec:
-  depth--;
+#if 1				/* treat first element differentlty pefer [1|...] to [...|...] */
+  if (!first_elem)
+#endif
+    depth--;
 
-  if (depth != 0 || first_arg)
+  if (depth != 0 || first_elem)
     {
-      if (!first_arg)
+      if (!first_elem)
 	{
 	  Out_Char(',');
 	  if (space_args)
@@ -804,7 +807,7 @@ Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr)
   DEREF(Cdr(lst_adr), word, tag_mask);
   if (depth == 0)
     {
-      if (!first_arg || word != NIL_WORD)
+      if (!first_elem || word != NIL_WORD)
 	{
 	  SHOW_LIST_PIPE;
 	  Out_String("...");
@@ -812,7 +815,7 @@ Show_List_Arg(Bool first_arg, int depth, WamWord *lst_adr)
       return;
     }
 
-  first_arg = FALSE;
+  first_elem = FALSE;
   
   switch (Tag_From_Tag_Mask(tag_mask))
     {
