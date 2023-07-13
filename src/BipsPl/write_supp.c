@@ -502,8 +502,8 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
 
   if (depth == 0)
     {
-      printf("OCCURS!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
       Show_Atom(GENERAL_TERM, atom_dots);
+      printf("\nOCCURS!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
       return;
     }
 
@@ -564,6 +564,88 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       Show_Structure(depth, prec, context, adr);
       break;
     }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_VAR_NAME_FROM_STC                                                   *
+ *                                                                         *
+ * return the atom of '$VARNAME'(ATOM) (or -1 if none)                     *
+ *-------------------------------------------------------------------------*/
+static int
+Get_Var_Name_From_Stc(WamWord f_n, WamWord *stc_adr)
+{
+  WamWord word, tag_mask;
+
+  if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
+    {
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask == TAG_ATM_MASK)
+	{
+	  int atom = UnTag_ATM(word);
+#if 0				/* check the validity of the atom */
+	  if (Is_Valid_Var_Name(pl_atom_tbl[atom].name))
+	    return atom;
+#else  				/* accept any atom - call Show_Atom to set pl_last_writing */
+	  return atom;
+#endif
+	}
+    }
+  return -1;			/* not an atom */
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * GET_VAR_NUMBER_FROM_STC                                                 *
+ *                                                                         *
+ * return the number N from '$VAR'(N) (or -1 if none)                      *
+ *-------------------------------------------------------------------------*/
+static int
+Get_Var_Number_From_Stc(WamWord f_n, WamWord *stc_adr)
+{
+  WamWord word, tag_mask;
+  int n;
+
+  if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
+    {
+      DEREF(Arg(stc_adr, 0), word, tag_mask);
+      if (tag_mask == TAG_INT_MASK && (n = (int) UnTag_INT(word)) >= 0)
+	return n;
+    }
+  return -1;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_SHOWN_AS_A_VAR                                                       *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+Bool
+Is_Shown_As_A_Var(WamWord word, WamWord tag_mask)
+{
+  if (tag_mask == TAG_REF_MASK)
+    return TRUE;
+
+  if (tag_mask != TAG_STC_MASK)
+    return FALSE;
+  
+  WamWord *stc_adr = UnTag_STC(word);
+  WamWord f_n = Functor_And_Arity(stc_adr);
+
+  if (Get_Var_Name_From_Stc(f_n, stc_adr) >= 0)
+    return TRUE;
+
+  if (Get_Var_Number_From_Stc(f_n, stc_adr) >= 0)
+    return TRUE;
+  
+  return FALSE;
+  
 }
 
 
@@ -930,14 +1012,14 @@ Pl_Is_Valid_Var_Name_1(WamWord name_word)
 static void
 Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 {
-  WamWord word, tag_mask;
   WamWord *adr;
   WamWord f_n = Functor_And_Arity(stc_adr);
   int functor = Functor(stc_adr);
   int arity = Arity(stc_adr);
+  int atom_of_varname;
+  int n, i, j;
   OperInf *oper;
   int nb_args_to_disp;
-  int i, j, n;
   char str[32];
   Bool bracket;
   Bool surround_space;
@@ -945,48 +1027,32 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   depth--;
 
-  if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
-    {
-      DEREF(Arg(stc_adr, 0), word, tag_mask);
-      if (tag_mask == TAG_ATM_MASK)
-	{
-#if 0				/* check the validity of the atom */
-	  char *p = pl_atom_tbl[UnTag_ATM(word)].name;
-	  if (Is_Valid_Var_Name(p))
-	    {
-	      Out_String(p);
-	      pl_last_writing = W_IDENTIFIER;
-	      return;
-	    }
-#else  				/* accept any atom - call Show_Atom to set pl_last_writing */
-	  int save_quoted = quoted;
-	  quoted = FALSE;
-	  Show_Atom(GENERAL_TERM, UnTag_ATM(word)); /* could pass context instead of GENERAL_TERM */
-	  quoted = save_quoted;	      
-	  return;
-#endif
-	}
+  atom_of_varname = Get_Var_Name_From_Stc(f_n, stc_adr);
+  if (atom_of_varname >= 0)	/* '$VARNAME'(ATOM) */
+    {				/* can be simplified with Out_String() if we know ATOM is a valid var name */
+      int save_quoted = quoted;
+      quoted = FALSE;
+      Show_Atom(GENERAL_TERM, atom_of_varname); /* could pass context instead of GENERAL_TERM */
+      quoted = save_quoted;	      
+      return;
     }
 
-  if (number_vars && f_n == dollar_var_1 && stc_adr >= name_number_above_H)
+  n = Get_Var_Number_From_Stc(f_n, stc_adr);
+  if (n >= 0)	/* '$VAR'(N) */
     {
-      DEREF(Arg(stc_adr, 0), word, tag_mask);
-      if (tag_mask == TAG_INT_MASK && (n = (int) UnTag_INT(word)) >= 0)
+      i = n % 26;
+      j = n / 26;
+
+      Out_Char('A' + i);
+
+      if (j)
 	{
-	  i = n % 26;
-	  j = n / 26;
-
-	  Out_Char('A' + i);
-
-	  if (j)
-	    {
-	      sprintf(str, "%d", j);
-	      Out_String(str);
-	    }
-
-	  pl_last_writing = W_IDENTIFIER;
-	  return;
+	  sprintf(str, "%d", j);
+	  Out_String(str);
 	}
+
+      pl_last_writing = W_IDENTIFIER;
+      return;
     }
 
   if (ignore_op || arity > 2)
