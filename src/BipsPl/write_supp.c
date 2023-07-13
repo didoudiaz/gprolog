@@ -189,13 +189,14 @@ static void Show_Float(double x);
 
 static void Show_Number_Str(char *str);
 
-static void Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr);
+static void Show_List_Element(int depth, WamWord *lst_adr);
 
 static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
 static Bool Try_Portray(WamWord word);
 
 
+#define SHOW_COMMA   do { Out_Char(','); if (space_args) Out_Space(); } while(0)
 
 
 /*-------------------------------------------------------------------------*
@@ -543,14 +544,14 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
 	{
 	  Out_String("'.'(");
 	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(adr));
-	  Out_Char(',');
+	  SHOW_COMMA;
 	  Show_Term(depth - 1, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Cdr(adr));
 	  Out_Char(')');
 	}
       else
 	{
 	  Out_Char('[');
-	  Show_List_Element(TRUE, depth, adr);
+	  Show_List_Element(depth, adr);
 	  Out_Char(']');
 	}
       break;
@@ -782,8 +783,9 @@ Show_Number_Str(char *str)
 #endif
 
 static void
-Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr)
+Show_List_Element(int depth, WamWord *lst_adr)
 {
+  Bool first_elem = TRUE;	/* no comma before the first */
   WamWord word, tag_mask;
 
  terminal_rec:
@@ -795,11 +797,8 @@ Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr)
   if (depth != 0 || first_elem)
     {
       if (!first_elem)
-	{
-	  Out_Char(',');
-	  if (space_args)
-	    Out_Space();
-	}
+	SHOW_COMMA;
+
       Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(lst_adr));
     }
 
@@ -810,7 +809,7 @@ Show_List_Element(Bool first_elem, int depth, WamWord *lst_adr)
       if (!first_elem || word != NIL_WORD)
 	{
 	  SHOW_LIST_PIPE;
-	  Out_String("...");
+	  Show_Atom(GENERAL_TERM, atom_dots);
 	}
       return;
     }
@@ -1115,8 +1114,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  bracket = TRUE;
 	}
 
-      context =
-	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
+      context =	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
@@ -1133,9 +1131,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 #endif
 	if (functor == ATOM_CHAR(','))
 	  {
-	    Out_Char(',');
-	    if (space_args)
-	      Out_Space();
+	    SHOW_COMMA;
 	  }
 	else
 	  {
@@ -1174,16 +1170,18 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   Show_Atom(GENERAL_TERM, functor);
   Out_Char('(');
 
-  nb_args_to_disp = i = (arity < depth + 1 || depth < 0) ? arity : depth + 1;
+#if 1				/* limit #ags f(1, 2, 3) can be displayed f(...) or f(1, ...)  */
+  nb_args_to_disp = i = (arity < depth + 1) ? arity : depth + 1;
+#else
+  nb_args_to_disp = i = arity;	/* do no limit #args f(1, 2, 3) can be f(..., ..., ...) */
+#endif
   adr = &Arg(stc_adr, 0);
 
   goto start_display;
 
   do
     {
-      Out_Char(',');
-      if (space_args)
-	Out_Space();
+      SHOW_COMMA;
     start_display:
       Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, *adr++);
     }
@@ -1191,9 +1189,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
   if (arity != nb_args_to_disp)
     {
-      Out_Char(',');
-      if (space_args)
-	Out_Space();
+      SHOW_COMMA;
       Show_Atom(GENERAL_TERM, atom_dots);
     }
 
