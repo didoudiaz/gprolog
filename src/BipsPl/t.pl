@@ -407,6 +407,6 @@ d :- tell('~/tmp/wt-depth-gp'),nth0(I,[A+B+C+D,1+2+3+4,A^B^C^D^E,1^2^3^4^nil,[1,
 
 d :- told,
      write('-------------- diff ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp -----------------'), nl,
-     system('diff --width=60 --suppress-common-lines --side-by-side ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp').
+     system('diff --width=80 --suppress-common-lines --side-by-side ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp').
 	
 

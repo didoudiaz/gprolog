@@ -175,6 +175,8 @@ static void Out_String(char *str);
 
 static void Show_Term(int depth, int prec, int context, WamWord term_word);
 
+static Bool Is_Shown_As_A_Var(WamWord word, WamWord tag_mask);
+
 static void Show_Global_Var(WamWord *adr);
 
 #ifndef NO_USE_FD_SOLVER
@@ -189,7 +191,7 @@ static void Show_Float(double x);
 
 static void Show_Number_Str(char *str);
 
-static void Show_List_Element(int depth, WamWord *lst_adr);
+static void Show_List_Elements(int depth, WamWord *lst_adr);
 
 static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
@@ -503,7 +505,6 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
   if (depth == 0)
     {
       Show_Atom(GENERAL_TERM, atom_dots);
-      printf("\nOCCURS!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
       return;
     }
 
@@ -554,7 +555,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
       else
 	{
 	  Out_Char('[');
-	  Show_List_Element(depth, adr);
+	  Show_List_Elements(depth, adr);
 	  Out_Char(']');
 	}
       break;
@@ -626,7 +627,7 @@ Get_Var_Number_From_Stc(WamWord f_n, WamWord *stc_adr)
  * IS_SHOWN_AS_A_VAR                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
+static Bool
 Is_Shown_As_A_Var(WamWord word, WamWord tag_mask)
 {
   if (tag_mask == TAG_REF_MASK)
@@ -855,9 +856,34 @@ Show_Number_Str(char *str)
 
 
 
+static Bool
+Is_Shown_As_True_Compound(WamWord word)
+{
+  WamWord tag_mask;
+  DEREF(word, word, tag_mask);
+
+  if (tag_mask == TAG_LST_MASK)
+    return TRUE;
+
+  if (tag_mask != TAG_STC_MASK)
+    return FALSE;
+ 
+  WamWord *stc_adr = UnTag_STC(word);
+  WamWord f_n = Functor_And_Arity(stc_adr);
+
+  if (Get_Var_Name_From_Stc(f_n, stc_adr) >= 0)
+    return FALSE;
+
+  if (Get_Var_Number_From_Stc(f_n, stc_adr) >= 0)
+    return FALSE;
+  
+  return TRUE;
+
+}
+
 
 /*-------------------------------------------------------------------------*
- * SHOW_LIST_ELEMENT                                                       *
+ * SHOW_LIST_ELEMENTS                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
@@ -867,24 +893,30 @@ Show_Number_Str(char *str)
 #define SHOW_LIST_PIPE Out_Char('|')
 #endif
 
+
+#define FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
+
 static void
-Show_List_Element(int depth, WamWord *lst_adr)
+Show_List_Elements(int depth, WamWord *lst_adr)
 {
   Bool first_elem = TRUE;	/* no comma before the first */
   WamWord word, tag_mask;
 
  terminal_rec:
-#if 1				/* treat first element differentlty pefer [1|...] to [...|...] */
-  if (!first_elem)
+
+  word = Car(lst_adr);
+
+#ifdef FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
+  if (!first_elem || Is_Shown_As_True_Compound(word))
 #endif
     depth--;
 
-  if (depth != 0 || first_elem)
+  if (depth > 0 || first_elem)
     {
       if (!first_elem)
 	SHOW_COMMA;
 
-      Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, Car(lst_adr));
+      Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, word);
     }
 
 
