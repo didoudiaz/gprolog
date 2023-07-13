@@ -238,7 +238,7 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
   last_is_space = FALSE;
   last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
-  if (depth == 0)
+  if (depth <= 0)
     depth = (1 << 30);
 
   Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
@@ -256,7 +256,8 @@ Pl_Write(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_current_output];
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
+  Pl_Write_Term(pstm, 0, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+		NULL, term_word);
   /* like write/1 */
 }
 
@@ -272,7 +273,8 @@ Pl_Writeln(WamWord term_word)
 {
   StmInf *pstm = pl_stm_tbl[pl_stm_current_output];
 
-  Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, term_word);
+  Pl_Write_Term(pstm, 0, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+		NULL, term_word);
   Pl_Nl_0();
   /* like write/1+nl/0 */
 }
@@ -500,6 +502,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
 
   if (depth == 0)
     {
+      printf("OCCURS!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
       Show_Atom(GENERAL_TERM, atom_dots);
       return;
     }

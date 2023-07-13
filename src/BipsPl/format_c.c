@@ -309,25 +309,25 @@ Format(StmInf *pstm, char *format, WamWord args_word)
 
             case 'k':
               word = Read_Arg(&lst_adr);
-              Pl_Write_Term(pstm, -1, MAX_PREC,
+              Pl_Write_Term(pstm, 0, MAX_PREC,
                             WRITE_IGNORE_OP | WRITE_QUOTED, NULL, word);
               break;
 
             case 'q':
               word = Read_Arg(&lst_adr);
-              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+              Pl_Write_Term(pstm, 0, MAX_PREC, WRITE_NUMBER_VARS |
 			    WRITE_NAME_VARS | WRITE_QUOTED, NULL, word);
               break;
 
             case 'p':           /* only work if print.pl is linked */
               word = Read_Arg(&lst_adr);
-              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+              Pl_Write_Term(pstm, 0, MAX_PREC, WRITE_NUMBER_VARS |
                             WRITE_NAME_VARS | WRITE_PORTRAYED, NULL, word);
               break;
 
             case 'w':
               word = Read_Arg(&lst_adr);
-              Pl_Write_Term(pstm, -1, MAX_PREC, WRITE_NUMBER_VARS |
+              Pl_Write_Term(pstm, 0, MAX_PREC, WRITE_NUMBER_VARS |
                             WRITE_NAME_VARS, NULL, word);
               break;
 
@@ -403,7 +403,8 @@ Format(StmInf *pstm, char *format, WamWord args_word)
 	      continue;
 
             default:
-              Pl_Err_Domain(pl_domain_format_control_sequence, Tag_ATM(ATOM_CHAR(*format)));
+              Pl_Err_Domain(pl_domain_format_control_sequence,
+			    Tag_ATM(ATOM_CHAR(*format)));
             }
           format++;
         }
