@@ -660,6 +660,8 @@ Get_Var_Number_From_Stc(WamWord f_n, WamWord *stc_adr)
 
 
 
+#ifdef FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
+
 /*-------------------------------------------------------------------------*
  * IS_RENDERED_AS_COMPOUND                                                 *
  *                                                                         *
@@ -688,6 +690,8 @@ Is_Rendered_As_Compound(WamWord term_word)
   
   return TRUE;
 }
+
+#endif
 
 
 
