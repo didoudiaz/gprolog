@@ -106,7 +106,7 @@
 
 		/* ... (ellipsis) stands for a non-variable term */
 #if 1
-#define ELLIPSIS_FOR_NON_VAR_TERM
+#define NO_ELLIPSIS_FOR_VAR
 #endif
 
 		/* first element of list with same depth as the list */
@@ -536,7 +536,7 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
   WamWord *adr;
 
   if (depth == 0
-#ifdef ELLIPSIS_FOR_NON_VAR_TERM
+#ifdef NO_ELLIPSIS_FOR_VAR
       && !Is_Rendered_As_Var(term_word)
 #endif
       )
@@ -949,7 +949,11 @@ Show_List_Elements(int depth, WamWord *lst_adr)
   car_word = Car(lst_adr);
 
 #ifdef FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
-  if (depth > 0 && (!first_elem || Is_Rendered_As_Compound(car_word)))
+  if (depth > 0 && (!first_elem || Is_Rendered_As_Compound(car_word)
+#ifdef NO_ELLIPSIS_FOR_VAR
+		    || Is_Rendered_As_Var(car_word)
+#endif
+		    ))
 #endif
     depth--;
   
