@@ -401,12 +401,13 @@ d :- nth0(I,[A+B+C+D,1+2+3+4,A^B^C^D^E,1^2^3^4^nil,[1,2,3,4],[A,B,C,D],[- -A,- -
      between(0,5,M), write(I-M), write(' '),
      write_term(T,[variable_names(['A'=A,'B'=B,'C'=C,'D'=D,'E'=E]),max_depth(M)]), nl, false.
 
-d :- tell('~/tmp/wt-depth-gp'),nth0(I,[A+B+C+D,1+2+3+4,A^B^C^D^E,1^2^3^4^nil,[1,2,3,4],[A,B,C,D],[- -A,- -B,- -C,- -D],[[A,B,C,D]]],T),
+d :- absolute_file_name('../../../tmp/wt-depth-gp', F), tell(F),
+     nth0(I,[A+B+C+D,1+2+3+4,A^B^C^D^E,1^2^3^4^nil,[1,2,3,4],[A,B,C,D],[- -A,- -B,- -C,- -D],[[A,B,C,D]]],T),
      between(0,5,M), write(I-M), write(' '),
      write_term(T,[variable_names(['A'=A,'B'=B,'C'=C,'D'=D,'E'=E]),max_depth(M)]), nl, false.
 
 d :- told,
      write('-------------- diff ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp -----------------'), nl,
-     system('diff --width=80 --suppress-common-lines --side-by-side ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp').
+     shell('diff --width=80 --suppress-common-lines --side-by-side ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp').
 	
 

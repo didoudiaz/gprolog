@@ -59,35 +59,35 @@
 
 
 
- /* The output of the term -(T) using operator notation requires some attention if 
-  * the notation representation of T starts with a number. It is important to disinguish
+ /* The output of the term -(T) using operator notation requires some attention if the
+  * notation representation of T starts with a number. It is important to disinguish
   * between the compound term -(1) and the integer -1.
   *
-  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is not defined, we can simply use a space
+  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is not defined, we can simply use a space.
   *    -(1) can be output as - 1
   *
   * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is defined we need brackets. 
-  *    -(1) can be output as - (1)    NB: -(1) is also OK but does not show the op notation
+  *    -(1) can be output as - (1) NB: -(1) is also OK but does not show the op notation
   * 
-  * The following macros control how brackets are handled around T (or part of T). For this
-  * we consider 2 cases (pointed out by Ulrich Neumerkel).
+  * The following macros control how brackets are handled around T (or part of T). 
+  * For this we consider 2 cases (pointed out by Ulrich Neumerkel).
   *
   *    - (1^2) which is -(^(1,2)) and can produce - (1^2) or - (1)^2
   *    - (a^2) which is -(^(a,2)) and can produce - (a^2) or -a^2 
   *
-  * OP_MINUS_BRACKETS_SIMPLE: to homegenize the output and to simplify the implementation, 
-  * brackets are used around T if T is a positive number or an {infix,postifx} op term
+  * OP_MINUS_BRACKETS_SIMPLE: to homegenize the output and to simplify the implementation,
+  * brackets are used around T if T is a positive number or an {infix,postifx} op term.
   *
   *    writeq(- (1^2)) produces - (1^2)
   *    writeq(- (a^2)) produces - (a^2)
   *
-  * OP_MINUS_BRACKETS_SHORTEST: avoids useless brackets else the bracketed is as short as 
-  * possible. opening ( is before T, and closing ) can be inside T
+  * OP_MINUS_BRACKETS_SHORTEST: avoid useless brackets else the bracketed is as short as
+  * possible. opening ( is before T, and closing ) can be inside T.
   *
   *    writeq(- (1^2)) produces - (1)^2
   *    writeq(- (a^2)) produces -a^2
   *
-  * OP_MINUS_BRACKETS_MIXED: avoids useless brackets else the whole T is bracketed.
+  * OP_MINUS_BRACKETS_MIXED: avoid useless brackets else the whole T is bracketed.
   *
   *    writeq(- (1^2)) produces - (1^2)   as in OP_MINUS_BRACKETS_SIMPLE
   *    writeq(- (a^2)) produces -a^2      as in OP_MINUS_BRACKETS_SHORTEST
@@ -100,6 +100,26 @@
 #else
 #define OP_MINUS_BRACKETS_MIXED
 #endif
+
+
+/* max_depth discussion: https://github.com/didoudiaz/gprolog/issues/56 */
+
+		/* ... (ellipsis) stands for a non-variable term */
+#if 1
+#define ELLIPSIS_FOR_NON_VAR_TERM
+#endif
+
+		/* first element of list with same depth as the list */
+#if 1
+#define FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
+#endif
+
+		/* allow f(...) for f(a,b,c) almost all systems do that (except SWI) */
+#if 1
+#define ELLIPSIS_MORE_THAN_ONE_TERM_IN_STC
+#endif
+
+
 
 
 /*---------------------------------*
@@ -165,7 +185,7 @@ static Bool *p_bracket_op_minus;
  * Function Prototypes             *
  *---------------------------------*/
 
-static void Need_Space(int c);
+static void Emit_Space_If_Needed(int c);
 
 static void Out_Space(void);
 
@@ -175,7 +195,11 @@ static void Out_String(char *str);
 
 static void Show_Term(int depth, int prec, int context, WamWord term_word);
 
-static Bool Is_Shown_As_A_Var(WamWord word, WamWord tag_mask);
+static int Get_Var_Name_From_Stc(WamWord f_n, WamWord *stc_adr);
+
+static int Get_Var_Number_From_Stc(WamWord f_n, WamWord *stc_adr);
+
+static Bool Is_Rendered_As_Var(WamWord word);
 
 static void Show_Global_Var(WamWord *adr);
 
@@ -196,6 +220,14 @@ static void Show_List_Elements(int depth, WamWord *lst_adr);
 static void Show_Structure(int depth, int prec, int context, WamWord *stc_adr);
 
 static Bool Try_Portray(WamWord word);
+
+
+
+#ifdef SPACE_ARGS_FOR_LIST_PIPE
+#define SHOW_LIST_PIPE do { if (space_args) Out_String(" | "); else Out_Char('|'); } while(0)
+#else
+#define SHOW_LIST_PIPE Out_Char('|')
+#endif
 
 
 #define SHOW_COMMA   do { Out_Char(','); if (space_args) Out_Space(); } while(0)
@@ -240,8 +272,9 @@ Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
   last_is_space = FALSE;
   last_prefix_op = W_NO_PREFIX_OP;
   pl_last_writing = W_NOTHING;
-  if (depth <= 0)
-    depth = (1 << 30);
+  
+  if (depth == 0)		/* no limit */
+    depth = -1;
 
   Show_Term(depth, prec, (prec >= 1200) ? GENERAL_TERM : INSIDE_ANY_OP, term_word);
 }
@@ -309,9 +342,9 @@ Out_Space(void)
 static void
 Out_Char(int c)
 {
-  Need_Space(c);
+  Emit_Space_If_Needed(c);
   Pl_Stream_Putc(c, pstm_o);
-#if 0		     /* actually, we do not use Out_Char to display spaces */
+#if 0		     /* currently, we do not use Out_Char to display spaces */
   last_is_space = (c == ' ');  /* use isspace ? */
 #else
   last_is_space = FALSE;
@@ -328,7 +361,7 @@ Out_Char(int c)
 static void
 Out_String(char *str)
 {
-  Need_Space(*str);
+  Emit_Space_If_Needed(*str);
   Pl_Stream_Puts(str, pstm_o);
 
  /* Do not take into account space in strings , e.g.
@@ -347,14 +380,14 @@ Out_String(char *str)
 
 
 /*-------------------------------------------------------------------------*
- * NEED_SPACE                                                              *
+ * EMIT_SPACE_IF_NEEDED                                                    *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Need_Space(int c)
+Emit_Space_If_Needed(int c)
 {
   int c_type = pl_char_type[c];
-  int space;
+  Bool space;
 
   switch (pl_last_writing)
     {
@@ -502,7 +535,11 @@ Show_Term(int depth, int prec, int context, WamWord term_word)
   WamWord word, tag_mask;
   WamWord *adr;
 
-  if (depth == 0)
+  if (depth == 0
+#ifdef ELLIPSIS_FOR_NON_VAR_TERM
+      && !Is_Rendered_As_Var(term_word)
+#endif
+      )
     {
       Show_Atom(GENERAL_TERM, atom_dots);
       return;
@@ -624,12 +661,47 @@ Get_Var_Number_From_Stc(WamWord f_n, WamWord *stc_adr)
 
 
 /*-------------------------------------------------------------------------*
- * IS_SHOWN_AS_A_VAR                                                       *
+ * IS_RENDERED_AS_COMPOUND                                                 *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Is_Shown_As_A_Var(WamWord word, WamWord tag_mask)
+Is_Rendered_As_Compound(WamWord term_word)
 {
+  WamWord word, tag_mask;
+  
+  DEREF(term_word, word, tag_mask);
+
+  if (tag_mask == TAG_LST_MASK)
+    return TRUE;
+
+  if (tag_mask != TAG_STC_MASK)
+    return FALSE;
+ 
+  WamWord *stc_adr = UnTag_STC(word);
+  WamWord f_n = Functor_And_Arity(stc_adr);
+
+  if (Get_Var_Name_From_Stc(f_n, stc_adr) >= 0)
+    return FALSE;
+
+  if (Get_Var_Number_From_Stc(f_n, stc_adr) >= 0)
+    return FALSE;
+  
+  return TRUE;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * IS_RENDERED_AS_VAR                                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static Bool
+Is_Rendered_As_Var(WamWord term_word)
+{
+  WamWord word, tag_mask;
+  
+  DEREF(term_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
     return TRUE;
 
@@ -646,7 +718,6 @@ Is_Shown_As_A_Var(WamWord word, WamWord tag_mask)
     return TRUE;
   
   return FALSE;
-  
 }
 
 
@@ -856,74 +927,41 @@ Show_Number_Str(char *str)
 
 
 
-static Bool
-Is_Shown_As_True_Compound(WamWord word)
-{
-  WamWord tag_mask;
-  DEREF(word, word, tag_mask);
-
-  if (tag_mask == TAG_LST_MASK)
-    return TRUE;
-
-  if (tag_mask != TAG_STC_MASK)
-    return FALSE;
- 
-  WamWord *stc_adr = UnTag_STC(word);
-  WamWord f_n = Functor_And_Arity(stc_adr);
-
-  if (Get_Var_Name_From_Stc(f_n, stc_adr) >= 0)
-    return FALSE;
-
-  if (Get_Var_Number_From_Stc(f_n, stc_adr) >= 0)
-    return FALSE;
-  
-  return TRUE;
-
-}
-
 
 /*-------------------------------------------------------------------------*
  * SHOW_LIST_ELEMENTS                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-
-#ifdef SPACE_ARGS_FOR_LIST_PIPE
-#define SHOW_LIST_PIPE if (space_args) Out_String(" | "); else Out_Char('|')
-#else
-#define SHOW_LIST_PIPE Out_Char('|')
-#endif
-
-
-#define FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
-
 static void
 Show_List_Elements(int depth, WamWord *lst_adr)
 {
-  Bool first_elem = TRUE;	/* no comma before the first */
+  Bool first_elem = TRUE;
   WamWord word, tag_mask;
+  WamWord car_word;
+  Bool emit_car;
 
+  /* at function entry depth > 0 */
  terminal_rec:
-
-  word = Car(lst_adr);
+  car_word = Car(lst_adr);
 
 #ifdef FIRST_ELEM_OF_LIST_WITH_SAME_DEPTH
-  if (!first_elem || Is_Shown_As_True_Compound(word))
+  if (depth > 0 && (!first_elem || Is_Rendered_As_Compound(car_word)))
 #endif
     depth--;
-
-  if (depth > 0 || first_elem)
+  
+  emit_car = (depth != 0 || first_elem || Is_Rendered_As_Var(car_word));
+  if (emit_car)
     {
       if (!first_elem)
 	SHOW_COMMA;
 
-      Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, word);
+      Show_Term(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, car_word);
     }
-
 
   DEREF(Cdr(lst_adr), word, tag_mask);
   if (depth == 0)
     {
-      if (!first_elem || word != NIL_WORD)
+      if (!emit_car || word != NIL_WORD)
 	{
 	  SHOW_LIST_PIPE;
 	  Show_Atom(GENERAL_TERM, atom_dots);
@@ -986,7 +1024,6 @@ Show_List_Elements(int depth, WamWord *lst_adr)
       SHOW_LIST_PIPE;
       if (Try_Portray(word))
 	return;
-
       Show_Structure(depth, MAX_ARG_OF_FUNCTOR_PREC, GENERAL_TERM, UnTag_STC(word));
       break;
     }
@@ -1056,12 +1093,12 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   Bool bracket;
   Bool surround_space;
 
-
+			/* at function entry depth > 0 */
   depth--;
 
   atom_of_varname = Get_Var_Name_From_Stc(f_n, stc_adr);
   if (atom_of_varname >= 0)	/* '$VARNAME'(ATOM) */
-    {				/* can be simplified with Out_String() if we know ATOM is a valid var name */
+    {				/* could be simplified with Out_String() if we know ATOM is a valid var name */
       int save_quoted = quoted;
       quoted = FALSE;
       Show_Atom(GENERAL_TERM, atom_of_varname); /* could pass context instead of GENERAL_TERM */
@@ -1070,7 +1107,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
     }
 
   n = Get_Var_Number_From_Stc(f_n, stc_adr);
-  if (n >= 0)	/* '$VAR'(N) */
+  if (n >= 0)			/* '$VAR'(N) */
     {
       i = n % 26;
       j = n / 26;
@@ -1107,9 +1144,10 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   if (arity == 1 && (oper = Pl_Lookup_Oper(functor, PREFIX)))
     {
 #if 1
-      /* Koen de Bosschere says "in case of ambiguity :          */
-      /* select the associative operator over the nonassociative */
-      /* select prefix over postfix".                            */
+      /* Koen de Bosschere: "in case of ambiguity :
+       * select the associative operator over the nonassociative,
+       * select prefix over postfix".                            
+       */
 
       OperInf *oper1;
 
@@ -1156,8 +1194,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
        * The term ((-(1)) & b must be displayed as: (- (1)) & b
        * Concerning the sub-term - (1), the first ( is emitted  10 lines above
        * because the precedence of - (200) is > precedence of & (100).
-       * The second ( is emitted by Need_Space() because the argument of - begins 
-       * by a digit. At the return we have to close 2 ).
+       * The second ( is emitted by Emit_Space_If_Needed() because the 
+       * argument of - begins by a digit. At the return we have to close 2 ).
        */
 
       while (bracket--)	
@@ -1180,8 +1218,7 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 	  bracket = TRUE;
 	}
 
-      context =
-	(oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
+      context = (oper->left == oper->prec) ? INSIDE_LEFT_ASSOC_OP : INSIDE_ANY_OP;
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
@@ -1219,8 +1256,8 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
 
       Show_Term(depth, oper->left, context, Arg(stc_adr, 0));
 
-#if 1 /* to show | unquoted if it is an infix operator with prec > 1000 */
-      if (functor == ATOM_CHAR('|') && oper->prec > 1000)
+#if 1 /* to show | unquoted if it is an infix operator (thus prec > 1000) */
+      if (functor == ATOM_CHAR('|'))
 	{
 	  if (space_args)
 	    Out_Space();
@@ -1271,11 +1308,12 @@ Show_Structure(int depth, int prec, int context, WamWord *stc_adr)
   Show_Atom(GENERAL_TERM, functor);
   Out_Char('(');
 
-#if 1				/* limit #ags f(1, 2, 3) can be displayed f(...) or f(1, ...)  */
-  nb_args_to_disp = i = (arity < depth + 1) ? arity : depth + 1;
+#ifdef ELLIPSIS_MORE_THAN_ONE_TERM_IN_STC /* limit #ags f(1, 2, 3) can be displayed f(...) or f(1, ...)  */
+  nb_args_to_disp = (depth < 0 || arity < depth + 1) ? arity : depth + 1;
 #else
-  nb_args_to_disp = i = arity;	/* do no limit #args f(1, 2, 3) can be f(..., ..., ...) */
+  nb_args_to_disp = arity;	/* do no limit #args f(1, 2, 3) can be f(..., ..., ...) */
 #endif
+  i = nb_args_to_disp;
   adr = &Arg(stc_adr, 0);
 
   goto start_display;

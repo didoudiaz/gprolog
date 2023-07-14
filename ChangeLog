@@ -1,4 +1,4 @@
-2023-07-11  <daniel.diaz@univ-paris1.fr>
+2023-07-14  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #56: write_term/2-3 max_depth option (improve ... inside a list)
 
