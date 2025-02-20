@@ -138,6 +138,19 @@ Pl_Realloc_Check(void *ptr, size_t size, char *src_file, int src_line)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_FREE_CHECK                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Free_Check(void *ptr, char *src_file, int src_line)
+{ 	/* should not be called (see misc.h) - added only for consistency */
+  free(ptr);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_STRDUP_CHECK                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/

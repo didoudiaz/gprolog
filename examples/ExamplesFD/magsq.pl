@@ -24,7 +24,7 @@ q :-
 	statistics(runtime, [_, Y]),
 	write(A),
 	nl,
-	write_array(A, '%5d', 0),
+	write_array(A, '~%5d', 0),
 	write('time : '),
 	write(Y),
 	nl.

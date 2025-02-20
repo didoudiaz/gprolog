@@ -2,8 +2,8 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT(gprolog, 1.6.0, bug-prolog@gnu.org,,www.gprolog.org)
-AC_PREREQ(2.52)
+AC_INIT([gprolog],[1.6.0],[bug-prolog@gnu.org],[],[www.gprolog.org])
+AC_PREREQ([2.71])
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
 
@@ -245,7 +245,7 @@ dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
 dnl cannot be put in the then and the else part !!! so repeat the test !
 
 AC_PROG_CC
-AC_PROG_CC_STDC
+dnl AC_PROG_CC_STDC is obsolete
 
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
@@ -588,20 +588,22 @@ dnl Check for socklen_t
 dnl -------------------
 
 AC_MSG_CHECKING(for socklen_t)
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>
-], [socklen_t x;
-], [AC_MSG_RESULT(yes)], [
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>
-], [int accept(int, struct sockaddr *, size_t *);
-], [
-AC_MSG_RESULT(size_t)
-AC_DEFINE(socklen_t, size_t)], [
-AC_MSG_RESULT(int)
-AC_DEFINE(socklen_t, int)])])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <sys/types.h>
+#include <sys/socket.h>
+extern int accept(int, struct sockaddr *, socklen_t *);
+]], [[]])],[AC_MSG_RESULT(yes)],[
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	extern int accept(int, struct sockaddr *, size_t *);
+	]],[[]])],[AC_MSG_RESULT(size_t)
+	AC_DEFINE(socklen_t, size_t)],[AC_MSG_RESULT(int)
+	AC_DEFINE(socklen_t, int)])
+])
 
+		
 dnl -----------------------------------
 dnl Check if linux needs asm/sigcontext
 dnl -----------------------------------
@@ -610,10 +612,10 @@ case "$host_os" in
      linux*)
 
 AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
-AC_TRY_COMPILE([#include <signal.h>
-], [struct sigcontext p;
-], [AC_MSG_RESULT(no)],
-[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <signal.h>
+struct sigcontext p;
+]], [[]])],[AC_MSG_RESULT(no)],[
 AC_MSG_RESULT(yes)
 AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
 esac
@@ -756,6 +758,7 @@ dnl other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
         LIB="$LIB ws2_32"
     fi
 else
+#    LIB='m mcheck' # activate to use mcheck/mprobe (-lmcheck) see Mprobe_Ptr() 
     LIB='m'
     GUILIB=''
     if test "$USE_SOCKETS" = yes; then
@@ -1055,7 +1058,7 @@ do
     fi
 done
 
-AC_CONFIG_HEADER(EnginePl/gp_config.h)
+AC_CONFIG_HEADERS([EnginePl/gp_config.h])
 AC_CONFIG_FILES(Makefile
                 TopComp/Makefile
                 Pl2Wam/Makefile

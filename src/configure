@@ -4093,7 +4093,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
   # Make sure we can run config.sub.
 $SHELL "${ac_aux_dir}config.sub" sun4 >/dev/null 2>&1 ||
   as_fn_error $? "cannot run $SHELL ${ac_aux_dir}config.sub" "$LINENO" 5
@@ -6097,15 +6096,17 @@ SAVE_LIBS="$LIBS"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for socklen_t" >&5
 printf %s "checking for socklen_t... " >&6; }
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <sys/types.h>
 #include <sys/socket.h>
+extern int accept(int, struct sockaddr *, socklen_t *);
 
 int
 main (void)
 {
-socklen_t x;
 
   ;
   return 0;
@@ -6117,15 +6118,16 @@ then :
 printf "%s\n" "yes" >&6; }
 else $as_nop
 
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <sys/types.h>
-#include <sys/socket.h>
+
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	extern int accept(int, struct sockaddr *, size_t *);
 
 int
 main (void)
 {
-int accept(int, struct sockaddr *, size_t *);
 
   ;
   return 0;
@@ -6133,19 +6135,18 @@ int accept(int, struct sockaddr *, size_t *);
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: size_t" >&5
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: size_t" >&5
 printf "%s\n" "size_t" >&6; }
-printf "%s\n" "#define socklen_t size_t" >>confdefs.h
+	printf "%s\n" "#define socklen_t size_t" >>confdefs.h
 
 else $as_nop
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: int" >&5
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: int" >&5
 printf "%s\n" "int" >&6; }
-printf "%s\n" "#define socklen_t int" >>confdefs.h
+	printf "%s\n" "#define socklen_t int" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
@@ -6158,12 +6159,13 @@ case "$host_os" in
 printf %s "checking if struct sigcontext needs asm/sigcontext.h... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <signal.h>
+struct sigcontext p;
 
 int
 main (void)
 {
-struct sigcontext p;
 
   ;
   return 0;
@@ -6373,6 +6375,7 @@ if test "$WINDOWS" != no; then
         LIB="$LIB ws2_32"
     fi
 else
+#    LIB='m mcheck' # activate to use mcheck/mprobe (-lmcheck) see Mprobe_Ptr()
     LIB='m'
     GUILIB=''
     if test "$USE_SOCKETS" = yes; then

@@ -46,11 +46,6 @@
 
 
 #define DEBUG_LEVEL 0
-#ifdef DEBUG_LEVEL
-#undef Free
-/* set it to null to increase chance of error if reusing a free space */
-#define Free(p) do {memset(p, 0, sizeof(*p)); free(p); } while(0)
-#endif
 
 
 /* see dynam_supp.h to deactivate and below for explanation */
@@ -124,7 +119,9 @@ static int nb_erased_clauses = 0;   /* number of clauses waiting to be cleaned *
  * Function Prototypes             *
  *---------------------------------*/
 
-#define INIT_2CHAIN_HDR(hdr)       (hdr).first = (hdr).first_for_scan = (hdr).last = NULL
+/* gcc 13.3 emits a warning ‘hdr->first’ may be undefined [-Wsequence-point] 
+  if written as a triple assignment in case of OPTIM_FIRST_FOR_SCAN is not defined */
+#define INIT_2CHAIN_HDR(hdr)       ((hdr).first = (hdr).last = NULL, (hdr).first_for_scan = NULL)
       
 #define Is_Clause_Erased(clause)   ((clause)->erase_stamp != DYN_STAMP_ALIVE)
 
@@ -509,7 +506,8 @@ Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, Bool asserta)
 
   if (hdr->first == NULL)	/* empty chain ? */
     {
-      hdr->first = hdr->first_for_scan = hdr->last = clause;
+      hdr->first = hdr->last = clause;
+      hdr->first_for_scan = clause;
       cell->next = cell->prev = NULL;
       return;
     }
@@ -518,7 +516,8 @@ Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, Bool asserta)
     {
       cell->next = hdr->first;
       cell->prev = NULL;
-      hdr->first = hdr->first_for_scan = clause;
+      hdr->first = clause;
+      hdr->first_for_scan = clause;
       if (in_seq_chain)
 	cell->next->seq_chain.prev = clause;
       else
@@ -551,7 +550,10 @@ Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
   DynCInf *next = cell->next;
 
   if (prev == NULL)		/* first cell ? */
-    hdr->first = hdr->first_for_scan = next;
+    {
+      hdr->first = next;
+      hdr->first_for_scan = next;
+    }
   else
     {
       if (in_seq_chain)
@@ -832,7 +834,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   CodePtr scan_alt;
 
   /* Here is a good place to free erased clauses, just before a choice-point 
-   * is created for this dynamic predicate. Here is a naive (use findall) 
+   * is created for this dynamic predicate. Here is a naive pred (use findall) 
    * to retract all clauses creating a list:
    *
    * r([X|L]) :- retract(foo(X)), !, r(L).
