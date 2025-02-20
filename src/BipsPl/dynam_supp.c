@@ -147,6 +147,9 @@ static DynScan *Get_Scan_Choice_Point(WamWord *b);
 
 static void Clean_Erased_Clauses(void);
 
+/* size of a DynScan in WamWords (rounded up) */
+#define DYNSCAN_SIZE ((sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord))
+
 
 #if DEBUG_LEVEL != 0
 
@@ -311,7 +314,8 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   if (pred->dyn == NULL)		/* dynamic info not yet allocated ? */
     pred->dyn = Alloc_Init_Dyn_Info(func, arity);
   dyn = pred->dyn;
-
+  
+  MPROBE_PTR("dyn", dyn);
 
   index_no = (dyn->arity) ? Index_From_First_Arg(*first_arg_adr, &key) : NO_INDEX;
 
@@ -410,6 +414,7 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   Print_Dynamic_Info(dyn, __func__, FALSE);
 #endif
 
+  MPROBE_PTR("clause", clause);
   return clause;
 }
 
@@ -504,6 +509,8 @@ Add_To_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain, Bool asserta)
 {
   D2ChCell *cell = (in_seq_chain) ? &clause->seq_chain : &clause->ind_chain;
 
+  MPROBE_PTR("clause", clause);
+
   if (hdr->first == NULL)	/* empty chain ? */
     {
       hdr->first = hdr->last = clause;
@@ -549,6 +556,8 @@ Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
   DynCInf *prev = cell->prev;
   DynCInf *next = cell->next;
 
+  MPROBE_PTR("clause", clause);
+
   if (prev == NULL)		/* first cell ? */
     {
       hdr->first = next;
@@ -583,6 +592,8 @@ Remove_From_2Chain(D2ChHdr *hdr, DynCInf *clause, Bool in_seq_chain)
 static void
 Free_Clause(DynCInf *clause)
 {
+  MPROBE_PTR("clause", clause);
+
   if (clause->byte_code)
     Free(clause->byte_code);
 
@@ -607,10 +618,14 @@ Unlink_And_Free_Clause(DynCInf *clause)
   DynPInf *dyn = clause->dyn;
   PlLong *p_key;
 
+  MPROBE_PTR("clause", clause);
+
 #if DEBUG_LEVEL >= 2
   Print_Dynamic_Clause("Unlink+Free clause:", clause);
 #endif
-  
+
+  MPROBE_PTR("dyn", dyn);
+
   Remove_From_2Chain(&dyn->seq_chain, clause, TRUE);
   if (clause->p_ind_hdr)
     Remove_From_2Chain(clause->p_ind_hdr, clause, FALSE);
@@ -643,6 +658,8 @@ Pl_Delete_Dynamic_Clause(DynCInf *clause)
 {
   DynPInf *dyn;
 
+  MPROBE_PTR("clause", clause);
+
   /* Test if clause is already deleted. This can occurs with LDUV with
    * foo(1).
    * foo(2).
@@ -654,6 +671,8 @@ Pl_Delete_Dynamic_Clause(DynCInf *clause)
     return;
 
   dyn = clause->dyn;
+
+  MPROBE_PTR("dyn", dyn);
 
 #if DEBUG_LEVEL >= 1
   Print_Dynamic_Clause("Delete clause", clause);
@@ -704,8 +723,12 @@ Erase_All_Clauses_Of_File(DynPInf *dyn, int pl_file)
   if (dyn == NULL)
     return;
 
+  MPROBE_PTR("dyn", dyn);
+
   for (clause = dyn->seq_chain.first; clause; clause = clause->seq_chain.next)
     {
+      MPROBE_PTR("clause", clause);
+
       if (clause->pl_file == pl_file)
 	Pl_Delete_Dynamic_Clause(clause);
     }
@@ -735,6 +758,8 @@ Erase_All(DynPInf *dyn)
   if (dyn == NULL)
     return;
 
+  MPROBE_PTR("dyn", dyn);
+
   if (dyn->first_erased_cl == NULL) /* first clause deletion -> link dyn with erase */
     {
       dyn->next_dyn_with_erase = first_dyn_with_erase;
@@ -745,6 +770,8 @@ Erase_All(DynPInf *dyn)
 
   for (clause = dyn->seq_chain.first; clause; clause = clause->seq_chain.next)
     {
+      MPROBE_PTR("clause", clause);
+      
       if (!Is_Clause_Erased(clause))
 	nb_erased_clauses++;
     }
@@ -851,6 +878,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
    */
 
   Clean_Erased_Clauses();
+  MPROBE_PTR("dyn", dyn);
   
   if (owner_func < 0)
     owner_func = Pl_Get_Current_Bip(&owner_arity);
@@ -919,13 +947,13 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   if (Scan_Dynamic_Pred_Next(&scan) != NULL)	/* non deterministic case */
     {
       dyn->curr_stamp++;	/* LDUV needs care only when there are more than one answer */
-      i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) + alt_info_size;
 
       if (alt_fct_type == DYN_ALT_FCT_FOR_TEST)
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_TEST_ALT, 0);
       else
 	scan_alt = (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0);
 
+      i = DYNSCAN_SIZE + alt_info_size;
       Pl_Create_Choice_Point(scan_alt, i);
       adr = &AB(B, i) + 1;
 
@@ -963,6 +991,8 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
 #endif
 
   scan->clause = NULL;
+
+  MPROBE_PTR("dyn", scan->dyn);
 
   int nb_skip_erased = -1;		/* count erased clauses */
   do
@@ -1003,6 +1033,8 @@ Scan_Dynamic_Pred_Next(DynScan *scan)
 	  clause = var_clause;
 	  scan->var_ind_chain = var_ind_chain->ind_chain.next;
 	}
+
+      MPROBE_PTR("clause", clause);
 
       /* Detect when remaining clauses are beyond the scan point (created after it) */
       if (clause->cl_no >= scan->stop_cl_no)
@@ -1063,8 +1095,7 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
   scan_alt = ALTB(B);
   Pl_Update_Choice_Point(scan_alt, 0);
 
-  i = (sizeof(DynScan) + sizeof(WamWord) - 1) / sizeof(WamWord) - 1;
-
+  i = DYNSCAN_SIZE - 1;
   scan = (DynScan *) &AB(B, i);
   adr = (WamWord *) scan;
   alt_info = (WamWord *) (adr - scan->alt_size_info);
@@ -1089,6 +1120,8 @@ Pl_Scan_Dynamic_Pred_Alt_0(void)
 void
 Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word)
 {
+  MPROBE_PTR("clause", clause);
+
   Pl_Copy_Contiguous_Term(H, &clause->term_word);	/* *H=<LST,H+1> */
   *head_word = H[1];
   *body_word = H[2];
@@ -1112,7 +1145,7 @@ Get_Scan_Choice_Point(WamWord *b)
       ALTB(b) != (CodePtr) Prolog_Predicate(SCAN_DYN_JUMP_ALT, 0))
     return NULL;
 
-  i = sizeof(DynScan) / sizeof(WamWord) - 1;
+  i = DYNSCAN_SIZE - 1;
   scan = (DynScan *) &AB(b, i);
 
   return scan;
@@ -1196,6 +1229,7 @@ Clean_Erased_Clauses(void)
   p_last_dyn = &first_dyn_with_erase;
   for (dyn = first_dyn_with_erase; dyn; dyn = dyn1)
     {
+      MPROBE_PTR("dyn", dyn);
       dyn1 = dyn->next_dyn_with_erase;
       if (IS_MARKED_AS_KEEP(dyn))
 	{			/* marked: cannot be cleaned (unmark it) */
@@ -1281,6 +1315,9 @@ void
 Print_Dynamic_Clause(const char *msg, DynCInf *clause)
 {
   
+  MPROBE_PTR("clause", clause);	      
+  MPROBE_PTR("dyn", clause->dyn);
+  
   DBGPRINTF("%s %p  %s/%d  no: %d  size: %d", msg, clause,
 	    pl_atom_tbl[clause->dyn->func].name, clause->dyn->arity,
 	    clause->cl_no, clause->term_size);
@@ -1328,6 +1365,7 @@ void
 Print_Dynamic_Info(DynPInf *dyn, const char *loc, Bool after_clean)
 {
   DBGPRINTF("--- CHECKING Dyn part (%s) ---", loc);
+  MPROBE_PTR("dyn", dyn);
   DBGPRINTF("\nFirst_dyn_with_erase: %p  nb_erased_clauses: %d\n",
 	    first_dyn_with_erase, nb_erased_clauses);
   DBGPRINTF("Dyn: %p  %s/%d  count_a: %d  count_z: %d  "

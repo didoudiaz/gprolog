@@ -2,7 +2,7 @@ dnl *********************************
 dnl * autoconf configuration script *
 dnl *********************************
 
-AC_INIT([gprolog],[1.6.0],[bug-prolog@gnu.org],[],[www.gprolog.org])
+AC_INIT([gprolog], [1.6.0], [bug-prolog@gnu.org], [], [www.gprolog.org])
 AC_PREREQ([2.71])
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
@@ -33,6 +33,7 @@ HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
 USE_EBP=no
+USE_MCHECK=no
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
 WITH_HTMLHELP=static
@@ -134,38 +135,44 @@ dnl * package options *
 dnl *******************
 
 
-AC_ARG_WITH(install-dir, [  --with-install-dir=DIR  specify INSTALL_DIR],
+AC_ARG_WITH(install-dir,  [  --with-install-dir=DIR  specify INSTALL_DIR],
                 [WITH_INSTALL_DIR="$withval"])
 
-AC_ARG_WITH(links-dir,   [  --with-links-dir=DIR    specify LINKS_DIR],
+AC_ARG_WITH(links-dir,    [  --with-links-dir=DIR    specify LINKS_DIR],
                 [WITH_LINKS_DIR="$withval"])
 
-AC_ARG_WITH(doc-dir,     [  --with-doc-dir=DIR      specify DOC_DIR],
+AC_ARG_WITH(doc-dir,      [  --with-doc-dir=DIR      specify DOC_DIR],
                 [WITH_DOC_DIR="$withval"])
 
-AC_ARG_WITH(html-dir,    [  --with-html-dir=DIR     specify HTML_DIR],
+AC_ARG_WITH(html-dir,     [  --with-html-dir=DIR     specify HTML_DIR],
                 [WITH_HTML_DIR="$withval"])
 
-AC_ARG_WITH(examples-dir,[  --with-examples-dir=DIR specify EXAMPLES_DIR],
+AC_ARG_WITH(examples-dir, [  --with-examples-dir=DIR specify EXAMPLES_DIR],
                 [WITH_EXAMPLES_DIR="$withval"])
 
-AC_ARG_WITH(msvc,        [  --with-msvc             use MS VC++],
+AC_ARG_WITH(msvc,         [  --with-msvc             use MS VC++],
                 [WITH_MSVC="$withval"],
                 [WITH_MSVC=no])
 
-AC_ARG_WITH(c-flags,     [[  --with-c-flags[=FLAGS]  specify C flags]],
+AC_ARG_WITH(c-flags,      [[  --with-c-flags[=FLAGS]  specify C flags]],
                 [WITH_C_FLAGS="$withval"],
                 [WITH_C_FLAGS=yes])
 
-AC_ARG_ENABLE(regs,      [  --disable-regs          do not use machine registers],
+AC_ARG_ENABLE(regs,       [  --disable-regs          do not use machine registers],
               [case "$enableval" in
                    no) AC_DEFINE(NO_USE_REGS);;
                    *)  ;;
                esac])
 
-AC_ARG_ENABLE(ebp,      [  --enable-ebp            use the ebp register on ix86 machines],
+AC_ARG_ENABLE(ebp,       [  --enable-ebp            use the ebp register on ix86 machines],
               [case "$enableval" in
                    yes) USE_EBP=yes;;
+                   *)   ;;
+               esac])
+
+AC_ARG_ENABLE(mcheck,    [  --enable-mcheck         use mcheck (C heap consistency checking)],
+              [case "$enableval" in
+                   yes) USE_MCHECK=yes;;
                    *)   ;;
                esac])
 
@@ -189,13 +196,13 @@ AC_ARG_ENABLE(piped-consult, [  --disable-piped-consult do not pipe stdin of pl2
                esac])
 
 
-AC_ARG_ENABLE(gui-console,[  --disable-gui-console   do not use the Windows GUI console],
+AC_ARG_ENABLE(gui-console, [  --disable-gui-console   do not use the Windows GUI console],
               [case "$enableval" in
                    no) AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no;;
                    *)  USE_GUI_CONSOLE=yes;;
                esac])
 
-AC_ARG_ENABLE(htmlhelp,[  --disable-htmlhelp      do not use Windows HtmlHelp inside the GUI console],
+AC_ARG_ENABLE(htmlhelp,  [  --disable-htmlhelp      do not use Windows HtmlHelp inside the GUI console],
               [WITH_HTMLHELP="$enableval"])
 
 AC_ARG_ENABLE(sockets,   [  --disable-sockets       do not include sockets facility],
@@ -212,6 +219,10 @@ AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constr
 
 if test "$USE_EBP" = no; then
         AC_DEFINE(NO_USE_EBP)
+fi
+
+if test "$USE_MCHECK" = no; then
+        AC_DEFINE(NO_USE_MCHECK)
 fi
 
 
@@ -312,7 +323,7 @@ dnl   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]
     LIB_SUFFIX='.lib'
     CC_OBJ_NAME_OPT='-Fo'
     CC_EXE_NAME_OPT='-Fe'
-    AC_CHECK_PROGS(WIN_AS_FOUND, $AS,no)
+    AC_CHECK_PROGS(WIN_AS_FOUND, $AS, no)
     if test "$WIN_AS_FOUND" = no; then
         AC_MSG_ERROR([$AS.exe is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/$AS.exe])
     fi
@@ -352,23 +363,23 @@ dnl think the user wants to override the test)
         x86_64*linux*)   ASFLAGS='--64';;
         *)               if test "$with_gas" = yes; then AS0=gas; fi;;
     esac
-    AC_CHECK_TOOL([AS],[$AS0])
+    AC_CHECK_TOOL([AS], [$AS0])
     AC_PROG_RANLIB
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.o'
     LIB_SUFFIX='.a'
     CC_OBJ_NAME_OPT='-o '
     CC_EXE_NAME_OPT='-o '
-    AC_CHECK_TOOL([RC],[windres])
+    AC_CHECK_TOOL([RC], [windres])
     RCFLAGS='-O coff'
     RC_OUT_NAME_OPT='-o '
     LD=$CC
     LD_OUT_NAME_OPT='-o '
     LD_DLL_OPT='-shared'
-    AC_CHECK_TOOL([AR],[ar])
+    AC_CHECK_TOOL([AR], [ar])
     AR_RC="$AR rc "
     AR_SEP=' '
-    AC_CHECK_TOOL([STRIP],[strip])
+    AC_CHECK_TOOL([STRIP], [strip])
 fi
 
 dnl RCFLAGS="$RCFLAGS -l 0x409"
@@ -593,13 +604,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
 extern int accept(int, struct sockaddr *, socklen_t *);
-]], [[]])],[AC_MSG_RESULT(yes)],[
+]], [[]])], [AC_MSG_RESULT(yes)], [
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#include <sys/types.h>
 	#include <sys/socket.h>
 	extern int accept(int, struct sockaddr *, size_t *);
-	]],[[]])],[AC_MSG_RESULT(size_t)
-	AC_DEFINE(socklen_t, size_t)],[AC_MSG_RESULT(int)
+	]], [[]])], [AC_MSG_RESULT(size_t)
+	AC_DEFINE(socklen_t, size_t)], [AC_MSG_RESULT(int)
 	AC_DEFINE(socklen_t, int)])
 ])
 
@@ -615,7 +626,7 @@ AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <signal.h>
 struct sigcontext p;
-]], [[]])],[AC_MSG_RESULT(no)],[
+]], [[]])], [AC_MSG_RESULT(no)], [
 AC_MSG_RESULT(yes)
 AC_DEFINE(LINUX_NEEDS_ASM_SIGCONTEXT)])
 esac
@@ -629,7 +640,7 @@ dnl This test was ripped from gnuplot's configure.in:
 AC_MSG_CHECKING([for sigsetjmp])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[jmp_buf env; sigsetjmp(env, 1);]])],
    [AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_SIGSETJMP)],[AC_MSG_RESULT(no)])
+    AC_DEFINE(HAVE_SIGSETJMP)], [AC_MSG_RESULT(no)])
 
 
 dnl ------------------------
@@ -686,7 +697,7 @@ if test "$GCC" = yes -a "$WINDOWS" != no; then
    SAVE_LDFLAGS="$LDFLAGS"
    LDFLAGS="$LDFLAGS -static-libgcc"
    AC_MSG_CHECKING([whether gcc accepts -static-libgcc])
-   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], 
     [AC_MSG_RESULT([yes]); have_static_libs=yes],
     [AC_MSG_RESULT([no])])
 if test "$have_static_libs" = no; then
@@ -702,7 +713,7 @@ if test "$GCC" = yes -a "$CYGWIN" = yes; then
    SAVE_LDFLAGS="$LDFLAGS"
    LDFLAGS="$LDFLAGS -Wl,--disable-large-address-aware"
    AC_MSG_CHECKING([whether gcc accepts -Wl,--disable-large-address-aware])
-   AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], 
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], 
     [AC_MSG_RESULT([yes]); accept_disable_large_address_aware=yes],
     [AC_MSG_RESULT([no])])
 if test "$accept_disable_large_address_aware" = no; then
@@ -758,20 +769,23 @@ dnl other libs: winspool.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
         LIB="$LIB ws2_32"
     fi
 else
-#    LIB='m mcheck' # activate to use mcheck/mprobe (-lmcheck) see Mprobe_Ptr() 
     LIB='m'
+    if test "$USE_MCHECK" = yes; then
+       AC_CHECK_LIB([mcheck], [mcheck], [LIB="$LIB mcheck"], [
+               AC_MSG_WARN([Function mcheck/mprobe not found - disable mcheck])
+	       USE_MCHECK=no])
+    fi
     GUILIB=''
     if test "$USE_SOCKETS" = yes; then
-        AC_CHECK_FUNC(socket,[],
-                AC_CHECK_LIB(socket,socket,LIB="$LIB socket",
+        AC_CHECK_FUNC(socket, [],
+                AC_CHECK_LIB(socket, socket, LIB="$LIB socket",
                            AC_MSG_ERROR(cannot find socket library)))
 
-        AC_CHECK_FUNC(gethostbyname,[],
-                AC_CHECK_LIB(nsl,gethostbyname,LIB="$LIB nsl"))
+        AC_CHECK_FUNC(gethostbyname, [],
+                AC_CHECK_LIB(nsl, gethostbyname, LIB="$LIB nsl"))
     dnl (No error here; just assume gethostbyname is in -lsocket.)
     fi
 fi
-
 LDLIBS=`make_lib_list $LIB`
 LDGUILIBS=`make_lib_list $GUILIB`
 
@@ -783,43 +797,43 @@ dnl ***********************
 dnl * gp_config.h defines *
 dnl ***********************
 
-AC_DEFINE_UNQUOTED(PROLOG_NAME,      "$PROLOG_NAME")
-AC_DEFINE_UNQUOTED(PROLOG_DIALECT,   "$PROLOG_DIALECT")
-AC_DEFINE_UNQUOTED(PROLOG_VERSION,   "$PROLOG_VERSION")
-AC_DEFINE_UNQUOTED(PROLOG_DATE,      "$PROLOG_DATE")
-AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT, "$PROLOG_COPYRIGHT")
+AC_DEFINE_UNQUOTED(PROLOG_NAME,       "$PROLOG_NAME")
+AC_DEFINE_UNQUOTED(PROLOG_DIALECT,    "$PROLOG_DIALECT")
+AC_DEFINE_UNQUOTED(PROLOG_VERSION,    "$PROLOG_VERSION")
+AC_DEFINE_UNQUOTED(PROLOG_DATE,       "$PROLOG_DATE")
+AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT,  "$PROLOG_COPYRIGHT")
 
-AC_DEFINE_UNQUOTED(TOP_LEVEL,        "$TOP_LEVEL")
-AC_DEFINE_UNQUOTED(GPLC,             "$GPLC")
-AC_DEFINE_UNQUOTED(HEXGPLC,          "$HEXGPLC")
-AC_DEFINE_UNQUOTED(ENV_VARIABLE,     "$ENV_VARIABLE")
+AC_DEFINE_UNQUOTED(TOP_LEVEL,         "$TOP_LEVEL")
+AC_DEFINE_UNQUOTED(GPLC,              "$GPLC")
+AC_DEFINE_UNQUOTED(HEXGPLC,           "$HEXGPLC")
+AC_DEFINE_UNQUOTED(ENV_VARIABLE,      "$ENV_VARIABLE")
 
-AC_DEFINE_UNQUOTED(M_CPU,            "$host_cpu")
-AC_DEFINE_UNQUOTED(M_VENDOR,         "$host_vendor")
-AC_DEFINE_UNQUOTED(M_OS,             "$host_os")
+AC_DEFINE_UNQUOTED(M_CPU,             "$host_cpu")
+AC_DEFINE_UNQUOTED(M_VENDOR,          "$host_vendor")
+AC_DEFINE_UNQUOTED(M_OS,              "$host_os")
 
-AC_DEFINE_UNQUOTED(CC,               "$CC")
-AC_DEFINE_UNQUOTED(CFLAGS_PREFIX_REG,"$CFLAGS_PREFIX_REG")
-AC_DEFINE_UNQUOTED(CFLAGS,           "$CFLAGS")
-AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,   "$CFLAGS_MACHINE")
-AC_DEFINE_UNQUOTED(LDFLAGS,          "$LDFLAGS")
-AC_DEFINE_UNQUOTED(LDLIBS,           "$LDLIBS")
-AC_DEFINE_UNQUOTED(AS,               "$AS")
-AC_DEFINE_UNQUOTED(ASFLAGS,          "$ASFLAGS")
-AC_DEFINE_UNQUOTED(STRIP,            "$STRIP")
+AC_DEFINE_UNQUOTED(CC,                "$CC")
+AC_DEFINE_UNQUOTED(CFLAGS_PREFIX_REG, "$CFLAGS_PREFIX_REG")
+AC_DEFINE_UNQUOTED(CFLAGS,            "$CFLAGS")
+AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,    "$CFLAGS_MACHINE")
+AC_DEFINE_UNQUOTED(LDFLAGS,           "$LDFLAGS")
+AC_DEFINE_UNQUOTED(LDLIBS,            "$LDLIBS")
+AC_DEFINE_UNQUOTED(AS,                "$AS")
+AC_DEFINE_UNQUOTED(ASFLAGS,           "$ASFLAGS")
+AC_DEFINE_UNQUOTED(STRIP,             "$STRIP")
 
-AC_DEFINE_UNQUOTED(ASM_SUFFIX,       "$ASM_SUFFIX")
-AC_DEFINE_UNQUOTED(OBJ_SUFFIX,       "$OBJ_SUFFIX")
-AC_DEFINE_UNQUOTED(EXE_SUFFIX,       "$EXE_SUFFIX")
-AC_DEFINE_UNQUOTED(CC_OBJ_NAME_OPT,  "$CC_OBJ_NAME_OPT")
-AC_DEFINE_UNQUOTED(CC_EXE_NAME_OPT,  "$CC_EXE_NAME_OPT")
+AC_DEFINE_UNQUOTED(ASM_SUFFIX,        "$ASM_SUFFIX")
+AC_DEFINE_UNQUOTED(OBJ_SUFFIX,        "$OBJ_SUFFIX")
+AC_DEFINE_UNQUOTED(EXE_SUFFIX,        "$EXE_SUFFIX")
+AC_DEFINE_UNQUOTED(CC_OBJ_NAME_OPT,   "$CC_OBJ_NAME_OPT")
+AC_DEFINE_UNQUOTED(CC_EXE_NAME_OPT,   "$CC_EXE_NAME_OPT")
 
-AC_DEFINE_UNQUOTED(DLL_W32GUICONS,   "$DLL_W32GUICONS")
-AC_DEFINE_UNQUOTED(LIB_LINEDIT,      "$LIB_LINEDIT")
-AC_DEFINE_UNQUOTED(LIB_ENGINE_PL,    "$LIB_ENGINE_PL")
-AC_DEFINE_UNQUOTED(LIB_BIPS_PL,      "$LIB_BIPS_PL")
-AC_DEFINE_UNQUOTED(LIB_ENGINE_FD,    "$LIB_ENGINE_FD")
-AC_DEFINE_UNQUOTED(LIB_BIPS_FD,      "$LIB_BIPS_FD")
+AC_DEFINE_UNQUOTED(DLL_W32GUICONS,    "$DLL_W32GUICONS")
+AC_DEFINE_UNQUOTED(LIB_LINEDIT,       "$LIB_LINEDIT")
+AC_DEFINE_UNQUOTED(LIB_ENGINE_PL,     "$LIB_ENGINE_PL")
+AC_DEFINE_UNQUOTED(LIB_BIPS_PL,       "$LIB_BIPS_PL")
+AC_DEFINE_UNQUOTED(LIB_ENGINE_FD,     "$LIB_ENGINE_FD")
+AC_DEFINE_UNQUOTED(LIB_BIPS_FD,       "$LIB_BIPS_FD")
 
 
 

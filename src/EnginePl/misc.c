@@ -54,11 +54,16 @@ Init_Dl_Malloc(void) {
 #include <string.h>
 #include <stdarg.h>
 
+#ifndef NO_USE_MCHECK
+#include <mcheck.h>
+#endif
+
 #include "engine_pl.h"
 
 #ifndef NO_USE_LINEDIT
 #include "../Linedit/linedit.h"
 #endif
+
 
 
 
@@ -164,6 +169,49 @@ Pl_Strdup_Check(char *str, char *src_file, int src_line)
 
   return s;
 }
+
+
+
+#ifndef NO_USE_MCHECK
+
+/*-------------------------------------------------------------------------*
+ * PL_MPROBE_PTR                                                           *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_MProbe_Ptr(const char *file, int line, const char *func,
+	      const char *ptr_desc, void *ptr)
+{
+  static int err_reported = 0;
+  char *msg;
+
+  switch(mprobe(ptr))
+    {
+    case MCHECK_DISABLED:
+      if (!err_reported)
+	printf("MCHECK UNAVAILABLE: link with -lmcheck (see configure.in --enable-mcheck) and export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so\n");
+      err_reported = 1;
+      return;
+
+    case MCHECK_OK:
+      return;
+
+    case MCHECK_HEAD:
+      msg = "MCHECK_HEAD: the data immediately before the block was modified";
+      break;
+
+    case MCHECK_TAIL:
+      msg = "MCHECK_TAIL: the data immediately after the block was modified";
+      break;
+
+    case MCHECK_FREE:
+      msg = "MCHECK_FREE: the block was already freed";
+      break;
+    } 
+  printf("%s:%d (%s) mprobe on %s %p: %s", file, line, func, ptr_desc, ptr, msg);
+}
+
+#endif
 
 
 

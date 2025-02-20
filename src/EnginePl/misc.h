@@ -74,6 +74,15 @@ char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 
 #define Strdup(str)        Pl_Strdup_Check(str, __FILE__, __LINE__)
 
+#ifndef NO_USE_MCHECK
+void Pl_MProbe_Ptr(const char *file, int line, const char *func,
+		   const char *ptr_desc, void *ptr);
+
+#define MPROBE_PTR(ptr_desc, ptr) Pl_MProbe_Ptr(__FILE__, __LINE__, __func__, ptr_desc, ptr)
+#else
+#define MPROBE_PTR(ptr_desc, ptr)
+#endif
+
 void Pl_Extend_Table_If_Needed(char **hash_tbl);
 
 void Pl_Extend_Array(char **ptbl, int *nb_elem, int elem_size, Bool bzero);

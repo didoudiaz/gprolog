@@ -120,6 +120,9 @@
 /* Define if you don't want to use the ebp register on ix86 */
 #undef NO_USE_EBP
 
+/* Define if you don't want to use the mcheck/mprobe (on linux) */
+#undef NO_USE_MCHECK
+
 /* Define if you don't want to fast call on ix86 */
 #undef NO_USE_FAST_CALL
 

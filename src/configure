@@ -792,6 +792,7 @@ with_msvc
 with_c_flags
 enable_regs
 enable_ebp
+enable_mcheck
 enable_fast_call
 enable_linedit
 enable_piped_consult
@@ -1432,6 +1433,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-regs          do not use machine registers
   --enable-ebp            use the ebp register on ix86 machines
+  --enable-mcheck         use mcheck (C heap consistency checking)
   --disable-fast-call     do not use fast call on ix86
   --disable-linedit       do not include line editor facility
   --disable-piped-consult do not pipe stdin of pl2wam when consult/1
@@ -2813,6 +2815,7 @@ HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
 USE_EBP=no
+USE_MCHECK=no
 USE_LINEDIT=yes
 USE_GUI_CONSOLE=yes
 WITH_HTMLHELP=static
@@ -2989,6 +2992,16 @@ then :
 fi
 
 
+# Check whether --enable-mcheck was given.
+if test ${enable_mcheck+y}
+then :
+  enableval=$enable_mcheck; case "$enableval" in
+                   yes) USE_MCHECK=yes;;
+                   *)   ;;
+               esac
+fi
+
+
 # Check whether --enable-fast-call was given.
 if test ${enable_fast_call+y}
 then :
@@ -3066,6 +3079,11 @@ fi
 
 if test "$USE_EBP" = no; then
         printf "%s\n" "#define NO_USE_EBP 1" >>confdefs.h
+
+fi
+
+if test "$USE_MCHECK" = no; then
+        printf "%s\n" "#define NO_USE_MCHECK 1" >>confdefs.h
 
 fi
 
@@ -6375,8 +6393,54 @@ if test "$WINDOWS" != no; then
         LIB="$LIB ws2_32"
     fi
 else
-#    LIB='m mcheck' # activate to use mcheck/mprobe (-lmcheck) see Mprobe_Ptr()
     LIB='m'
+    if test "$USE_MCHECK" = yes; then
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for mcheck in -lmcheck" >&5
+printf %s "checking for mcheck in -lmcheck... " >&6; }
+if test ${ac_cv_lib_mcheck_mcheck+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmcheck  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char mcheck ();
+int
+main (void)
+{
+return mcheck ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_mcheck_mcheck=yes
+else $as_nop
+  ac_cv_lib_mcheck_mcheck=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mcheck_mcheck" >&5
+printf "%s\n" "$ac_cv_lib_mcheck_mcheck" >&6; }
+if test "x$ac_cv_lib_mcheck_mcheck" = xyes
+then :
+  LIB="$LIB mcheck"
+else $as_nop
+
+               { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Function mcheck/mprobe not found - disable mcheck" >&5
+printf "%s\n" "$as_me: WARNING: Function mcheck/mprobe not found - disable mcheck" >&2;}
+	       USE_MCHECK=no
+fi
+
+    fi
     GUILIB=''
     if test "$USE_SOCKETS" = yes; then
         ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
@@ -6478,7 +6542,6 @@ fi
 
         fi
 fi
-
 LDLIBS=`make_lib_list $LIB`
 LDGUILIBS=`make_lib_list $GUILIB`
 
