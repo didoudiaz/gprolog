@@ -6,7 +6,7 @@
  * Descr.: hash function (part)                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -75,12 +75,15 @@ HASH_BUFFER_FCT(const void *key, int len, uint32_t seed)
   
   k1 = 0;
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (len & 3)
     {
     case 3:
       k1 ^= data[2] << 16;
+      // fall through
     case 2:
       k1 ^= data[1] << 8;
+      // fall through
     case 1:
       k1 ^= data[0];
       k1 *= c1;

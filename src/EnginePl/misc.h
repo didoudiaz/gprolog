@@ -6,7 +6,7 @@
  * Descr.: miscellaneous operations - header file                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -54,11 +54,13 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-char *Pl_Malloc_Check(size_t size, char *src_file, int src_line);
+void *Pl_Malloc_Check(size_t size, char *src_file, int src_line);
 
-char *Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line);
+void *Pl_Calloc_Check(size_t nb, size_t size, char *src_file, int src_line);
 
-char *Pl_Realloc_Check(char *ptr, size_t size, char *src_file, int src_line);
+void *Pl_Realloc_Check(void *ptr, size_t size, char *src_file, int src_line);
+
+void Pl_Free_Check(void *ptr, char *src_file, int src_line);
 
 char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 
@@ -71,6 +73,15 @@ char *Pl_Strdup_Check(char *str, char *src_file, int src_line);
 #define Free(ptr)          free(ptr)
 
 #define Strdup(str)        Pl_Strdup_Check(str, __FILE__, __LINE__)
+
+#ifndef NO_USE_MCHECK
+void Pl_MProbe_Ptr(const char *file, int line, const char *func,
+		   const char *ptr_desc, void *ptr);
+
+#define MPROBE_PTR(ptr_desc, ptr) Pl_MProbe_Ptr(__FILE__, __LINE__, __func__, ptr_desc, ptr)
+#else
+#define MPROBE_PTR(ptr_desc, ptr)
+#endif
 
 void Pl_Extend_Table_If_Needed(char **hash_tbl);
 

@@ -6,7 +6,7 @@
  * Descr.: code emission                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -80,7 +80,7 @@
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *
- *    - jump/boolean/x(X) (jump at / test / move returned value)           *
+ *    - jump/boolean/V (jump at / test / move return value to x(X) or y(Y) *
  *    - set_cp (set CP before the call at the next instruction)            *
  *    - fast_call (use a fact call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
@@ -99,24 +99,23 @@
  * L      : integer >= 1 (with no "holes") or 'fail' inside switch_on_term *
  *-------------------------------------------------------------------------*/
 
-emit_code_init(WamFile0, PlFile0) :-
-	prolog_file_name(PlFile0, PlFile),
-	emit_code_files(WamFile0, PlFile, WamFile),
-	(   WamFile = user ->
+emit_code_init(WamFile, PlFile) :-
+	emit_code_files(WamFile, PlFile, WamFile1),
+	(   WamFile1 = user ->
 	    current_output(Stream)
-	;   open(WamFile, write, Stream)
+	;   open(WamFile1, write, Stream)
 	),
 	g_assign(streamwamfile, Stream),
 	g_assign(cur_pl_file, ''),
 	prolog_name(Name),
 	prolog_version(Version),
-	format(Stream, '%% compiler: ~a ~a~n', [Name, Version]),
-	format(Stream, '%% file    : ~a~n', [PlFile]),
+	format(Stream, '% compiler: ~a ~a~n', [Name, Version]),
+	format(Stream, '% file    : ~a~n', [PlFile]),
 	g_read(wam_comment, Cmt),
 	(   Cmt = '' ->
 	    true
 	;
-	    format(Stream, '%%           ~a~n', [Cmt])
+	    format(Stream, '%           ~a~n', [Cmt])
 	).
 
 
@@ -181,15 +180,15 @@ emit_pred_start(Pred, 0, PlFile, PlLine, Stream, Type) :-
 
 emit_pred_start(Pred, N, PlFile, PlLine, Stream, _) :-
 	emit_file_name_if_needed(PlFile, Stream),
-	(   test_pred_info(dyn, Pred, N) ->
+	(   test_pred_flag(dyn, Pred, N) ->
 	    StaDyn = dynamic
 	;   StaDyn = static
 	),
-	(   test_pred_info(pub, Pred, N) ->
+	(   test_pred_flag(pub, Pred, N) ->
 	    PubPriv = public
 	;   PubPriv = private
 	),
-	(   test_pred_info(multi, Pred, N) ->
+	(   test_pred_flag(multi, Pred, N) ->
 	    MonoMulti = multifile
 	;   MonoMulti = monofile
 	),
@@ -205,13 +204,13 @@ export_type(Pred, _, Module, Module, local) :-
 	'$aux_name'(Pred), !.
 
 export_type(Pred, N, Module, Module, local) :-
-	test_pred_info(multi, Pred, N), !.
+	test_pred_flag(multi, Pred, N), !.
 
 export_type(Pred, N, _, system, built_in) :-
-	test_pred_info(bpl, Pred, N), !.
+	test_pred_flag(bpl, Pred, N), !.
 
 export_type(Pred, N, _, system, built_in_fd) :-
-	test_pred_info(bfd, Pred, N), !.
+	test_pred_flag(bfd, Pred, N), !.
 
 export_type(Pred, N, system, system, built_in) :-  % an exported pred in system is a built_in - remove if wanted
 	is_exported(Pred, N), !.
@@ -343,9 +342,9 @@ emit_list([X|L], PrefixTab, PrefixSpc, Stream) :-
 emit_ensure_linked :-
 	g_read(streamwamfile, Stream),
 	retract(ensure_linked(Name, Arity)), !,
-	format(Stream, '~n~nensure_linked([~q', [Name / Arity]),
+	format(Stream, '~n~nensure_linked([~q', [Name/Arity]),
 	(   clause(ensure_linked(Name1, Arity1), _),
-	    format(Stream, ',~q', [Name1 / Arity1]),
+	    format(Stream, ',~q', [Name1/Arity1]),
 	    fail
 	;   true
 	),

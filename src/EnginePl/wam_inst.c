@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -607,6 +607,101 @@ Pl_Put_Structure(int func, int arity)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_PUT_META_TERM_TAGGED                                                 *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *                                                                         *
+ * See also Pl_Get_Module_And_Goal (for meta_term decomposition)           *
+ *-------------------------------------------------------------------------*/
+WamWord FC
+Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word)
+{
+  WamWord *cur_H = H;
+  WamWord res_word;
+#ifdef META_TERM_HIDDEN
+  int offset;
+#endif
+
+  /* Avoid to create meta_term on an existing SAME meta_term.
+   * SAME is because we want to have the calling context, e.g.
+   * if goal_word is foo:p(...) and the module is bar we will
+   * obtain bar:foo:p(...) (so the topmost module is the caller module)
+   * But if goal_word is bar:p(...) the goal remains unchanged
+   * See Pl_Set_Calling_Module (and fct like Pl_Strip_Module_Top)
+   */
+#if 1	
+  WamWord word, tag_mask;
+  WamWord f_n;
+  WamWord *adr;
+
+  DEREF(goal_word, word, tag_mask);
+  if (tag_mask == TAG_STC_MASK)
+    {
+      adr = UnTag_STC(word);
+      f_n = Functor_And_Arity(adr);
+      if (f_n == Functor_Arity(ATOM_CHAR(':'), 2))
+	{
+	  DEREF(module_word, word, tag_mask);
+	  module_word = word;
+	  
+	  DEREF(Arg(adr, 0), word, tag_mask); /* module part */
+	  if (word == module_word)
+	    return goal_word;
+	}
+
+#ifdef META_TERM_HIDDEN
+      if (f_n == Functor_Arity(pl_atom_meta_term, 1)) /* also test arg1 = offset ? */
+	return goal_word;
+#endif
+    }
+#endif
+
+  res_word = Tag_STC(cur_H);
+
+#ifdef META_TERM_HIDDEN
+  /* Return a term '$$meta_term'(Offset) in A(j) 
+   *        Offset is an index in the heap.
+   * In the heap Offset is followed by Module, Goal as for
+   * '$$meta_term'(Offset, Module, Goal) (only the F/N word contains N=1)
+   * NB: GC (and copy_term ?) has then to treat '$$meta_term'/1 as '$$meta_term'/3.
+   * NB: the Offset argument is then useless (can be used to check validity).
+   */
+
+  offset = cur_H - Global_Stack;
+  *cur_H++ = Functor_Arity(pl_atom_meta_term, 1);
+  *cur_H++ = Tag_INT(offset);
+  *cur_H++ = module_word;
+  *cur_H++ = goal_word;
+#else
+  /* Return a meta-term of the form Module:Goal in A(j) */
+
+  *cur_H++ = Functor_Arity(ATOM_CHAR(':'), 2);
+  *cur_H++ = module_word;
+  *cur_H++ = goal_word;
+#endif
+
+  H = cur_H;
+  return res_word;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PUT_META_TERM                                                        *
+ *                                                                         *
+ * Called by compiled prolog code.                                         *
+ *-------------------------------------------------------------------------*/
+WamWord FC
+Pl_Put_Meta_Term(int module, WamWord goal_word)
+{
+  return Pl_Put_Meta_Term_Tagged(Tag_ATM(module), goal_word);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_UNIFY_VARIABLE                                                       *
  *                                                                         *
  * Called by compiled prolog code.                                         *
@@ -1125,6 +1220,7 @@ Pl_Switch_On_Atom(SwtTbl t, int size)
 
   return (swt->codep) ? swt->codep : ALTB(B);
 }
+
 
 
 
@@ -1692,3 +1788,87 @@ Pl_Untrail(WamWord *low_adr)
 #define OCCURS_CHECK
 
 #include "unify.c"
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * Pl_PRINT_TAG_VALUE                                                      *
+ *                                                                         *
+ * for debug (gdb/lldb)                                                    *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Print_Tag_Value(WamWord *word_adr, WamWord word)
+{
+  WamWord tag;
+  WamWord value;
+  WamWord *adr;
+  int tag_type = -1;
+  char *tag_name = "???";
+  int i;
+
+  if (word_adr)
+    {
+      printf("addr %p: ", word_adr);
+      word = *word_adr;
+    }
+
+  printf("%*p = ", (int) (sizeof(WamWord) *2), (void *) word);
+  tag = Tag_Of(word);
+  for (i = 0; i < NB_OF_TAGS; i++)
+    if (pl_tag_tbl[i].value == tag)
+      {
+	tag_name = pl_tag_tbl[i].name;
+	tag_type = pl_tag_tbl[i].type;
+	break;
+      }
+
+  switch (tag_type)
+    {
+    case LONG_INT:
+      value = (WamWord) UnTag_Long_Int(word);
+      printf("%s,%" PL_FMT_d "\n", tag_name, (PlLong) value);
+      break;
+
+#define ATOM_NAME(x) ((Is_Valid_Atom(x) && pl_atom_tbl[x].name != NULL) ? pl_atom_tbl[x].name : "???INVALID ATOM No???")
+      
+    case SHORT_UNS:
+      value = (WamWord) UnTag_Short_Uns(word);
+      if (tag == ATM)
+	printf("ATM,%d (%s)\n", (int) value, ATOM_NAME(value));
+      else
+	printf("%s,%" PL_FMT_u "\n", tag_name, (PlULong) value);
+      break;
+
+    case ADDRESS:
+    default:
+      adr = (WamWord *) UnTag_Address(word);
+      printf("%s,%p%s\n", tag_name, adr, (word_adr && word_adr == adr) ? " SELF_REF" : "");
+      break;
+    }
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_PRINT_FUNC_ARITY                                                     *
+ *                                                                         *
+ * for debug (gdb/lldb)                                                    *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Print_Func_Arity(WamWord *word_adr, WamWord word)
+{
+  int func, arity;
+
+  if (word_adr)
+    {
+      printf("addr %p: ", word_adr);
+      word = *word_adr;
+    }
+
+  printf("%*p = ", (int) (sizeof(WamWord) * 2), (void *) word);
+  func = Functor_Of(word);
+  arity = Arity_Of(word);
+  printf("%d (%s)/%d\n", func, ATOM_NAME(func), arity);
+}

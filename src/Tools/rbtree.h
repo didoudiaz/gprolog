@@ -17,19 +17,22 @@
 #ifndef __TOOLS_LINUX_PERF_RBTREE_H
 #define __TOOLS_LINUX_PERF_RBTREE_H
 
-// DD: #include <linux/kernel.h>
-// DD: #include <linux/stddef.h>
+#if 0
+#include <linux/kernel.h>
+#include <linux/stddef.h>
+
+#else /* DD */
+
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-
-/* DD: userspace adaptation */
 #define WRITE_ONCE(x, val) ((x) = (val))
 #define unlikely(x) (x)		/* used to help branch prediction in kernel */
 #ifndef __always_inline
 #define __always_inline inline
 #endif
+
 // DD: from container_of.h
 #ifdef __GNUC__
 #define container_of(ptr, type, member) ({				\
@@ -40,19 +43,33 @@
 	((type *)((char *)(ptr) - offsetof(type, member)))
 #endif
 
+#ifdef __GNUC__
+# define ATTR_ALIGN_UINTPTR_T __attribute__((aligned(sizeof(uintptr_t))))
+#elif defined(_MSC_VER)	 && defined(_WIN64)	/* MSVC needs a constant */
+#define ATTR_ALIGN_UINTPTR_T  __declspec(align(8))
+#elif defined(_MSC_VER)	 && defined(_WIN32)	/* NB: test _WIN32 after _WIN64 */
+#define ATTR_ALIGN_UINTPTR_T  __declspec(align(4))
+#else
+#define ATTR_ALIGN_UINTPTR_T
+#endif
+
+#endif /* DD: end */
+
 struct rb_node {
 	uintptr_t  __rb_parent_color;
 	struct rb_node *rb_right;
 	struct rb_node *rb_left;
-}; // DD: __attribute__((aligned(sizeof(long))));
+} ATTR_ALIGN_UINTPTR_T;
     /* The alignment might seem pointless, but allegedly CRIS needs it */
 
 struct rb_root {
 	struct rb_node *rb_node;
 };
 
-#define rb_parent(r)   ((struct rb_node *)((r)->__rb_parent_color & ~3))
+#define rb_parent(r)   ((struct rb_node *)((r)->__rb_parent_color & ((uintptr_t) ~3)))
 
+// DD: MSVC does not accept the cast in variable initialization
+#define RB_ROOT_NO_CAST { NULL, }
 #define RB_ROOT	(struct rb_root) { NULL, }
 #define	rb_entry(ptr, type, member) container_of(ptr, type, member)
 

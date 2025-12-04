@@ -2,7 +2,7 @@
 :-	use_module(library(format)).
 :-	use_module(library(sort)).
 :-	use_module(library(lists)).
-:-	use_module(library(prolog_sys), [statistics / 2]).
+:-	use_module(library(prolog_sys), [statistics/2]).
 
 prolog_name('CIAO Prolog').
 prolog_version('1.6').

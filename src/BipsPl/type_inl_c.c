@@ -6,7 +6,7 @@
  * Descr.: type testing (inline) management - C part                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -92,89 +92,89 @@
 #define Tag_Is_Non_Generic_Var(t)  (!Tag_Is_Generic_Var(t))
 
 
-#define Type_Test(test, x)			\
+#define Type_Test(test, x_word)			\
    WamWord word, tag_mask;  			\
-   DEREF(x, word, tag_mask);			\
+   DEREF(x_word, word, tag_mask);		\
    return test(tag_mask)
 
 
 
 Bool FC
-Pl_Blt_Var(WamWord x)
+Pl_Blt_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Var, x);
+  Type_Test(Tag_Is_Var, x_word);
 }
 
 Bool FC
-Pl_Blt_Non_Var(WamWord x)
+Pl_Blt_Non_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Nonvar, x);
+  Type_Test(Tag_Is_Nonvar, x_word);
 }
 
 Bool FC
-Pl_Blt_Atom(WamWord x)
+Pl_Blt_Atom(WamWord x_word)
 {
-  Type_Test(Tag_Is_Atom, x);
+  Type_Test(Tag_Is_Atom, x_word);
 }
 
 Bool FC
-Pl_Blt_Integer(WamWord x)
+Pl_Blt_Integer(WamWord x_word)
 {
-  Type_Test(Tag_Is_Integer, x);
+  Type_Test(Tag_Is_Integer, x_word);
 }
 
 Bool FC
-Pl_Blt_Float(WamWord x)
+Pl_Blt_Float(WamWord x_word)
 {
-  Type_Test(Tag_Is_Float, x);
+  Type_Test(Tag_Is_Float, x_word);
 }
 
 Bool FC
-Pl_Blt_Number(WamWord x)
+Pl_Blt_Number(WamWord x_word)
 {
-  Type_Test(Tag_Is_Number, x);
+  Type_Test(Tag_Is_Number, x_word);
 }
 
 Bool FC
-Pl_Blt_Atomic(WamWord x)
+Pl_Blt_Atomic(WamWord x_word)
 {
-  Type_Test(Tag_Is_Atomic, x);
+  Type_Test(Tag_Is_Atomic, x_word);
 }
 
 Bool FC
-Pl_Blt_Compound(WamWord x)
+Pl_Blt_Compound(WamWord x_word)
 {
-  Type_Test(Tag_Is_Compound, x);
+  Type_Test(Tag_Is_Compound, x_word);
 }
 
 Bool FC
-Pl_Blt_Callable(WamWord x)
+Pl_Blt_Callable(WamWord x_word)
 {
-  Type_Test(Tag_Is_Callable, x);
+  Type_Test(Tag_Is_Callable, x_word);
 }
 
 Bool FC
-Pl_Blt_Fd_Var(WamWord x)
+Pl_Blt_Fd_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Fd_Var, x);
+  Type_Test(Tag_Is_Fd_Var, x_word);
 }
 
 Bool FC
-Pl_Blt_Non_Fd_Var(WamWord x)
+Pl_Blt_Non_Fd_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Non_Fd_Var, x);
+  Type_Test(Tag_Is_Non_Fd_Var, x_word);
 }
 
 Bool FC
-Pl_Blt_Generic_Var(WamWord x)
+Pl_Blt_Generic_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Generic_Var, x);
+  Type_Test(Tag_Is_Generic_Var, x_word);
 }
 
 Bool FC
-Pl_Blt_Non_Generic_Var(WamWord x)
+Pl_Blt_Non_Generic_Var(WamWord x_word)
 {
-  Type_Test(Tag_Is_Non_Generic_Var, x);
+  Type_Test(Tag_Is_Non_Generic_Var, x_word);
 }
 
 

@@ -9,106 +9,737 @@ predicate('$use_call_args'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(call_with_args/1,45,static,private,monofile,built_in,[
+predicate(call_with_args/1,55,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,0]),
     proceed]).
 
 
-predicate(call_with_args/2,48,static,private,monofile,built_in,[
+predicate(call_with_args/2,58,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,1]),
     proceed]).
 
 
-predicate(call_with_args/3,51,static,private,monofile,built_in,[
+predicate(call_with_args/3,61,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,2]),
     proceed]).
 
 
-predicate(call_with_args/4,54,static,private,monofile,built_in,[
+predicate(call_with_args/4,64,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,3]),
     proceed]).
 
 
-predicate(call_with_args/5,57,static,private,monofile,built_in,[
+predicate(call_with_args/5,67,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,4]),
     proceed]).
 
 
-predicate(call_with_args/6,60,static,private,monofile,built_in,[
+predicate(call_with_args/6,70,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,5]),
     proceed]).
 
 
-predicate(call_with_args/7,63,static,private,monofile,built_in,[
+predicate(call_with_args/7,73,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,6]),
     proceed]).
 
 
-predicate(call_with_args/8,66,static,private,monofile,built_in,[
+predicate(call_with_args/8,76,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,7]),
     proceed]).
 
 
-predicate(call_with_args/9,69,static,private,monofile,built_in,[
+predicate(call_with_args/9,79,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,8]),
     proceed]).
 
 
-predicate(call_with_args/10,72,static,private,monofile,built_in,[
+predicate(call_with_args/10,82,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,9]),
     proceed]).
 
 
-predicate(call_with_args/11,75,static,private,monofile,built_in,[
+predicate(call_with_args/11,85,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,10]),
     proceed]).
 
 
-predicate(call/2,80,static,private,monofile,built_in,[
+predicate(call/2,101,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,1]),
     proceed]).
 
 
-predicate(call/3,83,static,private,monofile,built_in,[
+predicate(call/3,104,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,2]),
     proceed]).
 
 
-predicate(call/4,86,static,private,monofile,built_in,[
+predicate(call/4,107,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,3]),
     proceed]).
 
 
-predicate(call/5,89,static,private,monofile,built_in,[
+predicate(call/5,110,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,4]),
     proceed]).
 
 
-predicate(call/6,92,static,private,monofile,built_in,[
+predicate(call/6,113,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,5]),
     proceed]).
 
 
-predicate(call/7,95,static,private,monofile,built_in,[
+predicate(call/7,116,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,6]),
     proceed]).
 
 
-predicate(call/8,98,static,private,monofile,built_in,[
+predicate(call/8,119,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,7]),
     proceed]).
 
 
-predicate(call/9,101,static,private,monofile,built_in,[
+predicate(call/9,122,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,8]),
     proceed]).
 
 
-predicate(call/10,104,static,private,monofile,built_in,[
+predicate(call/10,125,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,9]),
     proceed]).
 
 
-predicate(call/11,107,static,private,monofile,built_in,[
+predicate(call/11,128,static,private,monofile,built_in,[
     call_c('Pl_Call_Closure',[jump,by_value],[call,10]),
     proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,43,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(1,1),
+    get_structure(call_with_args/1,2),
+    unify_integer(1),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,44,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(2,1),
+    get_structure(call_with_args/2,2),
+    unify_integer(1),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux3'/3,45,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(3,1),
+    get_structure(call_with_args/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux4'/3,46,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(4,1),
+    get_structure(call_with_args/4,2),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux5'/3,47,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(5,1),
+    get_structure(call_with_args/5,2),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux6'/3,48,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(6,1),
+    get_structure(call_with_args/6,2),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux7'/3,49,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(7,1),
+    get_structure(call_with_args/7,2),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux8'/3,50,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(8,1),
+    get_structure(call_with_args/8,2),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux9'/3,51,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(9,1),
+    get_structure(call_with_args/9,2),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux10'/3,52,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(10,1),
+    get_structure(call_with_args/10,2),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux11'/3,53,static,private,monofile,local,[
+    get_atom(call_with_args,0),
+    get_integer(11,1),
+    get_structure(call_with_args/11,2),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux12'/3,90,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(2,1),
+    get_structure(call/2,2),
+    unify_integer(1),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux13'/3,91,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(3,1),
+    get_structure(call/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux14'/3,92,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(4,1),
+    get_structure(call/4,2),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux15'/3,93,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(5,1),
+    get_structure(call/5,2),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux16'/3,94,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(6,1),
+    get_structure(call/6,2),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux17'/3,95,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(7,1),
+    get_structure(call/7,2),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux18'/3,96,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(8,1),
+    get_structure(call/8,2),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux19'/3,97,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(9,1),
+    get_structure(call/9,2),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux20'/3,98,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(10,1),
+    get_structure(call/10,2),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux21'/3,99,static,private,monofile,local,[
+    get_atom(call,0),
+    get_integer(11,1),
+    get_structure(call/11,2),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,43,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(43,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(1),
+    unify_structure(call_with_args/1),
+    unify_integer(1),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(44,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(2),
+    unify_structure(call_with_args/2),
+    unify_integer(1),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(45,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(3),
+    unify_structure(call_with_args/3),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(46,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(4),
+    unify_structure(call_with_args/4),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(47,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(5),
+    unify_structure(call_with_args/5),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(48,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(6),
+    unify_structure(call_with_args/6),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(49,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux7',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(7),
+    unify_structure(call_with_args/7),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(50,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux8',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(8),
+    unify_structure(call_with_args/8),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(51,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux9',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(9),
+    unify_structure(call_with_args/9),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(52,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux10',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(10),
+    unify_structure(call_with_args/10),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(53,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux11',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call_with_args),
+    unify_integer(11),
+    unify_structure(call_with_args/11),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(90,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux12',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(2),
+    unify_structure(call/2),
+    unify_integer(1),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(91,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux13',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(3),
+    unify_structure(call/3),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(92,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux14',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(4),
+    unify_structure(call/4),
+    unify_integer(3),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(93,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux15',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(5),
+    unify_structure(call/5),
+    unify_integer(4),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(94,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux16',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(6),
+    unify_structure(call/6),
+    unify_integer(5),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(95,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux17',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(7),
+    unify_structure(call/7),
+    unify_integer(6),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(96,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux18',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(8),
+    unify_structure(call/8),
+    unify_integer(7),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(97,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux19',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(9),
+    unify_structure(call/9),
+    unify_integer(8),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(98,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux20',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(10),
+    unify_structure(call/10),
+    unify_integer(9),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(99,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux21',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(call),
+    unify_integer(11),
+    unify_structure(call/11),
+    unify_integer(10),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('call_args.pl',1),
+    execute('$add_clause_term'/2)]).

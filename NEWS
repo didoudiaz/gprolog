@@ -1,9 +1,46 @@
 Change in GNU Prolog version 1.6.0
 
+* fix bug in the FD solver when using quot_rem/3.
+* fix issue #81: improve number_atom/2, number_chars/2, number_codes/2
+* improve atom_concat, now atom_concat(A, A, 'abab') succeeds deterministically
+* prohibit the definition of (:-)/1-2 (follows WG17)
+* fix issue #78: write_term/3 option portrayed(true) writes to the correct stream
+* add option --no-gui-console to gprolog to disable Windows GUI console
+* fix issue #83: bugs in the Prolog parser
+* add configure option ./configure --with-c-flags=debug2 with more C compiler warnings
+* fix common section alignement ld warning on Mac with clang 17.0.0
+* update/fix/improve Windows port 32 and 64 bits with msys gcc 15.2.0 and MSVC v17.14.17)
+* fix issue #82: compilation problem with gcc version 15
+* fix write_term/2-3 max_depth handling
+* add built-in predicate countall/2
+* modify format/2-3: now C printf format must start by ~%
+  (backward compatibility issue)
+* fix issue #47: add integer overflow detection
+* fix issue #48: error in min/2 and (^)/2.
+* modify min/2 and max/2: in case of equality between an integer and a float, return the float
+* improve top-level: write a space to separate argmunets of compound terms
+* add/modify Prolog flags: show_banner, show_information
+* remove default consult summary statistics (to display set show_information=informational)
+* fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
+* add built-in nb_setarg/3 (special case of setarg/4)
+* fix issue #26: missing int_overflow for succ/2
+* fix issue #41: ISO requires: round(4.5) = 5 and round(-4.5) = -4
+* fix issue #40: new builts-in predicates: current_function/1 and function_property/2
+* fix issue #31: support for term_expansion/2, with new mechanisms:
+  replace the compiler (pl2wam) concept of pl-state by simple include files (Prolog text):
+  - rename gplc (pl2wam) --pl-state option as --include
+  - remove built_in predicates read_pl_state_file_file/1 and write_pl_state_file_file/1
+  - add new built-in predicate write_default_include_file/1 (used by consult/1)
+  - add new built-in predicate consult/2 to pass options (with option include(File))
+  - new compiler_mode/1 directive to control the compiler environment.
+* fix issue #38: add more error detections in format/2-3
+* fix issue #39: bug in conditional compilation directives
+* fix issue #37: bug in format/2-3
+* fix issue #13: user meta_predicate definition is now returned by predicate_property/2
 * fix issue #32: remove duplicate warning message
-* improve consult speed on large Prolog data bases
-  (use new map implementation to improve the linedit completion: new file completion.c)
-* improve compiler speed on large Prolog data bases
+* speed up dynamic predicates with many clauses (for wordnet)
+* improve linedit completion with a new map implementation (improves consult of wordnet files)
+* improve compiler speed on large Prolog databases (for wordnet)
   (speed up generation of indexing instructions switch_on_atom/integer/structure)
   (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 * speed up bind_variables/2 (also speed up the compiler for byte-code)

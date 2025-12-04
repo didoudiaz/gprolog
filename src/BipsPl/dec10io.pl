@@ -6,7 +6,7 @@
  * Descr.: DEC-10 I/O compatibility library                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -199,7 +199,7 @@ skip(X) :-
 
 tab(Exp) :-
 	set_bip_name(tab, 1),
-	'$arith_eval'(Exp, N),
+	'$arith_evaluate'(N, Exp), % N is Exp
 	for(_, 1, N),
 	put_char(' '),
 	fail.

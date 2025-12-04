@@ -9,13 +9,13 @@ predicate('$use_format'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(format/2,44,static,private,monofile,built_in,[
+predicate(format/2,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[format,2]),
     call_c('Pl_Format_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate(format/3,51,static,private,monofile,built_in,[
+predicate(format/3,55,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[format,3]),
     call_c('Pl_Format_3',[],[x(0),x(1),x(2)]),
     proceed]).

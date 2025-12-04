@@ -6,7 +6,7 @@
  * Descr.: example using the map data structure with red-black trees       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -142,7 +142,7 @@ example2()
 
   for(int i = 0; t[i]; i++)
     {
-      int len = strlen(t[i]) / 2;
+      int len = (int) strlen(t[i]) / 2;
       sl.str = t[i];
       sl.len = len;
 #ifndef MAP_KEY_PASSED_BY_PTR

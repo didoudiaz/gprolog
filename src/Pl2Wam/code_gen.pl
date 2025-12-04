@@ -6,7 +6,7 @@
  * Descr.: pass 3: code generation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -46,7 +46,7 @@ code_generation(Head, Body, NbChunk, NbY, WamHead) :-
 
 
 
-generate_head(p(_, _, _ / N, LArg), NbChunk, NbY, WamNext, WamHead) :-
+generate_head(p(_, _, _/N, LArg), NbChunk, NbY, WamNext, WamHead) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_head_arg_lst(LArg, LReg, LArg1, LReg1)
@@ -78,7 +78,7 @@ reorder_head_arg_lst(LArg, LReg, LArg1, LReg1) :-
 
 generate_body([], _, [proceed]).
 
-generate_body([p(NoPred, Module, Pred / N, LArg)|Body], NbChunk, WamPred) :-
+generate_body([p(NoPred, Module, Pred/N, LArg)|Body], NbChunk, WamPred) :-
 	(   NoPred = NbChunk ->
 	    g_assign(last_pred, t)
 	;
@@ -90,20 +90,25 @@ generate_body([p(NoPred, Module, Pred / N, LArg)|Body], NbChunk, WamPred) :-
 generate_body1(fail, 0, _, _, _, _, _, [fail]) :-
 	!.
 
-generate_body1('$call_c', 2, _, [Arg, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
+generate_body1('$call_c', 2, _, [Fct, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	!,
-	(   Arg = atm(Name),
-	    LStcArg = []
+	(   Fct = atm(FctName), LStcArg = [] ->
+	    true
 	;
-	    Arg = stc(Name, _, LStcArg)
+	    Fct = stc(FctName, _, LStcArg)
 	),
 	(   Body \== [], memberchk(jump, LCOpt) ->
 	    LCOpt1 = [set_cp|LCOpt]
 	;
 	    LCOpt1 = LCOpt
         ),
+	(   select(ret(var(VarName, _)), LCOpt1, LCOpt2) ->
+	    LCOpt3 = [VarName|LCOpt2]
+	;
+	    LCOpt3 = LCOpt1
+	),
 	load_c_call_args(LCOpt, LStcArg, LValue, WamCallC1, WamArgs),
-	WamCallCInst = call_c(Name, LCOpt1, LValue),
+	WamCallCInst = call_c(FctName, LCOpt3, LValue),
 	(   Body = [] ->
 	    (   NoPred > 1 ->
 	        WamCallC1 = [deallocate, WamCallCInst, proceed]
@@ -265,7 +270,7 @@ gen_unif_arg(stc(F, N, LStcArg), Reg, WamNext, [WamInst|WamStcArg]) :-
 	(   F = '.',
 	    N = 2 ->
 	    WamInst = get_list(Reg)
-	;   WamInst = get_structure(F / N, Reg)
+	;   WamInst = get_structure(F/N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, head, LStcArg1, LArgAux, LRegAux),
 	gen_subterm_arg_lst(LStcArg1, WamArgAux, WamStcArg),
@@ -328,8 +333,8 @@ gen_load_arg(nil, Reg, WamNext, [put_nil(Reg)|WamNext]).
 
 gen_load_arg(stc('$mt', 2, [atm(Module), Goal]), Reg, WamNext, WamInst) :-
 	!,
-	gen_load_arg(Goal, Reg, WamMT, WamInst),
-	WamMT = [put_meta_term(Module, Reg)|WamNext].
+	gen_load_arg(Goal, Reg1, WamMT, WamInst),
+	WamMT = [put_meta_term(Module, Reg1, Reg)|WamNext].
 
 
 gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
@@ -337,7 +342,7 @@ gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
 	    N = 2 ->
 	    WamInst = put_list(Reg)
 	;
-	    WamInst = put_structure(F / N, Reg)
+	    WamInst = put_structure(F/N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, body, LStcArg1, LArgAux, LRegAux),
 	gen_load_arg_lst(LArgAux, LRegAux, [WamInst|WamStcArg], WamArgAux),
@@ -357,7 +362,7 @@ flat_stc_arg_lst([StcArg|LStcArg], HB, [StcArg|LStcArg1], LArgAux, LRegAux) :-
 flat_stc_arg_lst([StcArg], HB, [stc(F, N, LStcArg1)], LArgAux, LRegAux) :-
 	g_read(opt_last_subterm, t),     % last subterm unif stc optimization
 	StcArg = stc(F, N, LStcArg),
-	( F \== '$mt' ; N \== 3 ), !,
+	( F \== '$mt' ; N \== 2 ), !,
 	flat_stc_arg_lst(LStcArg, HB, LStcArg1, LArgAux, LRegAux).
 
 flat_stc_arg_lst([StcArg|LStcArg], HB, [V|LStcArg1], [StcArg|LArgAux], [X|LRegAux]) :-
@@ -430,7 +435,7 @@ gen_subterm_arg(stc(F, N, LStcArg), WamNext, [WamInst|WamLStcArg]) :-
 	    N = 2 ->
 	    WamInst = unify_list
 	;
-	    WamInst = unify_structure(F / N)
+	    WamInst = unify_structure(F/N)
 	),
 	gen_subterm_arg_lst(LStcArg, WamNext, WamLStcArg).
 
@@ -468,7 +473,7 @@ dummy_instruction(put_value(x(X), X), f).
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
 
-:-	discontiguous(gen_inline_pred / 5).
+:-	discontiguous(gen_inline_pred/5).
 
 
 	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)
@@ -479,7 +484,7 @@ gen_inline_pred('$get_cut_level', 1, [var(VarName, Info)], WamNext, WamNext) :-
 
 gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	cur_pred(Pred, N),
-	set_pred_info(need_cut_level, Pred, N),
+	set_pred_flag(need_cut_level, Pred, N),
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
 gen_inline_pred('$get_current_choice', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
@@ -590,7 +595,7 @@ gen_inline_pred(is, 2, [var(VN1, Info1), stc(+, 2, [var(VN2, Info2), int(1)])], 
 	;   true
 	),
 	Info1 = not_in_cur_env,
-	WamMath = [call_c('Math_X_is_inc_y',[fast],[&,VN1,VN2])|WamNext].
+	WamMath = [call_c('Math_X_Is_Inc_Y', [fast], [&,VN1, VN2])|WamNext].
 */
 gen_inline_pred(is, 2, [Arg1, Arg2], WamNext, WamMath) :-
 	load_math_expr(Arg2, Reg, WamUnif, WamMath), !,
@@ -648,10 +653,10 @@ load_math_expr1(F, N, LArg, Reg, WamNext, WamMath) :-
 
 load_math_expr1(F, N, _, _, _, _) :-
 	math_exp_functor_name(F, N, _),
-	error('arithmetic operation not allowed in fast math (~q)', [F / N]).
+	error('arithmetic operation not allowed in fast math (~q)', [F/N]).
 
 load_math_expr1(F, N, _, _, _, _) :-
-	error('unknown operation in arithmetic expression (~q)', [F / N]).
+	error('unknown operation in arithmetic expression (~q)', [F/N]).
 
 
 
@@ -671,10 +676,10 @@ fast_exp_functor_name(dec, 1, 'Pl_Fct_Fast_Dec').
 fast_exp_functor_name(+, 2, 'Pl_Fct_Fast_Add').
 fast_exp_functor_name(-, 2, 'Pl_Fct_Fast_Sub').
 fast_exp_functor_name(*, 2, 'Pl_Fct_Fast_Mul').
-fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Div').
+fast_exp_functor_name(//, 2, 'Pl_Fct_Fast_Integer_Div').
+fast_exp_functor_name(div, 2, 'Pl_Fct_Fast_Integer_Div2').
 fast_exp_functor_name(rem, 2, 'Pl_Fct_Fast_Rem').
 fast_exp_functor_name(mod, 2, 'Pl_Fct_Fast_Mod').
-fast_exp_functor_name(div, 2, 'Pl_Fct_Fast_Div2').
 fast_exp_functor_name(/\, 2, 'Pl_Fct_Fast_And').
 fast_exp_functor_name(\/, 2, 'Pl_Fct_Fast_Or').
 fast_exp_functor_name(xor, 2, 'Pl_Fct_Fast_Xor').
@@ -687,21 +692,25 @@ fast_exp_functor_name(popcount, 1, 'Pl_Fct_Fast_Popcount').
 fast_exp_functor_name(abs, 1, 'Pl_Fct_Fast_Abs').
 fast_exp_functor_name(sign, 1, 'Pl_Fct_Fast_Sign').
 fast_exp_functor_name(gcd, 2, 'Pl_Fct_Fast_GCD').
-fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_Integer_Pow').
+fast_exp_functor_name(^, 2, 'Pl_Fct_Fast_IPow').
 
 
 
+math_exp_functor_name(pi, 0, 'Pl_Fct_PI').
+math_exp_functor_name(e, 0, 'Pl_Fct_E').
+math_exp_functor_name(epsilon, 0, 'Pl_Fct_Epsilon').
+/* +X is compiled as X (identity) */
 math_exp_functor_name(-, 1, 'Pl_Fct_Neg').
 math_exp_functor_name(inc, 1, 'Pl_Fct_Inc').
 math_exp_functor_name(dec, 1, 'Pl_Fct_Dec').
 math_exp_functor_name(+, 2, 'Pl_Fct_Add').
 math_exp_functor_name(-, 2, 'Pl_Fct_Sub').
 math_exp_functor_name(*, 2, 'Pl_Fct_Mul').
-math_exp_functor_name(//, 2, 'Pl_Fct_Div').
 math_exp_functor_name(/, 2, 'Pl_Fct_Float_Div').
+math_exp_functor_name(//, 2, 'Pl_Fct_Integer_Div').
+math_exp_functor_name(div, 2, 'Pl_Fct_Integer_Div2').
 math_exp_functor_name(rem, 2, 'Pl_Fct_Rem').
 math_exp_functor_name(mod, 2, 'Pl_Fct_Mod').
-math_exp_functor_name(div, 2, 'Pl_Fct_Div2').
 math_exp_functor_name(/\, 2, 'Pl_Fct_And').
 math_exp_functor_name(\/, 2, 'Pl_Fct_Or').
 math_exp_functor_name(xor, 2, 'Pl_Fct_Xor').
@@ -713,11 +722,10 @@ math_exp_functor_name(msb, 1, 'Pl_Fct_MSB').
 math_exp_functor_name(popcount, 1, 'Pl_Fct_Popcount').
 math_exp_functor_name(abs, 1, 'Pl_Fct_Abs').
 math_exp_functor_name(sign, 1, 'Pl_Fct_Sign').
-
-math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
 math_exp_functor_name(min, 2, 'Pl_Fct_Min').
 math_exp_functor_name(max, 2, 'Pl_Fct_Max').
-math_exp_functor_name(^, 2, 'Pl_Fct_Integer_Pow').
+math_exp_functor_name(gcd, 2, 'Pl_Fct_GCD').
+math_exp_functor_name(^, 2, 'Pl_Fct_IPow').
 math_exp_functor_name(**, 2, 'Pl_Fct_Pow').
 math_exp_functor_name(sqrt, 1, 'Pl_Fct_Sqrt').
 math_exp_functor_name(tan, 1, 'Pl_Fct_Tan').
@@ -743,12 +751,7 @@ math_exp_functor_name(floor, 1, 'Pl_Fct_Floor').
 math_exp_functor_name(round, 1, 'Pl_Fct_Round').
 math_exp_functor_name(truncate, 1, 'Pl_Fct_Truncate').
 math_exp_functor_name(float_fractional_part, 1, 'Pl_Fct_Float_Fract_Part').
-math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integ_Part').
-
-
-math_exp_functor_name(pi, 0, 'Pl_Fct_PI').
-math_exp_functor_name(e, 0, 'Pl_Fct_E').
-math_exp_functor_name(epsilon, 0, 'Pl_Fct_Epsilon').
+math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integer_Part').
 
 
 gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-

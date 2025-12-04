@@ -6,7 +6,7 @@
  * Descr.: parser support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -97,8 +97,6 @@ WamWord Pl_Read_Term(StmInf *pstm, int parse_end_of_term);
 
 WamWord Pl_Read_Atom(StmInf *pstm);
 
-WamWord Pl_Read_Integer(StmInf *pstm);
-
-WamWord Pl_Read_Number(StmInf *pstm);
+WamWord Pl_Read_Number(StmInf *pstm, Bool integer_only);
 
 WamWord Pl_Read_Token(StmInf *pstm);

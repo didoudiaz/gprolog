@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -42,7 +42,7 @@
 
 
 top_level :-
-	(   current_prolog_flag(show_information, on) ->
+	(   current_prolog_flag(show_banner, on) ->
 	    '$banner'(top_level_output),
 	    nl(top_level_output)
 	;   true
@@ -240,7 +240,10 @@ break :-
 	read_term_from_atom(Goal, X, [end_of_term(eof), variable_names(QueryVars)]).
 
 '$read_query'(X, QueryVars) :-
-	read_term(top_level_input, X, [variable_names(QueryVars)]),
+	read_term(top_level_input, X, [variable_names(QueryVars)]), !,
+	'$PB_empty_buffer'(top_level_input).
+
+'$read_query'(fail, []) :-   % read_term can fail if flag syntax_error = fail
 	'$PB_empty_buffer'(top_level_input).
 
 
@@ -305,7 +308,7 @@ break :-
 	).
 
 '$write_solution'(ToDispVars, _, _) :-
-	( current_op(Prior, xfx, =) ; Prior = 700), !,
+	( current_op(Prior, xfx, =) ; Prior = 700 ), !,
 	Prior1 is Prior - 1,
 	'$write_solution1'(ToDispVars, Prior1).
 
@@ -315,7 +318,9 @@ break :-
 '$write_solution1'([Name = Value|ToDispVars], Prior) :-
 	(   acyclic_term(Value) ->
 	    format(top_level_output, '~n~a = ', [Name]),
-	    write_term(top_level_output, Value, [quoted(true), numbervars(false), namevars(true), priority(Prior)])
+	    write_term(top_level_output, Value,
+		       [quoted(true), numbervars(false), namevars(true), priority(Prior), space_args(true)]),
+	    flush_output(top_level_output)
 	;
 	    format(top_level_output, '~ncannot display cyclic term for ~a', [Name])
 	),
@@ -358,9 +363,9 @@ break :-
 /* interface with command-line option consulting files */
 
 '$exec_cmd_line_consult_files'([File|_LFile]) :-
-%	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+%	'$catch_internal'(consult(File), error(Err, _), true, false),
 %	nonvar(Err),
-				%	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
+%	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	'$exec_cmd_consult_file'(File),
 	fail.
 	
@@ -376,7 +381,7 @@ break :-
 	% e.g. important for a commannd-line goal calling abort
 	'$get_current_B'(B),	% the current choice-point
 	'$sys_var_write'(11, B),
-	'$catch_internal'('$consult2'(File), error(Err, _), true, false),
+	'$catch_internal'(consult(File), error(Err, _), true, false),
 	nonvar(Err),
 	format(top_level_output, '~Nwarning: command-line consulting file ~q failed due to ~q~n', [File, Err]),
 	fail.

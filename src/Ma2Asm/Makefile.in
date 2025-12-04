@@ -53,14 +53,16 @@ clean-check: clean-chkma
 
 
 
-# for chkma
-CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+# for chkma (see chkma.c, if it includes engine.c do not link ../EnginePl/engine@OBJ_SUFFIX@ here
+#CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
+CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@
 
 # use make FC=Y chkma to generate an fc check
  
 chkma@OBJ_SUFFIX@: chkma.c ../EnginePl/engine.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
-	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c chkma.c
+	$(CC) $(CFLAGS) $$FCFLAGS -c chkma.c
+#	$(GPLC) --c-compiler "$(CC)" -C "$(CFLAGS) $$FCFLAGS" -c chkma.c
 
 chkma_ma@ASM_SUFFIX@: chkma_ma.ma ma2asm@EXE_SUFFIX@
 	if [ "$$FC" != "Y" ]; then MAFLAGS='--ignore-fast'; fi; \
@@ -70,7 +72,8 @@ chkma_ma@OBJ_SUFFIX@: chkma_ma@ASM_SUFFIX@
 	$(GPLC) -c chkma_ma@ASM_SUFFIX@
 
 chkma@EXE_SUFFIX@: $(CHKMA_OBJS)
-	$(GPLC) -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) --no-pl-lib
+	$(CC)   -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) $(LDLIBS)
+#	$(GPLC) -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) --no-pl-lib
 
 clean-chkma:
 	rm -f chkma@OBJ_SUFFIX@ chkma_ma@ASM_SUFFIX@ chkma_ma@OBJ_SUFFIX@ chkma@EXE_SUFFIX@

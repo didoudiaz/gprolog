@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -1027,7 +1027,7 @@ Pl_Fatal_Error(char *format, ...)
 void
 Parse_Arguments(int argc, char *argv[])
 {
-  int i, file_name_out_i;
+  int i, file_name_out_i = 0;	/* init for the compiler */
   char **p, *q;
   FileInf *f = file_lopt;
   int nb_file = 0;
@@ -1140,7 +1140,7 @@ Parse_Arguments(int argc, char *argv[])
 	      exit(0);
 	    }
 
-	  if (Check_Arg(i, "--pl-state"))
+	  if (Check_Arg(i, "-i") || Check_Arg(i, "--include"))
 	    {
 	      if (++i >= argc)
 		Pl_Fatal_Error("FILE missing after %s option", last_opt);
@@ -1510,7 +1510,7 @@ Display_Help(void)
   L("  --version                   print version number and exit");
   L(" ");
   L("Prolog to WAM compiler options:");
-  L("  --pl-state FILE             read FILE to set the initial Prolog state");
+  L("  -i FILE, --include FILE     include FILE at the beginning of the compilation");
   L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");

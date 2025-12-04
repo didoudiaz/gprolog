@@ -6,7 +6,7 @@
  * Descr.: general engine - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -75,6 +75,16 @@ char **pl_os_argv;
 char *pl_home;
 int pl_devel_mode;
 
+
+/* The pl_glob_buff is in the common section (with -fcommon). In clang/aarch64, by default 
+ * on a boundary equal to its size ! This occurs with clang version 17.0.0 on MacOS Tahoe 
+ * causing a warning at link-time: 
+ * ld: warning: reducing alignment of section __DATA,__common from 0x8000 to 0x4000 
+ *     because it exceeds segment maximum alignment
+ * This can be removed passing -Wl,-max_default_common_align option to clang
+ * or explicitely specifynig an alignement below with gcc attribute (see arch_dep.h)
+ */
+ATTR_ALIGN(SIZEOF_VOIDP)
 char pl_glob_buff[1024 * 1024];
 
 PlLong *pl_base_fl;		/* overwritten by foreign if present */

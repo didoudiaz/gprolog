@@ -4,9 +4,9 @@ CFLAGS = @CFLAGS@
 
 # other local variables
 
-#CFLAGS    = -O3
-#CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer
-CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop
+#CFLAGS    = -O3 -std=gnu99 -Wall
+#CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -std=gnu99 -Wall
+CFLAGS = -O3 -fverbose-asm -fomit-frame-pointer -fno-defer-pop -std=gnu99 -Wall
 
 # for cl.exe use /FA to obtain assembly
 #CFLAGS= /FA

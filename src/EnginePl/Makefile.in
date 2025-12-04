@@ -98,7 +98,7 @@ oper@OBJ_SUFFIX@: oper.h oper.c
 if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
-clean:
+clean: clean-test_oc
 	rm -f pl_config@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 distclean: clean clean-test_oc

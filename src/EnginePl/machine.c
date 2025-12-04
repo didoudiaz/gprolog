@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -47,11 +47,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
+#include "gp_config.h"          /* ensure __unix__ is defined if not _WIN32 */
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#include <windows.h>            /* warning: windows.h defines _WIN32 */
+#include <windows.h>
 #endif
+
 
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <pwd.h>
@@ -144,6 +145,10 @@ static int cur_seed = 1;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+static char *Msys_Root_Prefix(char *src);
+#endif
 
 #ifdef INET_MANAGEMENT
 
@@ -505,7 +510,7 @@ Pl_M_Host_Name_From_Adr(char *host_address)
 
 #if defined(M_sparc32_sunos) || defined(M_sparc32_solaris) || defined(M_ix86_solaris) || \
     defined(_WIN32) || defined(__CYGWIN__)
-  if ((iadr.s_addr = inet_addr(host_address)) == -1)
+  if ((iadr.s_addr = inet_addr(host_address)) == (uint32_t) (-1))
 #else
   if (inet_aton(host_address, &iadr) == 0)
 #endif
@@ -594,7 +599,7 @@ Pl_M_Get_Working_Dir(void)
  *-------------------------------------------------------------------------*/
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#ifdef __clang__
+#if 0 /* was ifdef __clang__ reactivate if needed */
 #pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #endif
 #pragma GCC diagnostic ignored "-Wformat-overflow"
@@ -604,15 +609,16 @@ Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
 {
   static char buff1[MAXPATHLEN];
   static char buff2[MAXPATHLEN];
-  char *dst, *base_dst;
+  char *dst;
   char *p, *q;
   char c;
   Bool add_slash = FALSE;
 
 #define SWAP_SRC_DST { char *tmp = src; src = dst; dst = tmp; }
 
+  /* --- Expand $VARNAME (and %VARNAME% under Windows) --- */
   dst = buff1;
-  while ((*dst++ = *src))       /* expand $VARNAME and %VARNAME% (Win32) */
+  while ((*dst++ = *src))
     {
       c = *src++;
       if (c == '$'
@@ -650,23 +656,26 @@ Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
 
   src = buff1;
   dst = buff2;
+
+  /* --- Expand ~/ (with HOME) and ~user/ (under Unix) --- */
   if (src[0] == '~')
     {
       if (Is_Dir_Sep(src[1]) || src[1] == '\0') /* ~/... cf $HOME */
         {
-	  q = NULL;;
+	  q = "";
           if ((p = getenv("HOME")) == NULL)
 	    {
 #if defined(_WIN32) || defined(__CYGWIN__)
-	      if ((p = getenv("HOMEPATH")) == NULL)
-		return NULL;
-	      q = getenv("HOMEDRIVE");
+	      if ((p = getenv("USERPROFILE")) == NULL)
+		{
+		  if ((p = getenv("HOMEPATH")) == NULL ||
+		      (q = getenv("HOMEDRIVE")) == NULL)
+		    return NULL;
+		}
 #else
 	      return NULL;
 #endif
 	    }
-	  if (q == NULL)
-	    q = "";
           sprintf(dst, "%s%s/%s", q, p, src + 1);
 	  SWAP_SRC_DST;
         }
@@ -692,41 +701,53 @@ Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
 #endif
     }
 
-  if (strcmp(src, "user") == 0)   /* prolog special file 'user' */
+  /* --- Do not change Prolog special file 'user' --- */
+  if (strcmp(src, "user") == 0)
     return src;
 
+  if (*src == '\0')
+    return NULL;
+  
   add_slash = (!del_trail_slash && Pl_M_Path_Ends_With_Dir(src));
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__CYGWIN__)
 
-  base_dst = dst;
-  if (_fullpath(dst, src, MAXPATHLEN) == NULL)
-    return NULL;
-
-  SWAP_SRC_DST;
-  for (dst = src; *dst; dst++)    /* \ becomes / */
-    if (*dst == '\\')
-      *dst = '/';
-
-  /* dst points the \0 */
-
-#else  /* __unix__ || __CYGWIN__ */
-
-#if defined(__CYGWIN__) && !defined(__MSYS__)
-
-  cygwin_conv_path(CCP_WIN_A_TO_POSIX, dst, src, MAXPATHLEN);
-  SWAP_SRC_DST;
-
-#endif
-
-  if (src[0] != '/')      /* add current directory */
+  /* --- Windows : Expand msys root PATH --- */
+  
+  p = Msys_Root_Prefix(src);
+  if (p != NULL && *p != '\0')
     {
-      sprintf(dst, "%s/%.*s", Pl_M_Get_Working_Dir(), MAXPATHLEN, src); /* precise MAXPATHLEN to avoid gcc warning */
+      sprintf(dst, "%s%s", p, src);
       SWAP_SRC_DST;
     }
 
-  base_dst = dst;
-  while ((*dst++ = *src))
+  /* --- Get Windows absolute path --- */
+  /* Under native msys we do not use cygwin_conv_path since it only works in
+   * one side: posix -> windows or windows -> posix while the received path
+   * can be of any form. We use the windows API (provided by kernel32 lib)
+   */
+  if (GetFullPathNameA(src, MAXPATHLEN, dst, NULL) == 0)
+    return NULL;
+  
+  /* ---  Convert \ to / --- */
+  for (p = dst; *p; p++)
+    if (*p == '\\')
+      *p = '/';
+
+#else /* __unix__ */
+
+  /* --- Unix : Convert relative to absolute --- */
+
+  if (src[0] != '/')      /* add current directory */
+    {
+      sprintf(dst, "%s/%.*s", Pl_M_Get_Working_Dir(),
+	      MAXPATHLEN, src); /* MAXPATHLEN is to avoid gcc warning */
+      SWAP_SRC_DST;
+    }
+
+  /* --- Clean (remove ./ ../  //) --- */
+  p = dst;
+  while ((*p++ = *src))
     {
       if (*src++ != '/')
         continue;
@@ -748,43 +769,43 @@ Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
         continue;
       /* case /../ */
       src += 2;
-      dst -= 2;
-      while (dst >= base_dst && *dst != '/')
-        dst--;
+      p -= 2;
+      while (p >= dst && *p != '/')
+        p--;
 
-      if (dst < base_dst)
+      if (p < dst)
         return NULL;
     }
 
-  dst--;                        /* dst points the \0 */
+  p--;                        /* p points the \0 */
+#endif	/* __unix__ */
 
-#endif
+  /* --- Ensure a minimal prefix and maybe add_slash --- */
 
+  /* here the result is in dst and p points the \0 */
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#define MIN_PREFIX 3            /* win32 minimal path c:\  */
+#if defined(_WIN32) || defined(__CYGWIN__)
+#define MIN_PREFIX 3            /* Windows minimal path c:\  */
 #else
-#define MIN_PREFIX 1            /* unix  minimal path /    */
+#define MIN_PREFIX 1            /* Unix minimal path /    */
 #endif
 
-  if (dst - base_dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
-    strcpy(dst, "/");
+  if (p - dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
+    strcpy(p, "/");
   else
     {
-      if (dst - base_dst > MIN_PREFIX && Is_Dir_Sep(dst[-1]))
-	*--dst = '\0';		/* remove last / or \ */
+      if (p - dst > MIN_PREFIX && Is_Dir_Sep(p[-1]))
+	*--p = '\0';		/* remove last / or \ */
 
       if (add_slash)	    	/* and maybe (re)add a last / if needed */
-	strcpy(dst, "/");
+	strcpy(p, "/");
     }
 
 #if 0
-  printf("FINAL: %s\n", base_dst);
+  printf("FINAL: %s\n", dst);
 #endif
-  return base_dst;
+  return dst;
 }
-
-
 
 
 char *
@@ -793,6 +814,89 @@ Pl_M_Absolute_Path_Name(char *src)
   return Pl_M_Absolute_Path_Name0(src, TRUE);
 }
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * MSYS_ROOT_PREFIX                                                        *
+ *                                                                         *
+ * Detects a msys-rooted path (e.g. /home/foo) and returns the msys root   *
+ * path (e.g. c:/msys64/) to add before src (or NULL or "").               *
+ *                                                                         *
+ * Also modifies src to deal with /c/foo which is replaced by c:/foo       *
+ *                                                                         *
+ * Under pure msys (__CYGWIN__) we use cygwin_conv_path to obtain the root.*
+ * However, when compiled under msys native environments (mingw32, mingw64,*
+ * ucrt64, ...) cygwin_conv_path is not available. We thus try to execute  *
+ * the (/usr/bin/)cygpath utility to obtain the prefix (e.g. c:/msys64).   *
+ * For efficiency, we only call cygpath once.                              *
+ *-------------------------------------------------------------------------*/
+static char *
+Msys_Root_Prefix(char *src)
+{
+  static char *msys_root_path = NULL;
+  /* msys recognized entries: if ends with slash full match else prefix match */
+  static char *msys_root_entry[] = 
+    { "bin/", "dev/", "etc/", "home/", "opt/", "proc/", "tmp/", "usr/", "var/",
+      "msys", "mingw32", "mingw64", "ucrt64", "clang64", "clangarm64", NULL };
+  char **entry;
+  char *p, *q;
+  char buff[MAXPATHLEN];
+
+  /* --- Replace /c/ by c:/ (Windows drive letter) */
+  if (*src == '/' && isalpha(src[1]) && src[2] == '/')
+    {
+      src[0] = toupper(src[1]);
+      src[1] = ':';
+      return NULL;
+    }
+  
+  if (*src != '/' || (msys_root_path != NULL && *msys_root_path == '\0'))
+    return NULL;
+
+  for(entry = msys_root_entry; *entry; entry++)
+    {
+      for(p = *entry, q = src + 1;*p && *p == *q; p++, q++)
+	{
+	}
+      
+      if (*p == '\0' || (*q == '\0' && *p == '/'))
+	break;			/* matching entry found */
+    }
+
+  if (*entry == NULL)		/* no entry found */
+    return NULL;
+
+  if (msys_root_path == NULL)
+    {
+#ifdef __CYGWIN__
+      cygwin_conv_path(CCP_POSIX_TO_WIN_A, "/", buff, MAXPATHLEN);
+      msys_root_path = strdup(buff);
+#else
+      char *arg[] = {"cygpath", "-m", "/", NULL };
+      FILE *f = M_SPAWN_REDIRECT_CREATE;
+      if (Pl_M_Spawn_Redirect(arg, 0, NULL, &f, NULL) < 0)
+	msys_root_path = "";
+      else
+	{
+	  int c;
+	  p = buff;
+	  while((c = fgetc(f)) != EOF && c >= ' ')
+	    *p++ = c;
+	  if (p > buff && p[-1] == '/')
+	    p--;
+	  *p = '\0';
+	  fclose(f);
+	  msys_root_path = strdup(buff);
+	}
+#endif
+#ifdef DEBUG
+      DBGPRINTF("msys root path: %s\n", msys_root_path);
+#endif
+    }
+
+  return msys_root_path;
+}
+#endif
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -866,7 +970,7 @@ Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char *
 {
   static char buff_dir[MAXPATHLEN];
   static char buff_base[MAXPATHLEN];
-  int dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
+  size_t dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
 
 #if 0 && defined(_WIN32)	/* uncomment to explicitely use _splitpath() on Windows */
 

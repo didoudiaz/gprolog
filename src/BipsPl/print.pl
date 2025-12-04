@@ -6,7 +6,7 @@
  * Descr.: term print management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -52,15 +52,17 @@ print(SorA, Term) :-
 
 
 
-'$try_portray'(Term) :-
-	'$current_predicate'(portray / 1),
-	g_assign('$portray_ok', 0),
-	'$catch'((portray(Term), !), Err, (format(top_level_output, 'exception from portray/1: ~q~n', [Err]), fail), portray, 1, false),
-	g_assign('$portray_ok', 1),
-	fail.
+'$try_portray'(Term, Result) :-
+	'$catch'(portray(Term), Err, true, portray, 1, false), !,
+	(   var(Err) ->
+	    g_assign('$portray_result', 1),
+	    fail		% GC
+	;
+	    Result = Err, !	% C code will throw(Err) - thus GC
+	).
 
-'$try_portray'(_) :-
-	g_read('$portray_ok', 1).
+'$try_portray'(_, Result) :-
+	g_read('$portray_result', Result).
 
 
 

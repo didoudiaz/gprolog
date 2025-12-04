@@ -6,7 +6,7 @@
  * Descr.: global variable (inline) management - C part                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -145,7 +145,7 @@ static void G_Free_Element(GVarElt *g_elem, Bool reinit_undo);
 
 static void G_Copy_Element(GVarElt *dst_g_elem, GVarElt *src_g_elem);
 
-static void G_Trail_For_Backtrack(GVarElt *g_elem, PlLong  save_size, WamWord save_val);
+static void G_Trail_For_Backtrack(GVarElt *g_elem, PlLong save_size, WamWord save_val);
 
 static void G_Untrail(int n, WamWord *arg_frame);
 
@@ -189,10 +189,10 @@ G_Var_Initializer(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Assign(WamWord x, WamWord y)
+Pl_Blt_G_Assign(WamWord x_word, WamWord y_word)
 {
   Pl_Set_C_Bip_Name("g_assign", 2);
-  G_Assign(x, y, FALSE, TRUE);
+  G_Assign(x_word, y_word, FALSE, TRUE);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -204,10 +204,10 @@ Pl_Blt_G_Assign(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Assignb(WamWord x, WamWord y)
+Pl_Blt_G_Assignb(WamWord x_word, WamWord y_word)
 {
   Pl_Set_C_Bip_Name("g_assignb", 2);
-  G_Assign(x, y, TRUE, TRUE);
+  G_Assign(x_word, y_word, TRUE, TRUE);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -219,10 +219,10 @@ Pl_Blt_G_Assignb(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Link(WamWord x, WamWord y)
+Pl_Blt_G_Link(WamWord x_word, WamWord y_word)
 {
   Pl_Set_C_Bip_Name("g_link", 2);
-  G_Assign(x, y, TRUE, FALSE);
+  G_Assign(x_word, y_word, TRUE, FALSE);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -234,12 +234,12 @@ Pl_Blt_G_Link(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Read(WamWord x, WamWord y)
+Pl_Blt_G_Read(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_read", 2);
-  res = G_Read(x, y);
+  res = G_Read(x_word, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -252,12 +252,12 @@ Pl_Blt_G_Read(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Array_Size(WamWord x, WamWord y)
+Pl_Blt_G_Array_Size(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_array_size", 2);
-  res = G_Array_Size(x, y);
+  res = G_Array_Size(x_word, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -270,10 +270,10 @@ Pl_Blt_G_Array_Size(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Inc(WamWord x)
+Pl_Blt_G_Inc(WamWord x_word)
 {
   Pl_Set_C_Bip_Name("g_inc", 1);
-  G_Inc_Dec(x, 1, NOT_A_WAM_WORD, NOT_A_WAM_WORD);
+  G_Inc_Dec(x_word, 1, NOT_A_WAM_WORD, NOT_A_WAM_WORD);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -285,12 +285,12 @@ Pl_Blt_G_Inc(WamWord x)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Inco(WamWord x, WamWord y)
+Pl_Blt_G_Inco(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_inco", 2);
-  res = G_Inc_Dec(x, 1, y, NOT_A_WAM_WORD);
+  res = G_Inc_Dec(x_word, 1, y_word, NOT_A_WAM_WORD);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -303,12 +303,12 @@ Pl_Blt_G_Inco(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Inc_2(WamWord x, WamWord y)
+Pl_Blt_G_Inc_2(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_inc", 2);
-  res = G_Inc_Dec(x, 1, NOT_A_WAM_WORD, y);
+  res = G_Inc_Dec(x_word, 1, NOT_A_WAM_WORD, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -321,12 +321,12 @@ Pl_Blt_G_Inc_2(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Inc_3(WamWord x, WamWord y, WamWord z)
+Pl_Blt_G_Inc_3(WamWord x_word, WamWord y_word, WamWord z_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_inc", 3);
-  res = G_Inc_Dec(x, 1, y, z);
+  res = G_Inc_Dec(x_word, 1, y_word, z_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -339,10 +339,10 @@ Pl_Blt_G_Inc_3(WamWord x, WamWord y, WamWord z)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Dec(WamWord x)
+Pl_Blt_G_Dec(WamWord x_word)
 {
   Pl_Set_C_Bip_Name("g_dec", 1);
-  G_Inc_Dec(x, -1, NOT_A_WAM_WORD, NOT_A_WAM_WORD);
+  G_Inc_Dec(x_word, -1, NOT_A_WAM_WORD, NOT_A_WAM_WORD);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -354,12 +354,12 @@ Pl_Blt_G_Dec(WamWord x)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Deco(WamWord x, WamWord y)
+Pl_Blt_G_Deco(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_deco", 2);
-  res = G_Inc_Dec(x, -1, y, NOT_A_WAM_WORD);
+  res = G_Inc_Dec(x_word, -1, y_word, NOT_A_WAM_WORD);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -372,12 +372,12 @@ Pl_Blt_G_Deco(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Dec_2(WamWord x, WamWord y)
+Pl_Blt_G_Dec_2(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_dec", 2);
-  res = G_Inc_Dec(x, -1, NOT_A_WAM_WORD, y);
+  res = G_Inc_Dec(x_word, -1, NOT_A_WAM_WORD, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -390,12 +390,12 @@ Pl_Blt_G_Dec_2(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Dec_3(WamWord x, WamWord y, WamWord z)
+Pl_Blt_G_Dec_3(WamWord x_word, WamWord y_word, WamWord z_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_dec", 3);
-  res = G_Inc_Dec(x, -1, y, z);
+  res = G_Inc_Dec(x_word, -1, y_word, z_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -408,10 +408,10 @@ Pl_Blt_G_Dec_3(WamWord x, WamWord y, WamWord z)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Set_Bit(WamWord x, WamWord y)
+Pl_Blt_G_Set_Bit(WamWord x_word, WamWord y_word)
 {
   Pl_Set_C_Bip_Name("g_set_bit", 2);
-  G_Set_Bit(x, y);
+  G_Set_Bit(x_word, y_word);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -423,10 +423,10 @@ Pl_Blt_G_Set_Bit(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void FC
-Pl_Blt_G_Reset_Bit(WamWord x, WamWord y)
+Pl_Blt_G_Reset_Bit(WamWord x_word, WamWord y_word)
 {
   Pl_Set_C_Bip_Name("g_reset_bit", 2);
-  G_Reset_Bit(x, y);
+  G_Reset_Bit(x_word, y_word);
   Pl_Unset_C_Bip_Name();
 }
 
@@ -438,12 +438,12 @@ Pl_Blt_G_Reset_Bit(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Test_Set_Bit(WamWord x, WamWord y)
+Pl_Blt_G_Test_Set_Bit(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_test_set_bit", 2);
-  res = G_Test_Set_Bit(x, y);
+  res = G_Test_Set_Bit(x_word, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -456,12 +456,12 @@ Pl_Blt_G_Test_Set_Bit(WamWord x, WamWord y)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool FC
-Pl_Blt_G_Test_Reset_Bit(WamWord x, WamWord y)
+Pl_Blt_G_Test_Reset_Bit(WamWord x_word, WamWord y_word)
 {
   Bool res;
 
   Pl_Set_C_Bip_Name("g_test_reset_bit", 2);
-  res = G_Test_Reset_Bit(x, y);
+  res = G_Test_Reset_Bit(x_word, y_word);
   Pl_Unset_C_Bip_Name();
   return res;
 }
@@ -941,7 +941,7 @@ Get_Target_From_Selector(WamWord *stc_adr)
   if (tag_mask == STC)
     {
       adr = UnTag_STC(word);
-      if (arg_no < 1 || (PlULong) arg_no > Arity(adr))
+      if (arg_no < 1 || arg_no > Arity(adr))
 	goto error;
 
       gt->g_arg = &Arg(adr, arg_no - 1);

@@ -6,7 +6,7 @@
  * Descr.: read/1 and friends - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -270,7 +270,7 @@ Pl_Read_Integer_2(WamWord sora_word, WamWord integer_word)
   Pl_Check_For_Un_Integer(integer_word);
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Pl_Read_Integer(pl_stm_tbl[stm]);
+  word = Pl_Read_Number(pl_stm_tbl[stm], TRUE);
   CHECK_RESULT_AND_UNIFY(word, integer_word);
 
   return TRUE;
@@ -305,7 +305,7 @@ Pl_Read_Number_2(WamWord sora_word, WamWord number_word)
   Pl_Check_For_Un_Number(number_word);
 
   CHECK_STREAM_AND_GET_STM(sora_word, stm);
-  word = Pl_Read_Number(pl_stm_tbl[stm]);
+  word = Pl_Read_Number(pl_stm_tbl[stm], FALSE);
   CHECK_RESULT_AND_UNIFY(word, number_word);
 
   return TRUE;
@@ -409,7 +409,7 @@ Pl_Current_Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
 {
   WamWord word, tag_mask;
   int c_in, c_out;
-  int c_in1, c_out1;
+  int c_in1, c_out1 = 0;	/* init for the compiler */
 
   Pl_Check_For_Un_Char(out_char_word);
 
@@ -436,9 +436,7 @@ Pl_Current_Char_Conversion_2(WamWord in_char_word, WamWord out_char_word)
       A(2) = c_in1;
       A(3) = c_out1;
 
-      Pl_Create_Choice_Point((CodePtr)
-			  Prolog_Predicate(CURRENT_CHAR_CONVERSION_ALT, 0),
-			  4);
+      Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_CHAR_CONVERSION_ALT, 0), 4);
     }
 
   return Pl_Get_Atom(ATOM_CHAR(c_in), in_char_word) &&
@@ -457,7 +455,7 @@ Pl_Current_Char_Conversion_Alt_0(void)
 {
   WamWord in_char_word, out_char_word;
   int c_in, c_out;
-  int c_in1, c_out1;
+  int c_in1, c_out1 = 0;	/* init for the compiler */
 
 
   Pl_Update_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_CHAR_CONVERSION_ALT, 0), 0);

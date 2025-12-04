@@ -9,7 +9,7 @@ predicate('$use_assert'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(asserta/1,44,static,private,monofile,built_in,[
+predicate(asserta/1,46,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[asserta,1]),
     put_integer(1,1),
     put_integer(1,2),
@@ -17,7 +17,7 @@ predicate(asserta/1,44,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate(assertz/1,51,static,private,monofile,built_in,[
+predicate(assertz/1,55,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[assertz,1]),
     put_integer(0,1),
     put_integer(1,2),
@@ -25,7 +25,7 @@ predicate(assertz/1,51,static,private,monofile,built_in,[
     execute('$assert'/4)]).
 
 
-predicate('$assert'/4,58,static,private,monofile,built_in,[
+predicate('$assert'/4,62,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(6),
     get_variable(y(0),1),
@@ -51,7 +51,7 @@ label(1),
     proceed]).
 
 
-predicate(retract/1,69,static,private,monofile,built_in,[
+predicate(retract/1,75,static,private,monofile,built_in,[
     allocate(2),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[retract,1]),
     put_variable(y(0),1),
@@ -63,12 +63,12 @@ predicate(retract/1,69,static,private,monofile,built_in,[
     execute('$retract'/2)]).
 
 
-predicate('$retract'/2,75,static,private,monofile,built_in,[
+predicate('$retract'/2,81,static,private,monofile,built_in,[
     call_c('Pl_Retract_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate(retractall/1,81,static,private,monofile,built_in,[
+predicate(retractall/1,88,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -89,12 +89,7 @@ label(2),
     proceed]).
 
 
-predicate('$retract_last_found'/0,94,static,private,monofile,built_in,[
-    call_c('Pl_Retract_Last_Found_0',[],[]),
-    proceed]).
-
-
-predicate(clause/2,99,static,private,monofile,built_in,[
+predicate(clause/2,103,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -108,38 +103,155 @@ predicate(clause/2,99,static,private,monofile,built_in,[
     execute('$clause'/3)]).
 
 
-predicate('$clause'/3,105,static,private,monofile,built_in,[
+predicate('$clause'/3,109,static,private,monofile,built_in,[
     call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$instance_for_setarg'/2,111,static,private,monofile,built_in,[
-    put_integer(0,2),
-    call_c('Pl_Clause_3',[boolean],[x(0),x(1),x(2)]),
-    proceed]).
-
-
-predicate('$setarg_in_last_found'/2,114,static,private,monofile,built_in,[
-    call_c('Pl_Setarg_Of_Last_Found_2',[],[x(0),x(1)]),
-    proceed]).
-
-
-predicate(abolish/1,119,static,private,monofile,built_in,[
+predicate(abolish/1,131,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[abolish,1]),
     call_c('Pl_Abolish_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$remove_predicate'/2,126,static,private,monofile,built_in,[
+predicate('$remove_predicate'/2,138,static,private,monofile,built_in,[
     call_c('Pl_Remove_Predicate_2',[],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$scan_dyn_test_alt'/0,132,static,private,monofile,built_in,[
+predicate('$scan_dyn_test_alt'/0,144,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$scan_dyn_jump_alt'/0,135,static,private,monofile,built_in,[
+predicate('$scan_dyn_jump_alt'/0,147,static,private,monofile,built_in,[
     call_c('Pl_Scan_Dynamic_Pred_Alt_0',[jump],[]),
     proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,44,static,private,monofile,local,[
+    get_atom(asserta,0),
+    get_integer(1,1),
+    get_structure(asserta/1,2),
+    unify_atom(:),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,53,static,private,monofile,local,[
+    get_atom(assertz,0),
+    get_integer(1,1),
+    get_structure(assertz/1,2),
+    unify_atom(:),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux3'/3,73,static,private,monofile,local,[
+    get_atom(retract,0),
+    get_integer(1,1),
+    get_structure(retract/1,2),
+    unify_atom(:),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux4'/3,86,static,private,monofile,local,[
+    get_atom(retractall,0),
+    get_integer(1,1),
+    get_structure(retractall/1,2),
+    unify_atom(:),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux5'/3,101,static,private,monofile,local,[
+    get_atom(clause,0),
+    get_integer(2,1),
+    get_structure(clause/2,2),
+    unify_atom(:),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux6'/3,129,static,private,monofile,local,[
+    get_atom(abolish,0),
+    get_integer(1,1),
+    get_structure(abolish/1,2),
+    unify_atom(:),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,44,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(44,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(asserta),
+    unify_integer(1),
+    unify_structure(asserta/1),
+    unify_atom(:),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(53,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(assertz),
+    unify_integer(1),
+    unify_structure(assertz/1),
+    unify_atom(:),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(73,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(retract),
+    unify_integer(1),
+    unify_structure(retract/1),
+    unify_atom(:),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(86,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(retractall),
+    unify_integer(1),
+    unify_structure(retractall/1),
+    unify_atom(:),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(101,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(clause),
+    unify_integer(2),
+    unify_structure(clause/2),
+    unify_atom(:),
+    unify_atom(?),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(129,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(abolish),
+    unify_integer(1),
+    unify_structure(abolish/1),
+    unify_atom(:),
+    put_atom('assert.pl',1),
+    execute('$add_clause_term'/2)]).

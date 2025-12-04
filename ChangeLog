@@ -1,12 +1,114 @@
-2023-04-21  <daniel.diaz@univ-paris1.fr>
+2025-12-04  <daniel.diaz@univ-paris1.fr>
 
-	* use new map implementation to improve the linedit completion (new file completion.c)
-	  (each read atom is put in a completion table whose implementation was too naive)
+	* fix bug in the FD solver when using quot_rem/3.
+	* fix issue #81: improve number_atom/2, number_chars/2, number_codes/2
+	* improve atom_concat, now atom_concat(A, A, 'abab') succeeds deterministically
+	* prohibit the definition of (:-)/1-2 (follows WG17)
+	* fix issue #78: write_term/3 option portrayed(true) writes to the correct stream
+	* add option --no-gui-console to gprolog to disable Windows GUI console
+	* fix issue #83: bugs in the Prolog parser
+	* add configure option ./configure --with-c-flags=debug2 with more C compiler warnings
+	* fix common section alignement ld warning on Mac with clang 17.0.0
+	* update/fix/improve Windows port 32 and 64 bits with msys gcc 15.2.0 and MSVC v17.14.17)
+
+2025-10-13  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #82: compilation problem with gcc version 15
+
+2023-07-14  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #56: write_term/2-3 max_depth option (improve ... inside a list)
+
+2023-07-11  <daniel.diaz@univ-paris1.fr>
+
+	* fix for x >> y with too large y and x negative
+	* fix issue #58: fix pl2wam compiling integer power
+	* fix issue #55: fix write_term/2-3 (domain_error for max_depth and max_depth(0) = no limit)
+
+2023-07-09  <daniel.diaz@univ-paris1.fr>
+
+	* add built-in predicate countall/2
+	* modify format/2-3: now C printf format must start by ~%
+	  (backward compatibility issue)
+
+2023-07-06  <daniel.diaz@univ-paris1.fr>
+
+	* improve other arithmetic error detection (in both integer and float functions)
+	* fix issue #47: add integer overflow detection
+	* fix issue #48: error in min/2 and (^)/2
+
+2023-07-03  <daniel.diaz@univ-paris1.fr>
+
+	* fix domain_error in write_term
+	* modify min/2 and max/2: in case of equality between an integer and a float,
+	  return the float
+	* fix issue #46: write options: wrong precedence
+	* fix issue #50: top-level: flush_output after each answer display
+	* improve top-level: write a space to separate argmunets of compound terms
+	* fix pl2wam --susp-warn (deactivated wrongly after a set_prolog_flag/2 directive)
+
+2023-06-30  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #45: improve call_nth/2 with a add new '$call_c' option ret(RetVar)
+
+2023-06-28  <daniel.diaz@univ-paris1.fr>
+
+	* add/modify Prolog flags: show_banner, show_information
+	* remove default consult summary statistics
+	  (to display set show_information=informational)
+	* fix issue #44: misleading error for inexistent file in gprolog --consult-file
+
+2023-06-26  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #43: add call_nth/2 built-in (part of the  Prolog prologue)
+	* add built-in nb_setarg/3 (special case of setarg/4)
+	* fix issue #26: missing int_overflow for succ/2
+
+2023-06-24  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #41: ISO requires: round(4.5) = 5 and round(-4.5) = -4
+	* fix issue #40: new builts-in predicates: current_evaluable/1 and evaluable_property/2
+
+2023-06-20  <daniel.diaz@univ-paris1.fr>
+
+	* replace previous pragma directives by the unique compiler_mode/1 directive
+
+ 2023-06-15  <daniel.diaz@univ-paris1.fr>
+
+	* rename gplc/pl2wam --pre-load option simply as --include
+	* add pragma directives to inform the compiler about term expansion
+
+2023-06-09  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #38: add more error detections in format/2-3
+	* fix issue #39: bug in conditional compilation directives
+
+2023-06-07  <daniel.diaz@univ-paris1.fr>
+
+	* rename pl2wam --pl-state option (and concept) as --pre-load
+
+2023-06-07  <daniel.diaz@univ-paris1.fr>
+
+	* add a consult/2 built-in (consult with options)
+
+2023-06-05  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #37: bug in format/2-3
+	* update the doc
+
+2023-06-04  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #13: user meta_predicate definition is now returned by predicate_property/2
+	* initial support for term_expansion/2 and new pre-load file format
+	  (now it is a Prolog text)
+	* speed up dynamic predicates with many clauses (for wordnet)
+	* improve linedit completion with a new map implementation
+	  (improves consult of wordnet files)
 	* simplify ChangeLog dates
 
 2023-04-15  <daniel.diaz@univ-paris1.fr>
 
-	* improve compiler speed on large Prolog data bases
+	* improve compiler speed on large Prolog databases (for wordnet)
 	  (use new map implementation (based on red-black trees) for wam2ma and ma2asm)
 
 2023-04-07  <daniel.diaz@univ-paris1.fr>
@@ -21,7 +123,7 @@
 
 2023-03-10  <daniel.diaz@univ-paris1.fr>
 
-	* improve compiler speed on large Prolog data bases
+	* improve compiler speed on large Prolog databases
 	  (speed up generation of indexing instructions switch_on_atom/integer/structure)
 	* speed up bind_variables/2 (also speed up the compiler for byte-code)
 	* increase max vars in a term to 2^20 (MAX_VAR_IN_TERM) 
@@ -310,7 +412,7 @@
 	* modify atom table management (its size can be defined via env. var MAX_ATOM)
 	* fix a bug with soft-call inside a meta-call
 	* implement term_hash/2 and term_hash/4. Backward incompatibility:
-	  new_atom/3 and and atom_hash/2 no longer exists.
+	  new_atom/3 and and atom_hash/2 no longer exists
 	* fix some little bugs with 64 bits (e.g. stream id)
 
 2012-10-30  <daniel.diaz@univ-paris1.fr>
@@ -468,7 +570,7 @@
 2009-11-20  <daniel.diaz@univ-paris1.fr>
 
 	* fix a bug in read_from_codes/2 and number_codes/2
-	* improve speed of built-in predicates on list (append, member, reverse,...).
+	* improve speed of built-in predicates on list (append, member, reverse,...)
 
 2009-11-16  <daniel.diaz@univ-paris1.fr>
 

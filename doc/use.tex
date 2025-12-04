@@ -52,6 +52,8 @@ programs, to list them, to execute them and to debug them. The
 \IdxKD{--entry-goal} \Param{GOAL} & execute \Param{GOAL} inside the top-level \\
 \IdxKD{--query-goal} \Param{GOAL} & execute \Param{GOAL} as a query for the top-level \\
 
+\IdxKD{--no-gui-console} & disable Windows GUI console (run in text mode) \\
+
 \IdxKD{--quiet} & suppress informational messages (e.g. top-level banner) \\
 
 \IdxKD{--help} & print a help and exit \\
@@ -68,9 +70,9 @@ itself, i.e. to execute the built-in predicate
 
 \begin{Code}
 \begin{verbatim}
-GNU Prolog 1.5.1 (64 bits)
-Compiled Dec  7 2022, 10:56:46 with gcc
-Copyright (C) 1999-2023 Daniel Diaz
+GNU Prolog 1.6.0 (64 bits)
+Compiled Nov 18 2025, 12:05:57 with gcc
+Copyright (C) 1999-2025 Daniel Diaz
 
 | ?- 
 \end{verbatim}
@@ -145,8 +147,10 @@ arguments (i.e. including all recognized arguments).
 Here is an example of using execution goal options:
 
 \begin{Code}
-\% gprolog --init-goal 'write(before), nl' --entry-goal 'write(inside), nl'\\
+\begin{verbatim}
+% gprolog --init-goal 'write(before), nl' --entry-goal 'write(inside), nl'
 --query-goal 'append([a,b],[c,d],X)'
+\end{verbatim}
 \end{Code}
 
 will produce the following:
@@ -154,9 +158,9 @@ will produce the following:
 \begin{Code}
 \begin{verbatim}
 before
-GNU Prolog 1.5.0 (64 bits)
-Compiled May  3 2021, 16:36:43 with gcc
-Copyright (C) 1999-2023 Daniel Diaz
+GNU Prolog 1.6.0 (64 bits)
+Compiled Nov 18 2025, 12:05:57 with gcc
+Copyright (C) 1999-2025 Daniel Diaz
 
 inside
 | ?- append([a,b],[c,d],X).
@@ -606,11 +610,11 @@ prefix \\
 
 \hline
 
-\texttt{Esc-{\lt}} & \texttt{Page Up} & recall first history line \\
+\texttt{Esc-<} & \texttt{Page Up} & recall first history line \\
 
 \hline
 
-\texttt{Esc-{\gt}} & \texttt{Page Down} & recall last history line \\
+\texttt{Esc->} & \texttt{Page Down} & recall last history line \\
 
 \hline
 
@@ -872,19 +876,19 @@ Suffix of the file & Type of the file & Handled by: \\
 
 \hline\hline
 
-\texttt{.pl}, \texttt{.pro}, \texttt{.prolog} & Prolog source file & \texttt{pl2wam} \\
+\texttt{.pl}, \texttt{.pro}, \texttt{.prolog} & Prolog source file &  \IdxK{pl2wam} \\
 
 \hline
 
-\texttt{.wam} & WAM source file & \texttt{wam2ma} \\
+\texttt{.wam} & WAM source file & \IdxK{wam2ma} \\
 
 \hline
 
-\texttt{.ma} & Mini-assembly source file & \texttt{ma2asm} \\
+\texttt{.ma} & Mini-assembly source file & \IdxK{ma2asm} \\
 
 \hline
-
-\texttt{.s} & Assembly source file & the assembler \\
+ 
+\texttt{.s} & Assembly source file & the \Idx{assembler} \\
 
 \hline
 
@@ -893,12 +897,12 @@ Suffix of the file & Type of the file & Handled by: \\
 
 \hline
 
-\texttt{.fd} & Finite Domain constraint source file & \texttt{fd2c} \\
+\texttt{.fd} & Finite Domain constraint source file & \IdxK{fd2c} \\
 
 \hline
 
 any other suffix (\texttt{.o}, \texttt{.a},\ldots) & any other type
-(object, library,\ldots) & the linker (C linker) \\
+(object, library,\ldots) & the linker (C \Idx{linker}) \\
 
 \hline
 \end{tabular}
@@ -979,9 +983,10 @@ for temporary files \\
 \end{CmdOptions}
 
 \SPart{Prolog to WAM compiler options}:
+\label{pl2wam-options}
 
 \begin{CmdOptions}
-\IdxKD{--pl-state} \Param{FILE} & read \Param{FILE} to set the initial Prolog state \\
+\IdxKD{--include} \Param{FILE} & include FILE at the beginning of the compilation \\
 
 \IdxKD{--wam-comment} \Param{COMMENT} & emit \Param{COMMENT} as a comment in the WAM file \\
 
@@ -1110,7 +1115,8 @@ name(s) is the input file name(s) with the suffix associated with the last
 stage. If the link is done, the name of the executable is the name (without
 suffix) of the first file name encountered in the command-line.  Note that if
 the link is not done \texttt{-o} has no sense in the presence of multiple
-input file names. For this reason, several meta characters are available for substitution in \Param{FILE}:
+input file names. For this reason, several meta characters are available for
+substitution in \Param{FILE}:
 
 \begin{itemize}
 \item \texttt{\%f} is substitued by the whole input file name.
@@ -1122,16 +1128,37 @@ input file names. For this reason, several meta characters are available for sub
 \item \texttt{\%c} is substitued by the value of an internal counter starting from 1 and auto-incremented.
 \end{itemize}
 
-By default the compiler runs in the native-code compilation scheme. To
-generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}
-option. The resulting file can then be loaded using \IdxPB{load/1}
-\RefSP{load/1}.
+\SPart{The Prolog to WAM compiler (\texttt{pl2wam})}\label{pl2wam-description}
 
-To execute the Prolog to WAM compiler in a given \emph{read environment}
-(operator definitions, character conversion table,\ldots) use
-\texttt{--pl-state} \Param{FILE}. The state file should be
-produced by \IdxPB{write\_pl\_state\_file/1}
-\RefSP{write-pl-state-file/1}.
+The \IdxKD{pl2wam} (sub)compiler translates a Prolog program into WAM code
+intended to produce either native code or byte-code. It is written in GNU Prolog
+and bootstrapped to produce a native executable that can be invoked from the
+command line (e.g. by \texttt{gplc}). Currently, the Prolog file is read and
+compiled, \emph{but not loaded} into the compiler (this may change in the
+future). Exceptions are a few directives such as \IdxDi{op/3},
+\IdxDi{char\_conversion/2} which are executed by \texttt{pl2wam}. Since version
+1.6.0, GNU prolog supports \IdxPB{term\_expansion/2}. This mechanism may require
+the execution of user Prolog code during compilation. For this, the code must be
+declared as \Idx{embeded} via the \IdxDi{compiler\_mode/1} directive. This user
+code can be part of the Prolog file to compile (directly or via a
+\IdxDi{include/1} directive) or can be given in a separate file and passed to
+the compiler with the \texttt{--include} option. An include file is a Prolog
+text which is included by the compiler when started (as by the \IdxDi{include/1}
+directive). Several \texttt{--include} options can be provided, they are
+considered in order of apparition.
+
+By default, \texttt{pl2wam} runs in the native-code compilation scheme. To
+generate a WAM file for byte-code use the \texttt{--wam-for-byte-code}
+option. The resulting file can then be quickly loaded using \IdxPB{load/1}
+\RefSP{load/1}. This is used by \IdxPB{consult/1} which invokes the compiler
+as a command line subprocess (spawn). A default include file is created by
+\texttt{consult/1-2} and passed to the compiler to reproduce certain
+parameters of the top-level's internal state: operator definitions, Prolog
+flag values, etc. \RefSP{consult/1}. Prior to version 1.6.0, another
+mechanism was used, based on ``prolog state'' (pl-state) and stored in binary
+files. Since 1.6.0, this has been replaced by include files (simple Prolog
+text files) and new directives (e.g. \texttt{load\_only}). The built-in
+predicate \IdxPB{consult/2} can be used to pass additional include files.
 
 By default the Prolog to WAM compiler inlines calls to some deterministic
 built-in predicates (e.g. \texttt{arg/3} and \texttt{functor/3}). Namely a
@@ -1164,6 +1191,8 @@ deactivated by specifying \texttt{--no-susp-warn}. Finally, the compiler
 warns when a singleton variable has a name (i.e. not the generic anonymous
 name \texttt{\_}). This can be deactivated specifying
 \texttt{--no-singl-warn}.
+
+\SPart{Producing a native code executable}
 
 Internally, predicate names are encoded to fit the syntax of (assembly)
 identifiers. For this GNU Prolog uses it own \Idx{name mangling} scheme. This
@@ -1285,8 +1314,9 @@ There are two reasons for this:
 
 \begin{itemize}
 
-\item the predicate cannot be consulted. This is the case of a predicate
-calling foreign code, like a predicate interfacing with C \RefSP{Interfacing-Prolog-and-C} or a predicate defining a new FD constraint.
+\item the predicate cannot be consulted. This is the case of a predicate calling
+  foreign code, like a predicate interfacing with C
+  \RefSP{Interfacing-Prolog-and-C} or a predicate defining a new FD constraint.
 
 \item the performance of the predicate is crucial. Since it is compiled to
 native-code such a predicate will be executed very quickly. Consulting will
@@ -1316,9 +1346,12 @@ defined in \texttt{utils.c}:
 
 \OneLine{\% gplc -o my\_top\_level prog.pl utils.c}
 
-To obtain a fully extended executable, it is desirable to accept the same set
-of opions as the original top-level, see
-\RefSP{The-GNU-Prolog-interactive-interpreter}, e.g. \IdxK{--init-goal}. For this it is necessary to link \IdxK{main()} function used by the original top-level. This can be achieved passing the \IdxK{--new-top-level} to \texttt{gplc}:
+To obtain a fully extended executable, it is desirable to accept the same set of
+opions as the original top-level, see
+\RefSP{The-GNU-Prolog-interactive-interpreter}, e.g. \IdxK{--init-goal}. For
+this it is necessary to link \IdxK{main()} function used by the original
+top-level. This can be achieved passing the \IdxK{--new-top-level} to
+\texttt{gplc}:
 
 \OneLine{\% gplc --new-top-level -o my\_top\_level prog.pl utils.c}
 
@@ -1343,15 +1376,16 @@ encoded.
 
 Since version 1.4.0, GNU Prolog adopts the following \IdxD{name mangling}
 scheme. A predicate indicator of the form
-[\Param{MODULE}\texttt{:}]\Param{PRED}\texttt{/}\Param{N} (where
-the \Param{MODULE} can be omitted) will give rise to an identifier of the
+[\Param{MODULE}\texttt{:}]\Param{PRED}\texttt{/}\Param{N} (where the
+\Param{MODULE} can be omitted) will give rise to an identifier of the
 following form:
 \texttt{X}\Param{K}\texttt{\_}[\textit{E(\Param{MODULE})}\texttt{\_\_}]\textit{E(\Param{PRED})}\texttt{\_\_a}\Param{N}
 where:
 
 \begin{description}
 
-\item \Param{K} is a digit in \texttt{0}..\texttt{5} storing coding information about \Param{MODULE} and \Param{PRED}. Possible values are:
+\item \Param{K} is a digit in \texttt{0}..\texttt{5} storing coding information
+  about \Param{MODULE} and \Param{PRED}. Possible values are:
 
 \begin{itemize}
 
@@ -1418,8 +1452,14 @@ This filter is provided as an utility that can be invoked using the
 
 \IdxKD{--encode} or \IdxKD{--mangling} & encoding mode \\
 
-\IdxKD{--relax} & decode also predicate names (not only predicate
+\IdxKD{--relax} & encode/decode also predicate names (not only predicate
 indicators) \\
+
+\IdxKD{--strict} & encode/decode only predicate indicators (default) \\
+
+\IdxKD{--quote} & quote decoded predicate names (as done by writeq) \\
+
+\IdxKD{--no-quote} & do not quote decoded predicate names \\
 
 \IdxKD{--printf} \Param{FORMAT} & pass encoded/decoded string to C
 \texttt{printf(3)} with \Param{FORMAT} \\
@@ -1431,11 +1471,11 @@ auxiliary number \\
 
 \IdxKD{--cmd-line} & encode/decode each argument of the command-line \\
 
-\IdxKD{-E} or \IdxKD{-M} & same as: \texttt{--cmd-line --encode --relax} \\
+\IdxKD{-M} or \IdxKD{-H} & same as: \texttt{--cmd-line --encode --relax} \\
 
-\IdxKD{-P} or \IdxKD{-D} & same as: \texttt{--cmd-line --decode --relax --quote} \\
+\IdxKD{-D} or \IdxKD{-P} & same as: \texttt{--cmd-line --decode --relax --quote} \\
 
-\IdxKD{--help} & print a help and exit \\
+\IdxKD{-h} or \IdxKD{--help} & print a help and exit \\
 
 \IdxKD{--version} & print version number and exit \\
 

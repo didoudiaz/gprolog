@@ -6,7 +6,7 @@
  * Descr.: file consulting                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,46 +41,131 @@
 '$use_consult'.
 
 
+:- meta_predicate('.'(:, +)).
+
 [File|Files] :-
 	consult([File|Files]).
 
 
 
 
+:- meta_predicate(consult(:)).
+:- meta_predicate(consult(:, +)).
+
 consult(File) :-
-	set_bip_name(consult, 1),
-	'$check_atom_or_atom_list'(File), !,
-	(   atom(File),
-	    File \== [] ->
-	    '$consult2'(File)
-	;   '$consult1'(File)
-	).
+	'$consult'(File, [], 1).
 
 
-'$consult1'([]).
-
-'$consult1'([File|Files]) :-
-	'$consult2'(File),
-	'$consult1'(Files).
+consult(File, Options) :-
+	'$consult'(File, Options, 2).
 
 
-'$consult2'(File) :-
+'$consult'(File, Options, Arity) :-
+	set_bip_name(consult, Arity),
+	'$check_atom_or_atom_list'(File),
+	'$set_consult_defaults',
+	'$get_consult_options'(Options, Pl2WamArgs1, Pl2WamArgs),
+	'$add_args_for_flags'([bf(0 = 0, show_information = informational, '--compile-msg'),
+			       f(suspicious_warning = off, '--no-susp-warn'),
+			       f(singleton_warning = off, '--no-singl-warn')], Pl2WamArgs1),
+	(   atom(File), File \== [] ->
+	    LFile = [File]
+	;   LFile = File
+	),
+	member(File1, LFile),
+	\+ '$consult1'(File1, Pl2WamArgs, Arity),
+	!,
+	fail.
+
+'$consult'(_, _,_).
+
+
+
+
+          % option mask in sys_var[0]:
+          %
+          %  b0
+          %  0/1
+          % quiet
+
+'$set_consult_defaults' :-
+	'$sys_var_write'(0, 0).
+
+
+
+
+'$get_consult_options'(Options, Pl2WamArgsEnd, Pl2WamArgs) :-
+	'$check_list'(Options),
+	'$get_consult_options1'(Options, Pl2WamArgsEnd, Pl2WamArgs), !.
+
+
+
+'$get_consult_options1'([], Pl2WamArgs, Pl2WamArgs).
+
+'$get_consult_options1'([X|Options], Pl2WamArgsEnd, Pl2WamArgs) :-
+	'$get_consult_options2'(X, Pl2WamArgs1, Pl2WamArgs), !,
+	'$get_consult_options1'(Options, Pl2WamArgsEnd, Pl2WamArgs1).
+
+
+'$get_consult_options2'(X, _, _) :-
+	var(X),
+	'$pl_err_instantiation'.
+
+'$get_consult_options2'(quiet, Pl2WamArgs, Pl2WamArgs) :-
+	'$sys_var_set_bit'(0, 0).
+
+'$get_consult_options2'(include(X), Pl2WamArgs, ['--include', X|Pl2WamArgs]) :-
+	'$check_nonvar'(X),
+	atom(X).
+
+'$get_consult_options2'(X, _, _) :-
+	'$pl_err_domain'(consult_option, X).
+
+
+
+
+'$add_args_for_flags'([], []).
+
+'$add_args_for_flags'([bf(Bit = BValue, Flag = Value, Arg)|L], [Arg|Pl2WamArgs]) :-
+	'$sys_var_get_bit'(0, Bit, BValue), 
+	current_prolog_flag(Flag, Value), !,
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+'$add_args_for_flags'([f(Flag = Value, Arg)|L], [Arg|Pl2WamArgs]) :-
+	current_prolog_flag(Flag, Value), !,
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+'$add_args_for_flags'([_|L], Pl2WamArgs) :-
+	'$add_args_for_flags'(L, Pl2WamArgs).
+
+
+
+
+'$consult1'(File, Pl2WamArgs1, Arity) :-
 	'$call_c_test'('Pl_Prolog_File_Name_2'(File, File1)),
 	(   File1 = user ->
 	    File2 = File1
 	;   '$call_c_test'('Pl_Absolute_File_Name_2'(File1, File2)),
 	    (   file_exists(File2) ->
 	        true
-	    ;   set_bip_name(consult, 1),
+	    ;   set_bip_name(consult, Arity),
 	        '$pl_err_existence'(source_sink, File1)
 	    )
 	),
+	PipedConsult = piped,	% can be spawn, exec (Prolog) or piped (see consult_c.c)
 	temporary_file('', gplc, TmpFile),
-	set_bip_name(consult, 1),
-	(   '$consult3'(TmpFile, File2) ->
-	    '$load_file'(TmpFile),
-	    unlink(TmpFile)
-	;   unlink(TmpFile),
+	atom_concat(TmpFile, '.wbc', TmpByteCodeFile),
+	atom_concat(TmpFile, '.pl', TmpIncludeFile),
+	'$create_include_file'(PipedConsult, TmpIncludeFile),
+	Pl2WamArgs = ['-w', File2, '--include', TmpIncludeFile, '-o', TmpByteCodeFile|Pl2WamArgs1],
+%	Pl2WamArgs = ['-w', File2, '-o', TmpByteCodeFile|Pl2WamArgs1], % without --include (for debug)
+	set_bip_name(consult, Arity),	
+	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
+	    '$load_file'(TmpByteCodeFile),
+	    unlink(TmpByteCodeFile),
+	    unlink(TmpIncludeFile)
+	;   unlink(TmpByteCodeFile),
+	    unlink(TmpIncludeFile),
 	    format(top_level_output, 'compilation failed~n', []),
 	    fail
 	).
@@ -88,24 +173,88 @@ consult(File) :-
 
 
 
-'$consult3'(TmpFile, PlFile) :-
-	'$call_c_test'('Pl_Consult_2'(TmpFile, PlFile)).
+'$create_include_file'(piped, IncludeFile) :-
+	!,
+	'$sys_var_read'(20, Say_GetC), 
+	'$sys_var_write'(20, 1), % activate SAY_GETC in case of piped consult (see consult_c.c)
+	write_default_include_file(IncludeFile),
+	'$sys_var_write'(20, Say_GetC).
 
-/*
-'$consult3'(TmpFile, PlFile):-
-	write_pl_state_file(TmpFile),
-	Args=['-w', '--pl-state', TmpFile, '-o', TmpFile, PlFile|End],
-        (   current_prolog_flag(singleton_warning, on) ->
-	    End = End1
-	;   End = ['--no-singl-warn'|End1]
-	),
-        (   current_prolog_flag(show_information, off) ->
-	    End1 = []
-	;   End1 = ['--compile-msg']
-	),
-	spawn(pl2wam, Args, 0).
-*/
+'$create_include_file'(_, IncludeFile) :-
+	write_default_include_file(IncludeFile).
 
+
+
+
+write_default_include_file(IncludeFile) :-
+	set_bip_name(write_default_include_file, 1),
+	'$prolog_file_name'(IncludeFile, PlFile),
+	'$open'(PlFile, write, S, []),
+	format(S, '% generated by write_default_include_file/1~n',[]),
+	format(S, ':- compiler_mode(embed).~n', []),
+	(   setof(Op, (current_op(Prior,Prec,Op), Op \== (',')), LOp),
+	    '$write_include_goal'(S, op(Prior, Prec, LOp)),
+	    fail
+	;
+	    true
+	),
+	LFlags = [char_conversion, double_quotes, back_quotes, singleton_warning,
+		  suspicious_warning, multifile_warning, strict_iso, show_information],
+	(   member(Flag, LFlags),
+	    current_prolog_flag(Flag, FlagValue),
+	    '$write_include_goal'(S, set_prolog_flag(Flag, FlagValue)),
+	    fail
+	;
+	    true
+	),
+	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
+	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)),
+	(   current_char_conversion(Ch1,Ch2),
+	    '$write_include_goal'(S, char_conversion(Ch1, Ch2)),
+	    fail
+	;
+	    true
+	),
+	/*
+	(   TermHead = term_expansion(_, _),
+	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
+	;
+	    true
+	),
+	*/
+	format(S, ':- compiler_mode(default).~n', []),
+	close(S),
+	fail.			% GC
+
+write_default_include_file(_).
+
+
+'$write_include_goal'(S, Goal) :-
+	format(S, ':- initialization(~q).~n', [Goal]).
+
+
+
+
+'$consult2'(spawn, Pl2WamArgs) :-
+	spawn(pl2wam, Pl2WamArgs, 0).
+
+'$consult2'(exec, Pl2WamArgs) :-
+	'$list_to_atom'([pl2wam|Pl2WamArgs], Cmd),
+	exec(Cmd, top_level_input, top_level_output, top_level_output, Pid),
+	wait(Pid, 0).
+
+'$consult2'(piped, Pl2WamArgs) :-
+	'$call_c_test'('Pl_Consult_1'(Pl2WamArgs)).
+
+
+'$list_to_atom'(List, Atom) :-
+	open_output_atom_stream(S),
+	(   member(A, List),
+	    write(S, A),
+	    put_char(S, ' '),
+	    fail
+	;   close_output_atom_stream(S, Atom)
+	).
 
 
 
@@ -135,7 +284,7 @@ consult(File) :-
 
 
 '$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
-	PI = Pred / N,
+	PI = Pred/N,
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(Pred, N, PlFile, PlLine),
 	(   MonoMulti = multifile, '$predicate_property1'(Pred, N, multifile) ->
@@ -183,7 +332,7 @@ consult(File) :-
 '$check_owner_files'(PI, PlFile, PlLine) :-
 	'$get_predicate_file_info'(PI, PlFile1, PlLine1),
 	PlFile \== PlFile1, !,
-	PI = Name / _,
+	PI = Name/_,
 	(   '$aux_name'(Name) ->
 	    true
 	;   format(top_level_output, 'warning: ~a:~d: redefining procedure ~q~n', [PlFile, PlLine, PI]),
@@ -282,6 +431,8 @@ listing :-
 
 
 
+:- meta_predicate(listing(:)).
+
 listing(PI) :-
 	set_bip_name(listing, 1),
 	'$sys_var_write'(5, 0),
@@ -290,7 +441,7 @@ listing(PI) :-
 
 listing(N) :-
 	atom(N), !,
-	'$listing_all'(N / _).
+	'$listing_all'(N/_).
 
 listing(PI) :-
 	'$listing_all'(PI).
@@ -314,7 +465,7 @@ listing(PI) :-
 
 '$listing_any'(N) :-
 	atom(N), !,
-	'$listing_all'(N / _).
+	'$listing_all'(N/_).
 
 '$listing_any'(PI) :-
 	'$listing_all'(PI).
@@ -328,7 +479,7 @@ listing(PI) :-
 
 '$listing_all'(PI) :-  % setof: for each File returns a sorted list [Line-PI,...]
 	setof(Line-PI, '$listing_one_pi'(File, Line, PI), LKPI), 
-	format('~n%% file: ~w~n', [File]),
+	format('~n% file: ~w~n', [File]),
 	member(_-PI1, LKPI),
 	'$listing_one'(PI1),
 	fail.
@@ -340,7 +491,7 @@ listing(PI) :-
 	(   '$sys_var_read'(5, 0) ->
 	    '$current_predicate'(PI)
 	;
-	    '$current_predicate_any'(PI), PI = Pred / _, '$not_aux_name'(Pred)
+	    '$current_predicate_any'(PI), PI = Pred/_, '$not_aux_name'(Pred)
 	),
 	\+ '$predicate_property_pi_any'(PI, native_code),
 	'$predicate_property_pi_any'(PI, prolog_file(File)),
@@ -370,6 +521,7 @@ listing(PI) :-
 	'$get_pred_indic'(PI, N, A),
 	functor(H, N, A),
 	nl,
+	set_bip_name(listing, 0), %only for debug of dynam_supp.c (see owner_func/arity if not passed)
 	'$clause'(H, B, 2),
 	portray_clause((H :- B)),
 	fail.

@@ -6,7 +6,7 @@
  * Descr.: test - Prolog part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -140,3 +140,39 @@ a:- q, fail ; true.
 */
 
 dd(A,B,C,D):-fd_tell(dd(A,B,C,D)).
+
+p(V) :-
+	V = [A,B],
+	fd_domain(V, 1, 9),
+	fd_domain(X,1,100),
+%	fd_all_different(V),
+	write(V),nl,
+	 X #= 10*A*B + 2*A,
+	write(s(X,V)),nl,
+	fd_labelingff(V).
+
+
+/*
+V = [1, 1] ;
+V = [1, 2] ;
+V = [1, 3] ;
+V = [1, 4] ;
+V = [1, 5] ;
+V = [1, 6] ;
+V = [1, 7] ;
+V = [1, 8] ;
+V = [1, 9] ;
+V = [2, 1] ;
+V = [3, 1] ;
+V = [4, 1] ;
+V = [5, 1] ;
+V = [6, 1] ;
+V = [7, 1] ;
+V = [8, 1] ;
+V = [2, 2] ;
+V = [2, 3] ;
+V = [2, 4] ;
+V = [3, 2] ;
+V = [3, 3] ;
+V = [4, 2].
+*/

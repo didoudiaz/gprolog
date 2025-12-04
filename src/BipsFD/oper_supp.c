@@ -6,7 +6,7 @@
  * Descr.: FD Operation support                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -169,7 +169,7 @@ Pl_Nth_Root_Up(unsigned y, unsigned n)
     return 0;
 
   x = Pl_Nth_Root_Dn(y, n);
-  if (Pl_Power(x, n) != y)
+  if (Pl_Power(x, n) != (int) y) /* TODO: check the unsigned for x, y, n */
     x++;
 
   return x;
@@ -191,7 +191,7 @@ Pl_Nth_Root_Exact(unsigned y, unsigned n)
     return 0;
 
   x = Pl_Nth_Root_Dn(y, n);
-  if (Pl_Power(x, n) != y)
+  if (Pl_Power(x, n) != (int) y) /* TODO: check th eunsigned for x, y, n */
     return (unsigned) -1;
 
   return x;

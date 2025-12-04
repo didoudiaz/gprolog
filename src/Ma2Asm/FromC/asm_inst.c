@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-non-prototype"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#endif
+
+
 /* to define Data_Start(intializer_fct) */
 #define OBJ_INIT initializer_fct
 
@@ -85,7 +92,8 @@ static void
 initializer_fct(void)
 { /* printf to ensure gcc does not remove unused static vars */
   printf("%p %p\n", &ma_local_var1, &ma_local_var2);
-  printf("%ld %ld %ld %p\n", var_long_static_uninit, var_long_static_init0,
+  printf("%" PL_FMT_d " %" PL_FMT_d " %" PL_FMT_d " %p\n",
+	 var_long_static_uninit, var_long_static_init0,
 	 var_long_static_init100, var_array_static128);
   Dummy(12);
 }
@@ -188,7 +196,7 @@ TRANS_Pl_Ret(void)
 void
 TRANS_Prep_CP_Here_CP(void) {
   CP = &&a;
-  if (x<3) {
+  if (x < 3) {
     bar(x);
   }
  a:;
@@ -412,7 +420,7 @@ TRANS_Jump_Ret(void)
   register PlLong adr = (PlLong) bar(12, "toto");
   M_Indirect_Goto(adr);
 #else
-  goto *bar(12, "toto");
+  goto *(void *) bar(12, "toto");
 #endif
 }
 

@@ -57,14 +57,12 @@ predicate(display/2,86,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(write_term/2,110,static,private,monofile,built_in,[
+predicate(write_term/2,111,static,private,monofile,built_in,[
     try_me_else(1),
-    allocate(2),
+    allocate(1),
     get_variable(y(0),0),
-    get_variable(y(1),1),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_term,2]),
-    call('$set_write_defaults'/0),
-    put_value(y(1),0),
+    put_value(x(1),0),
     call('$get_write_options'/1),
     put_value(y(0),0),
     call_c('Pl_Write_Term_1',[],[x(0)]),
@@ -77,13 +75,11 @@ label(1),
 
 predicate(write_term/3,120,static,private,monofile,built_in,[
     try_me_else(1),
-    allocate(3),
+    allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    get_variable(y(2),2),
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_term,3]),
-    call('$set_write_defaults'/0),
-    put_value(y(2),0),
+    put_value(x(2),0),
     call('$get_write_options'/1),
     put_value(y(0),0),
     put_value(y(1),1),
@@ -95,13 +91,13 @@ label(1),
     proceed]).
 
 
-predicate('$set_write_defaults'/0,131,static,private,monofile,built_in,[
+predicate('$set_write_defaults'/0,130,static,private,monofile,built_in,[
     allocate(0),
     put_integer(0,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
     put_integer(1,0),
-    put_integer(-1,1),
+    put_integer(0,1),
     call('$sys_var_write'/2),
     put_integer(2,0),
     put_integer(1200,1),
@@ -112,41 +108,67 @@ predicate('$set_write_defaults'/0,131,static,private,monofile,built_in,[
     execute('$sys_var_write'/2)]).
 
 
-predicate('$get_write_options'/1,140,static,private,monofile,built_in,[
-    allocate(1),
+predicate('$get_write_options'/1,139,static,private,monofile,built_in,[
+    allocate(2),
     get_variable(y(0),0),
+    call('$set_write_defaults'/0),
     put_value(y(0),0),
     call('$check_list'/1),
     put_value(y(0),0),
-    call('$get_write_options1'/1),
+    put_void(1),
+    put_variable(y(1),2),
+    call('$get_write_options1'/3),
+    put_unsafe_value(y(1),0),
     deallocate,
-    execute('$$get_write_options/1_$aux1'/0)]).
+    execute('$$get_write_options/1_$aux1'/1)]).
 
 
-predicate('$$get_write_options/1_$aux1'/0,140,static,private,monofile,local,[
-    pragma_arity(1),
-    get_current_choice(x(0)),
+predicate('$$get_write_options/1_$aux1'/1,139,static,private,monofile,local,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
     try_me_else(1),
-    allocate(1),
+    allocate(2),
     get_variable(y(0),0),
+    get_variable(y(1),1),
     put_integer(0,0),
     put_integer(6,1),
     put_integer(1,2),
     call('$sys_var_get_bit'/3),
-    cut(y(0)),
+    cut(y(1)),
     put_integer(0,0),
     put_integer(3,1),
+    call('$sys_var_set_bit'/2),
+    put_value(y(0),0),
     deallocate,
-    execute('$sys_var_set_bit'/2),
+    execute('$$get_write_options/1_$aux2'/1),
 
 label(1),
     trust_me_else_fail,
     proceed]).
 
 
-predicate('$get_write_options1'/1,151,static,private,monofile,built_in,[
+predicate('$$get_write_options/1_$aux2'/1,139,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
+    try_me_else(1),
+    allocate(1),
+    get_variable(y(0),1),
+    call('$name_variables'/1),
+    cut(y(0)),
+    deallocate,
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    put_structure(variable_names/1,1),
+    unify_local_value(x(0)),
+    put_atom(write_option,0),
+    execute('$pl_err_domain'/2)]).
+
+
+predicate('$get_write_options1'/3,154,static,private,monofile,built_in,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -154,25 +176,30 @@ label(1),
 
 label(2),
     get_nil(0),
+    get_value(x(2),1),
     proceed,
 
 label(3),
     trust_me_else_fail,
 
 label(4),
-    allocate(2),
+    allocate(4),
+    get_variable(y(1),2),
     get_list(0),
     unify_variable(x(0)),
     unify_variable(y(0)),
-    get_variable(y(1),1),
-    call('$get_write_options2'/1),
-    cut(y(1)),
+    get_variable(y(2),3),
+    put_variable(y(3),2),
+    call('$get_write_options2'/3),
+    cut(y(2)),
     put_value(y(0),0),
+    put_unsafe_value(y(3),1),
+    put_value(y(1),2),
     deallocate,
-    execute('$get_write_options1'/1)]).
+    execute('$get_write_options1'/3)]).
 
 
-predicate('$get_write_options2'/1,158,static,private,monofile,built_in,[
+predicate('$get_write_options2'/3,161,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(0)]),
     execute('$pl_err_instantiation'/0),
@@ -191,11 +218,12 @@ label(4),
     allocate(1),
     get_structure(quoted/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux1'/1),
+    execute('$$get_write_options2/3_$aux1'/1),
 
 label(5),
     retry_me_else(7),
@@ -204,11 +232,12 @@ label(6),
     allocate(1),
     get_structure(ignore_ops/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux2'/1),
+    execute('$$get_write_options2/3_$aux2'/1),
 
 label(7),
     retry_me_else(9),
@@ -217,11 +246,12 @@ label(8),
     allocate(1),
     get_structure(numbervars/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux3'/1),
+    execute('$$get_write_options2/3_$aux3'/1),
 
 label(9),
     retry_me_else(11),
@@ -230,11 +260,12 @@ label(10),
     allocate(1),
     get_structure(namevars/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux4'/1),
+    execute('$$get_write_options2/3_$aux4'/1),
 
 label(11),
     retry_me_else(13),
@@ -243,6 +274,7 @@ label(12),
     allocate(1),
     get_structure('$above'/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
@@ -259,11 +291,12 @@ label(14),
     allocate(1),
     get_structure(space_args/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux5'/1),
+    execute('$$get_write_options2/3_$aux5'/1),
 
 label(15),
     retry_me_else(17),
@@ -272,27 +305,26 @@ label(16),
     allocate(1),
     get_structure(portrayed/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     deallocate,
-    execute('$$get_write_options2/1_$aux6'/1),
+    execute('$$get_write_options2/3_$aux6'/1),
 
 label(17),
     retry_me_else(19),
 
 label(18),
-    allocate(1),
+    allocate(0),
     get_structure(variable_names/1,0),
-    unify_variable(y(0)),
-    put_value(y(0),0),
+    unify_local_value(x(2)),
+    put_value(x(2),0),
     call('$check_nonvar'/1),
     put_integer(0,0),
     put_integer(6,1),
-    call('$sys_var_set_bit'/2),
-    put_value(y(0),0),
     deallocate,
-    execute('$name_variables'/1),
+    execute('$sys_var_set_bit'/2),
 
 label(19),
     retry_me_else(21),
@@ -301,10 +333,15 @@ label(20),
     allocate(1),
     get_structure(max_depth/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
+    math_load_value(y(0),0),
+    put_integer(0,1),
+    call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
     put_integer(1,0),
     put_value(y(0),1),
     deallocate,
@@ -317,6 +354,7 @@ label(22),
     allocate(1),
     get_structure(priority/1,0),
     unify_variable(y(0)),
+    get_value(x(2),1),
     put_value(y(0),0),
     call('$check_nonvar'/1),
     put_value(y(0),0),
@@ -333,7 +371,7 @@ label(23),
     execute('$pl_err_domain'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux6'/1,207,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux6'/1,210,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -358,7 +396,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux5'/1,199,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux5'/1,202,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -383,7 +421,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux4'/1,186,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux4'/1,189,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -408,7 +446,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux3'/1,178,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux3'/1,181,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -433,7 +471,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux2'/1,170,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux2'/1,173,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -458,7 +496,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$$get_write_options2/1_$aux1'/1,162,static,private,monofile,local,[
+predicate('$$get_write_options2/3_$aux1'/1,165,static,private,monofile,local,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -483,7 +521,7 @@ label(5),
     execute('$sys_var_set_bit'/2)]).
 
 
-predicate('$name_variables'/1,236,static,private,monofile,built_in,[
+predicate('$name_variables'/1,239,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -500,6 +538,7 @@ label(2),
 
 label(3),
     get_nil(0),
+    cut(x(1)),
     proceed,
 
 label(4),
@@ -520,18 +559,17 @@ label(5),
     call_c('Pl_Blt_Atom',[fast_call,boolean],[x(0)]),
     put_value(y(1),0),
     put_value(y(0),1),
-    put_value(y(3),2),
-    call('$$name_variables/1_$aux1'/3),
+    call('$$name_variables/1_$aux1'/2),
+    cut(y(3)),
     put_value(y(2),0),
     deallocate,
     execute('$name_variables'/1)]).
 
 
-predicate('$$name_variables/1_$aux1'/3,242,static,private,monofile,local,[
+predicate('$$name_variables/1_$aux1'/2,246,static,private,monofile,local,[
     try_me_else(1),
     get_structure('$VARNAME'/1,0),
     unify_local_value(x(1)),
-    cut(x(2)),
     proceed,
 
 label(1),
@@ -539,18 +577,18 @@ label(1),
     proceed]).
 
 
-predicate('$is_valid_var_name'/1,251,static,private,monofile,built_in,[
+predicate('$is_valid_var_name'/1,260,static,private,monofile,built_in,[
     call_c('Pl_Is_Valid_Var_Name_1',[boolean],[x(0)]),
     proceed]).
 
 
-predicate(nl/0,256,static,private,monofile,built_in,[
+predicate(nl/0,265,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,0]),
     call_c('Pl_Nl_0',[],[]),
     proceed]).
 
 
-predicate(nl/1,260,static,private,monofile,built_in,[
+predicate(nl/1,269,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,1]),
     call_c('Pl_Nl_1',[],[x(0)]),
     proceed]).

@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -136,9 +136,9 @@
 				   /* reserve 10 bits for the arity */
 #define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 10)
 
-#define Functor_Arity(f, n)        (((PlULong) (n) << ATOM_MAX_BITS) | (f))
+#define Functor_Arity(f, n)        ((WamWord) (((PlULong)(n) << ATOM_MAX_BITS) | (f)))
 #define Functor_Of(word)           ((int) ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1)))
-#define Arity_Of(word)             ((int) ((PlULong) (word) >> ATOM_MAX_BITS))
+#define Arity_Of(word)             ((int) ((PlULong)(word) >> ATOM_MAX_BITS))
 
 
 #ifndef NO_USE_FD_SOLVER
@@ -318,6 +318,10 @@ WamWord FC Pl_Put_Structure_Tagged(WamWord w);
 
 WamWord FC Pl_Put_Structure(int func, int arity);
 
+WamWord FC Pl_Put_Meta_Term_Tagged(WamWord module_word, WamWord goal_word);
+
+WamWord FC Pl_Put_Meta_Term(int module, WamWord goal_word);
+
 WamWord FC Pl_Unify_Variable(void);
 
 void FC Pl_Unify_Void(int n);
@@ -406,6 +410,10 @@ void FC Pl_Untrail(WamWord *low_adr);
 Bool FC Pl_Unify(WamWord start_u_word, WamWord start_v_word);
 
 Bool FC Pl_Unify_Occurs_Check(WamWord start_u_word, WamWord start_v_word);
+
+void Pl_Print_Tag_Value(WamWord *word_adr, WamWord word);
+
+void Pl_Print_Func_Arity(WamWord *word_adr, WamWord word);
 
 
 #endif /* FRAME_ONLY */

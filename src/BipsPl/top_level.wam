@@ -18,7 +18,7 @@ predicate('$top_level/0_$aux1'/0,44,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
-    put_atom(show_information,0),
+    put_atom(show_banner,0),
     put_atom(on,1),
     call(current_prolog_flag/2),
     cut(y(0)),
@@ -604,8 +604,9 @@ predicate('$read_query'/2,229,static,private,monofile,built_in,[
     execute(read_term_from_atom/3),
 
 label(1),
-    trust_me_else_fail,
-    allocate(0),
+    retry_me_else(2),
+    allocate(1),
+    get_variable(y(0),2),
     put_structure(variable_names/1,3),
     unify_local_value(x(1)),
     put_list(2),
@@ -614,8 +615,16 @@ label(1),
     put_value(x(0),1),
     put_atom(top_level_input,0),
     call(read_term/3),
+    cut(y(0)),
     put_atom(top_level_input,0),
     deallocate,
+    execute('$PB_empty_buffer'/1),
+
+label(2),
+    trust_me_else_fail,
+    get_atom(fail,0),
+    get_nil(1),
+    put_atom(top_level_input,0),
     execute('$PB_empty_buffer'/1)]).
 
 
@@ -640,7 +649,7 @@ label(1),
     proceed]).
 
 
-predicate('$exec_query'/2,249,static,private,monofile,built_in,[
+predicate('$exec_query'/2,252,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -682,7 +691,7 @@ predicate('$exec_query'/2,249,static,private,monofile,built_in,[
     execute('$$exec_query/2_$aux1'/3)]).
 
 
-predicate('$$exec_query/2_$aux1'/3,249,static,private,monofile,local,[
+predicate('$$exec_query/2_$aux1'/3,252,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -705,7 +714,7 @@ label(1),
     execute('$$exec_query/2_$aux2'/2)]).
 
 
-predicate('$$exec_query/2_$aux2'/2,249,static,private,monofile,local,[
+predicate('$$exec_query/2_$aux2'/2,252,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -729,7 +738,7 @@ label(1),
     proceed]).
 
 
-predicate('$set_query_vars_names'/2,276,static,private,monofile,built_in,[
+predicate('$set_query_vars_names'/2,279,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -753,7 +762,7 @@ predicate('$set_query_vars_names'/2,276,static,private,monofile,built_in,[
     execute(bind_variables/2)]).
 
 
-predicate('$remove_underscore_vars'/2,285,static,private,monofile,built_in,[
+predicate('$remove_underscore_vars'/2,288,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,3,fail,1,fail),
@@ -803,7 +812,7 @@ label(7),
     execute('$remove_underscore_vars'/2)]).
 
 
-predicate('$$remove_underscore_vars/2_$aux1'/2,287,static,private,monofile,local,[
+predicate('$$remove_underscore_vars/2_$aux1'/2,290,static,private,monofile,local,[
     try_me_else(1),
     put_integer(0,1),
     put_integer(1,2),
@@ -822,7 +831,7 @@ label(1),
     execute(sub_atom/5)]).
 
 
-predicate('$write_solution'/3,300,static,private,monofile,built_in,[
+predicate('$write_solution'/3,303,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -848,7 +857,7 @@ label(1),
     execute('$write_solution1'/2)]).
 
 
-predicate('$$write_solution/3_$aux2'/1,307,static,private,monofile,local,[
+predicate('$$write_solution/3_$aux2'/1,310,static,private,monofile,local,[
     try_me_else(1),
     put_atom(xfx,1),
     put_atom(=,2),
@@ -860,7 +869,7 @@ label(1),
     proceed]).
 
 
-predicate('$$write_solution/3_$aux1'/2,300,static,private,monofile,local,[
+predicate('$$write_solution/3_$aux1'/2,303,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -879,7 +888,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_solution1'/2,313,static,private,monofile,built_in,[
+predicate('$write_solution1'/2,316,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -909,7 +918,7 @@ label(4),
     execute('$write_solution1'/2)]).
 
 
-predicate('$$write_solution1/2_$aux1'/3,315,static,private,monofile,local,[
+predicate('$$write_solution1/2_$aux1'/3,318,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -929,15 +938,19 @@ predicate('$$write_solution1/2_$aux1'/3,315,static,private,monofile,local,[
     call(format/3),
     put_atom(top_level_output,0),
     put_value(y(0),1),
-    put_structure(quoted/1,6),
+    put_structure(quoted/1,7),
     unify_atom(true),
-    put_structure(numbervars/1,5),
+    put_structure(numbervars/1,6),
     unify_atom(false),
-    put_structure(namevars/1,4),
+    put_structure(namevars/1,5),
     unify_atom(true),
-    put_structure(priority/1,3),
+    put_structure(priority/1,4),
     unify_local_value(y(2)),
+    put_structure(space_args/1,3),
+    unify_atom(true),
     put_list(2),
+    unify_value(x(7)),
+    unify_list,
     unify_value(x(6)),
     unify_list,
     unify_value(x(5)),
@@ -946,8 +959,10 @@ predicate('$$write_solution1/2_$aux1'/3,315,static,private,monofile,local,[
     unify_list,
     unify_value(x(3)),
     unify_nil,
+    call(write_term/3),
+    put_atom(top_level_output,0),
     deallocate,
-    execute(write_term/3),
+    execute(flush_output/1),
 
 label(1),
     trust_me_else_fail,
@@ -959,7 +974,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$read_return'/0,327,static,private,monofile,built_in,[
+predicate('$read_return'/0,332,static,private,monofile,built_in,[
     pragma_arity(1),
     get_current_choice(x(0)),
     allocate(2),
@@ -976,7 +991,7 @@ predicate('$read_return'/0,327,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$read_return'/1,335,static,private,monofile,built_in,[
+predicate('$read_return'/1,340,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(12),
@@ -1050,7 +1065,7 @@ label(12),
     execute('$read_return'/0)]).
 
 
-predicate('$exec_cmd_line_consult_files'/1,360,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_consult_files'/1,365,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(6),
@@ -1086,7 +1101,7 @@ label(6),
     proceed]).
 
 
-predicate('$exec_cmd_consult_file'/1,374,static,private,monofile,built_in,[
+predicate('$exec_cmd_consult_file'/1,379,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     put_variable(y(1),0),
@@ -1094,7 +1109,7 @@ predicate('$exec_cmd_consult_file'/1,374,static,private,monofile,built_in,[
     put_integer(11,0),
     put_value(y(1),1),
     call('$sys_var_write'/2),
-    put_structure('$consult2'/1,0),
+    put_structure(consult/1,0),
     unify_local_value(y(0)),
     put_structure(error/2,1),
     unify_variable(y(2)),
@@ -1115,11 +1130,11 @@ predicate('$exec_cmd_consult_file'/1,374,static,private,monofile,built_in,[
     fail]).
 
 
-predicate('$exec_cmd_line_consult_file'/1,384,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_consult_file'/1,389,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$exec_cmd_line_entry_goals'/1,389,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_entry_goals'/1,394,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1135,7 +1150,7 @@ label(1),
     proceed]).
 
 
-predicate('$exec_cmd_line_entry_goal'/1,400,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_entry_goal'/1,405,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1158,11 +1173,11 @@ label(1),
     proceed]).
 
 
-predicate('$exec_cmd_line_goal'/1,412,static,private,monofile,built_in,[
+predicate('$exec_cmd_line_goal'/1,417,static,private,monofile,built_in,[
     execute('$$exec_cmd_line_goal/1_$aux1'/1)]).
 
 
-predicate('$$exec_cmd_line_goal/1_$aux1'/1,412,static,private,monofile,local,[
+predicate('$$exec_cmd_line_goal/1_$aux1'/1,417,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1192,7 +1207,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$exec_cmd1'/1,421,static,private,monofile,built_in,[
+predicate('$exec_cmd1'/1,426,static,private,monofile,built_in,[
     allocate(1),
     put_variable(y(0),1),
     put_structure(end_of_term/1,3),
@@ -1210,7 +1225,7 @@ predicate('$exec_cmd1'/1,421,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$exec_cmd_err'/2,429,static,private,monofile,built_in,[
+predicate('$exec_cmd_err'/2,434,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(0)),
     unify_list,

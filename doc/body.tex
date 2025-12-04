@@ -1,7 +1,10 @@
 \makeindex
 \begin{document}
 
+% change numbering style to avoid hyperref page number duplicate warnings
+\pagenumbering{roman} 
 \input{cover.tex}
+\pagenumbering{arabic}
 \cleardoublepage \input{tbl-contents.tex}
 \cleardoublepage \input{acknow.tex}
 \cleardoublepage \input{intro.tex}

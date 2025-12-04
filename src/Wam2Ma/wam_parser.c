@@ -6,7 +6,7 @@
  * Descr.: parser                                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -115,7 +115,7 @@ ParseInf inst[] = {
   {"put_nil", F_put_nil, 1, {C_INT}},
   {"put_list", F_put_list, 1, {C_INT}},
   {"put_structure", F_put_structure, 2, {F_N, C_INT}},
-  {"put_meta_term", F_put_meta_term, 2, {ATOM, C_INT}},
+  {"put_meta_term", F_put_meta_term, 3, {ATOM, C_INT, C_INT}},
   {"math_load_value", F_math_load_value, 2, {X_Y, C_INT}},
   {"math_fast_load_value", F_math_fast_load_value, 2, {X_Y, C_INT}},
 

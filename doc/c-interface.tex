@@ -114,7 +114,7 @@ In addition, \texttt{gprolog.h} defines a set of macros:
   of this version (e.g. \texttt{"Mar 29 2011"}.
 
 \item \texttt{PL\_PROLOG\_COPYRIGHT}: a C constant string associated with the
-  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2023 Daniel Diaz"}.
+  copyright of this version (e.g. \texttt{"Copyright (C) 1999-2025 Daniel Diaz"}.
 
 \end{itemize}
 
@@ -330,9 +330,10 @@ explained in the following sections.
 \label{Input-arguments}
 An input argument is tested at run-time to check if its type conforms to the
 foreign type and then it is passed to the C function. The type of the
-associated C argument is given by the above table \RefSP{foreign/2-directive}. For instance, the effective argument \texttt{Arg} associated with
-\texttt{+positive} foreign declaration is submitted to the following
-process:
+associated C argument is given by the above table
+\RefSP{foreign/2-directive}. For instance, the effective argument
+\texttt{Arg} associated with \texttt{+positive} foreign declaration is
+submitted to the following process:
 
 \begin{itemize}
 
@@ -847,27 +848,29 @@ interface when an input argument is provided):
 
 \begin{Indentation}
 \begin{verbatim}
-PlLong  Pl_Rd_Integer_Check           (PlTerm term)
-PlLong  Pl_Rd_Positive_Check          (PlTerm term)
-int     Pl_Rd_C_Int_Check             (PlTerm term)
-int     Pl_Rd_C_Int_Positive_Check    (PlTerm term)
-double  Pl_Rd_Float_Check             (PlTerm term)
-double  Pl_Rd_Number_Check            (PlTerm term)
-int     Pl_Rd_Atom_Check              (PlTerm term)
-int     Pl_Rd_Boolean_Check           (PlTerm term)
-int     Pl_Rd_Char_Check              (PlTerm term)
-int     Pl_Rd_In_Char_Check           (PlTerm term)
-int     Pl_Rd_Code_Check              (PlTerm term)
-int     Pl_Rd_In_Code_Check           (PlTerm term)
-int     Pl_Rd_Byte_Check              (PlTerm term)
-int     Pl_Rd_In_Byte_Check           (PlTerm term)
-char   *Pl_Rd_String_Check            (PlTerm term)
-char   *Pl_Rd_Chars_Check             (PlTerm term)
-char   *Pl_Rd_Codes_Check             (PlTerm term)
-char   *Pl_Rd_Chars_Or_Codes_Check    (PlTerm term)
-int     Pl_Rd_Chars_Str_Check         (PlTerm term, char *str)
-int     Pl_Rd_Codes_Str_Check         (PlTerm term, char *str)
-int     Pl_Rd_Chars_Or_Codes_Str_Check(PlTerm term, char *str)
+PlLong  Pl_Rd_Integer_Check                   (PlTerm term)
+PlLong  Pl_Rd_Positive_Check                  (PlTerm term)
+int     Pl_Rd_C_Int_Check                     (PlTerm term)
+int     Pl_Rd_C_Int_Positive_Check            (PlTerm term)
+double  Pl_Rd_Float_Check                     (PlTerm term)
+double  Pl_Rd_Number_Check                    (PlTerm term)
+int     Pl_Rd_Atom_Check                      (PlTerm term)
+int     Pl_Rd_Boolean_Check                   (PlTerm term)
+int     Pl_Rd_Char_Check                      (PlTerm term)
+int     Pl_Rd_In_Char_Check                   (PlTerm term)
+int     Pl_Rd_Code_Check                      (PlTerm term)
+int     Pl_Rd_In_Code_Check                   (PlTerm term)
+int     Pl_Rd_Byte_Check                      (PlTerm term)
+int     Pl_Rd_In_Byte_Check                   (PlTerm term)
+char   *Pl_Rd_String_Check                    (PlTerm term)
+char   *Pl_Rd_Chars_Check                     (PlTerm term)
+char   *Pl_Rd_Codes_Check                     (PlTerm term)
+char   *Pl_Rd_Chars_Or_Codes_Check            (PlTerm term)
+char   *Pl_Rd_Atom_Or_Chars_Or_Codes_Check    (PlTerm term)
+int     Pl_Rd_Chars_Str_Check                 (PlTerm term, char *str)
+int     Pl_Rd_Codes_Str_Check                 (PlTerm term, char *str)
+int     Pl_Rd_Chars_Or_Codes_Str_Check        (PlTerm term, char *str)
+int     Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(PlTerm term, char *str)
 \end{verbatim}
 \end{Indentation}
 
@@ -889,7 +892,8 @@ characters or a list of character codes. The function
 store the result and returns the length of that string (which is also
 the length of the Prolog list). Similarly for
 \texttt{Pl\_Rd\_Codes\_Str\_Check()} and 
-\texttt{Pl\_Rd\_chars\_Or\_Codes\_Str\_Check()}.
+\texttt{Pl\_Rd\_chars\_Or\_Codes\_Str\_Check()}. The functions \texttt{Pl\_Rd\_Atom\_Or\_Chars\_Or\_Codes\_Check()}
+and \texttt{Pl\_Rd\_Atom\_Or\_Chars\_Or\_Codes\_Str\_Check()} are similar but, in addition, also accepts an atom (other than \texttt{[]}). 
 
 \SPart{Complex terms}: the following functions return the sub-arguments
 (terms) of complex terms as an array of \texttt{PlTerm} except
@@ -1016,13 +1020,15 @@ void Pl_Check_For_Un_Variable(PlTerm term)
 \end{verbatim}
 \end{Indentation}
 
-The function \texttt{Pl\_Check\_For\_Un\_List(term)} checks if \texttt{term} can
-be unified with a list. This test is done for the entire list (not only for
-the functor/arity of \texttt{term} but also recursively on the tail of the
-list). The function \texttt{Pl\_Check\_For\_Un\_Variable(term)} ensures that
-\texttt{term} is not currently instantiated. These functions can be defined
-using functions to test the type of a Prolog term \RefSP{Testing-the-type-of-Prolog-terms} and functions to raise Prolog errors \RefSP{Raising-Prolog-errors}. For instance \texttt{Pl\_Check\_For\_Un\_List(term)} is defined
-as follows:
+The function \texttt{Pl\_Check\_For\_Un\_List(term)} checks if \texttt{term}
+can be unified with a list. This test is done for the entire list (not only
+for the functor/arity of \texttt{term} but also recursively on the tail of
+the list). The function \texttt{Pl\_Check\_For\_Un\_Variable(term)} ensures
+that \texttt{term} is not currently instantiated. These functions can be
+defined using functions to test the type of a Prolog term
+\RefSP{Testing-the-type-of-Prolog-terms} and functions to raise Prolog errors
+\RefSP{Raising-Prolog-errors}. For instance
+\texttt{Pl\_Check\_For\_Un\_List(term)} is defined as follows:
 
 \begin{Indentation}
 \begin{verbatim}
@@ -1071,14 +1077,17 @@ The function \texttt{Pl\_Mk\_String(str)} first creates an atom corresponding to
 \SPart{Complex terms}: the following functions accept the sub-arguments
 (terms) of complex terms as an array of \texttt{PlTerm}. Refer to the
 introduction of this section for more information about the arguments of
-complex functions \RefSP{Introduction:(Manipulating-Prolog-terms)}.
+complex functions \RefSP{Introduction:(Manipulating-Prolog-terms)}. The 
+\texttt{Pl\_Mk\_Proper\_Atom\_List} however, accepts the elements of the
+list as an array of C strings.
 
 \begin{Indentation}
 \begin{verbatim}
-PlTerm Pl_Mk_Proper_List(int size, const PlTerm *arg)
-PlTerm Pl_Mk_List       (PlTerm *arg)
-PlTerm Pl_Mk_Compound   (int functor, int arity, const PlTerm *arg)
-PlTerm Pl_Mk_Callable   (int functor, int arity, const PlTerm *arg)
+PlTerm Pl_Mk_Proper_List     (int size, const PlTerm *arg)
+PlTerm Pl_Mk_Proper_Atom_List(int n, const char **arg)
+PlTerm Pl_Mk_List            (PlTerm *arg)
+PlTerm Pl_Mk_Compound        (int functor, int arity, const PlTerm *arg)
+PlTerm Pl_Mk_Callable        (int functor, int arity, const PlTerm *arg)
 \end{verbatim}
 \end{Indentation}
 
@@ -1166,7 +1175,7 @@ PlLong Term_Compare(PlTerm term1, PlTerm term2)
 
 Finally, the following function gives an access to the \texttt{compare/3}
 built-in \RefSP{compare/3} unifying \texttt{cmp} with the
-atom \texttt{{\lt}}, \texttt{=} or \texttt{{\gt}} depending on the result of
+atom \texttt{<}, \texttt{=} or \texttt{>} depending on the result of
 the comparison of \texttt{term1} and \texttt{term2}.
 
 \begin{Indentation}

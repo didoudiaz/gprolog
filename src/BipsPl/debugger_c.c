@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -434,7 +434,7 @@ static FctPtr
 Find_Function(void)
 {
   int lg;
-  int i;
+  unsigned i;
   static InfCmd cmd[] = { {"write", Write_Data_Modify},
   {"data", Write_Data_Modify},
   {"modify", Write_Data_Modify},
@@ -502,9 +502,8 @@ Write_Data_Modify(void)
 	  Pl_Stream_Printf(pstm_o, ":");
 
 	  if (*read_arg[0] == 'w')
-	    Pl_Write_Term(pstm_o, -1,
-			  MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
-			  adr[offset]);
+	    Pl_Write_Term(pstm_o, 0, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+			  NULL, adr[offset]);
 	  else
 	    {
 	      Print_Wam_Word(adr + offset);
@@ -730,8 +729,8 @@ Backtrack(void)
 	  if (arity == 0 && strcmp(pl_atom_tbl[func].name, "$clause_alt") == 0)
 	    {
 	      Pl_Stream_Printf(pstm_o, " for ");
-	      Pl_Write_Term(pstm_o, -1, MAX_PREC,
-			    WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL, AB(adr, 0));
+	      Pl_Write_Term(pstm_o, 0, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+			    NULL, AB(adr, 0));
 	    }
 
 	  Pl_Stream_Printf(pstm_o, "\n");
@@ -764,8 +763,8 @@ Backtrack(void)
   if (arity == 0 && strcmp(pl_atom_tbl[func].name, "$clause_alt") == 0)
     {
       Pl_Stream_Printf(pstm_o, " for ");
-      Pl_Write_Term(pstm_o, -1, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS, NULL,
-		    AB(adr, 0));
+      Pl_Write_Term(pstm_o, 0, MAX_PREC, WRITE_NUMBER_VARS | WRITE_NAME_VARS,
+		    NULL, AB(adr, 0));
     }
   Pl_Stream_Printf(pstm_o, "\n");
 
@@ -795,8 +794,7 @@ Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name)
 
   if (nb_read_arg < arg_nb + 1)
     {
-      Pl_Stream_Printf(pstm_o, "%s name expected\n", (only_stack) ? "Stack"
-		    : "Bank");
+      Pl_Stream_Printf(pstm_o, "%s name expected\n", (only_stack) ? "Stack" : "Bank");
       return NULL;
     }
 
@@ -838,8 +836,7 @@ Read_Bank_Adr(Bool only_stack, int arg_nb, char **bank_name)
 	return pl_stk_tbl[i].stack;
       }
 
-  Pl_Stream_Printf(pstm_o, "Incorrect %s name\n",
-		(only_stack) ? "stack" : "bank");
+  Pl_Stream_Printf(pstm_o, "Incorrect %s name\n", (only_stack) ? "stack" : "bank");
 
   return NULL;
 }
@@ -909,7 +906,7 @@ Print_Wam_Word(WamWord *word_adr)
   int i;
 
   Pl_Stream_Printf(pstm_o, "%#*" PL_FMT_x "  %*" PL_FMT_d "  ", HEXADECIMAL_LENGTH, (PlLong) word,
-		DECIMAL_LENGTH, (PlLong) word);
+		   DECIMAL_LENGTH, (PlLong) word);
 
   if ((adr = Detect_Stack((WamWord *) word, &stack_name)) != NULL)
     Print_Bank_Name_Offset("", stack_name, (WamWord *) word - adr);
@@ -929,21 +926,20 @@ Print_Wam_Word(WamWord *word_adr)
       case LONG_INT:
 	value = (WamWord) UnTag_Long_Int(word);
 	Pl_Stream_Printf(pstm_o, "%s,%*" PL_FMT_d, pl_tag_tbl[i].name,
-		      VALUE_PART_LENGTH, (PlLong) value);
+			 VALUE_PART_LENGTH, (PlLong) value);
 	break;
 
       case SHORT_UNS:
 	value = (WamWord) UnTag_Short_Uns(word);
-	if (tag == ATM && Is_Valid_Atom(value) &&
-	    pl_atom_tbl[value].name != NULL)
-	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d,
-			VALUE_PART_LENGTH, pl_atom_tbl[value].name,
-			(PlLong) value);
+	if (tag == ATM && Is_Valid_Atom(value) && pl_atom_tbl[value].name != NULL)
+	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d ")",
+			   VALUE_PART_LENGTH, pl_atom_tbl[value].name,
+			   (PlLong) value);
 	else if (tag == ATM)
 	  tag = -1;
 	else
 	  Pl_Stream_Printf(pstm_o, "%s,%*" PL_FMT_u, pl_tag_tbl[i].name,
-			VALUE_PART_LENGTH, (PlLong) value);
+			   VALUE_PART_LENGTH, (PlULong) value);
 	break;
 
       case ADDRESS:
@@ -951,8 +947,7 @@ Print_Wam_Word(WamWord *word_adr)
 	if ((adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL)
 	  {
 	    Pl_Stream_Printf(pstm_o, "%s,", pl_tag_tbl[i].name);
-	    Print_Bank_Name_Offset("", stack_name,
-				   (WamWord *) value - adr);
+	    Print_Bank_Name_Offset("", stack_name, (WamWord *) value - adr);
 	  }
 	else
 	  tag = -1;
@@ -973,7 +968,7 @@ Print_Wam_Word(WamWord *word_adr)
 
       if (tag == TFC)
 	Pl_Stream_Printf(pstm_o, "%s,%#*" PL_FMT_x, trail_tag_name[tag],
-		      VALUE_PART_LENGTH, (PlLong) value);
+			 VALUE_PART_LENGTH, (PlLong) value);
       else
 	if (tag < NB_OF_TRAIL_TAGS &&
 	    (adr = Detect_Stack((WamWord *) value, &stack_name)) != NULL &&
@@ -1020,8 +1015,7 @@ Modify_Wam_Word(WamWord *word_adr)
     {
       Pl_Stream_Printf(pstm_o, "\n");
 
-      if (Pl_Stream_Gets_Prompt("New value: ", pstm_o,
-			     str, sizeof(str), pstm_i) == NULL ||
+      if (Pl_Stream_Gets_Prompt("New value: ", pstm_o, str, sizeof(str), pstm_i) == NULL ||
 	  *str == '\0' || *str == '\n')
 	break;
 
@@ -1212,7 +1206,7 @@ Help(void)
   L("   write     A [N] write   N (or 1) Prolog terms starting at A");
   L("   data      A [N] display N (or 1) words starting at A");
   L("   modify    A [N] display and modify N (or 1) words starting at A");
-  L("   where     A     display the real address corresponding to SA");
+  L("   where     A     display the real address corresponding to A");
   L("   what      RA    display what corresponds to the real address RA");
   L("   deref     A     display the dereferenced word starting at A");
   L("   envir     [SA]  display an environment located at SA (or current)");

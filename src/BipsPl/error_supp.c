@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -161,6 +161,7 @@ Error_Supp_Initializer(void)
   pl_domain_flag_value = Pl_Create_Atom("flag_value");
   pl_domain_io_mode = Pl_Create_Atom("io_mode");
   pl_domain_non_empty_list = Pl_Create_Atom("non_empty_list");
+  pl_domain_number_of_arguments = Pl_Create_Atom("number_of_arguments");
   pl_domain_not_less_than_zero = Pl_Create_Atom("not_less_than_zero");
   pl_domain_operator_priority = Pl_Create_Atom("operator_priority");
   pl_domain_operator_specifier = Pl_Create_Atom("operator_specifier");
@@ -642,10 +643,10 @@ Pl_Err_Representation(int atom_flag)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_Evaluation(int pl_atom_error)
+Pl_Err_Evaluation(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_EVALUATION, 1));
 }
 
@@ -672,10 +673,10 @@ Pl_Err_Resource(int atom_resource)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_Syntax(int pl_atom_error)
+Pl_Err_Syntax(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYNTAX, 1));
 }
 
@@ -687,9 +688,9 @@ Pl_Err_Syntax(int pl_atom_error)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_System(int pl_atom_error)
+Pl_Err_System(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYSTEM, 1));
 }

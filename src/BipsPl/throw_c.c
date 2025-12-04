@@ -6,7 +6,7 @@
  * Descr.: exception management (throw) - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -93,7 +93,7 @@ Pl_Throw_2(WamWord ball_word, WamWord b_word)
       pstm = pl_stm_tbl[pl_stm_top_level_output];
 
       Pl_Stream_Printf(pstm, "\nsystem_error(cannot_catch_throw(");
-      Pl_Write_Term(pstm, -1, MAX_PREC,
+      Pl_Write_Term(pstm, 0, MAX_PREC,
 		    WRITE_NUMBER_VARS | WRITE_NAME_VARS | WRITE_QUOTED, NULL,
 		    ball_word);
       Pl_Stream_Printf(pstm, "))\n");

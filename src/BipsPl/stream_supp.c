@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -80,7 +80,7 @@ extern void clearerr(FILE *stream);
 
 #define STR_STREAM_WRITE_BLOCK     1024
 
-#define TTY_BUFFER_SIZE            1024
+#define TTY_BUFFER_SIZE            10240
 
 #define BIG_BUFFER                 65535
 
@@ -277,8 +277,12 @@ Init_Stream_Supp(void)
     pstm->fct_flush = (StmFct) pl_le_hook_flush;
 #endif
 
-  /* these aliases are initially set to stdin/out/err and can be changed by the user */
-  
+  /* The following aliases are initially set to stdin/stdout/stderr 
+   * They can all be changed by program (see set_stream_alias/2) including:
+   * user_input, user_output and user_error (which are redirected by 
+   * the Jupyter kernel for Logtalk).
+   */
+
   pl_alias_user_input = Pl_Set_Alias_To_Stream(pl_atom_user_input, pl_stm_stdin, TRUE);
   pl_alias_user_output = Pl_Set_Alias_To_Stream(pl_atom_user_output, pl_stm_stdout, TRUE);
   pl_alias_user_error = Pl_Set_Alias_To_Stream(pl_atom_user_error, pl_stm_stderr, TRUE);
@@ -405,8 +409,11 @@ Init_Stream_Struct(int atom_file_name, void *file, int fileno, StmProp prop,
 		   StmFct fct_getc, StmFct fct_putc,
 		   StmFct fct_flush, StmFct fct_close,
 		   StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr,
-		   StmInf *pstm)
+		   int stm)
 {
+  StmInf *pstm = pl_stm_tbl[stm];
+
+  pstm->stm = stm;
   pstm->atom_file_name = atom_file_name;
   pstm->file = file;
   pstm->fileno = fileno;
@@ -450,7 +457,6 @@ Pl_Add_Stream(int atom_file_name, void *file, int fileno, StmProp prop,
 	      StmFct fct_tell, StmFct fct_seek, StmFct fct_clearerr)
 {
   int stm;
-  StmInf *pstm;
 
   stm = Find_Free_Stream();
 
@@ -458,10 +464,9 @@ Pl_Add_Stream(int atom_file_name, void *file, int fileno, StmProp prop,
     Pl_Fatal_Error(ERR_TELL_OR_SEEK_UNDEFINED);
 
 
-  pstm = pl_stm_tbl[stm];
   Init_Stream_Struct(atom_file_name, file, fileno, prop, fct_getc, fct_putc,
 		     fct_flush, fct_close, fct_tell, fct_seek, fct_clearerr,
-		     pstm);
+		     stm);
 
   return stm;
 }
@@ -1273,7 +1278,7 @@ Basic_Call_Fct_Getc(StmInf *pstm)
   if (SYS_VAR_SAY_GETC && pstm->file == stdin)
     /* could also test pstm->fct_getc == fgetc */
     {
-      putchar(CHAR_TO_EMIT_WHEN_CHAR);
+      putchar(CHAR_TO_EMIT_ON_PIPED_GETC);
       fflush(stdout);
     }
 #endif
@@ -1314,6 +1319,13 @@ Basic_Call_Fct_Putc(int c, StmInf *pstm)
 void
 Pl_PB_Empty_Buffer(StmInf *pstm)
 {
+  PlLong c;
+
+  while (!PB_Is_Empty(pstm->pb_char))
+    {
+      PB_Pop(pstm->pb_char, c);
+      Update_Counters(pstm, c);
+    }
   PB_Init(pstm->pb_char)
 }
 
@@ -1477,7 +1489,7 @@ Pl_Stream_Peekc(StmInf *pstm)
 char *
 Pl_Stream_Gets(char *str, int size, StmInf *pstm)
 {
-  int c;
+  int c = 0;			/* init for the compiler */
   char *p = str;
 
   for (;;)
@@ -1840,7 +1852,6 @@ int
 Pl_Add_Str_Stream(char *buff, int prop_other)
 {
   int stm;
-  StmInf *pstm;
   StmProp prop;
   StrSInf *str_stream;
 
@@ -1882,13 +1893,12 @@ Pl_Add_Str_Stream(char *buff, int prop_other)
   prop.other = prop_other;
 
   stm = Find_Free_Stream();
-  pstm = pl_stm_tbl[stm];
 
   Init_Stream_Struct(atom_constant_term_stream, str_stream, -1, prop,
 		     (StmFct) Str_Stream_Getc, (StmFct) Str_Stream_Putc,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
 		     STREAM_FCT_UNDEFINED, STREAM_FCT_UNDEFINED,
-		     STREAM_FCT_UNDEFINED, pstm);
+		     STREAM_FCT_UNDEFINED, stm);
 
   return stm;
 }

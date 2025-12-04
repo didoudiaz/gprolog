@@ -6,7 +6,7 @@
  * Descr.: predicate management support                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -167,20 +167,4 @@ Pl_Make_Aux_Name(int func, int arity, int aux_nb)
 
   sprintf(pl_glob_buff, "$%s/%d%s%d", pl_atom_tbl[func].name, arity, AUX_STR, aux_nb);
   return Pl_Create_Allocate_Atom(pl_glob_buff);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
- *                                                                         *
- * (e.g. called by pl2wam for each clause of a dynamic or multifile pred)  *
- *-------------------------------------------------------------------------*/
-void
-Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
-{
-  Pl_BC_Start_Emit_0();
-  Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);
-  Pl_BC_Stop_Emit_0();
 }

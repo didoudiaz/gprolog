@@ -6,7 +6,7 @@
  * Descr.: parameter header file                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -46,9 +46,3 @@
  * it is the 1+max_integer on 32 bits 
  */
 #define HASH_MOD_VALUE             (1 << (32 - TAG_SIZE - 1))
-
-
-/* ISO DTC2 seems to allow layout chars between minus sign and the number */
-#if 1
-#define MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES
-#endif

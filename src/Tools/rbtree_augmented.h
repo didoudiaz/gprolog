@@ -16,9 +16,12 @@
 #define _TOOLS_LINUX_RBTREE_AUGMENTED_H
 
 
-// DD: #include <linux/compiler.h>
-// DD: #include <linux/rbtree.h>
+#if 0
+#include <linux/compiler.h>
+#include <linux/rbtree.h>
+#else /* DD */
 #include "rbtree.h"
+#endif
 
 /*
  * Please note - only struct rb_augment_callbacks and the prototypes for
@@ -149,7 +152,7 @@ RB_DECLARE_CALLBACKS(RBSTATIC, RBNAME,					      \
 #define	RB_RED		0
 #define	RB_BLACK	1
 
-#define __rb_parent(pc)    ((struct rb_node *)(pc & (uintptr_t) ~3))
+#define __rb_parent(pc)    ((struct rb_node *)(pc & ((uintptr_t) ~3)))
 
 #define __rb_color(pc)     ((pc) & 1)
 #define __rb_is_black(pc)  __rb_color(pc)
@@ -160,13 +163,13 @@ RB_DECLARE_CALLBACKS(RBSTATIC, RBNAME,					      \
 
 static inline void rb_set_parent(struct rb_node *rb, struct rb_node *p)
 {
-	rb->__rb_parent_color = rb_color(rb) | (uintptr_t)p;
+	rb->__rb_parent_color = rb_color(rb) + (uintptr_t)p;
 }
 
 static inline void rb_set_parent_color(struct rb_node *rb,
 				       struct rb_node *p, int color)
 {
-	rb->__rb_parent_color = (uintptr_t)p | color;
+	rb->__rb_parent_color = (uintptr_t)p + color;
 }
 
 static inline void

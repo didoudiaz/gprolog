@@ -54,6 +54,8 @@ check:  ./tests_fd_range@EXE_SUFFIX@
 clean-check:
 	rm -f tests_fd_range@EXE_SUFFIX@
 
+clean-check:
+
 
 
 

@@ -146,7 +146,54 @@ only invoke the monofile wrapper predicate).
 
 \Portability
 
-ISO directive. 
+ISO directive.
+
+\subsubsection{\IdxDiD{compiler\_mode/1}}
+
+\begin{TemplatesOneCol}
+compiler\_mode(+atom)
+
+\end{TemplatesOneCol}
+
+\Description
+
+\texttt{compiler\_mode(Mode)} changes the Prolog to WAM compiler (\IdxK{pl2wam})
+processing mode. In its \emph{default} behavior, the compiler simply compiles
+the Prolog code without loading it into its internal environment (compiler
+environment). Only a few directives are also executed (like \texttt{op/3} to
+update the compiler operator table and enable terms using this operator to be
+read).  The \texttt{compiler\_mode/1} directive is provided to allow the
+compiler environment to be explicitly updated with predicate definitions (which
+are asserted) and/or directives (which are immediately executed) -- this is the
+\emph{embed} mode. \texttt{Mode} can be:
+
+
+\begin{itemize}
+\item \IdxCMD{default}: predicate definitions are not embeded into the
+  compiler. They are compiled (their corresponding code is emitted onto the
+  output file). The only exception is \IdxPB{term\_expansion/2} which is both
+  embeded and compiled (as when using \texttt{embed\_compile}). Directives are
+  also compiled (thus will be present at run-time). However, the following
+  directives influencing the reading of a term are also immediately executed by
+  the compiler (embeded): \IdxDi{op/3}, \IdxDi{char\_conversion/2} and
+  \IdxDi{set\_prolog\_flag/2}.
+  
+\item \IdxCMD{embed}: in this mode, everything is exclusively embeded: read
+  clauses are immediately asserted (as dynamic code) and the above directives
+  are immediately executed (and not reflected in the generated code). The
+  \IdxDi{intialization/1} directive is thus immediately executed by the compiler
+  (and does not give rise to any code in the generated code).
+  
+\item \IdxCMD{compile}: this is the opposite of \texttt{embed}: everything is
+  exclusively compiled and nothing is added to the current compiler environment.
+  
+\item \IdxCMD{embed\_compile}: this mode is cumulative: everything is first
+  embeded and then compiled.
+\end{itemize}  
+
+\Portability
+
+GNU Prolog directive.
 
 \subsubsection{\IdxDiD{ensure\_linked/1}}
 
@@ -392,7 +439,7 @@ GNU Prolog directive.
 \subsection{Prolog control constructs}
 \label{control-construct}
 
-GNU Prolog follows the ISO notion of \Idx{control constructs}. 
+GNU Prolog follows the ISO notion of \Idx{control constructs}.
 
 \subsubsection{\IdxCCD{true/0},
                \IdxCCD{fail/0},
@@ -422,14 +469,14 @@ ISO control constructs.
 
 \subsubsection{\IdxCCD{(',')/2} - conjunction,
                \IdxCCD{(;)/2} - disjunction,
-               \IdxCCD{(-{\gt})/2} - if-then, 
-               \IdxCCD{(*-{\gt})/2} - soft-cut (soft if-then)}
+               \IdxCCD{(->)/2} - if-then, 
+               \IdxCCD{(*->)/2} - soft-cut (soft if-then)}
 
 \begin{TemplatesOneCol}
 ','(+callable\_term, +callable\_term)\\
 ;(+callable\_term, +callable\_term)\\
--{\gt}(+callable\_term, +callable\_term)\\
-{*-{\gt}}(+callable\_term, +callable\_term)
+->(+callable\_term, +callable\_term)\\
+{*->}(+callable\_term, +callable\_term)
 
 \end{TemplatesOneCol}
 
@@ -441,13 +488,13 @@ success, executes \texttt{Goal2}.
 \texttt{Goal1 ; Goal2} first creates a choice-point and executes
 \texttt{Goal1}. On backtracking \texttt{Goal2} is executed.
 
-\texttt{Goal1 -{\gt} Goal2} first executes \texttt{Goal1} and,
+\texttt{Goal1 -> Goal2} first executes \texttt{Goal1} and,
 in case of success, removes all choice-points created by \texttt{Goal1} and
 executes \texttt{Goal2}. This control construct acts like an if-then
 (\texttt{Goal1} is the test part and \texttt{Goal2} the then part). Note that
-if \texttt{Goal1} fails \texttt{-{\gt}/2} fails also. \texttt{-{\gt}/2} is
+if \texttt{Goal1} fails \texttt{->/2} fails also. \texttt{->/2} is
 often combined with \texttt{;/2} to define an if-then-else as follows:
-\texttt{Goal1 -{\gt} Goal2 ; Goal3}. Note that \texttt{Goal1 -{\gt} Goal2}
+\texttt{Goal1 -> Goal2 ; Goal3}. Note that \texttt{Goal1 -> Goal2}
 is the first argument of the \texttt{(;)/2} and \texttt{Goal3} (the else
 part) is the second argument. Such an if-then-else control construct first
 creates a choice-point for the else-part (intuitively associated with
@@ -456,15 +503,15 @@ choice-points created by \texttt{Goal1} together with the choice-point for
 the else-part are removed and \texttt{Goal2} is executed. If \texttt{Goal1}
 fails then \texttt{Goal3} is executed.
 
-\texttt{Goal1 *-{\gt} Goal2 ; Goal3} implements the so-called
+\texttt{Goal1 *-> Goal2 ; Goal3} implements the so-called
 \Idx{soft-cut}. It acts as the above if-then-else except that if
 \texttt{Goal1} succeeds only \texttt{Goal3} is cut (the alternative solutions
 of \texttt{Goal1} are preserved and can be found by backtracking). Note that
-\texttt{Goal1 *-{\gt} Goal2} alone (i.e. without an else branch
+\texttt{Goal1 *-> Goal2} alone (i.e. without an else branch
 \texttt{Goal3}) is equivalent to \texttt{(Goal1 , Goal2)}.
 
 
-\texttt{','}, \texttt{;}, \texttt{-{\gt}} and \texttt{*-{\gt}} are predefined
+\texttt{','}, \texttt{;}, \texttt{->} and \texttt{*->} are predefined
 infix operators \RefSP{op/3:(Term-input/output)}.
 
 \begin{PlErrors}
@@ -487,7 +534,7 @@ the \texttt{unknown} Prolog flag is \texttt{error} \RefSP{set-prolog-flag/2}}
 
 \Portability
 
-ISO control constructs except \texttt{(*-{\gt})/2} which is GNU Prolog specific.
+ISO control constructs except \texttt{(*->)/2} which is GNU Prolog specific.
 
 \subsubsection{\IdxCCD{call/1} \label{call/1}}
 

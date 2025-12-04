@@ -6,7 +6,7 @@
  * Descr.: parser support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -118,29 +118,49 @@ static int Lookup_In_Dico_Var(char *name);
 static void Parse_Error(char *err_msg);
 
 
-/* ifdef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES we can have -   XXX. If XXX is not
- * a number this forms 2 tokens. We have to Unget the last one (XXX) and thus we
- * need 2 buffers.
+/* We can encounter -  XXX. If XXX is not a number this forms 2 tokens. 
+ * We have to Unget the last one (XXX) and thus we need 2 buffers.
  * Except this case, a boolean tok_present + save pl_token.line/col (for error 
- * report) to restore then after Unget_Token.
- * NB: Unget_Token is called very ofter and MUST be fast. Do not copy too large
- * blocks of memory */
+ * report) to restore then after Unget_Token is enough.
+ * NB: Unget_Token is called very ofter and MUST be fast. We not copy too large
+ * blocks of memory but we swap buffers instead. */
 
 #define Unget_Token				\
-do {						\
-  char *swap_buffer = unget_tok.name;		\
-  unget_tok = pl_token;				\
-  pl_token.name = swap_buffer;			\
-  tok_present = TRUE;				\
-} while(0)
+  do { 						\
+    char *swap_buffer = unget_tok.name;		\
+    unget_tok = pl_token;			\
+    pl_token.name = swap_buffer;		\
+    tok_present = TRUE;				\
+  } while (0)
 
 
 
 #define Update_Last_Read_Position		\
-{						\
-  pl_last_read_line = pl_token.line;		\
-  pl_last_read_col = pl_token.col;		\
-}
+  do {						\
+    pl_last_read_line = pl_token.line;		\
+    pl_last_read_col = pl_token.col;		\
+  } while (0)
+
+
+
+#define	CHECK_INTEGER_BOUNDS(raise_error)				    \
+  do {									    \
+    char *err = NULL;							    \
+    if (pl_token.int_num > INT_GREATEST_VALUE)				    \
+      err = "integer overflow (exceeds max_integer)";			    \
+    else if (pl_token.int_num < INT_LOWEST_VALUE)			    \
+      err = "integer underflow (exceeds min_integer)";			    \
+    if (err != NULL)							    \
+      {									    \
+        if (raise_error)						    \
+	  Parse_Error(err);						    \
+	else								    \
+	  {								    \
+	    Pl_Set_Last_Syntax_Error("", pl_token.line, pl_token.col, err); \
+	    return NOT_A_WAM_WORD;					    \
+	  }								    \
+      }									    \
+  } while (0)
 
 
 
@@ -292,7 +312,7 @@ Pl_Read_Term(StmInf *pstm, int parse_end_of_term)
  * The flag comma_is_punct specifies if an eventual ',' following the term *
  * must be considered as a punctuation (separator of args of compound term *
  * or of a list) or as an atom. The value COMMA_ANY is used when this flag *
- * is not relevant (only for comprehensivity).                             *
+ * is not relevant (only for the sake of clarity).                         *
  * Since the Pl_Scan_Token() only consumes necessary characters, the       *
  * function Pl_Stream_Peekc() returns the character immediately after the  *
  * pl_token.                                                               *
@@ -320,6 +340,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
   if (pl_last_read_line == -1)
     Update_Last_Read_Position;
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (pl_token.type)
     {
     case TOKEN_VARIABLE:
@@ -334,10 +355,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       break;
 
     case TOKEN_INTEGER:
-      if (pl_token.int_num > INT_GREATEST_VALUE)
-	Parse_Error("integer overflow (exceeds max_integer)");
-      if (pl_token.int_num < INT_LOWEST_VALUE)
-	Parse_Error("integer underflow (exceeds min_integer)");
+      CHECK_INTEGER_BOUNDS(TRUE);
       term = Pl_Put_Integer(pl_token.int_num);
       break;
 
@@ -350,8 +368,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       flag_value = (pl_token.type == TOKEN_STRING) ?
 	Flag_Value(double_quotes) : Flag_Value(back_quotes);
 
-      flag_value &= PF_QUOT_AS_PART_MASK;
-      if (flag_value == PF_QUOT_AS_ATOM)
+      if (flag_value == PF_QUOT_AS_ATOM || flag_value == PF_QUOT_AS_ATOM_NO_ESCAPE)
 	{
 	  atom = Pl_Create_Allocate_Atom(pl_token.name);
 	  goto a_name;
@@ -362,7 +379,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
       while (i--)
 	{
 	  term1 = Pl_Put_List();
-	  if (flag_value == PF_QUOT_AS_CODES)
+	  if (flag_value == PF_QUOT_AS_CODES || flag_value == PF_QUOT_AS_CODES_NO_ESCAPE)
 	    Pl_Unify_Integer(pl_token.name[i]);
 	  else
 	    Pl_Unify_Atom(ATOM_CHAR(pl_token.name[i]));
@@ -374,6 +391,7 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
     case TOKEN_IMMEDIAT_OPEN:
       pl_token.punct = '(';	/* and then like TOKEN_PUNCTUATION */
+      // fall through
     case TOKEN_PUNCTUATION:
       if (!strchr("({[", pl_token.punct))
 	{
@@ -385,7 +403,11 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
       term = Parse_Bracketed_Term();
       if (term == NOT_A_WAM_WORD)	/* name: {} or [] */
-	goto a_name;
+	{
+	  pl_token.type = TOKEN_NAME;
+	  strcpy(pl_token.name, pl_atom_tbl[atom].name);
+	  goto a_name;
+	}
 
       break;
 
@@ -394,18 +416,15 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 
     a_name:
       bracket = (Pl_Scan_Peek_Char(pstm_i, TRUE) == '(');
-      if (bracket)
+      /* NB: the comma along in ,(a,b) is not a valid functor. should be quoted as ','(a,b) */
+      if (bracket && (pl_token.name[0] != ',' || pl_token.name[1] != '\0' || pl_token.quoted)) 
 	{
 	  term = Parse_Args_Of_Functor(atom);
 	  break;
 	}
 
       /* test if it is a negative number */
-      if (pl_token.name[0] == '-' && pl_token.name[1] == '\0'
-#ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES
-	  && isdigit(Pl_Scan_Peek_Char(pstm_i, TRUE))
-#endif
-	  )
+      if (pl_token.name[0] == '-' && pl_token.name[1] == '\0')
 	{
 	  PlLong save_line = pl_token.line;
 	  PlLong save_col = pl_token.col;
@@ -413,9 +432,9 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	  Read_Next_Token(COMMA_ANY);
 	  if (pl_token.type == TOKEN_INTEGER)
 	    {
-	      if (pl_token.int_num > -INT_LOWEST_VALUE)
-		Parse_Error("integer underflow (exceeds min_integer)");
-	      term = Pl_Put_Integer(-pl_token.int_num);
+	      pl_token.int_num = -pl_token.int_num;
+	      CHECK_INTEGER_BOUNDS(TRUE);
+	      term = Pl_Put_Integer(pl_token.int_num);
 	      break;
 	    }
 	  
@@ -426,8 +445,6 @@ Parse_Term(int cur_prec, int context, Bool comma_is_punct)
 	    }
 
 	  /* '-' not followed by a number, pushback this token */
-	  /* (cannot occur ifdef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES) */
-
 	  Unget_Token;
 
 	  /* restore token */
@@ -792,52 +809,49 @@ Pl_Read_Atom(StmInf *pstm)
 
 
 /*-------------------------------------------------------------------------*
- * PL_READ_INTEGER                                                         *
- *                                                                         *
- * Returns a Prolog integer as a WAM word or NOT_A_WAM_WORD on syntax error*
- *-------------------------------------------------------------------------*/
-WamWord
-Pl_Read_Integer(StmInf *pstm)
-{
-  char *err_msg;
-
-  if ((err_msg = Pl_Scan_Next_Number(pstm, TRUE)) != NULL)
-    {
-      Pl_Set_Last_Syntax_Error(pl_atom_tbl[pstm->atom_file_name].name,
-			    pl_token.line, pl_token.col, err_msg);
-      return NOT_A_WAM_WORD;
-    }
-
-  Update_Last_Read_Position;
-
-  return Pl_Put_Integer(pl_token.int_num);
-}
-
-
-
-
-
-/*-------------------------------------------------------------------------*
  * PL_READ_NUMBER                                                          *
  *                                                                         *
- * Returns a Prolog number as a WAM word or NOT_A_WAM_WORD on syntax error.*
+ * Returns a Prolog number (integer if integer_only is TRUE) as a WAM word *
+ * or NOT_A_WAM_WORD on syntax error.                                      *
  *-------------------------------------------------------------------------*/
 WamWord
-Pl_Read_Number(StmInf *pstm)
+Pl_Read_Number(StmInf *pstm, Bool integer_only)
 {
   char *err_msg;
+  int sign = 1;
 
-  if ((err_msg = Pl_Scan_Next_Number(pstm, FALSE)) != NULL)
+  if ((err_msg = Pl_Scan_Token(pstm, COMMA_ANY)) != NULL)
     {
-      Pl_Set_Last_Syntax_Error(pl_atom_tbl[pstm->atom_file_name].name,
-			    pl_token.line, pl_token.col, err_msg);
+      Pl_Set_Last_Syntax_Error("", pl_token.line, pl_token.col, err_msg);
       return NOT_A_WAM_WORD;
     }
+  
+  if (pl_token.type == TOKEN_NAME && 
+      pl_token.name[0] == '-' && pl_token.name[1] == '\0')
+    {
+      sign = -1;
+      if ((err_msg = Pl_Scan_Token(pstm, COMMA_ANY)) != NULL)
+	{
+	  Pl_Set_Last_Syntax_Error("", pl_token.line, pl_token.col, err_msg);
+	  return NOT_A_WAM_WORD;
+	}
+    }
 
-  Update_Last_Read_Position;
-
-  return (pl_token.type == TOKEN_INTEGER) ? Pl_Put_Integer(pl_token.int_num)
-    : Pl_Put_Float(pl_token.float_num);
+  if (pl_token.type == TOKEN_INTEGER)
+    {
+      pl_token.int_num *= sign;
+      CHECK_INTEGER_BOUNDS(FALSE);
+      return Pl_Put_Integer(pl_token.int_num);
+    }
+  
+  if (!integer_only && pl_token.type == TOKEN_FLOAT)
+    {
+      pl_token.float_num *= sign;
+      return Pl_Put_Float(pl_token.float_num);
+    }
+    
+  Pl_Set_Last_Syntax_Error("", pl_token.line, pl_token.col, "invalid start of number");
+  return NOT_A_WAM_WORD;
 }
 
 
@@ -866,6 +880,7 @@ Pl_Read_Token(StmInf *pstm)
 
   term = NOT_A_WAM_WORD;
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (pl_token.type)
     {
     case TOKEN_VARIABLE:
@@ -889,6 +904,7 @@ Pl_Read_Token(StmInf *pstm)
 
     case TOKEN_IMMEDIAT_OPEN:
       pl_token.punct = '(';	/* and then like TOKEN_PUNCTUATION */
+      // fall through
     case TOKEN_PUNCTUATION:
       func = atom_punct;
       atom = ATOM_CHAR(pl_token.punct);

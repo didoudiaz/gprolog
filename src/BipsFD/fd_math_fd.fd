@@ -6,7 +6,7 @@
  * Descr.: mathematical predicate management - FD part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -37,13 +37,13 @@
 
 %{
 #include "bips_fd.h"
-#define ite(i, t, e)  		((i) ? (t) : (e))
+#define ite(i, t, e)  		((i) ? (int) (t) : (int) (e))
 #define is_even(a)		(((a) & 1) == 0)
 #define is_odd(a)		(((a) & 1) == 1)
 #define max_exponent(a)		((a>0) ? (Pl_Find_Expon_Dn(a,max_integer)) : (Pl_Find_Expon_Dn(-a,max_integer)))
 #define abs(a)			((a>0) ? (a) : (-(a))) 
 
-static int inline mult(int a, int b)
+static inline int mult(int a, int b)
 {
    int64_t res = ((int64_t)a) * ((int64_t)b);
    if (res > max_integer)
@@ -53,14 +53,14 @@ static int inline mult(int a, int b)
    return (int) res;
 }
 
-static int inline min_sqrt(int min_X, int min_N, int max_N){
+static inline int min_sqrt(int min_X, int min_N, int max_N){
    int sqrt = Pl_Sqrt_Up(min_N>0 ? min_N : 0);
    if (min_X <= - sqrt)
 	return - (int) Pl_Sqrt_Dn(max_N);
    else return sqrt;
 }
 
-static int inline max_sqrt(int min_X, int min_N, int max_N){
+static inline int max_sqrt(int min_X, int min_N, int max_N){
    int sqrt = Pl_Sqrt_Up(min_N>0 ? min_N : 0);
    if (min_X >= sqrt)
 	return (int) Pl_Sqrt_Dn(max_N);
@@ -70,14 +70,14 @@ static int inline max_sqrt(int min_X, int min_N, int max_N){
 #define Minus_Pl_Nth_Root_Dn(a,b) (-(int)Pl_Nth_Root_Dn(a,b))
 #define Minus_Pl_Nth_Root_Up(a,b) (-(int)Pl_Nth_Root_Up(a,b))
 
-static int inline min_root(int min_X, int min_Y, int max_Y, int A){
+static inline int min_root(int min_X, int min_Y, int max_Y, int A){
    int root = Pl_Nth_Root_Up(min_Y>0 ? min_Y : abs(closest_to_zero(min_Y,max_Y)) , A);
    if (min_X <= - root)
 	return - (int) Pl_Nth_Root_Dn(max_Y, A);
    else return root;
 }
 
-static int inline max_root(int max_X, int min_Y, int max_Y, int A){
+static inline int max_root(int max_X, int min_Y, int max_Y, int A){
    int root = Pl_Nth_Root_Up(min_Y>0 ? min_Y : abs(closest_to_zero(min_Y,max_Y)) , A);
    if (max_X >= root)
 	return (int) Pl_Nth_Root_Dn(max_Y, A);

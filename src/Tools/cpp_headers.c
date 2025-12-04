@@ -6,7 +6,7 @@
  * Descr.: General GNU Prolog header file maker (no longer used)           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -137,7 +137,7 @@ Cpp_File(char *name, int skip_comment)
 {
   char **d;
   int i;
-  FILE *fin;
+  FILE *fin = NULL;
   char *p, *q;
   int line = 0;
   char name1[1024];

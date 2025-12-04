@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -78,6 +78,7 @@ int pl_domain_close_option;
 int pl_domain_flag_value;
 int pl_domain_io_mode;
 int pl_domain_non_empty_list;
+int pl_domain_number_of_arguments;
 int pl_domain_not_less_than_zero;
 int pl_domain_operator_priority;
 int pl_domain_operator_specifier;
@@ -184,6 +185,7 @@ extern int pl_domain_close_option;
 extern int pl_domain_flag_value;
 extern int pl_domain_io_mode;
 extern int pl_domain_non_empty_list;
+extern int pl_domain_number_of_arguments;
 extern int pl_domain_not_less_than_zero;
 extern int pl_domain_operator_priority;
 extern int pl_domain_operator_specifier;
@@ -319,7 +321,7 @@ void Pl_Err_System(int pl_atom_error);
 	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
-  } while(0)
+  } while (0)
 
 
 #define Os_Test_Error(tst)			\
@@ -330,4 +332,4 @@ void Pl_Err_System(int pl_atom_error);
 	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
-  } while(0)
+  } while (0)

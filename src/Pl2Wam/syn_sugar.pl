@@ -6,7 +6,7 @@
  * Descr.: pass 1: syntactic sugar removing                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -50,13 +50,13 @@ syntactic_sugar_init_pred(Pred, _, _) :-
      * These aux pred names are named p/n_$aux<K> where K is a seq number.
      * Since these predicates are also stored in the global predicate table
      * 2 clauses for p/n (defined in p1.pl and p2.pl) giving rise to aux
-     * predicates will produce 2 clasinhg p/n_$aux1.
+     * predicates will produce 2 clashing p/n_$aux1.
      * We here use the hash of the file name and a random number for the
      * starting aux number.
      */
 
 syntactic_sugar_init_pred(Pred, N, PlFile) :-
-	(   g_read(native_code, f), test_pred_info(multi, Pred, N) ->
+	(   g_read(native_code, f), test_pred_flag(multi, Pred, N) ->
 	    randomize,
 	    term_hash(PlFile, H),
 	    Max is (1 << 26),
@@ -70,9 +70,9 @@ syntactic_sugar_init_pred(Pred, N, PlFile) :-
 
 
 
-syntactic_sugar(SrcCl, Head, Body2) :-
-	(   SrcCl = (Head :- Body)
-	;   SrcCl = Head,
+syntactic_sugar(Cl, Head, Body2) :-
+	(   Cl = (Head :- Body)
+	;   Cl = Head,
 	    Body = true
 	), !,
 	normalize_cuts(Body, Body1, _HasCut),
@@ -204,7 +204,7 @@ normalize_cuts1((P, Q), CutVar, (P1, Q1), HasCut) :-
 	normalize_cuts1(Q, CutVar, Q1, HasCut).
 
 normalize_cuts1(Module:G, CutVar, Body, HasCut) :-
-	check_module_name(Module, true),
+	check_module_name(Module, t),
 	normalize_cuts1(G, CutVar, G1, HasCut),
 	distrib_module_qualif(G1, Module, G2),
 	(   G2 = M2:_, var(M2) ->
@@ -266,7 +266,7 @@ distrib_module_qualif((P , Q), M, (P1 , Q1)) :-
 
 distrib_module_qualif(M:G, _, G1) :-
 	!,
-	check_module_name(M, true),
+	check_module_name(M, t),
 	distrib_module_qualif(G, M, G1).
 
 distrib_module_qualif(!, _, !) :-
@@ -277,7 +277,7 @@ distrib_module_qualif(P, M, M:P).
 distrib_module_qualif_goal(G, _, G) :-
 	nonvar(G),
 	G = M:_, !,		% already qualifed with a module
-	check_module_name(M, true).
+	check_module_name(M, t).
 
 distrib_module_qualif_goal(G, M, M:G).
 
@@ -308,8 +308,8 @@ normalize_alts1(Body, RestC, AuxPred) :-
 	init_aux_pred_name(Pred, N, AuxName, AuxN),
 	AuxPred =.. [AuxName|V],
 	g_read(where, Where),
-	linearize(Body, AuxPred, Where, LAuxSrcCl),
-	asserta(buff_aux_pred(AuxName, AuxN, LAuxSrcCl)).
+	linearize(Body, AuxPred, Where, LAuxCl),
+	asserta(buff_aux_pred(AuxName, AuxN, LAuxCl)).
 
 normalize_alts1(P, _, P1) :-
 	pred_rewriting(P, P1), !.
@@ -322,23 +322,23 @@ init_aux_pred_name(Pred, N, AuxName, AuxN) :-
 	Aux1 is (Aux + 1) /\ (1 << 26 - 1),  % avoid negative numbers
 	g_assign(aux, Aux1),
 	'$make_aux_name'(Pred, N, Aux, AuxName),
-	(   test_pred_info(bpl, Pred, N), % useful ?
-	    set_pred_info(bpl, AuxName, AuxN)
-	;   test_pred_info(bfd, Pred, N),
-	    set_pred_info(bfd, AuxName, AuxN)
+	(   test_pred_flag(bpl, Pred, N), % useful ?
+	    set_pred_flag(bpl, AuxName, AuxN)
+	;   test_pred_flag(bfd, Pred, N),
+	    set_pred_flag(bfd, AuxName, AuxN)
 	;   true
 	), !.
 
 
 
 
-linearize(Body, AuxPred, Where, LAuxSrcCl) :-
+linearize(Body, AuxPred, Where, LAuxCl) :-
 	(   Body = (P ; Q) ->
-	    linearize(Q, AuxPred, Where, LAuxSrcCl1),
-	    linearize1(P, AuxPred, Where, LAuxSrcCl2),
-	    append(LAuxSrcCl2, LAuxSrcCl1, LAuxSrcCl)
+	    linearize(Q, AuxPred, Where, LAuxCl1),
+	    linearize1(P, AuxPred, Where, LAuxCl2),
+	    append(LAuxCl2, LAuxCl1, LAuxCl)
 	;
-	    linearize1(Body, AuxPred, Where, LAuxSrcCl)
+	    linearize1(Body, AuxPred, Where, LAuxCl)
 	).
 
 /* should no longer occurs since detected in normalize_cuts - to be removed
@@ -376,7 +376,7 @@ lst_var_args(I, N, P, V, V2) :-
         % Other predicate rewriting
 
 pred_rewriting(fd_tell(X), T) :-                          % FD transformation
-	test_c_call_allowed(fd_tell / 1),
+	test_c_call_allowed(fd_tell/1),
 	pred_rewriting('$call_c'(X, [boolean]), T).
 
 pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
@@ -414,34 +414,34 @@ pred_rewriting(term_hash(Term, Depth, Range, Hash), Pred1) :-
 	pred_rewriting('$call_c'('Pl_Un_Integer_Check'(Hash1, Hash), [boolean, by_value]), T2),
 	Pred1 = (T, T2).
 
-          % The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
-          % LCOpt is a list containing:
-          %   jump/boolean
-          %   fast_call (use a fact call convention)
-          %   tagged (use tagged calls for atom, integers and F/N)
-          %   by_value (pass atom, numbers, F/N by value not by WamWord)
-          %   use_x_regs (the function can destroy any X register)
-          %
-          % Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
-          % kept for the moment...
+	/* The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
+	 * LCOpt is a list possibly containing:
+	 *   a Ret: either void, jump, boolean or ret(RetVar)
+	 *   fast_call (use a fact call convention)
+	 *   tagged (use tagged calls for atom, integers and F/N)
+	 *   by_value (pass atom, numbers, F/N by value not by WamWord)
+	 *   use_x_regs (the function can destroy any X register)
+	 *
+	 * At end of syn_sugar any '$call_c' becomes a '$call_c'/2.
+	 * Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
+	 * kept for the moment...
+	 */
 
-          % do not use LCOpt1 = '$no_internal_transf$'(LCOpt) for bootstrapping
 pred_rewriting('$call_c'(F, LCOpt), '$call_c'(F, LCOpt1)) :-
-	test_c_call_allowed('$call_c' / 2),
-	no_internal_transf(LCOpt, LCOpt1).
+	test_c_call_allowed('$call_c'/2),
+	check_callable(F, 'C function name'),
+	mk_no_internal_transf(LCOpt, LCOpt1).   % keep "as is"
 
-pred_rewriting('$call_c'(F), T) :-
-	test_c_call_allowed('$call_c' / 1),
+pred_rewriting('$call_c'(F), T) :-		% shortcut version
+	test_c_call_allowed('$call_c'/1),
 	pred_rewriting('$call_c'(F, []), T).
 
-						% backward compatibility
-pred_rewriting('$call_c_test'(F), T) :-
-	test_c_call_allowed('$call_c_test' / 1),
+pred_rewriting('$call_c_test'(F), T) :-		% backward compatibility
+	test_c_call_allowed('$call_c_test'/1),
 	pred_rewriting('$call_c'(F, [boolean]), T).
 
-						% backward compatibility
-pred_rewriting('$call_c_jump'(F), T) :-
-	test_c_call_allowed('$call_c_jump' / 1),
+pred_rewriting('$call_c_jump'(F), T) :-		% backward compatibility
+	test_c_call_allowed('$call_c_jump'/1),
 	pred_rewriting('$call_c'(F, [jump]), T).
 
 pred_rewriting(P, P).
@@ -453,6 +453,7 @@ test_c_call_allowed(_) :-
 
 test_c_call_allowed(X) :-
 	error('~q not allowed in this mode', [X]).
+
 
 
 
@@ -486,13 +487,14 @@ head_wrapper(Head, AuxName, Head1) :-
 
 	% meta_predicate rewriting
 
+/* ignore until module support
 meta_pred_rewriting(P1, P2) :-
 	nonvar(P1),
 	functor(P1, Pred, N),
 	clause(meta_pred(Pred, N, MetaDecl), _), !,
 	functor(P2, Pred, N),
 	meta_pred_rewrite_args(1, N, P1, MetaDecl, P2).
-
+*/
 meta_pred_rewriting(P, P).
 
 
@@ -521,6 +523,7 @@ meta_pred_rewrite_arg(:, A1, A2) :-
 
 meta_pred_rewrite_arg(Spec, A1, '$mt'(Module, A1)) :-
 	integer(Spec), !,
+%	functor(A1, F, N), (F \== '$mt' ;  N \== 2), !, % do not nest meta_term args
 	get_module_of_cur_pred(Module).
 
 meta_pred_rewrite_arg(_, A, A).

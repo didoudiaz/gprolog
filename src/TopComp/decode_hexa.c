@@ -6,7 +6,7 @@
  * Descr.: hexadecimal decoding                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -306,7 +306,8 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   int n;
   int module_encode;
   int pred_encode;
-  char *p, *q;
+  char *p = NULL;		/* init for the compiler */
+  char *q;
 
   if (*str++ != 'X' || *str < '0' || *str >= '5')
     return NULL;

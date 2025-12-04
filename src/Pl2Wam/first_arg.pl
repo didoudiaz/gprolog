@@ -6,7 +6,7 @@
  * Descr.: first argument detection                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -84,4 +84,4 @@ defines_first_arg(get_nil(0), atm([])).
 
 defines_first_arg(get_list(0), lst).
 
-defines_first_arg(get_structure(F / N, 0), stc(F, N)).
+defines_first_arg(get_structure(F/N, 0), stc(F, N)).

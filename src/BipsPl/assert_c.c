@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -274,6 +274,7 @@ Retract_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 
 
 
+#if 0 /* really seems unused, wait and consider destroying it */
 /*-------------------------------------------------------------------------*
  * PL_RETRACT_LAST_FOUND_0                                                 *
  *                                                                         *
@@ -288,13 +289,13 @@ Pl_Retract_Last_Found_0(void)
 
 
 /*-------------------------------------------------------------------------*
- * SETARG_Of_LAST_FOUND_2                                                  *
+ * SETARG_IN_LAST_FOUND_2                                                  *
  *                                                                         *
  * update in place the ArgNo th argument of last_clause. NewValue must be  *
  * a 1-tagged word data (atom, integer).                                   *
  *-------------------------------------------------------------------------*/
 void
-Pl_Setarg_Of_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
+Pl_Setarg_In_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
 {
   WamWord word, tag_mask;
   WamWord *adr;
@@ -309,6 +310,7 @@ Pl_Setarg_Of_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
 
   Arg(adr, arg_no) = word;
 }
+#endif
 
 
 

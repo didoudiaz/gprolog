@@ -6,7 +6,7 @@
  * Descr.: term writing support - header file                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -75,10 +75,16 @@ extern int pl_last_writing;
  * Function Prototypes             *
  *---------------------------------*/
 
+void Pl_Write_Term_Options_In_Sys_Var(StmInf *pstm, WamWord term_word);
+
 void Pl_Write_Term(StmInf *pstm, int depth, int prec, int mask, WamWord *above_H,
 		   WamWord term_word);
 
+/* useful for debugging */
 void Pl_Write(WamWord term_word);
+void Pl_Writeln(WamWord term_word);
+void Pl_Nl_0(void);
+
 
 void Pl_Write_A_Full_Stop(StmInf *pstm);
 

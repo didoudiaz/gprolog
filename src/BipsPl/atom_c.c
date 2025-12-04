@@ -6,7 +6,7 @@
  * Descr.: atom manipulation management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -140,6 +140,7 @@ Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
   AtomInf *patom1, *patom2, *patom3;
   char *str;
   int l;
+  int atom;
 
 
   DEREF(atom1_word, word, tag_mask);
@@ -206,9 +207,29 @@ Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
       return Pl_Get_Atom(Create_Malloc_Atom(str), atom1_word);
     }
 
-  /* A1 and A2 are variables: non deterministic case */
+  /* A1 and A2 are variables non deterministic case (except if A1 == A2) */
 
   patom3 = pl_atom_tbl + UnTag_ATM(atom3_word);
+
+  if (atom1_word == atom2_word)
+    {
+      str = patom3->name;
+
+      l = patom3->prop.length;
+      if (l % 2 != 0)
+	return FALSE;
+
+      l /= 2;
+      if (strncmp(str, str + l, l) != 0)
+	return FALSE;
+
+      /* NB: we share the atom3 string (else use Pl_Create_Allocate_Atom) */
+      atom = Pl_Create_Atom(str + l);
+
+      return Pl_Get_Atom(atom, atom1_word) && /* cannot fail */
+	Pl_Get_Atom(atom, atom2_word);
+    }
+
 
   if (patom3->prop.length > 0)
     {
@@ -219,7 +240,7 @@ Pl_Atom_Concat_3(WamWord atom1_word, WamWord atom2_word, WamWord atom3_word)
       Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(ATOM_CONCAT_ALT, 0), 4);
     }
 
-  return Pl_Get_Atom(pl_atom_void, atom1_word) &&
+  return Pl_Get_Atom(pl_atom_void, atom1_word) && /* cannot fail */
     Pl_Get_Atom_Tagged(atom3_word, atom2_word);
 }
 
@@ -851,19 +872,10 @@ String_To_Number(char *str, WamWord number_word)
 
   Pl_Check_For_Un_Number(number_word);
 
-/* #if 0 since layout leading chars allowed in ISO cf. number_chars */
-#if 0
-  if (!isdigit(*str) && *str != '-')
-    {
-      Pl_Set_Last_Syntax_Error("", 1, 1, "non numeric character");
-      goto err;
-    }
-#endif
-
   stm = Pl_Add_Str_Stream(str, TERM_STREAM_ATOM);
   pstm = pl_stm_tbl[stm];
 
-  word = Pl_Read_Number(pstm);
+  word = Pl_Read_Number(pstm, FALSE);
   eof = (Pl_Stream_Peekc(pstm) == EOF);
 
   if (word != NOT_A_WAM_WORD && !eof)
@@ -875,9 +887,6 @@ String_To_Number(char *str, WamWord number_word)
 
   if (word == NOT_A_WAM_WORD || !eof)
     {
-#if 0
-    err:
-#endif
       Pl_Syntax_Error((int) Flag_Value(syntax_error));
       return FALSE;
     }
