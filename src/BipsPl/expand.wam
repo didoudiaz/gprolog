@@ -15,7 +15,8 @@ predicate(expand_term/2,48,static,private,monofile,built_in,[
     get_variable(y(1),255),
     cxt_assign_K(y(1)),
     put_variable(y(2),1),
-    call('$expand_term1'/2),
+    put_void(2),
+    call('$expand_term1'/3),
     cxt_assign_K(y(1)),
     put_unsafe_value(y(2),0),
     get_value(y(0),0),
@@ -23,24 +24,25 @@ predicate(expand_term/2,48,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate('$expand_term1'/2,52,static,private,monofile,built_in,[
-    pragma_arity(3),
-    get_current_choice(x(2)),
+predicate('$expand_term1'/3,52,static,private,monofile,built_in,[
+    pragma_arity(4),
+    get_current_choice(x(3)),
     allocate(2),
-    get_variable(x(3),1),
-    get_variable(y(0),2),
+    get_variable(x(4),2),
+    get_variable(x(2),1),
+    get_variable(y(0),3),
     get_variable(y(1),255),
     put_value(x(0),1),
-    put_value(x(3),2),
+    put_value(x(4),3),
     put_value(y(1),0),
-    call('$$expand_term1/2_$aux1'/3),
+    call('$$expand_term1/3_$aux1'/4),
     cxt_assign_K(y(1)),
     cut(y(0)),
     deallocate,
     proceed]).
 
 
-predicate('$$expand_term1/2_$aux1'/3,52,static,private,monofile,local,[
+predicate('$$expand_term1/3_$aux1'/4,52,static,private,monofile,local,[
     try_me_else(1),
     cxt_assign_K(x(0)),
     call_c('Pl_Blt_Var',[fast_call,boolean],[x(1)]),
@@ -50,10 +52,18 @@ predicate('$$expand_term1/2_$aux1'/3,52,static,private,monofile,local,[
 
 label(1),
     retry_me_else(2),
-    cxt_assign_K(x(0)),
+    allocate(2),
+    get_variable(y(0),0),
+    get_variable(y(1),3),
+    cxt_assign_K(y(0)),
     put_value(x(1),0),
     put_value(x(2),1),
-    execute('$call_term_expansion'/2),
+    call('$call_term_expansion'/2),
+    cxt_assign_K(y(0)),
+    put_value(y(1),0),
+    get_atom(true,0),
+    deallocate,
+    proceed,
 
 label(2),
     retry_me_else(3),
@@ -71,7 +81,7 @@ label(3),
     proceed]).
 
 
-predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
+predicate('$call_term_expansion'/2,65,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -81,6 +91,8 @@ predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
     unify_atom(term_expansion),
     unify_integer(2),
     call(current_predicate/1),
+    cxt_assign_K(y(2)),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[expand_term,2]),
     put_value(y(0),0),
     put_value(y(1),1),
     put_value(y(2),2),
@@ -88,18 +100,18 @@ predicate('$call_term_expansion'/2,64,static,private,monofile,built_in,[
     cxt_execute(term_expansion/2,x(2))]).
 
 
-predicate(phrase/2,71,static,private,monofile,built_in,[
+predicate(phrase/2,75,static,private,monofile,built_in,[
     put_nil(2),
     put_integer(2,3),
     execute('$phrase'/4)]).
 
 
-predicate(phrase/3,77,static,private,monofile,built_in,[
+predicate(phrase/3,83,static,private,monofile,built_in,[
     put_integer(3,3),
     execute('$phrase'/4)]).
 
 
-predicate('$phrase'/4,83,static,private,monofile,built_in,[
+predicate('$phrase'/4,89,static,private,monofile,built_in,[
     allocate(8),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -134,7 +146,7 @@ predicate('$phrase'/4,83,static,private,monofile,built_in,[
     execute('$call'/4)]).
 
 
-predicate('$$phrase/4_$aux1'/2,83,static,private,monofile,local,[
+predicate('$$phrase/4_$aux1'/2,89,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -150,11 +162,67 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,100,static,private,monofile,built_in,[
+predicate('$dcg_trans_rule'/2,106,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,106,static,private,monofile,built_in,[
+predicate('$dcg_trans_body'/4,112,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,73,static,private,monofile,local,[
+    get_atom(phrase,0),
+    get_integer(2,1),
+    get_structure(phrase/2,2),
+    unify_integer(2),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,81,static,private,monofile,local,[
+    get_atom(phrase,0),
+    get_integer(3,1),
+    get_structure(phrase/3,2),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,73,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(73,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(phrase),
+    unify_integer(2),
+    unify_structure(phrase/2),
+    unify_integer(2),
+    unify_atom(?),
+    put_atom('expand.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(81,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(phrase),
+    unify_integer(3),
+    unify_structure(phrase/3),
+    unify_integer(2),
+    unify_atom(?),
+    unify_atom(?),
+    put_atom('expand.pl',1),
+    execute('$add_clause_term'/2)]).

@@ -6,7 +6,7 @@
  * Descr.: statistics predicate management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -232,12 +232,15 @@ Pl_Statistics_Real_Time_2(WamWord since_start_word, WamWord since_last_word)
 Bool
 Pl_Statistics_Local_Stack_2(WamWord used_word, WamWord free_word)
 {
-  PlLong used, free;
+  PlLong used = 0, free = 0;	/* init for the compiler */
   int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Local_Stack)
-      Stack_Size(i, &used, &free);
+      {
+	Stack_Size(i, &used, &free);
+	break;
+      }
 
   return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
@@ -253,12 +256,15 @@ Pl_Statistics_Local_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Global_Stack_2(WamWord used_word, WamWord free_word)
 {
-  PlLong used, free;
+  PlLong used = 0, free = 0;	/* init for the compiler */
   int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Global_Stack)
-      Stack_Size(i, &used, &free);
+      {
+	Stack_Size(i, &used, &free);
+	break;
+      }
 
   return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
@@ -273,12 +279,15 @@ Pl_Statistics_Global_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Trail_Stack_2(WamWord used_word, WamWord free_word)
 {
-  PlLong used, free;
+  PlLong used = 0, free = 0;	/* init for the compiler */
   int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Trail_Stack)
-      Stack_Size(i, &used, &free);
+      {
+	Stack_Size(i, &used, &free);
+	break;
+      }	
 
   return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }
@@ -293,12 +302,15 @@ Pl_Statistics_Trail_Stack_2(WamWord used_word, WamWord free_word)
 Bool
 Pl_Statistics_Cstr_Stack_2(WamWord used_word, WamWord free_word)
 {
-  PlLong used, free;
+  PlLong used = 0, free = 0;	/* init for the compiler */
   int i;
 
   for (i = 0; i < NB_OF_STACKS; i++)
     if (pl_stk_tbl[i].stack == Cstr_Stack)
-      Stack_Size(i, &used, &free);
+      {
+	Stack_Size(i, &used, &free);
+	break;
+      }
 
   return Pl_Un_Integer_Check(used, used_word) && Pl_Un_Integer_Check(free, free_word);
 }

@@ -6,7 +6,7 @@
  * Descr.: file name management                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -71,6 +71,9 @@ decompose_file_name(Path, Dir, Prefix, Suffix) :-
 
 prolog_file_name(PlFile, PlFile1) :-
 	set_bip_name(prolog_file_name, 2),
+	'$prolog_file_name'(PlFile, PlFile1).
+
+'$prolog_file_name'(PlFile, PlFile1) :-
 	'$call_c_test'('Pl_Prolog_File_Name_2'(PlFile, PlFile1)).
 
 

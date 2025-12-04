@@ -161,6 +161,7 @@ Options to control C compiler optimization flags:
    --with-c-flags             use default C optimization flags
    --with-c-flags=CFLAGS      use CFLAGS (instead of default optimization flags)
    --with-c-flags=debug       use C debug flags (e.g. '-g -Wall' for gcc)
+   --with-c-flags=debug2      use more C debug flags (e.g. '-g -Wall -Wextra' for gcc, see configure.in)
 
    Default: --with-c-flags
 

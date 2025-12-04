@@ -6,7 +6,7 @@
  * Descr.: copying notice for --version option                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -37,6 +37,11 @@
 
 
 /* This file included by top_comp.c, wam2ma.c, ma2asm.c,... */
+
+#ifdef __GNUC__			/* ignore 'Display_Copying' defined but not used */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 
 /*-------------------------------------------------------------------------*
@@ -74,3 +79,7 @@ Display_Copying(char *sub_part)
 {
   fprintf(stderr, "%s", Mk_Copying_Message(sub_part));
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

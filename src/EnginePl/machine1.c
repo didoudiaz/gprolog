@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -875,7 +875,13 @@ Pl_M_Spawn_Redirect(char *arg[], int detach, FILE **f_in, FILE **f_out, FILE **f
 
       execvp(arg[0], arg);	/* only returns on error */
 #ifdef DEBUG
-      DBGPRINTF("ERROR EXEC errno=%d\n", errno);
+#if 1 /* deactivate to see errors even if stdout is redirected */
+      DBGPRINTF("ERROR EXEC, command (without args)=<%s>  errno=%d\n", arg[0], errno);
+#else      /* do not USE DBGPRINTF since can be redirected */
+      char buff[4096];
+      sprintf(buff, "echo 'ERROR EXEC, command (without args)=<%s>  errno=%d'", arg[0], errno);
+      system(buff);
+#endif	
 #endif
       exit((errno == ENOENT || errno == ENOTDIR) ? 126 : 127);
     }
@@ -1299,12 +1305,18 @@ Pl_M_Tempnam(char *dir, char *pfx)
  * and compile with gplc machine1.c or gplc machine1.c --gui-console       *
  * WIN32 WARNING: it seems that the executable file name must be at least 2*
  * characters long (e.g. x.exe is not OK but xx.exe yes).                  *
+ *                                                                         *
+ * execute with ./machine1 PROG ARG1 ARG2...                               *
  *-------------------------------------------------------------------------*/
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <io.h>
+#endif
 
 #if defined(__unix__) || defined(__CYGWIN__)
 #define PREFIX_DIR
 #else
-#define PREFIX_DIR "c:\\cygwin\\bin\\"
+#define PREFIX_DIR "c:\\msys64\\usr\\bin\\"
 #endif
 
 
@@ -1359,18 +1371,30 @@ Pl_M_Tempnam(char *dir, char *pfx)
 
 #if 1
 #define COMMAND								\
-  strcpy(buff, PREFIX_DIR "bc --q");    /* should be modifiable */	\
+  i = M_SPAWN_REDIRECT_CREATE;						\
+  o = M_SPAWN_REDIRECT_CREATE;						\
+  e = M_SPAWN_REDIRECT_CREATE;						\
+  strcpy(buff, PREFIX_DIR "bc -q");    /* should be modifiable */	\
   arg[0] = buff;							\
   arg[1] = (char *) 1;
 #else
 #define COMMAND
- arg[0]=PREFIX_DIR "bc";			\
- arg[1]="-q";					\
- arg[2]=NULL;
+  i = M_SPAWN_REDIRECT_CREATE;						\
+  o = M_SPAWN_REDIRECT_CREATE;						\
+  e = M_SPAWN_REDIRECT_CREATE;						\
+ arg[0] = PREFIX_DIR "bc";						\
+ arg[1] = "-q";								\
+ arg[2] = NULL;
+#endif
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#define SET_MODE_BIN(f) _setmode(fileno(f), O_BINARY)
+#else
+#define SET_MODE_BIN(f)
 #endif
 
 #define CDE_STRING "1+255\n$foo\n2^10\nquit\n"
-#define CDE_INPUT  fprintf(i, CDE_STRING); fclose(i);
+#define CDE_INPUT  SET_MODE_BIN(i); fprintf(i, CDE_STRING); fclose(i);
 
 
 #if 0
@@ -1416,8 +1440,7 @@ main(int argc, char *argv[])
 #if 1
   if (argc > 1)
     {
-      DBGPRINTF("1- Executing from argv[1]...=%s... no redirect\n",
-		argv[1]);
+      DBGPRINTF("1- Executing from argv[1]...=%s... no redirect\n", argv[1]);
       pid = Pl_M_Spawn_Redirect(argv + 1, 0, NULL, NULL, NULL);
       CHECK(pid);
       STAT(pid);
@@ -1436,6 +1459,7 @@ main(int argc, char *argv[])
   strcpy(buff, PREFIX_DIR "uname -a");	/* should be modifiable */
   arg[0] = buff;
   arg[1] = (char *) 1;
+  o = M_SPAWN_REDIRECT_CREATE;
   pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &o, NULL);
   CHECK(pid);
   READ("output", o);
@@ -1443,11 +1467,8 @@ main(int argc, char *argv[])
 #endif
 
   COMMAND;
-  DBGPRINTF("Command is: %s with following input:\n" CDE_STRING,
-	    arg[0]);
+  DBGPRINTF("Command is: %s with following input:\n" CDE_STRING, arg[0]);
   DBGPRINTF("--- end of input\n");
-
-
 
 #if 1
   DBGPRINTF("3- command with redirected input\n");
@@ -1487,6 +1508,17 @@ main(int argc, char *argv[])
   CHECK(pid);
   CDE_INPUT;
   READ("output/error", o);
+  STAT(pid);
+#endif
+
+#if 1
+  DBGPRINTF("7- command with redirected input and output, error=/dev/null\n");
+  COMMAND;
+  e = M_SPAWN_REDIRECT_NULL;
+  pid = Pl_M_Spawn_Redirect(arg, 0, &i, &o, &e);
+  CHECK(pid);
+  CDE_INPUT;
+  READ("output", o);
   STAT(pid);
 #endif
 

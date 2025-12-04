@@ -6,7 +6,7 @@
  * Descr.: term (inline) management - defs for meta-call                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -89,6 +89,11 @@ copy_term(T1, T2) :-
 	'$call_c_test'('Pl_Copy_Term_2'(T1, T2)).
 
 
+
+
+nb_setarg(ArgNo, Term, NewValue) :-
+	set_bip_name(nb_setarg, 3),
+	'$call_c_test'('Pl_Setarg_4'(ArgNo, Term, NewValue, false)).
 
 
 setarg(ArgNo, Term, NewValue) :-

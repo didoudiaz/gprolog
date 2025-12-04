@@ -6,7 +6,7 @@
  * Descr.: Prolog error management                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -86,8 +86,8 @@ current_bip_name(Name, Arity) :-
 
 
 '$pl_error'(Msg) :-
-	'$call_c'('Pl_Context_Error_1'(ContextAtom)),
-	throw(error(Msg, ContextAtom)).
+	'$call_c'('Pl_Context_Error_1'(ContextTerm)),
+	throw(error(Msg, ContextTerm)).
 
 
 

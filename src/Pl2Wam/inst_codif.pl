@@ -6,7 +6,7 @@
  * Descr.: instruction codification (needed for register allocation)       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -102,6 +102,8 @@ codif(put_list(Reg), [w(Reg)]).
 
 codif(put_structure(_, Reg), [w(Reg)]).
 
+codif(put_meta_term(_, Reg1, Reg), [r(Reg1), w(Reg)]).
+
 codif(math_load_value(x(Reg), Tmp), [r(Reg), w(Tmp)]).
 
 codif(math_load_value(y(_), Tmp), [w(Tmp)]).
@@ -117,11 +119,11 @@ codif(unify_value(x(Tmp)), [r(Tmp)]).
 codif(unify_local_value(x(Tmp)), [r(Tmp)]).
 
 codif(call(T), LCode) :-
-	( T = _ / N ; T = _:_/N ), !,
+	( T = _/N ; T = _:_/N ), !,
 	lst_r_for_call_execute(0, N, LCode).
 
 codif(execute(T), LCode) :-
-	( T = _ / N ; T = _:_/N ), !,
+	( T = _/N ; T = _:_/N ), !,
 	lst_r_for_call_execute(0, N, LCode).
 
 codif(cxt_call(_/N, V), LCode1) :-

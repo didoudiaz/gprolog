@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,6 +41,8 @@
 '$use_assert'.
 
 
+:- meta_predicate(asserta(:)).
+
 asserta(C) :-
 	set_bip_name(asserta, 1),
 	( context([UF|_]) -> functor(UF, U, _) ; U=[] ),
@@ -48,6 +50,8 @@ asserta(C) :-
 
 
 
+
+:- meta_predicate(assertz(:)).
 
 assertz(C) :-
 	set_bip_name(assertz, 1),
@@ -72,6 +76,8 @@ assertz(C) :-
 
 
 
+:- meta_predicate(retract(:)).
+
 retract(C) :-
 	set_bip_name(retract, 1),
 	'$get_head_and_body'(C, H, B),
@@ -83,6 +89,7 @@ retract(C) :-
 
 
 
+:- meta_predicate(retractall(:)).
 
 retractall(H) :-
 	set_bip_name(retractall, 1),
@@ -97,10 +104,7 @@ retractall(_).
 
 
 
-'$retract_last_found' :-
-	'$call_c'('Pl_Retract_Last_Found_0').
-
-
+:- meta_predicate(clause(:, ?)).
 
 clause(H, B) :-
 	set_bip_name(clause, 2),
@@ -113,14 +117,22 @@ clause(H, B) :-
 	'$call_c_test'('Pl_Clause_3'(H, B, ForWhat)).
 
 
-
+ /* really seems unused, wait and consider destroying it */
+/*
 '$instance_for_setarg'(H, B) :-
 	'$call_c_test'('Pl_Clause_3'(H, B, 0)).
 
 '$setarg_in_last_found'(ArgNo, NewValue) :-
-	'$call_c'('Pl_Setarg_Of_Last_Found_2'(ArgNo, NewValue)).
+	'$call_c'('Pl_Setarg_In_Last_Found_2'(ArgNo, NewValue)).
+
+'$retract_last_found' :-
+	'$call_c'('Pl_Retract_Last_Found_0').
+*/
 
 
+
+
+:- meta_predicate(abolish(:)).
 
 abolish(PI) :-
 	set_bip_name(abolish, 1),

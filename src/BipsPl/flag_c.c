@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -82,8 +82,29 @@ SFOp;
  *---------------------------------*/
 
 static int atom_on;
+static int atom_off;
+
 static int atom_the_dialect;
 static int atom_the_cc;
+
+static int atom_toward_zero;
+static int atom_down;
+
+static int atom_error;
+static int atom_warning;
+static int atom_fail;
+
+static int atom_chars;
+static int atom_codes;
+static int atom_atom;
+static int atom_chars_no_escape;
+static int atom_codes_no_escape;
+static int atom_atom_no_escape;
+
+static int atom_silent;
+static int atom_normal;
+static int atom_informational;
+
 
 
 
@@ -123,73 +144,97 @@ Flag_Initializer(void)
 #endif
 
   atom_on = Pl_Create_Atom("on");
+  atom_off = Pl_Create_Atom("off");
+
   atom_the_dialect = Pl_Create_Atom(PROLOG_DIALECT);
   atom_the_cc = Pl_Create_Atom(CC);
 
+  atom_toward_zero = Pl_Create_Atom("toward_zero");
+  atom_down = Pl_Create_Atom("down");
+
+  atom_error = Pl_Create_Atom("error");
+  atom_warning = Pl_Create_Atom("warning");
+  atom_fail = Pl_Create_Atom("fail");
+
+  atom_chars = Pl_Create_Atom("chars");
+  atom_codes = Pl_Create_Atom("codes");
+  atom_atom = Pl_Create_Atom("atom");
+  atom_chars_no_escape = Pl_Create_Atom("chars_no_escape");
+  atom_codes_no_escape = Pl_Create_Atom("codes_no_escape");
+  atom_atom_no_escape = Pl_Create_Atom("atom_no_escape");
+
+  atom_silent = Pl_Create_Atom("silent");
+  atom_normal = Pl_Create_Atom("normal");
+  atom_informational = Pl_Create_Atom("informational");
+
   /* Unchangeable flags */
 
-  NEW_FLAG_R_ATOM   (prolog_name,               PROLOG_NAME);
-  NEW_FLAG_R_ATOM   (prolog_version,            PROLOG_VERSION);
-  NEW_FLAG_R_ATOM   (prolog_date,               PROLOG_DATE);
-  NEW_FLAG_R_ATOM   (prolog_copyright,          PROLOG_COPYRIGHT);
+  NEW_FLAG_R_ATOM    (prolog_name,               PROLOG_NAME);
+  NEW_FLAG_R_ATOM    (prolog_version,            PROLOG_VERSION);
+  NEW_FLAG_R_ATOM    (prolog_date,               PROLOG_DATE);
+  NEW_FLAG_R_ATOM    (prolog_copyright,          PROLOG_COPYRIGHT);
 
-  NEW_FLAG_R_ATOM   (dialect,                   PROLOG_DIALECT);
+  NEW_FLAG_R_ATOM    (dialect,                   PROLOG_DIALECT);
 
-  NEW_FLAG_R_INTEGER(version,                   __GPROLOG_VERSION__);
-  Pl_New_Prolog_Flag("version_data",            FALSE, PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
-  NEW_FLAG_R_BOOL   (bounded,                   TRUE);
+  NEW_FLAG_R_INTEGER (version,                   __GPROLOG_VERSION__);
+  NEW_FLAG_R         (version_data,              PF_TYPE_ANY, 0, Fct_Get_Version_Data, Fct_Chk_Version_Data, NULL);
+  NEW_FLAG_R_BOOL    (bounded,                   TRUE);
 
-  NEW_FLAG_R_INTEGER(max_integer,               INT_GREATEST_VALUE);    
-  NEW_FLAG_R_INTEGER(min_integer,               INT_LOWEST_VALUE);
-  NEW_FLAG_R_ROUND  (integer_rounding_function, ((-3 / 2) == -1) ? PF_ROUND_ZERO : PF_ROUND_DOWN);
+  NEW_FLAG_R_INTEGER (max_integer,               INT_GREATEST_VALUE);    
+  NEW_FLAG_R_INTEGER (min_integer,               INT_LOWEST_VALUE);
+  NEW_FLAG_R_ATOM_TBL(integer_rounding_function, ((-3 / 2) == -1) ? 0 : 1, atom_toward_zero, atom_down);
 
-  NEW_FLAG_R_INTEGER(max_arity,                 MAX_ARITY);
-  NEW_FLAG_R_INTEGER(max_atom,                  pl_max_atom);
-  NEW_FLAG_R_INTEGER(max_unget,                 STREAM_PB_SIZE);
+  NEW_FLAG_R_INTEGER (max_arity,                 MAX_ARITY);
+  NEW_FLAG_R_INTEGER (max_atom,                  pl_max_atom);
+  NEW_FLAG_R_INTEGER (max_unget,                 STREAM_PB_SIZE);
 
-  NEW_FLAG_R_ATOM   (home,                      pl_home ? pl_home : "");
-  NEW_FLAG_R_ATOM   (host_os,                   M_OS);
-  NEW_FLAG_R_ATOM   (host_vendor,               M_VENDOR);
-  NEW_FLAG_R_ATOM   (host_cpu,                  M_CPU);
-  NEW_FLAG_R_ATOM   (host,                      M_CPU "-" M_VENDOR "-" M_OS);
-  NEW_FLAG_R_ATOM   (arch,                      M_CPU "-" M_OS);
-  NEW_FLAG_R_INTEGER(address_bits,              WORD_SIZE);
-  NEW_FLAG_R_BOOL   (unix,                      is_unix);
+  NEW_FLAG_R_ATOM    (home,                      pl_home ? pl_home : "");
+  NEW_FLAG_R_ATOM    (host_os,                   M_OS);
+  NEW_FLAG_R_ATOM    (host_vendor,               M_VENDOR);
+  NEW_FLAG_R_ATOM    (host_cpu,                  M_CPU);
+  NEW_FLAG_R_ATOM    (host,                      M_CPU "-" M_VENDOR "-" M_OS);
+  NEW_FLAG_R_ATOM    (arch,                      M_CPU "-" M_OS);
+  NEW_FLAG_R_INTEGER (address_bits,              WORD_SIZE);
+  NEW_FLAG_R_BOOL    (unix,                      is_unix);
 
-  NEW_FLAG_R_ATOM   (compiled_at,               COMPILED_AT); /* see arch_dep.h */
-  NEW_FLAG_R_ATOM   (c_cc,                      CC);
-  Pl_New_Prolog_Flag("c_cc_version_data",       FALSE, PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
-  NEW_FLAG_R_ATOM   (c_cflags,                  CFLAGS_MACHINE " " CFLAGS);
-  NEW_FLAG_R_ATOM   (c_ldflags,                 LDFLAGS);                            
+  NEW_FLAG_R_ATOM    (compiled_at,               COMPILED_AT); /* see arch_dep.h */
+  NEW_FLAG_R_ATOM    (c_cc,                      CC);
+  NEW_FLAG_R         (c_cc_version_data,         PF_TYPE_ANY, 1, Fct_Get_Version_Data, Fct_Chk_Version_Data,  NULL);
+  NEW_FLAG_R_ATOM    (c_cflags,                  CFLAGS_MACHINE " " CFLAGS);
+  NEW_FLAG_R_ATOM    (c_ldflags,                 LDFLAGS);                            
 
-  Pl_New_Prolog_Flag("argv",                    FALSE, PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
+  NEW_FLAG_R         (argv,                      PF_TYPE_ANY, 0, Fct_Get_Argv, Fct_Chk_Argv, NULL);
 
-  /* changeable flags */
+  /* Changeable flags */
 
-  NEW_FLAG_W_ON_OFF (char_conversion,           0);
-  NEW_FLAG_W_ON_OFF (singleton_warning,         1);
-  NEW_FLAG_W_ON_OFF (suspicious_warning,        1);
-  NEW_FLAG_W_ON_OFF (multifile_warning,         1);
-  NEW_FLAG_W_ON_OFF (show_information,          1);
-  NEW_FLAG_W_ON_OFF (strict_iso,                1);
+  NEW_FLAG_W_ON_OFF  (char_conversion,           0);
+  NEW_FLAG_W_ON_OFF  (singleton_warning,         1);
+  NEW_FLAG_W_ON_OFF  (suspicious_warning,        1);
+  NEW_FLAG_W_ON_OFF  (multifile_warning,         1);
+  NEW_FLAG_W_ON_OFF  (show_banner,               1);
+  NEW_FLAG_W_ATOM_TBL(show_information,          PF_SHOW_INFO_NORMAL, atom_silent, atom_normal, atom_informational);
+  //  NEW_FLAG_W_ATOM_TBL(show_error,                PF_SHOW_ERR_ERROR, atom_silent, atom_warning, atom_error);
+  NEW_FLAG_W_ON_OFF  (strict_iso,                1);
 #if 0
-  NEW_FLAG_W_ON_OFF (debug,                     0);
+  NEW_FLAG_W_ON_OFF  (debug,                     0);
 #else  /* to have a customized Set function */
-  pl_flag_debug = Pl_New_Prolog_Flag("debug",   TRUE, PF_TYPE_ON_OFF, 0, NULL, NULL, Fct_Set_Debug);
+  NEW_FLAG_W         (debug,                     PF_TYPE_ATOM_TBL, 0, NULL, NULL, Fct_Set_Debug, atom_off, atom_on, -1);
 #endif
 
 
-  NEW_FLAG_W_QUOTES (double_quotes,             PF_QUOT_AS_CODES);
+  NEW_FLAG_W_ATOM_TBL(double_quotes,             PF_QUOT_AS_CODES, atom_codes, atom_chars, atom_atom,
+		                                 atom_codes_no_escape, atom_chars_no_escape, atom_atom_no_escape);
 
   /* DON'T CHANGE back_quotes default: no_escape is useful under
    * Windows when assoc .pl to gprolog (see InnoSetup) and avoid \ (backslash)
    * to be misinterpreted in pathnames (e.g. c:\foo\bar).
    */
-  NEW_FLAG_W_QUOTES (back_quotes,               PF_QUOT_AS_ATOM | PF_QUOT_NO_ESCAPE_MASK);
+  NEW_FLAG_W_ATOM_TBL(back_quotes,               PF_QUOT_AS_ATOM_NO_ESCAPE, atom_codes, atom_chars, atom_atom,
+		                                 atom_codes_no_escape, atom_chars_no_escape, atom_atom_no_escape);
 
-  NEW_FLAG_W_ERR    (unknown,                   PF_ERR_ERROR);
-  NEW_FLAG_W_ERR    (syntax_error,              PF_ERR_ERROR);
-  NEW_FLAG_W_ERR    (os_error,                  PF_ERR_ERROR);
+  NEW_FLAG_W_ATOM_TBL(unknown,                   PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
+  NEW_FLAG_W_ATOM_TBL(syntax_error,              PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
+  NEW_FLAG_W_ATOM_TBL(os_error,                  PF_ERR_ERROR, atom_error, atom_warning, atom_fail);
 
   SYS_VAR_LINEDIT = pl_stream_use_linedit;
 }
@@ -503,170 +548,6 @@ Pl_Set_Current_B_1(WamWord b_word)
 
   DEREF(b_word, word, tag_mask);
   Pl_Cut(word);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_WRITE_PL_STATE_FILE                                                  *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-
-/* these macros are to avoid gcc warning warn_unused_result */
-#define FWRITE(b, sz, n, f) if (fwrite(b, sz, n, f) != n) {}
-#define FREAD(b, sz, n, f)  if (fread(b, sz, n, f) != n) {}
-
-
-Bool
-Pl_Write_Pl_State_File(WamWord file_word)
-{
-  char *file;
-  FILE *f;
-  int i;
-  HashScan scan;
-  OperInf *oper;
-  SFOp sf_op;
-  int c;
-/* 'static' is because gcc allocates a frame even with -fomit-frame-pointer.
- * This corrupts ebp on ix86 */
-  static char cv[2];
-
-
-  file = pl_atom_tbl[Pl_Rd_Atom_Check(file_word)].name;
-  file = Pl_M_Absolute_Path_Name(file);
-
-  f = fopen(file, "wb");
-  Os_Test_Error_Null(f);
-
-  i = Pl_Hash_Nb_Elements(pl_oper_tbl);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  for (oper = (OperInf *) Pl_Hash_First(pl_oper_tbl, &scan); oper;
-       oper = (OperInf *) Pl_Hash_Next(&scan))
-    {
-      sf_op.type = Type_Of_Oper(oper->a_t);
-      sf_op.prec = oper->prec;
-      sf_op.left = oper->left;
-      sf_op.right = oper->right;
-      sf_op.length = pl_atom_tbl[Atom_Of_Oper(oper->a_t)].prop.length;
-      FWRITE(&sf_op, sizeof(sf_op), 1, f);
-      FWRITE(pl_atom_tbl[Atom_Of_Oper(oper->a_t)].name, sf_op.length, 1, f);
-    }
-
-  i = (int) Flag_Value(double_quotes);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(back_quotes);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(char_conversion);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(singleton_warning);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(suspicious_warning);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(multifile_warning);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) Flag_Value(strict_iso);
-  FWRITE(&i, sizeof(i), 1, f);
-
-  i = (int) SYS_VAR_SAY_GETC;
-  FWRITE(&i, sizeof(i), 1, f);
-
-  for (c = 0; c < 256; c++)
-    if (pl_char_conv[c] != c)
-      {
-	cv[0] = c;
-	cv[1] = pl_char_conv[c];
-	FWRITE(&cv, 2, 1, f);
-      }
-
-  cv[0] = 0;
-  cv[1] = 0;
-  FWRITE(&cv, 2, 1, f);
-
-  fclose(f);
-  return TRUE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_READ_PL_STATE_FILE                                                   *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_Read_Pl_State_File(WamWord file_word)
-{
-  char *file;
-  FILE *f;
-  int i;
-  SFOp sf_op;
-  int c;
-  char cv[2];
-
-
-  file = pl_atom_tbl[Pl_Rd_Atom_Check(file_word)].name;
-  file = Pl_M_Absolute_Path_Name(file);
-
-  f = fopen(file, "rb");
-  Os_Test_Error_Null(f);
-
-  Pl_Hash_Delete_All(pl_oper_tbl);
-
-  FREAD(&i, sizeof(i), 1, f);
-
-  while (i--)
-    {
-      FREAD(&sf_op, sizeof(sf_op), 1, f);
-      FREAD(pl_glob_buff, sf_op.length, 1, f);
-      pl_glob_buff[sf_op.length] = '\0';
-      Pl_Create_Oper(Pl_Create_Allocate_Atom(pl_glob_buff),
-		  sf_op.type, sf_op.prec, sf_op.left, sf_op.right);
-    }
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(double_quotes) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(back_quotes) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(char_conversion) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(singleton_warning) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(suspicious_warning) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(multifile_warning) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  Flag_Value(strict_iso) = i;
-
-  FREAD(&i, sizeof(i), 1, f);
-  SYS_VAR_SAY_GETC = i;
-
-  for (;;)
-    {
-      FREAD(&cv, 2, 1, f);
-      c = cv[0];
-      if (c == 0 && cv[1] == 0)
-	break;
-
-      pl_char_conv[c] = cv[1];
-    }
-
-  fclose(f);
-  return TRUE;
 }
 
 

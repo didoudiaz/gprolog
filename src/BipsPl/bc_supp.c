@@ -6,7 +6,7 @@
  * Descr.: byte-code support                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,10 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#include <string.h>
-
-#include <string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define OBJ_INIT Byte_Code_Initializer
 
@@ -103,6 +101,7 @@ typedef enum
   PUT_NIL,
   PUT_LIST,
   PUT_STRUCTURE,
+//  PUT_META_TERM,
 
   MATH_LOAD_X_VALUE,
   MATH_LOAD_Y_VALUE,
@@ -187,9 +186,9 @@ typedef union
   double d;
 #if WORD_SIZE == 64
   int *p;
-  PlLong l;
+  PlLong l; // why not uint64_t l;
 #endif
-  unsigned u[2];
+  uint32_t u[2];
 }
 C64To32;
 
@@ -317,6 +316,7 @@ Byte_Code_Initializer(void)
   Op_In_Tbl("put_nil", PUT_NIL);
   Op_In_Tbl("put_list", PUT_LIST);
   Op_In_Tbl("put_structure", PUT_STRUCTURE);
+//  Op_In_Tbl("put_meta_term", PUT_META_TERM);
   Op_In_Tbl("math_load_value", MATH_LOAD_X_VALUE);
 
   Op_In_Tbl("unify_variable", UNIFY_X_VARIABLE);
@@ -558,7 +558,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int op;
   int size_bc;
   BCWord w;			/* code-op word */
-  unsigned w1, w2, w3 = 0;	/* additional words */ /* init for the compiler */
+  unsigned w1 = 0, w2 = 0, w3 = 0; /* additional words */ /* init for the compiler */
   PlLong l;
   int nb_word;
   C64To32 cv;
@@ -572,7 +572,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   size_bc = (int) (bc_sp - bc);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
-      bc_nb_block++; 
+      bc_nb_block++;
       bc = (BCWord *) Realloc((char *) bc, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
       bc_sp = bc + size_bc;
     }
@@ -649,7 +649,14 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       BC1_Arity(w) = arity;
       BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
-
+/*
+    case PUT_META_TERM:
+      nb_word = 2;
+      w1 = Pl_Rd_Atom(*arg_adr++);
+      BC1_X0(w) = Pl_Rd_Integer(*arg_adr++);
+      BC1_XY(w) = Pl_Rd_Integer(*arg_adr);
+      break;
+*/
     case PUT_VOID:
       BC1_X0(w) = Pl_Rd_C_Int(*arg_adr);
       break;
@@ -844,6 +851,24 @@ Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_EMIT_BC_EXECUTE_WRAPPER                                              *
+ *                                                                         *
+ * Called by pl2wam for each clause of a dynamic or multifile predicate    *
+ * Each clause has been compiled to native code (aux pred).                *
+ * We here create a call to this clause.                                   *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Emit_BC_Execute_Wrapper(int func, int arity, PlLong *codep)
+{
+  Pl_BC_Start_Emit_0();
+  Pl_BC_Emit_Inst_Execute_Native(func, arity, codep);
+  Pl_BC_Stop_Emit_0();
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * BC_ARG_X_OR_Y                                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -934,7 +959,7 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return Pl_BC_Emulate_Pred(func, pred->dyn);
 }
 
 
@@ -951,29 +976,26 @@ Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
   WamCont codep;
   int arity;
 
-start:
-  if (dyn == NULL)
-    goto fail;
+  while (dyn)
+    {
+      arity = dyn->arity;
+      A(arity) = Pl_Get_Current_Choice();	/* init cut register */
+      A(arity + 1) = debug_call;
 
-  arity = dyn->arity;
-  A(arity) = Pl_Get_Current_Choice();	/* init cut register */
-  A(arity + 1) = debug_call;
+      clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
+				    (ScanFct) BC_Emulate_Pred_Alt,
+				    DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
+      if (clause == NULL)
+	break;			/* fail */
 
-  clause = Pl_Scan_Dynamic_Pred(func, arity, dyn, A(0),
-				(ScanFct) BC_Emulate_Pred_Alt,
-				DYN_ALT_FCT_FOR_JUMP, arity + 2, &A(0));
-  if (clause == NULL)
-    goto fail;
+      codep = BC_Emulate_Clause(clause);
+      if (codep)
+	return (codep);
 
-  codep = BC_Emulate_Clause(clause);
-  if (codep)
-    return (codep);
-
-  func = glob_func;
-  dyn = glob_dyn;
-  goto start;
-
-fail:
+      func = glob_func;
+      dyn = glob_dyn;
+    }
+  /* fail */
   return ALTB(B);
 }
 
@@ -1040,15 +1062,12 @@ BC_Emulate_Clause(DynCInf *clause)
 
   for (i = 0; i < arity; i++)	/* head unification */
     if (!Pl_Unify(A(i), *arg_adr++))
-      goto fail;
+      return ALTB(B);		/* fail */
 
   A(2) = A(arity);		/* before since pb with cut if arity <= 1 */
   A(0) = body_word;
   A(1) = Tag_INT(Call_Info(func, arity, debug_call));
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
-
-fail:
-  return ALTB(B);
 }
 
 
@@ -1074,6 +1093,8 @@ BC_Emulate_Byte_Code(BCWord *bc)
 
 bc_loop:
   w = *bc++;
+
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (BC_Op(w))
     {
     case GET_X_VARIABLE:
@@ -1263,7 +1284,15 @@ bc_loop:
       bc++;
       X(x0) = Pl_Put_Structure(func, arity);
       goto bc_loop;
-
+/*
+    case PUT_META_TERM:
+      x0 = BC1_X0(w);
+      x = BC1_XY(w);
+      module = bc->word;
+      bc++;
+      X(x) = Pl_Put_Meta_Term(module, X(x0));
+      goto bc_loop;
+*/
     case MATH_LOAD_X_VALUE:
       x0 = BC1_X0(w);
       x = BC1_XY(w);
@@ -1375,6 +1404,7 @@ bc_loop:
     case CALL:
       BCI = (WamWord) (bc + 2) | debug_call;	/* use low bit of adr */
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
+      // fall through
     case EXECUTE:
       arity = BC2_Arity(w);
       func = bc->word;
@@ -1404,7 +1434,7 @@ bc_loop:
       bc++;			/* useless since CP already set */
 #endif
       glob_func = func;
-      glob_dyn = (DynPInf *) (pred->dyn);
+      glob_dyn = pred->dyn;
       return NULL;		/* to then call BC_Emulate_Pred */
 
     case CALL_NATIVE:
@@ -1457,7 +1487,7 @@ bc_loop:
 
     case FAIL:
       if (pl_debug_call_code != NULL && debug_call)
-	{			/* invoke the debugger that will then call fail/0 */
+	{			/* invoke the debugger which will then call fail/0 */
 	  Prep_Debug_Call(atom_fail, 0, 0, 0);
 	  return pl_debug_call_code;
 	}
@@ -1498,6 +1528,7 @@ bc_loop:
     case CXT_CALL_X:		/* OK? */
       BCI = (WamWord) (bc + 2) | debug_call;	/* use low bit of adr */
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
+      // fall through
     case CXT_EXECUTE_X:		/* OK? */
       w1 = X(bc->word);		/* fetch call context */
       goto CXT_EXECUTE_COMMON;
@@ -1505,6 +1536,7 @@ bc_loop:
     case CXT_CALL_Y:		/* OK? */
       BCI = (WamWord) (bc + 2) | debug_call;	/* use low bit of adr */
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
+      // fall through
     case CXT_EXECUTE_Y:		/* OK? */
       w1 = Y(E, bc->word);	/* fetch call context */
       goto CXT_EXECUTE_COMMON;

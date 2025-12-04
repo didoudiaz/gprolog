@@ -6,7 +6,7 @@
  * Descr.: optimization predicate management                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,6 +41,8 @@
 '$use_fd_optim'.
 
 
+:- meta_predicate(fd_minimize(0, ?)).
+
 fd_minimize(Goal, Var) :-
 	fd_max_integer(Inf),
 	g_assign('$cur_min', Inf),
@@ -60,6 +62,8 @@ fd_minimize(Goal, Var) :-
 
 
 
+
+:- meta_predicate(fd_maximize(0, ?)).
 
 fd_maximize(Goal, Var) :-
 	fd_max_integer(Inf),

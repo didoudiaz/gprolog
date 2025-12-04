@@ -6,7 +6,7 @@
  * Descr.: term input (read/1 and friends) management                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -215,6 +215,64 @@ read_token(SorA, Token) :-
 last_read_start_line_column(Line, Col) :-
 	set_bip_name(last_read_start_line_column, 2),
 	'$call_c_test'('Pl_Last_Read_Start_Line_Column_2'(Line, Col)).
+
+
+
+
+/* put this in a read_util.pl ?
+read_line_to_chars(Stream, Chars) :-
+	set_bip_name(read_line_to_chars, 2),
+	'$get_char'(Stream, Char),
+	(   Char = end_of_file ->
+	    Chars = end_of_file
+	;
+	    '$read_line_to_chars1'(Char, Stream, Chars1),
+	    Chars = Chars1
+	).
+
+
+'$read_line_to_chars1'(end_of_file, _, []) :-
+	!.
+
+'$read_line_to_chars1'('\n', _, []) :-
+	!.
+
+'$read_line_to_chars1'('\r', Stream, []) :-
+	'$peek_char'(Stream, '\n'), !,
+	'$get_char'(Stream, _).
+
+'$read_line_to_chars1'(Char, Stream, [Char|Chars]) :-
+	'$get_char'(Stream, Char1),
+	'$read_line_to_chars1'(Char1, Stream, Chars).
+
+
+
+
+read_line_to_codes(Stream, Codes) :-
+	set_bip_name(read_line_to_codes, 2),
+	'$get_code'(Stream, Code),
+	(   Code = -1 ->
+	    Codes = end_of_file
+	;
+	    '$read_line_to_codes1'(Code, Stream, Codes1),
+	    Codes = Codes1
+	).
+
+
+'$read_line_to_codes1'(-1, _, []) :-
+	!.
+
+'$read_line_to_codes1'(10, _, []) :-
+	!.
+
+'$read_line_to_codes1'(13, Stream, []) :-
+	'$peek_code'(Stream, 10), !,
+	'$get_code'(Stream, _).
+
+'$read_line_to_codes1'(Code, Stream, [Code|Codes]) :-
+	'$get_code'(Stream, Code1),
+	'$read_line_to_codes1'(Code1, Stream, Codes).
+*/
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: term output (write/1 and friends) management                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -103,13 +103,13 @@ display(SorA, Term) :-
           %  0=false     0=false    0=false    0=false    0=false      0=false   0=false
           %  1=true      1=true     1=true     1=true     1=true       1=true    1=true
           %
-          % max_depth in sys_var[1]
-          % priority in sys_var[2]
+          % max_depth in sys_var[1] (0 = no limit)
+	  % priority in sys_var[2]
+	  % above in sys_var[3]
 
 
 write_term(Term, Options) :-
 	set_bip_name(write_term, 2),
-	'$set_write_defaults',
 	'$get_write_options'(Options),
 	'$call_c'('Pl_Write_Term_1'(Term)),
 	fail.
@@ -119,7 +119,6 @@ write_term(_, _).
 
 write_term(SorA, Term, Options) :-
 	set_bip_name(write_term, 3),
-	'$set_write_defaults',
 	'$get_write_options'(Options),
 	'$call_c'('Pl_Write_Term_2'(SorA, Term)),
 	fail.
@@ -130,36 +129,40 @@ write_term(_, _, _).
 
 '$set_write_defaults' :-
 	'$sys_var_write'(0, 0),                               % default mask
-	'$sys_var_write'(1, -1),
+	'$sys_var_write'(1, 0),
 	'$sys_var_write'(2, 1200),
 	'$sys_var_write'(3, 0).
 
 
 
 
-'$get_write_options'(Options) :-
+'$get_write_options'(Options) :- 	% this predicate is also called by format_c.c
+	'$set_write_defaults',
 	'$check_list'(Options),
-	'$get_write_options1'(Options),
-	(   '$sys_var_get_bit'(0, 6, 1) -> % variable_names ==> namevars
-	    '$sys_var_set_bit'(0, 3)
+	'$get_write_options1'(Options, _, VarNames),
+	(   '$sys_var_get_bit'(0, 6, 1) -> % variable_names ==> namevars + assignments
+	    '$sys_var_set_bit'(0, 3),
+	    (   '$name_variables'(VarNames) ->
+		true
+	    ;   '$pl_err_domain'(write_option, variable_names(VarNames))
+	    )
 	;
 	    true
 	).
 	    
 
+'$get_write_options1'([], VarNames, VarNames).
 
-'$get_write_options1'([]).
-
-'$get_write_options1'([X|Options]) :-
-	'$get_write_options2'(X), !,
-	'$get_write_options1'(Options).
+'$get_write_options1'([X|Options], VarNames, VarNames2) :-
+	'$get_write_options2'(X, VarNames, VarNames1), !,
+	'$get_write_options1'(Options, VarNames1, VarNames2).
 
 
-'$get_write_options2'(X) :-
+'$get_write_options2'(X, _, _) :-
 	var(X),
 	'$pl_err_instantiation'.
 
-'$get_write_options2'(quoted(X)) :-
+'$get_write_options2'(quoted(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 0)
@@ -167,7 +170,7 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 0)
 	).
 
-'$get_write_options2'(ignore_ops(X)) :-
+'$get_write_options2'(ignore_ops(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 1)
@@ -175,7 +178,7 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 1)
 	).
 
-'$get_write_options2'(numbervars(X)) :-
+'$get_write_options2'(numbervars(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 2)
@@ -183,7 +186,7 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 2)
 	).
 
-'$get_write_options2'(namevars(X)) :-
+'$get_write_options2'(namevars(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 3)
@@ -191,12 +194,12 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 3)
 	).
 
-'$get_write_options2'('$above'(X)) :- % "above" choice-point for numbervars/namevars
+'$get_write_options2'('$above'(X), VarNames, VarNames) :- % "above" choice-point for numbervars/namevars
 	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(3, X).
 
-'$get_write_options2'(space_args(X)) :-
+'$get_write_options2'(space_args(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 4)
@@ -204,7 +207,7 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 4)
 	).
 
-'$get_write_options2'(portrayed(X)) :-
+'$get_write_options2'(portrayed(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	(   X = false,
 	    '$sys_var_reset_bit'(0, 5)
@@ -212,22 +215,22 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 5)
 	).
 
-'$get_write_options2'(variable_names(VarNames)) :-
+'$get_write_options2'(variable_names(VarNames), _, VarNames) :-
 	'$check_nonvar'(VarNames),
-	'$sys_var_set_bit'(0, 6),
-	'$name_variables'(VarNames).
+	'$sys_var_set_bit'(0, 6).
 
-'$get_write_options2'(max_depth(X)) :-
+'$get_write_options2'(max_depth(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	integer(X),
+	X >= 0,
 	'$sys_var_write'(1, X).
 
-'$get_write_options2'(priority(X)) :-
+'$get_write_options2'(priority(X), VarNames, VarNames) :-
 	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(2, X).
 
-'$get_write_options2'(X) :-
+'$get_write_options2'(X, _, _) :-
 	'$pl_err_domain'(write_option, X).
 
 
@@ -237,14 +240,20 @@ write_term(_, _, _).
 	var(X), !,
 	'$pl_err_instantiation'.
 
-'$name_variables'([]).
+'$name_variables'([]) :-
+	!.
 
 '$name_variables'([Name = Var|VarNames]) :-
 	'$check_nonvar'(Name),
 	atom(Name),
-%	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name), ! ; true), % to check the validity of the atom
-	(Var = '$VARNAME'(Name), ! ; true), 
+%	('$is_valid_var_name'(Name), Var = '$VARNAME'(Name) ; true), !, % to check the validity of the atom
+	(Var = '$VARNAME'(Name) ; true), !,
 	'$name_variables'(VarNames).
+
+% report the error at the higher level (i.e. including all the variable_names(...) term)
+% '$name_variables'(X) :-
+% 	'$pl_err_domain'(write_option, X).
+
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: meta call management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -156,5 +156,5 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, (DynPInf *) (pred->dyn));
+  return Pl_BC_Emulate_Pred(func, pred->dyn);
 }

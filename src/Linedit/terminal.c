@@ -6,7 +6,7 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -55,6 +55,7 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 
 #if defined(HAVE_SYS_IOCTL_COMPAT_H)
 #include <sys/ioctl_compat.h>
@@ -272,7 +273,12 @@ Parse_Env_Var(void)
   char *p, *q, *r;
   char buff[1024];
 
-  use_linedit = use_gui = use_ansi = true; /* default */
+#if defined(_WIN32) && defined(W32_GUI_CONSOLE)
+  use_gui = !pl_le_no_gui;	 /* default */
+#else
+  use_gui = 0;			 /* default */
+#endif
+  use_linedit = use_ansi = true; /* default */
 
   p = getenv("LINEDIT");
   if (p == NULL)
@@ -287,7 +293,7 @@ Parse_Env_Var(void)
   if (strstr(p, "gui=n") != NULL)
     use_gui = 0;
 
-  if (strstr(p, "gui=s") != NULL) /* silent */
+  if (!pl_le_no_gui && strstr(p, "gui=s") != NULL) /* silent */
     use_gui = 2;
 
   if (strstr(p, "ansi=n") != NULL)
@@ -401,7 +407,7 @@ Pl_LE_Open_Terminal(void)
   fflush(stderr);
 
 
-#if defined(__unix__) || defined(__CYGWIN__) /* Mode cbreak (raw mode) */
+#if defined(__unix__) || defined(__CYGWIN__)
   is_tty_in = !Gtty(fd_in, &old_stty_in);
   is_tty_out = !Gtty(fd_out, &old_stty_out);
 
@@ -539,7 +545,7 @@ Same_File(int fd1, int fd2)
 /*-------------------------------------------------------------------------*
  * SET_TTY_MODE                                                            *
  *                                                                         *
- * Mode cbreak (raw mode).                                                 *
+ * Basically a customized cbreak mode                                      *
  *-------------------------------------------------------------------------*/
 static void
 Set_TTY_Mode(TermIO *old, TermIO *new)
@@ -549,13 +555,14 @@ Set_TTY_Mode(TermIO *old, TermIO *new)
   new->c_iflag &= ~(INLCR | IGNCR | ICRNL | IXON | IXOFF);
   new->c_oflag = OPOST | ONLCR;
   new->c_lflag &= ~(ICANON | ECHO | ECHONL);
+  new->c_cflag |= CS8;
+ 
+  new->c_cc[VMIN] = 1;          /* one char at a time */
+  new->c_cc[VTIME] = 0;         /* blocking read (was 1 previously) */
 
-  new->c_cc[VMIN] = 1;          /* MIN # of chars */
-  new->c_cc[VTIME] = 1;         /* TIME */
+  new->c_cc[VINTR] = -1;        /* deactivate SIGINT (^C) but keep SIGTSTP (^Z), SIGQUIT (^\) */
 
-  new->c_cc[VINTR] = -1;        /* deactivate SIGINT signal */
-
-#if 0 /* TODO compare our settings with BSD raw mode */
+#if 0 /* check these settings for raw mode */
   new->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
   new->c_oflag &= ~OPOST;
   new->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
@@ -577,14 +584,14 @@ Install_Resize_Handler(void)
 #if defined(HAVE_WORKING_SIGACTION) || defined(M_solaris) || defined(M_sco)
 
   struct sigaction act;
-  act.sa_sigaction = (void (*)()) Resize_Handler;
+  act.sa_sigaction = (void (*)(int, siginfo_t *, void *)) Resize_Handler;
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_RESTART;
   sigaction(SIGWINCH, &act, NULL);
 
 #else
 
-  signal(SIGWINCH, (void (*)()) Resize_Handler);
+  signal(SIGWINCH, (void (*)(int)) Resize_Handler);
 
 #endif
 }
@@ -693,13 +700,21 @@ Pl_LE_Kbd_Is_Not_Empty(void)
 
   ioctl(fd_in, FIONREAD, &nb_not_read);
   return nb_not_read != 0;
-#else
-  return 0;
+#else 
+  fd_set set;
+  struct timeval tv = {0, 0}; /* non-blocking */
+  FD_ZERO(&set);
+  FD_SET(0, &set); /* 0 = STDIN_FILENO */
+  return select(1, &set, NULL, NULL, &tv) > 0;
 #endif
 
 #elif defined(_WIN32)
 
-  return kbhit();
+  return kbhit() != 0;
+
+#else
+
+  return 0;
 
 #endif
 }
@@ -990,6 +1005,10 @@ LE_Get_Char0(void)
   if (read(fd_in, &c, 1) != 1)
     return KEY_CTRL('D');
 
+  /* one read() should be enough (blocing since VTIME = 0) else loop with
+     if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
+	loop on reading
+  */
 #if 0
   {
     char s[32];
@@ -1008,7 +1027,7 @@ LE_Get_Char0(void)
   INPUT_RECORD ir;
   DWORD nb;
   int modif = 0;
-  int c;
+  int c = 0;			/* init for the compiler */
 
  read_char:
   if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &nb) || nb != 1)

@@ -6,7 +6,7 @@
  * Descr.: Detection of working sigaction                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -53,7 +53,7 @@
 #define BAD_ADDR  ((int *) 0x2EA4F0)
 
 void
-SIGSEGV_Handler(int sig, siginfo_t * sip)
+SIGSEGV_Handler(int sig, siginfo_t *sip, void *ctx)
 {
   int *addr = (int *) sip->si_addr;
 #if 0
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
   struct sigaction act;
 
   act.sa_handler = NULL;
-  act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
+  act.sa_sigaction = SIGSEGV_Handler;
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO | SA_RESTART;
 

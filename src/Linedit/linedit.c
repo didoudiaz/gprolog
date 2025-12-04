@@ -6,7 +6,7 @@
  * Descr.: line editor                                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -57,6 +57,7 @@
 
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/select.h>
 
 #elif defined(_WIN32)
 
@@ -198,14 +199,14 @@ static void Display_Help(void);
 #define Hist_Is_Empty()       (hist_start == hist_end)
 
 
-#define RE_DISPLAY_LINE          \
-do {                             \
-  if (prompt && display_prompt)  \
-    DISPL_STR(prompt);           \
-                                 \
-  DISPL(end - str, str);         \
-  BACKD(end - pos);              \
-} while(0)
+#define RE_DISPLAY_LINE				\
+  do {						\
+    if (prompt && display_prompt)		\
+      DISPL_STR(prompt);			\
+						\
+    DISPL(end - str, str);			\
+    BACKD(end - pos);				\
+  } while(0)
 
 
 
@@ -1193,7 +1194,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-          "   linedit %-25s Copyright (C) 1999-2023 Daniel Diaz",
+          "   linedit %-25s Copyright (C) 1999-2025 Daniel Diaz",
           LINEDIT_VERSION);
   L(buff);
   L("");

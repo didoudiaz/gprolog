@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -169,23 +169,19 @@ static HANDLE event_char_in_queue;
 #define Queue_Is_Empty() (queue_start == queue_end)
 
 #define Enqueue(c)                                      \
-  do                                                    \
-    {                                                   \
+  do {                                                  \
       queue[queue_end] = c;                             \
       queue_end = (queue_end + 1) % sizeof(queue);      \
       if (queue_end == queue_start)                     \
         queue_start = (queue_start + 1) % sizeof(queue);\
-    }                                                   \
-  while(0)
+   } while (0)
 
 
 #define Dequeue(c)                                      \
-  do                                                    \
-    {                                                   \
+  do {                                                  \
       c = queue[queue_start];                           \
       queue_start = (queue_start + 1) % sizeof(queue);  \
-    }                                                   \
-  while(0)
+  } while (0)
 
 
 
@@ -301,9 +297,9 @@ static void Add_String_To_Queue(char *str, int mask_fix);
 
 static void Add_Char_To_Queue(int c);
 
-static void Set_Selection(int posit, int n);
+static void Set_Selection(int pos, int n);
 
-static void Set_Caret_Position(int posit);
+static void Set_Caret_Position(int pos);
 
 static int Move_Caret_To(int start_or_end);
 
@@ -1031,6 +1027,7 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
       return 0;
 
     case WM_COMMAND:
+      // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
       switch (LOWORD(wParam))
         {
         case IDOK:
@@ -1045,6 +1042,7 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 Delete_Windows_Registry(env_var_name);
             }
           // then in IDCANCEL to also execute EndDialog()
+	  // fall through
         case IDCANCEL:
           EndDialog(hwndDlg, wParam);
           return TRUE;
@@ -1603,16 +1601,16 @@ W32GC_Get_Char0(void)
 
 
 static void
-Set_Selection(int posit, int n)
+Set_Selection(int pos, int n)
 {
-  SendMessage(hwndEditControl, EM_SETSEL, ec_start + posit, ec_start + posit + n);
+  SendMessage(hwndEditControl, EM_SETSEL, ec_start + pos, ec_start + pos + n);
   SendMessage(hwndEditControl, EM_SCROLLCARET, 0, 0); // ensure the caret is visible
 }
 
 static void
-Set_Caret_Position(int posit)
+Set_Caret_Position(int pos)
 {
-  Set_Selection(posit, 0);
+  Set_Selection(pos, 0);
 }
 
 
@@ -1707,7 +1705,7 @@ Display_Text(char *str, int n)
           break;
 
         default:
-          if (wr_buffer_ptr - wr_buffer >= sizeof(wr_buffer))
+          if ((size_t) (wr_buffer_ptr - wr_buffer) >= sizeof(wr_buffer))
             Flush_Buffer();
 
           *wr_buffer_ptr++ = isprint(*str) ? *str : ' ';
@@ -2011,8 +2009,8 @@ Launched_From_Command_Line(void)
 }
 
 static void
-Show_Text_Console(int show_console)
+Show_Text_Console(int show)
 {
-  ShowWindow(hwnd_console, (show_console) ? SW_SHOW : SW_HIDE);
-  SET_CHECKED_OPT(IDM_SHOW_CONSOLE, show_console);
+  ShowWindow(hwnd_console, (show) ? SW_SHOW : SW_HIDE);
+  SET_CHECKED_OPT(IDM_SHOW_CONSOLE, show);
 }

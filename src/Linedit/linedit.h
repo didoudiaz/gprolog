@@ -6,7 +6,7 @@
  * Descr.: line editor - header file                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -74,6 +74,8 @@ enum {
  *---------------------------------*/
 
 /* overwritten if needed to customize linedit */
+
+int pl_le_no_gui;
 
 void (*pl_le_hook_start) (int silent);
 

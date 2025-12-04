@@ -6,7 +6,7 @@
  * Descr.: formatted output management                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,12 +41,16 @@
 '$use_format'.
 
 
+%:- meta_predicate(format(+, :)).
+
 format(Format, Args) :-
 	set_bip_name(format, 2),
 	'$call_c'('Pl_Format_2'(Format, Args)).
 
 
 
+
+%:- meta_predicate(format(+, +, :)).
 
 format(SorA, Format, Args) :-
 	set_bip_name(format, 3),

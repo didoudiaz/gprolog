@@ -6,7 +6,7 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -1020,12 +1020,13 @@ F_put_structure(ArgVal arg[])
 void
 F_put_meta_term(ArgVal arg[])
 {
-  Args2(ATOM(module), C_INT(a));
+  Args3(ATOM(module), C_INT(x), C_INT(a));
 #ifdef USE_TAGGED_CALLS_FOR_WAM_FCTS
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), %d)", module->value, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term_Tagged(ta(%d), X(%d))", module->value, x);
 #else
-  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), %d)", module->value, a);
+  Inst_Printf("call_c", FAST "Pl_Put_Meta_Term(at(%d), X(%d))", module->value, x);
 #endif
+  Inst_Printf("move_ret", "X(%d)", a);
 }
 
 
@@ -1712,9 +1713,9 @@ F_soft_cut(ArgVal arg[])
  *                                                                         *
  * call_c(F, [T,...], [W,...])                                             *
  *   F=FctName, T=option only these options are relevant:                  *
- *    - jump/boolean/x(X) (jump at / test / move returned value)           *
+ *    - jump/boolean/x(X)/y(Y) (jump at / test / move returned value)      *
  *    - set_cp (set CP before the call at the next instruction)            *
- *    - fast_call (use a fact call convention)                             *
+ *    - fast_call (use a fast call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
  *   W= atom  &,fun,arity  integer  double  x(X)  y(Y)  &,x(X)  &,y(Y)     *
  *-------------------------------------------------------------------------*/
@@ -1745,7 +1746,7 @@ F_call_c(ArgVal arg[])
   for (i = 0; i < nb_elem; i++)
     {
       LOAD_C_INT(arg_type);
-      if (arg_type == X_Y)	/* move_ret x(X) (or y(Y) but not used) */
+      if (arg_type == X_Y)	/* move_ret x(X) or y(Y) */
 	{
 	  LOAD_X_Y(xy);
 	  ret = 3;
@@ -1827,7 +1828,7 @@ F_call_c(ArgVal arg[])
 
 	case INTEGER:
 	  LOAD_INTEGER(n);
-	  fprintf(file_out, "%" PL_FMT_d, (tagged) ? Tag_INT(n) : n);
+	  fprintf(file_out, "%" PL_FMT_d, (tagged) ? (PlLong) Tag_INT(n) : n);
 	  break;
 
 	case FLOAT:
@@ -2575,7 +2576,7 @@ F_cxt_assign_K(ArgVal arg[])
 void
 F_cxt_unit_for_next_call(ArgVal arg[])
 {
-  register char *p;
+  //  register char *p;
   Args1(F_N(atom, n));
   AVOID_UNUSED_WARNING(f_n_no);
 

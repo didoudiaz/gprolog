@@ -9,20 +9,20 @@ predicate('$use_all_solut'/0,41,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(findall/3,44,static,private,monofile,built_in,[
+predicate(findall/3,46,static,private,monofile,built_in,[
     put_nil(3),
     put_atom(findall,4),
     put_integer(3,5),
     execute('$findall'/6)]).
 
 
-predicate(findall/4,47,static,private,monofile,built_in,[
+predicate(findall/4,51,static,private,monofile,built_in,[
     put_atom(findall,4),
     put_integer(4,5),
     execute('$findall'/6)]).
 
 
-predicate('$findall'/6,50,static,private,monofile,built_in,[
+predicate('$findall'/6,54,static,private,monofile,built_in,[
     allocate(8),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -58,7 +58,7 @@ predicate('$findall'/6,50,static,private,monofile,built_in,[
     proceed]).
 
 
-predicate(setof/3,59,static,private,monofile,built_in,[
+predicate(setof/3,65,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -79,7 +79,7 @@ predicate(setof/3,59,static,private,monofile,built_in,[
     execute('$bagof'/5)]).
 
 
-predicate(bagof/3,67,static,private,monofile,built_in,[
+predicate(bagof/3,75,static,private,monofile,built_in,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -100,7 +100,7 @@ predicate(bagof/3,67,static,private,monofile,built_in,[
     execute('$bagof'/5)]).
 
 
-predicate('$bagof'/5,72,static,private,monofile,built_in,[
+predicate('$bagof'/5,80,static,private,monofile,built_in,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -172,7 +172,7 @@ label(1),
     execute('$$bagof/5_$aux2'/3)]).
 
 
-predicate('$$bagof/5_$aux2'/3,83,static,private,monofile,local,[
+predicate('$$bagof/5_$aux2'/3,91,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -189,7 +189,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$$bagof/5_$aux1'/3,72,static,private,monofile,local,[
+predicate('$$bagof/5_$aux1'/3,80,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -207,7 +207,7 @@ label(1),
     execute(sort/1)]).
 
 
-predicate('$store_solutions'/5,95,static,private,monofile,built_in,[
+predicate('$store_solutions'/5,103,static,private,monofile,built_in,[
     get_variable(x(5),4),
     get_variable(x(4),0),
     call_c('Pl_Stop_Mark_1',[],[x(2)]),
@@ -217,7 +217,7 @@ predicate('$store_solutions'/5,95,static,private,monofile,built_in,[
     execute('$$store_solutions/5_$aux1'/5)]).
 
 
-predicate('$$store_solutions/5_$aux1'/5,95,static,private,monofile,local,[
+predicate('$$store_solutions/5_$aux1'/5,103,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
@@ -240,16 +240,122 @@ label(1),
     proceed]).
 
 
-predicate('$group_solutions'/3,106,static,private,monofile,built_in,[
+predicate('$group_solutions'/3,114,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
-predicate('$group_solutions_alt'/0,109,static,private,monofile,built_in,[
+predicate('$group_solutions_alt'/0,117,static,private,monofile,built_in,[
     call_c('Pl_Group_Solutions_Alt_0',[boolean],[]),
     proceed]).
 
 
-predicate('$check_list_arg'/3,117,static,private,monofile,built_in,[
+predicate('$check_list_arg'/3,125,static,private,monofile,built_in,[
     call_c('Pl_Set_Bip_Name_2',[],[x(1),x(2)]),
     execute('$check_list_or_partial_list'/1)]).
+
+
+predicate('$$prop_meta_pred/3_$aux1'/3,44,static,private,monofile,local,[
+    get_atom(findall,0),
+    get_integer(3,1),
+    get_structure(findall/3,2),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux2'/3,49,static,private,monofile,local,[
+    get_atom(findall,0),
+    get_integer(4,1),
+    get_structure(findall/4,2),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    unify_atom(?),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux3'/3,63,static,private,monofile,local,[
+    get_atom(setof,0),
+    get_integer(3,1),
+    get_structure(setof/3,2),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    proceed]).
+
+
+predicate('$$prop_meta_pred/3_$aux4'/3,73,static,private,monofile,local,[
+    get_atom(bagof,0),
+    get_integer(3,1),
+    get_structure(bagof/3,2),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    proceed]).
+
+
+predicate('$prop_meta_pred'/3,44,static,private,multifile,local,[
+    get_variable(x(3),0),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_local_value(x(3)),
+    unify_local_value(x(1)),
+    unify_local_value(x(2)),
+    put_atom('$prop_meta_pred',1),
+    put_integer(3,2),
+    put_atom(true,3),
+    execute('$call'/4)]).
+
+
+directive(44,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(findall),
+    unify_integer(3),
+    unify_structure(findall/3),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    put_atom('all_solut.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(49,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(findall),
+    unify_integer(4),
+    unify_structure(findall/4),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    unify_atom(?),
+    put_atom('all_solut.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(63,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(setof),
+    unify_integer(3),
+    unify_structure(setof/3),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    put_atom('all_solut.pl',1),
+    execute('$add_clause_term'/2)]).
+
+
+directive(73,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    put_structure('$prop_meta_pred'/3,0),
+    unify_atom(bagof),
+    unify_integer(3),
+    unify_structure(bagof/3),
+    unify_atom(?),
+    unify_integer(0),
+    unify_atom(-),
+    put_atom('all_solut.pl',1),
+    execute('$add_clause_term'/2)]).

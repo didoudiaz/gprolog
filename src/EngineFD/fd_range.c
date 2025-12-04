@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -1698,7 +1698,7 @@ Pl_Range_To_String(Range *range)
 {
   int vec_elem;
   int limit1 = -1;
-  int limit2;
+  int limit2 = 0;		/* init for the compiler */
   static char buff[100 * 1024];
 
 

@@ -6,7 +6,7 @@
  * Descr.: list library                                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -351,6 +351,8 @@ flatten(List, FlatList) :-
 
 
 
+:- meta_predicate(maplist(1, ?)).
+
 maplist(Goal, List) :-
         '$maplist'(List, Goal).
 
@@ -362,6 +364,8 @@ maplist(Goal, List) :-
 
 
 
+
+:- meta_predicate(maplist(2, ?, ?)).
 
 maplist(Goal, L1, L2) :-
         '$maplist'(L1, L2, Goal).
@@ -375,6 +379,8 @@ maplist(Goal, L1, L2) :-
 
 
 
+:- meta_predicate(maplist(3, ?, ?, ?)).
+
 maplist(Goal, L1, L2, L3) :-
         '$maplist'(L1, L2, L3, Goal).
 
@@ -386,6 +392,8 @@ maplist(Goal, L1, L2, L3) :-
 
 
 
+
+:- meta_predicate(maplist(4, ?, ?, ?, ?)).
 
 maplist(Goal, L1, L2, L3, L4) :-
         '$maplist'(L1, L2, L3, L4, Goal).
@@ -399,6 +407,8 @@ maplist(Goal, L1, L2, L3, L4) :-
 
 
 
+:- meta_predicate(maplist(5, ?, ?, ?, ?, ?)).
+
 maplist(Goal, L1, L2, L3, L4, L5) :-
         '$maplist'(L1, L2, L3, L4, L5, Goal).
 
@@ -410,6 +420,8 @@ maplist(Goal, L1, L2, L3, L4, L5) :-
 
 
 
+
+:- meta_predicate(maplist(6, ?, ?, ?, ?, ?, ?)).
 
 maplist(Goal, L1, L2, L3, L4, L5, L6) :-
         '$maplist'(L1, L2, L3, L4, L5, L6, Goal).
@@ -423,6 +435,8 @@ maplist(Goal, L1, L2, L3, L4, L5, L6) :-
 
 
 
+:- meta_predicate(maplist(7, ?, ?, ?, ?, ?, ?, ?)).
+
 maplist(Goal, L1, L2, L3, L4, L5, L6, L7) :-
         '$maplist'(L1, L2, L3, L4, L5, L6, L7, Goal).
 
@@ -434,6 +448,8 @@ maplist(Goal, L1, L2, L3, L4, L5, L6, L7) :-
 
 
 
+
+:- meta_predicate(maplist(8, ?, ?, ?, ?, ?, ?, ?, ?)).
 
 maplist(Goal, L1, L2, L3, L4, L5, L6, L7, L8) :-
         '$maplist'(L1, L2, L3, L4, L5, L6, L7, L8, Goal).

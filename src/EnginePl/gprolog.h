@@ -6,7 +6,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -337,6 +337,14 @@ char *Pl_Rd_Codes_Check(PlTerm term);
 
 char *Pl_Rd_Codes(PlTerm term);
 
+char *Pl_Rd_Chars_Or_Codes_Check(PlTerm term);
+
+char *Pl_Rd_Chars_Or_Codes(PlTerm term);
+
+char *Pl_Rd_Atom_Or_Chars_Or_Codes_Check(PlTerm term);
+
+char *Pl_Rd_Atom_Or_Chars_Or_Codes(PlTerm term);
+
 int Pl_Rd_Chars_Str_Check(PlTerm term, char *str);
 
 int Pl_Rd_Chars_Str(PlTerm term, char *str);
@@ -344,6 +352,14 @@ int Pl_Rd_Chars_Str(PlTerm term, char *str);
 int Pl_Rd_Codes_Str_Check(PlTerm term, char *str);
 
 int Pl_Rd_Codes_Str(PlTerm term, char *str);
+
+int Pl_Rd_Chars_Or_Codes_Str_Check(PlTerm term, char *str);
+
+int Pl_Rd_Chars_Or_Codes_Str(PlTerm term, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(PlTerm term, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str(PlTerm term, char *str);
 
 PlTerm *Pl_Rd_List_Check(PlTerm term);
 
@@ -516,6 +532,8 @@ PlTerm Pl_Mk_Codes(const char *value);
 PlTerm Pl_Mk_List(const PlTerm *arg);
 
 PlTerm Pl_Mk_Proper_List(int n, const PlTerm *arg);
+
+PlTerm Pl_Mk_Proper_Atom_List(int n, const char **arg);
 
 PlTerm Pl_Mk_Compound(int func, int arity, const PlTerm *arg);
 

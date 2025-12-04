@@ -6,7 +6,7 @@
  * Descr.: translation file RISC-V                                         *
  * Author: Jasper Taylor, Alexander Diemand, Daniel Diaz                   *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

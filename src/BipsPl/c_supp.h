@@ -6,7 +6,7 @@
  * Descr.: C interface support - header file                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -124,6 +124,10 @@ char *Pl_Rd_Chars_Or_Codes_Check(WamWord start_word);
 
 char *Pl_Rd_Chars_Or_Codes(WamWord start_word);
 
+char *Pl_Rd_Atom_Or_Chars_Or_Codes_Check(WamWord start_word);
+
+char *Pl_Rd_Atom_Or_Chars_Or_Codes(WamWord start_word);
+
 int Pl_Rd_Chars_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Chars_Str(WamWord start_word, char *str);
@@ -135,6 +139,10 @@ int Pl_Rd_Codes_Str(WamWord start_word, char *str);
 int Pl_Rd_Chars_Or_Codes_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(WamWord start_word, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str(WamWord start_word, char *str);
 
 WamWord *Pl_Rd_List_Check(WamWord start_word);
 
@@ -316,8 +324,13 @@ WamWord Pl_Mk_List(WamWord *arg);
 
 WamWord Pl_Mk_Proper_List(int n, WamWord *arg);
 
+WamWord Pl_Mk_Proper_Atom_List(int n, char **arg);
+
 WamWord Pl_Mk_Compound(int func, int arity, WamWord *arg);
 
 WamWord Pl_Mk_Callable(int func, int arity, WamWord *arg);
 
 WamWord Pl_Mk_Variable(void);
+
+void Pl_Check_Empty_List(WamWord start_word, WamWord full_list_word);
+

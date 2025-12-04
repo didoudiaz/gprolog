@@ -6,7 +6,7 @@
  * Descr.: file name management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -194,9 +194,13 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
   do
     {
       p = q + 1;
-      if (*p == '\0')		/* no more suffixes: set default one */
+      if (*p == '\0')		/* no more suffixes */
 	{
-	  p = PROLOG_FILE_SUFFIX;
+#if 0 // activate it if we want to open an existing file without suffix (e.g. [foo] with no foo.pl but foo)
+	  pl_glob_buff[len] = '\0';
+	  if (access(pl_glob_buff, F_OK)) /* keep the file without suffix if it exists */
+#endif	    
+	    p = PROLOG_FILE_SUFFIX; /* else add the default suffix */
 	  break;
 	}
 

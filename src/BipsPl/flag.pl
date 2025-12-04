@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -106,20 +106,6 @@ current_prolog_flag(Flag, Value) :-
 
 '$set_current_B'(X) :-
 	'$call_c'('Pl_Set_Current_B_1'(X)).
-
-
-
-
-write_pl_state_file(File) :-
-	set_bip_name(write_pl_state_file, 1),
-	'$call_c_test'('Pl_Write_Pl_State_File'(File)).
-
-
-
-
-read_pl_state_file(File) :-
-	set_bip_name(read_pl_state_file, 1),
-	'$call_c_test'('Pl_Read_Pl_State_File'(File)).
 
 
 

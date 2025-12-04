@@ -6,7 +6,7 @@
  * Descr.: test file for MA translation                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2023 Daniel Diaz                                     *
+ * Copyright (C) 1999-2025 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,7 +38,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../EnginePl/pl_long.h"
+#include <setjmp.h>
 
 #if 0
 #define DEBUG
@@ -52,16 +52,20 @@
 #define FC /* define FC to force arch_dep.h to not use FC */
 #endif
 
-PlULong pl_max_atom;		/* to not need atom.o */
-
 #define IF_NO_FD_FILE
-//#include "engine_pl.h"
+#if 1				/* link with engine.o */
+#include "../EnginePl/engine_pl.h"
+#else /* else include engine.c (remove engine.o from CHKMA_OBJS in Makefile) */
 #include "../EnginePl/engine.c"
-
+#endif
 
 #if !defined(FC_USED_TO_COMPILE_CORE) && defined(FAST) /* see Makefile */
 #error FAST defined but cannot compile for FC
 #endif
+
+PlULong pl_max_atom;		/* so we do not need atom.o */
+
+
 
 
 /*---------------------------------*
@@ -1162,17 +1166,6 @@ Is_Win32_SEGV(void *exp)
 {
   return 0;
 }
-
-#ifdef USE_SEH /* (defined(_WIN32) || defined(__CYGWIN__)) && !defined(M_x86_64)*/
-
-EXCEPT_DISPOSITION
-Win32_SEH_Handler(EXCEPTION_RECORD *excp_rec, void *establisher_frame,
-                  CONTEXT *context_rec, void *dispatcher_cxt)
-{
-  return 0;
-}
-#endif
-
 
 void
 Pl_Fatal_Error(char *format, ...)
