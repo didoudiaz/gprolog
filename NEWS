@@ -11,6 +11,9 @@ Change in GNU Prolog version 1.6.0
 * fix common section alignement ld warning on Mac with clang 17.0.0
 * update/fix/improve Windows port 32 and 64 bits with msys gcc 15.2.0 and MSVC v17.14.17)
 * fix issue #82: compilation problem with gcc version 15
+* add --enable-mcheck to configure.in (malloc consistency checking)
+  don't forget to set LD_PRELOAD to libc_malloc_debug.so, e.g.:
+  export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so)
 * fix write_term/2-3 max_depth handling
 * add built-in predicate countall/2
 * modify format/2-3: now C printf format must start by ~%
