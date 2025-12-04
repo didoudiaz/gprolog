@@ -1,5 +1,16 @@
 Change in GNU Prolog version 1.6.0
 
+* fix bug in the FD solver when using quot_rem/3.
+* fix issue #81: improve number_atom/2, number_chars/2, number_codes/2
+* improve atom_concat, now atom_concat(A, A, 'abab') succeeds deterministically
+* prohibit the definition of (:-)/1-2 (follows WG17)
+* fix issue #78: write_term/3 option portrayed(true) writes to the correct stream
+* add option --no-gui-console to gprolog to disable Windows GUI console
+* fix issue #83: bugs in the Prolog parser
+* add configure option ./configure --with-c-flags=debug2 with more C compiler warnings
+* fix common section alignement ld warning on Mac with clang 17.0.0
+* update/fix/improve Windows port 32 and 64 bits with msys gcc 15.2.0 and MSVC v17.14.17)
+* fix issue #82: compilation problem with gcc version 15
 * fix write_term/2-3 max_depth handling
 * add built-in predicate countall/2
 * modify format/2-3: now C printf format must start by ~%

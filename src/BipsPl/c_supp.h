@@ -124,6 +124,10 @@ char *Pl_Rd_Chars_Or_Codes_Check(WamWord start_word);
 
 char *Pl_Rd_Chars_Or_Codes(WamWord start_word);
 
+char *Pl_Rd_Atom_Or_Chars_Or_Codes_Check(WamWord start_word);
+
+char *Pl_Rd_Atom_Or_Chars_Or_Codes(WamWord start_word);
+
 int Pl_Rd_Chars_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Chars_Str(WamWord start_word, char *str);
@@ -135,6 +139,10 @@ int Pl_Rd_Codes_Str(WamWord start_word, char *str);
 int Pl_Rd_Chars_Or_Codes_Str_Check(WamWord start_word, char *str);
 
 int Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(WamWord start_word, char *str);
+
+int Pl_Rd_Atom_Or_Chars_Or_Codes_Str(WamWord start_word, char *str);
 
 WamWord *Pl_Rd_List_Check(WamWord start_word);
 
@@ -315,6 +323,8 @@ WamWord Pl_Mk_Codes(char *value);
 WamWord Pl_Mk_List(WamWord *arg);
 
 WamWord Pl_Mk_Proper_List(int n, WamWord *arg);
+
+WamWord Pl_Mk_Proper_Atom_List(int n, char **arg);
 
 WamWord Pl_Mk_Compound(int func, int arity, WamWord *arg);
 

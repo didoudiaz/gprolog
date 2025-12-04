@@ -278,13 +278,13 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   WamWord word;
   WamWord *first_arg_adr;
   int func, arity;
-  PredInf *pred;
+  PredInf *pred = NULL;		/* init for the compiler */
   int index_no;
   PlLong key = 0;		/* init for the compiler */
   DynCInf *clause;
   DynPInf *dyn;
-  char **p_ind_htbl;
-  D2ChHdr *p_ind_hdr;
+  char **p_ind_htbl = NULL;	/* init for the compiler */
+  D2ChHdr *p_ind_hdr = NULL;	/* init for the compiler */
   DSwtInf swt_info;
   DSwtInf *swt;
   int size;
@@ -293,11 +293,18 @@ Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word, Bool asserta,
   first_arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
 
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
-    pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
-			  (int) pl_stm_tbl[pl_stm_stdin]->line_count,
-			  MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+    {
+      /* WG17: (:-)/1-2 cannot be defined (https://www.complang.tuwien.ac.at/ulrich/iso-prolog/stc#56) */
+      if ((arity == 1 || arity == 2) && strcmp(pl_atom_tbl[func].name, ":-") == 0)
+	goto err_static;
+      
+      pred = Pl_Create_Pred(func, arity, pl_atom_user_input,
+			    (int) pl_stm_tbl[pl_stm_stdin]->line_count,
+			    MASK_PRED_DYNAMIC | MASK_PRED_PUBLIC, NULL);
+    }
   else if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
+    err_static:
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Atom(func);
       Pl_Unify_Integer(arity);
@@ -851,8 +858,8 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 		     int alt_info_size, WamWord *alt_info)
 {
   int index_no;
-  PlLong key;
-  char **p_ind_htbl;
+  PlLong key = 0;		/* init for the compiler */
+  char **p_ind_htbl = NULL;	/* init for the compiler */
   DSwtInf *swt;
   DynScan scan;
   DynCInf *clause;
@@ -892,6 +899,7 @@ Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
   scan.dyn = dyn;
   scan.stop_cl_no = dyn->count_z;
   scan.erase_stamp = dyn->curr_stamp;
+  scan.xxx_is_seq_chain = FALSE; /* init for the compiler */
 
 #if DEBUG_LEVEL >= 1
   Print_Scan_Info("SCAN DYNAMIC", &scan);
@@ -978,7 +986,7 @@ static DynCInf *
 Scan_Dynamic_Pred_Next(DynScan *scan)
 {
   DynCInf *xxx_ind_chain, *var_ind_chain;
-  DynCInf *xxx_clause, *var_clause;
+  DynCInf *xxx_clause = NULL, *var_clause = NULL; /* init for the compiler */
   PlLong xxx_nb, var_nb;
   DynCInf *clause;
 

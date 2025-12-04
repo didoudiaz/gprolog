@@ -143,6 +143,7 @@ start:
   c = Pl_Stream_Get_Key(pl_stm_tbl[pl_stm_top_level_input], TRUE, FALSE);
   Pl_Stream_Putc('\n', pstm);
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (c)
     {
     case 'a':			/* abort */
@@ -162,8 +163,10 @@ start:
 
     case 'e':			/* exit */
       Pl_Exit_With_Value(0);
+      break;			/* for the compiler */
 
     case 't':			/* trace */
+      // fall through
     case 'd':			/* debug */
       if (SYS_VAR_DEBUGGER)
 	{
@@ -174,6 +177,7 @@ start:
 	  Pl_Call_Prolog((CodePtr) pred->codep);
 	  break;
 	}
+      // fall through
 
     default:			/* help */
       Pl_Stream_Printf(pstm, "   a  abort        b  break\n");

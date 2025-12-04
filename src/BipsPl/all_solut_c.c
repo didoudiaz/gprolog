@@ -88,7 +88,7 @@ static WamWord *free_var_base;
 
 
 
-static OneSol dummy = { NULL, 0, 0 };
+static OneSol dummy = { NULL, 0, 0, NOT_A_WAM_WORD };
 static OneSol *sol = &dummy;
 
 static PlLong *key_var_ptr;
@@ -368,8 +368,7 @@ Pl_Store_Solution_1(WamWord term_word)
 
   size = Pl_Term_Size(term_word);
 
-  s = (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) +
-			size * sizeof(WamWord));
+  s = (OneSol *) Malloc(sizeof(OneSol) - sizeof(WamWord) + size * sizeof(WamWord));
   s->prev = sol;
   s->sol_no = sol->sol_no + 1;
   s->term_size = size;

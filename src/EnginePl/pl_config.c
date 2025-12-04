@@ -271,7 +271,7 @@ main(void)
 
 #ifdef COULD_COMPILE_FOR_FC
   printf("Use fast call     : %s\n",
-#ifndef NO_USE_FAST_CALL
+#ifdef USE_FAST_CALL
          "Yes"
 #else
          "No"
@@ -770,7 +770,7 @@ Generate_Regs(FILE *f, FILE *g)
         k++;
       }
 
-  fprintf(g, "  } while(0)\n");
+  fprintf(g, "  } while (0)\n");
 
 
   fprintf(g, "\n\n\n\n#define Restore_All_Regs(buff_save) \\\n");
@@ -786,7 +786,7 @@ Generate_Regs(FILE *f, FILE *g)
         k++;
       }
 
-  fprintf(g, "  } while(0)\n");
+  fprintf(g, "  } while (0)\n");
 
 
 
@@ -796,7 +796,7 @@ Generate_Regs(FILE *f, FILE *g)
   for (i = 0; i < nb_of_used_mach_regs; i++)
     fprintf(g, "    buff_save[%d] = (WamWord) %s; \\\n", i, used_mach_reg[i].pl_reg_name);
 
-  fprintf(g, "  } while(0)\n");
+  fprintf(g, "  } while (0)\n");
 
 
 
@@ -806,7 +806,7 @@ Generate_Regs(FILE *f, FILE *g)
   for (i = 0; i < nb_of_used_mach_regs; i++)
     fprintf(g, "    %s = (%-8s) buff_save[%d]; \\\n", used_mach_reg[i].pl_reg_name, used_mach_reg[i].type, i);
 
-  fprintf(g, "  } while(0)\n");
+  fprintf(g, "  } while (0)\n");
 
 
 
@@ -816,7 +816,7 @@ Generate_Regs(FILE *f, FILE *g)
       fprintf(g, "  do { \\\n");
       fprintf(g, "    Save_Machine_Regs(pl_buff_signal_reg); \\\n");
       fprintf(g, "    pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 1; \\\n");
-      fprintf(g, "  } while(0)\n");
+      fprintf(g, "  } while (0)\n");
 
       fprintf(g, "\n\n#define Stop_Protect_Regs_For_Signal \\\n");
       fprintf(g, "  pl_buff_signal_reg[NB_OF_USED_MACHINE_REGS] = 0; \\\n");
@@ -830,7 +830,7 @@ Generate_Regs(FILE *f, FILE *g)
 #ifndef NO_MACHINE_REG_FOR_REG_BANK
       fprintf(g, "    pl_reg_bank = save_reg_bank; \\\n");
 #endif
-      fprintf(g, "  } while(0)\n");
+      fprintf(g, "  } while (0)\n");
     }
   else
     {
@@ -951,8 +951,8 @@ Generate_Tags(FILE *f, FILE *g)
   fprintf(g, "#define TAG_SIZE_LOW \t\t%d\n", tag_size_low);
   fprintf(g, "#define TAG_SIZE_HIGH\t\t%d\n", tag_size_high);
   fprintf(g, "#define VALUE_SIZE   \t\t%d\n", value_size);
-  fprintf(g, "#define TAG_MASK     \t\t(PlULong)%#" PL_FMT_x "\n", tag_mask);
-  fprintf(g, "#define VALUE_MASK   \t\t(PlULong)%#" PL_FMT_x "\n", ~tag_mask);
+  fprintf(g, "#define TAG_MASK     \t\t(PlULong) %#" PL_FMT_x "\n", tag_mask);
+  fprintf(g, "#define VALUE_MASK   \t\t(PlULong) %#" PL_FMT_x "\n", ~tag_mask);
 
   fprintf(g, "#define Tag_Mask_Of(w)\t\t((PlLong) (w) & (TAG_MASK))\n");
 
@@ -969,7 +969,7 @@ Generate_Tags(FILE *f, FILE *g)
     fprintf(g, "#define Tag_Of(w)     \t\tTag_Mask_Of(w)\n");
 
   for (i = 0; i < nb_tag; i++) {
-    fprintf(g, "#define TAG_%s_MASK\t\t(PlULong)%#" PL_FMT_x "\n",
+    fprintf(g, "#define TAG_%s_MASK\t\t(PlULong) %#" PL_FMT_x "\n",
             tag[i].name, Mk_Tag_Mask(tag[i].value));
   }
   fprintf(g, "\n");
@@ -984,25 +984,25 @@ Generate_Tags(FILE *f, FILE *g)
 
   fprintf(g, "\n");
   fprintf(g, "\t/* General Tag/UnTag macros */\n\n");
-  fprintf(g, "#define Tag_Long_Int(tm, v)  \t((((PlLong) ((v) << %d)) >> %d) | (tm))\n",
+  fprintf(g, "#define Tag_Long_Int(tm, v)  \t((WamWord) ((((PlULong) (v) << %d) >> %d) | (tm)))\n",
           tag_size, tag_size_high);
 
 
-  fprintf(g, "#define Tag_Short_Uns(tm, v)\t(((PlLong) (v) << %d) + (tm))\n", tag_size_low);
+  fprintf(g, "#define Tag_Short_Uns(tm, v)\t((WamWord) (((PlULong) (v) << %d) + (tm)))\n", tag_size_low);
 
 /* For Tag_Address the + (tm) is better than | (tm) since the C compiler can
  * optimizes things like Tag_Address(2, H + 1) with only 1 instruction (+ 6)
  * instead of 2 (1 for + 4, 1 for | TAG_STC_MASK)
  */
-  fprintf(g, "#define Tag_Address(tm, v)\t((PlLong) (v) + (tm))\n");
+  fprintf(g, "#define Tag_Address(tm, v)\t((WamWord) ((PlULong) (v) + (tm)))\n");
 
   fprintf(g, "\n");
-  fprintf(g, "#define UnTag_Long_Int(w) \t((PlLong) ((w) << %d) >> %d)\n",
+  fprintf(g, "#define UnTag_Long_Int(w) \t(((PlLong) (w) << %d) >> %d)\n",
           tag_size_high, tag_size);
 
   fprintf(g, "#define UnTag_Short_Uns(w)\t((int) UnTag_Long_Int(w))\n");
 
-  fprintf(g, "#define UnTag_Address(w)  \t((WamWord *) ((w) & VALUE_MASK))\n");
+  fprintf(g, "#define UnTag_Address(w)  \t((WamWord *) ((PlULong) (w) & VALUE_MASK))\n");
 
   fprintf(g, "\n");
   fprintf(g, "\n");
@@ -1017,12 +1017,10 @@ Generate_Tags(FILE *f, FILE *g)
         {
         case LONG_INT:
           if (tag[i].value == 0)
-            fprintf(g, "(((PlULong) (v) << %d) & VALUE_MASK)\n",
-                    tag_size_low);
+            fprintf(g, "((WamWord) (((PlULong) (v) << %d) & VALUE_MASK))\n", tag_size_low);
           /* testing if high bits are 1 should suffice below - TO DO */
           else if (tag[i].value == (1 << tag_size) - 1)
-            fprintf(g, "(((PlULong) (v) << %d) | TAG_MASK)\n",
-                    tag_size_low);
+            fprintf(g, "((WamWord) (((PlULong) (v) << %d) | TAG_MASK))\n", tag_size_low);
           else
             fprintf(g, "Tag_Long_Int(TAG_%s_MASK, v)\n", tag[i].name);
           break;

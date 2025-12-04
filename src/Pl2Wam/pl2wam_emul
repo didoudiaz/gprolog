@@ -4,8 +4,9 @@ prog=`basename "$0"`
 
 fullpath=`which $prog`
 dir=`dirname "$fullpath"`
+type -P cygpath >/dev/null && dir=`cygpath -m "$dir"`
 file_consult="$dir/all.pl"
 
-echo "[INTERPRETED MODE]: $prog $*"
-#echo "gprolog --quiet --init-goal \"['$file_consult'], halt\"" -- $*
-LINEDIT='gui=no' gprolog --quiet --init-goal "['$file_consult'], halt" -- $*
+echo "[INTERPRETED MODE]: $prog $@"
+#echo "gprolog --no-gui-console --quiet --init-goal \"['$file_consult'], halt\"" -- "$@"
+gprolog --no-gui-console --quiet --init-goal "['$file_consult'], halt" -- "$@"

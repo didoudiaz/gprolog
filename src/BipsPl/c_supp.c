@@ -870,6 +870,34 @@ Pl_Rd_Chars_Or_Codes(WamWord start_word)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_RD_ATOM_OR_CHARS_OR_CODES_CHECK                                      *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Rd_Atom_Or_Chars_Or_Codes_Check(WamWord start_word)
+{
+  Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(start_word, pl_glob_buff);
+  return pl_glob_buff;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_ATOM_OR_CHARS_OR_CODES                                            *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+char *
+Pl_Rd_Atom_Or_Chars_Or_Codes(WamWord start_word)
+{
+  Pl_Rd_Atom_Or_Chars_Or_Codes_Str(start_word, pl_glob_buff);
+  return pl_glob_buff;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * PL_RD_CHARS_STR_CHECK                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
@@ -1097,6 +1125,54 @@ Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str)
 
   *str = '\0';
   return n;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_ATOM_OR_CHARS_OR_CODES_STR_CHECK                                  *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_Atom_Or_Chars_Or_Codes_Str_Check(WamWord start_word, char *str)
+{
+  WamWord word, tag_mask;
+  int atom;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
+    {
+      atom = UnTag_ATM(word);
+      strcpy(str, pl_atom_tbl[atom].name);
+      return -1;
+    }
+
+  return Pl_Rd_Chars_Or_Codes_Str_Check(word, str);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_RD_ATOM_OR_CHARS_OR_CODES_STR                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Rd_Atom_Or_Chars_Or_Codes_Str(WamWord start_word, char *str)
+{
+  WamWord word, tag_mask;
+  int atom;
+
+  DEREF(start_word, word, tag_mask);
+  if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
+    {
+      atom = UnTag_ATM(word);
+      strcpy(str, pl_atom_tbl[atom].name);
+      return -1;
+    }
+
+  return Pl_Rd_Chars_Or_Codes_Str(word, str);
 }
 
 
@@ -2697,7 +2773,7 @@ Pl_Mk_List(WamWord *arg)
  * This function transform an array of n WamWords located at arg into a    *
  * Prolog list (pushed at the top of the heap) and returns the resulting   *
  * list word.                                                              *
- * Note: arg can be equal to H to tranform an array into a list in-place.  *
+ * Note: arg can be equal to H to transform an array into a list in-place. *
  * The resulting list uses 2*n WamWord from the top of the heap.           *
  *-------------------------------------------------------------------------*/
 WamWord
@@ -2720,6 +2796,45 @@ Pl_Mk_Proper_List(int n, WamWord *arg)
       *dst = Tag_LST(p);
     entry:
       *--dst = *--src;
+    }
+  while (--n);
+
+  return Tag_LST(dst);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_MK_PROPER_ATOM_LIST                                                  *
+ *                                                                         *
+ * This function transform an array of n C-strings located at arg into a   *
+ * Prolog list of atoms (pushed at the top of the heap) and returns the    *
+ * resulting list word.                                                    *
+ * Note: arg can be equal to H to transform an array into a list in-place. *
+ * The resulting list uses 2*n WamWord from the top of the heap.           *
+ *-------------------------------------------------------------------------*/
+WamWord
+Pl_Mk_Proper_Atom_List(int n, char **arg)
+{
+  char **src;
+  WamWord *dst, *p;
+
+  if (n <= 0 || arg == NULL)
+    return NIL_WORD;
+
+  src = arg + n;		/* copy from end to start to make possible */
+  dst = H = H + 2 * n;		/* in-place array->list transformation     */
+
+  *--dst = NIL_WORD;
+  goto entry;
+
+  do
+    {
+      p = dst--;
+      *dst = Tag_LST(p);
+    entry:
+      *--dst = Tag_ATM(Pl_Create_Atom(*--src));
     }
   while (--n);
 

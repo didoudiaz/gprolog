@@ -77,7 +77,15 @@ Pl_Consult_1(WamWord pl2wam_args_word)
   unsigned char *p = NULL;
   int status, c;
   int save_use_le_prompt;
+#if 0
+  /* MSVC does not accept C99 VLA (variable length arrays)
+     could use alloca (#include <alloca.h> on linux)
+     on windows/MSVC: _alloca/_malloca and #include <malloc.h>)
+  */
   char *arg[2 + Pl_List_Length(pl2wam_args_word)];
+ #else
+  char *arg[64];
+#endif
   WamWord word, tag_mask;
   WamWord *lst_adr;
   int n = 0;

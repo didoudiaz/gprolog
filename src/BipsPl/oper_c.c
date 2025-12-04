@@ -198,7 +198,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
   OperInf *oper;
   int atom;
   int op_mask;
-  int i;
+  int i = 0;			/* init for the compiler */
 
   DEREF(oper_word, word, tag_mask);
   if (tag_mask != TAG_REF_MASK && tag_mask != TAG_ATM_MASK)

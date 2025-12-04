@@ -110,7 +110,6 @@ display(SorA, Term) :-
 
 write_term(Term, Options) :-
 	set_bip_name(write_term, 2),
-	'$set_write_defaults',
 	'$get_write_options'(Options),
 	'$call_c'('Pl_Write_Term_1'(Term)),
 	fail.
@@ -120,7 +119,6 @@ write_term(_, _).
 
 write_term(SorA, Term, Options) :-
 	set_bip_name(write_term, 3),
-	'$set_write_defaults',
 	'$get_write_options'(Options),
 	'$call_c'('Pl_Write_Term_2'(SorA, Term)),
 	fail.
@@ -138,7 +136,8 @@ write_term(_, _, _).
 
 
 
-'$get_write_options'(Options) :-
+'$get_write_options'(Options) :- 	% this predicate is also called by format_c.c
+	'$set_write_defaults',
 	'$check_list'(Options),
 	'$get_write_options1'(Options, _, VarNames),
 	(   '$sys_var_get_bit'(0, 6, 1) -> % variable_names ==> namevars + assignments

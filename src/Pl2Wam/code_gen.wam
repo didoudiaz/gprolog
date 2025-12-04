@@ -3236,7 +3236,7 @@ label(112),
 label(113),
     get_atom(float_integer_part,0),
     get_integer(1,1),
-    get_atom('Pl_Fct_Float_Integ_Part',2),
+    get_atom('Pl_Fct_Float_Integer_Part',2),
     proceed]).
 
 

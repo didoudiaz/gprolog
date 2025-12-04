@@ -1698,7 +1698,7 @@ Pl_Range_To_String(Range *range)
 {
   int vec_elem;
   int limit1 = -1;
-  int limit2;
+  int limit2 = 0;		/* init for the compiler */
   static char buff[100 * 1024];
 
 

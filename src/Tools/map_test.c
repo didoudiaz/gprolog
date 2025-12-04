@@ -80,6 +80,7 @@ test1_once(struct map_rbt *map)
   char key[80];
   int key_copy_as_int;
   double dbl;
+  double factor = 12.5;
   bool b;
 
   //printf("--- put (string) ---\n");
@@ -87,14 +88,14 @@ test1_once(struct map_rbt *map)
     {
       key_copy_as_int = i * 5;
       sprintf(key, "%03d", key_copy_as_int);
-      dbl = key_copy_as_int / 0.1233;
+      dbl = key_copy_as_int * factor;
 
       entry = map_str_put(map, strdup(key), NULL);
       
       entry->value.key_copy_as_int = key_copy_as_int;
       entry->value.dbl = dbl;
 
-      //      printf("key: %3s  no: %3d  key_copy_as_int: %3d  dbl: %f\n", entry->key, entry->value.no, entry->value.key_copy_as_int, entry->value.dbl);
+      // printf("key: %3s  no: %3d  key_copy_as_int: %3d  dbl: %f\n", entry->key, entry->value.no, entry->value.key_copy_as_int, entry->value.dbl);
     }
 
   assert(map_size(map) == 10);
@@ -106,7 +107,7 @@ test1_once(struct map_rbt *map)
     {
       key_copy_as_int = i * 5;
       sprintf(key, "%03d", key_copy_as_int);
-      dbl = key_copy_as_int / 0.1233;
+      dbl = key_copy_as_int * factor;
 
       entry = map_str_get(map, key);
       assert(entry != NULL);
@@ -124,7 +125,7 @@ test1_once(struct map_rbt *map)
     {
       key_copy_as_int = i * 5;
       sprintf(key, "%03d", key_copy_as_int);
-      dbl = key_copy_as_int / 0.1233;
+      dbl = key_copy_as_int * factor;
 
       b = map_str_remove(map, key); UNUSED(b);
       assert(b);
@@ -138,7 +139,7 @@ test1_once(struct map_rbt *map)
     {
       key_copy_as_int = i * 5;
       sprintf(key, "%03d", key_copy_as_int);
-      dbl = key_copy_as_int / 0.1233;
+      dbl = key_copy_as_int * factor;
 
       entry = map_str_get(map, key);
       if (entry == NULL)
@@ -165,11 +166,13 @@ test1_once(struct map_rbt *map)
   assert(map_counter_del(map) == 0);
 }
 
+/* to test declaration + initialization for global var (pb in MSVC if cast) */
+struct map_rbt map_dummy = MAP_INIT;  
+
 void
 test1(void)
 {
-  struct map_rbt map;
-  map_init(&map);
+  struct map_rbt map = MAP_INIT; /* to test declaration + initialization */
   test1_once(&map);
   test1_once(&map);		/* recheck after a clear */
 }
@@ -203,7 +206,7 @@ void
 test2_once(struct map_rbt *map)
 {
   struct map_entry *entry;
-  double factor = 1.2;
+  double factor = 12.5;
   static int key[N], s[N];
   bool creat;
   int i;

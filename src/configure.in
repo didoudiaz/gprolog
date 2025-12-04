@@ -32,6 +32,7 @@ GPLC=gplc
 HEXGPLC=hexgplc
 ENV_VARIABLE=PL_PATH
 
+USE_FAST_CALL=no
 USE_EBP=no
 USE_MCHECK=no
 USE_LINEDIT=yes
@@ -164,22 +165,22 @@ AC_ARG_ENABLE(regs,       [  --disable-regs          do not use machine register
                    *)  ;;
                esac])
 
-AC_ARG_ENABLE(ebp,       [  --enable-ebp            use the ebp register on ix86 machines],
-              [case "$enableval" in
-                   yes) USE_EBP=yes;;
-                   *)   ;;
-               esac])
-
 AC_ARG_ENABLE(mcheck,    [  --enable-mcheck         use mcheck (C heap consistency checking)],
               [case "$enableval" in
                    yes) USE_MCHECK=yes;;
                    *)   ;;
                esac])
 
-AC_ARG_ENABLE(fast-call, [  --disable-fast-call     do not use fast call on ix86],
+AC_ARG_ENABLE(fast-call, [  --enable-fast-call      use fast call on ix86 (discouraged)],
               [case "$enableval" in
-                   no) AC_DEFINE(NO_USE_FAST_CALL);;
+                   yes) USE_FAST_CALL=yes;;
                    *)  ;;
+               esac])
+
+AC_ARG_ENABLE(ebp,       [  --enable-ebp            use the ebp register on ix86 machines],
+              [case "$enableval" in
+                   yes) USE_EBP=yes;;
+                   *)   ;;
                esac])
 
 AC_ARG_ENABLE(linedit,   [  --disable-linedit       do not include line editor facility],
@@ -217,12 +218,16 @@ AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constr
                    *)  ;;
                esac])
 
-if test "$USE_EBP" = no; then
-        AC_DEFINE(NO_USE_EBP)
-fi
-
 if test "$USE_MCHECK" = no; then
         AC_DEFINE(NO_USE_MCHECK)
+fi
+
+if test "$USE_FAST_CALL" = yes; then
+        AC_DEFINE(USE_FAST_CALL)
+fi
+
+if test "$USE_EBP" = no; then
+        AC_DEFINE(NO_USE_EBP)
 fi
 
 
@@ -301,14 +306,18 @@ dnl   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]
         WITH_MSVC=32
         host_cpu=i686
         host_os=win32
-        AS=mingw-as
+        AS=mingw32-as
         ASFLAGS='--32'
     else
         WITH_MSVC=64
         host_cpu=x86_64
         host_os=win64
-        AS=yasm-win64
-        ASFLAGS='-f win64 -p gas'
+# yasm settings (yasm has a problem on msys with large PATH)
+#        AS=yasm-win64
+#        ASFLAGS='-f win64 -p gas'
+# now use mingw64/bin/as.exe
+	AS=mingw64-as
+	ASFLAGS=''
         MAKE_ENGINE1_SRC='eng1-x86_64_win.s'
     fi
     host_vendor=microsoft
@@ -468,10 +477,11 @@ AC_C_INLINE
 if test "$WITH_MSVC" != no; then
 
     case "$WITH_C_FLAGS" in
-        debug) CFLAGS='-W3 -Zi -EHsc';;
-        no)    CFLAGS='';;
-        yes)   CFLAGS='-O2 -EHsc';;
-        *)     CFLAGS="$WITH_C_FLAGS";;
+        debug)  CFLAGS='-W3 -Zi -EHsc';;
+        debug2) CFLAGS='-W4 -wd4100 -wd4127 -wd4152 -wd4244 -wd4201 -wd4210 -wd4456 -wd4459 -wd4702 -Zi -EHsc';;
+        no)     CFLAGS='';;
+        yes)    CFLAGS='-O2 -EHsc';;
+        *)      CFLAGS="$WITH_C_FLAGS";;
     esac
 
     CFLAGS_UNSIGNED_CHAR='-J'
@@ -480,10 +490,11 @@ if test "$WITH_MSVC" != no; then
 else
 
     case "$WITH_C_FLAGS" in
-        debug) CFLAGS='-g -Wall';;
-        no)    CFLAGS='';;
-        yes)   CFLAGS='-O3 -fomit-frame-pointer';;
-        *)     CFLAGS="$WITH_C_FLAGS";;
+        debug)  CFLAGS='-g -Wall';;
+        debug2) CFLAGS='-g -Wall -Wextra -Wno-unused-parameter -Wno-cast-function-type';;
+        no)     CFLAGS='';;
+        yes)    CFLAGS='-O3 -fomit-frame-pointer';;
+        *)      CFLAGS="$WITH_C_FLAGS";;
     esac
 
 dnl -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
@@ -583,16 +594,22 @@ AC_CHECK_DECLS([htole32, bswap_32], [], [],
 #endif
 ])
 
+
 SAVE_LIBS="$LIBS"
 LIBS="$LIBS -lm"
-AC_CHECK_FUNCS(fpclass _fpclass isnan isinf)
 AC_CHECK_FUNCS(atanh acosh asinh)
+
+AC_CHECK_DECL([isnan],      [AC_DEFINE([HAVE_ISNAN])],      [], [[#include <math.h>]])
+AC_CHECK_DECL([isinf],      [AC_DEFINE([HAVE_ISINF])],      [], [[#include <math.h>]])
+AC_CHECK_DECL([fpclassify], [AC_DEFINE([HAVE_FPCLASSIFY])], [], [[#include <math.h>]])
+AC_CHECK_DECL([fpclass],    [AC_DEFINE([HAVE_FPCLASS])],    [], [[#include <math.h>]])
+AC_CHECK_DECL([_fpclass],   [AC_DEFINE([HAVE__FPCLASS])],   [], [[#include <math.h>]])
 SAVE_LIBS="$LIBS"
 
 dnl alternative solution
-dnl AC_SEARCH_LIBS(asinh, m, AC_DEFINE_UNQUOTED(HAVE_ASINH, 1, [If we have asinh()]))
-dnl AC_SEARCH_LIBS(acosh, m, AC_DEFINE_UNQUOTED(HAVE_ACOSH, 1, [If we have acosh()]))
-dnl AC_SEARCH_LIBS(atanh, m, AC_DEFINE_UNQUOTED(HAVE_ATANH, 1, [If we have atanh()]))
+dnl AC_SEARCH_LIBS(asinh, m, AC_DEFINE_UNQUOTED(HAVE_ASINH, 1, [Define if you have the asinh() function]))
+dnl AC_SEARCH_LIBS(acosh, m, AC_DEFINE_UNQUOTED(HAVE_ACOSH, 1, [Define if you have the acosh() function]))
+dnl AC_SEARCH_LIBS(atanh, m, AC_DEFINE_UNQUOTED(HAVE_ATANH, 1, [Define if you have the atanh() function]))
 
 dnl -------------------
 dnl Check for socklen_t
@@ -635,12 +652,13 @@ esac
 dnl -------------------------
 dnl Check if sigssetjmp works
 dnl -------------------------
-dnl This test was ripped from gnuplot's configure.in:
-
-AC_MSG_CHECKING([for sigsetjmp])
-AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[jmp_buf env; sigsetjmp(env, 1);]])],
-   [AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_SIGSETJMP)], [AC_MSG_RESULT(no)])
+dnl This test was ripped from gnuplot's configure.in (modifying jmpbuf -> sigjmp_buf):
+dnl AC_MSG_CHECKING([for sigsetjmp])
+dnl AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[sigjmp_buf env; sigsetjmp(env, 1);]])],
+dnl    [AC_MSG_RESULT(yes)
+dnl     AC_DEFINE(HAVE_SIGSETJMP)], [AC_MSG_RESULT(no)])
+dnl replaced by a simple AC_CHECK_DECL
+AC_CHECK_DECL([sigsetjmp], [AC_DEFINE([HAVE_SIGSETJMP])], [], [[#include <setjmp.h>]])
 
 
 dnl ------------------------
@@ -712,17 +730,34 @@ accept_disable_large_address_aware=no
 if test "$GCC" = yes -a "$CYGWIN" = yes; then
    SAVE_LDFLAGS="$LDFLAGS"
    LDFLAGS="$LDFLAGS -Wl,--disable-large-address-aware"
-   AC_MSG_CHECKING([whether gcc accepts -Wl,--disable-large-address-aware])
+   AC_MSG_CHECKING([whether gcc accepts -Wl,--disable-large-address-aware option])
    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], 
     [AC_MSG_RESULT([yes]); accept_disable_large_address_aware=yes],
     [AC_MSG_RESULT([no])])
-if test "$accept_disable_large_address_aware" = no; then
-   LDFLAGS="$SAVE_LDFLAGS"
+   if test "$accept_disable_large_address_aware" = no; then
+      LDFLAGS="$SAVE_LDFLAGS"
+   fi
 fi
-fi
 
 
 
+# On aarch64/darwin (MacOS on Apple silicon) check whether ld accepts the option
+# -max_default_common_align to limit alignment boundary.
+# See explanation of -Wl,-max_default_common_align in EnginePl/engine.h
+# set an acceptable limit (NB: limit must be given in hexadecimal) !
+# 0x400 = 4096
+case "$host" in
+    aarch64*darwin*)
+       SAVE_LDFLAGS="$LDFLAGS"
+       LDFLAGS="$LDFLAGS -Wl,-max_default_common_align,400"
+       AC_MSG_CHECKING([whether gcc/clang accepts -Wl,-max_default_common_align option])
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], 
+        [AC_MSG_RESULT([yes]); accept_max_default_common_align=yes],
+        [AC_MSG_RESULT([no]); accept_max_default_common_align=no])
+       if test "$accept_max_default_common_align" = no; then
+          LDFLAGS="$SAVE_LDFLAGS"
+       fi;;
+esac
 
 
 dnl ********************

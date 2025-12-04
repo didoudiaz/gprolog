@@ -535,7 +535,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int op;
   int size_bc;
   BCWord w;			/* code-op word */
-  unsigned w1, w2, w3 = 0;	/* additional words */ /* init for the compiler */
+  unsigned w1 = 0, w2 = 0, w3 = 0; /* additional words */ /* init for the compiler */
   PlLong l;
   int nb_word;
   C64To32 cv;
@@ -1026,6 +1026,8 @@ BC_Emulate_Byte_Code(BCWord *bc)
 
 bc_loop:
   w = *bc++;
+
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (BC_Op(w))
     {
     case GET_X_VARIABLE:
@@ -1335,6 +1337,7 @@ bc_loop:
     case CALL:
       BCI = (WamWord) (bc + 2) | debug_call;	/* use low bit of adr */
       CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
+      // fall through
     case EXECUTE:
       arity = BC2_Arity(w);
       func = bc->word;

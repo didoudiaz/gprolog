@@ -109,16 +109,8 @@ extern TokInf pl_token;
 
 int Pl_Scan_Peek_Char(StmInf *pstm, Bool convert);
 
-
-
 char *Pl_Scan_Token(StmInf *pstm, Bool comma_is_punct);
-
-
 
 void Pl_Recover_After_Error(StmInf *pstm);
 
-
-
 char *Pl_Scan_Next_Atom(StmInf *pstm);
-
-char *Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only);

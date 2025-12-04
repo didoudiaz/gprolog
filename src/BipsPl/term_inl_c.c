@@ -503,7 +503,7 @@ Pl_Setarg_4(WamWord arg_no_word, WamWord term_word, WamWord new_value_word,
   if (!undo && tag_mask != TAG_ATM_MASK && tag_mask != TAG_INT_MASK)
     Pl_Err_Type(pl_type_atomic, word);	/* pl_type_atomic but float not allowed */
 
-  if (arg_no >= arity)		/* include arg_no < 0 since PlULong */
+  if (arg_no >= (PlULong) arity) /* include arg_no < 0 since arg_no is a PlULong */
     return FALSE;
 
   if (undo)

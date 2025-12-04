@@ -434,7 +434,7 @@ static FctPtr
 Find_Function(void)
 {
   int lg;
-  int i;
+  unsigned i;
   static InfCmd cmd[] = { {"write", Write_Data_Modify},
   {"data", Write_Data_Modify},
   {"modify", Write_Data_Modify},

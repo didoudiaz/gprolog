@@ -394,8 +394,11 @@ qw:-X=1, clause(w(X,Y,Z),_), write(w(X,Y,Z)),nl,retract(w(X,V,W)),write(retract(
 qw.
 
 %:- initialization(qw).
+
 :- endif.
 
+
+:- if(fail).
 
 d :- nth0(I,[A+B+C+D,1+2+3+4,A^B^C^D^E,1^2^3^4^nil,[1,2,3,4],[A,B,C,D],[- -A,- -B,- -C,- -D],[[A,B,C,D]]],T),
      between(0,5,M), write(I-M), write(' '),
@@ -410,4 +413,12 @@ d :- told,
      write('-------------- diff ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp -----------------'), nl,
      shell('diff --width=80 --suppress-common-lines --side-by-side ~/tmp/wt-depth-sics ~/tmp/wt-depth-gp').
 	
+:- endif.
+
+
+abcdefghijklmnopqrst.
+% a b.
+% +(z;p).
+% (+,(!)).
+% +,(!).
 

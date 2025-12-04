@@ -117,11 +117,11 @@ codif(unify_value(x(Tmp)), [r(Tmp)]).
 codif(unify_local_value(x(Tmp)), [r(Tmp)]).
 
 codif(call(T), LCode) :-
-	( T = _ / N ; T = _:_/N ), !,
+	( T = _/N ; T = _:_/N ), !,
 	lst_r_for_call_execute(0, N, LCode).
 
 codif(execute(T), LCode) :-
-	( T = _ / N ; T = _:_/N ), !,
+	( T = _/N ; T = _:_/N ), !,
 	lst_r_for_call_execute(0, N, LCode).
 
 codif(get_current_choice(x(Tmp)), [w(Tmp)]).

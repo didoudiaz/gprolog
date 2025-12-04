@@ -99,7 +99,8 @@ report(Count,T0,T1,T2) :-
 	;
 	    Time is Time2-Time1	/* Time spent on nreving lists */
 	),
-        Lips is (496*Count*1000)//Time,
+%        Lips is (496*Count*1000)//Time,  % int_overflow on 32bits
+        Lips is float_integer_part(496.0*Count*1000 / Time),
  	write(Lips), write(' lips for '), write(Count),
 	write(' iterations taking '), write(Time),
 	write(' msec ('),

@@ -293,7 +293,7 @@ read_predicate1(Pred, N, LSrcCl) :-
 	;   true
 	),
 	(   test_pred_flag(def, Pred, N) ->
-	    warn('discontiguous predicate ~q - clause ignored', [Pred / N]),
+	    warn('discontiguous predicate ~q - clause ignored', [Pred/N]),
 	    fail                               % backtrack to read_predicate1
 	;   true
 	), !,
@@ -827,7 +827,7 @@ handle_directive(foreign, [Template, Options], Where) :-
 	functor(Head, Pred, N),
 	SrcCl = Where + (Head :- '$foreign_call_c'(Args)),
 	assertz(buff_discontig_clause(Pred, N, SrcCl)),
-	add_ensure_linked('$force_foreign_link' / 0).
+	add_ensure_linked('$force_foreign_link'/0).
                      % to force the link of foreign.o and then foreign_supp.o
 
 
@@ -997,7 +997,7 @@ add_empty_dyn((P1, P2), Where) :-
 	add_empty_dyn(P1, Where),
 	add_empty_dyn(P2, Where).
 
-add_empty_dyn(Pred / N, Where) :-
+add_empty_dyn(Pred/N, Where) :-
 	(   clause(empty_dyn_pred(Pred, N, _), _) ->
 	    true
 	;   assertz(empty_dyn_pred(Pred, N, Where))
@@ -1019,10 +1019,10 @@ add_ensure_linked((P1, P2)) :-
 	add_ensure_linked(P1),
 	add_ensure_linked(P2).
 
-add_ensure_linked(Pred / N) :-
+add_ensure_linked(Pred/N) :-
 	clause(ensure_linked(Pred, N), true), !.
 
-add_ensure_linked(Pred / N) :-
+add_ensure_linked(Pred/N) :-
 	assertz(ensure_linked(Pred, N)).
 
 
@@ -1041,11 +1041,11 @@ add_module_export_info((P1, P2), Module) :-
 	add_module_export_info(P1, Module),
 	add_module_export_info(P2, Module).
 
-add_module_export_info(Pred / N, _) :-
+add_module_export_info(Pred/N, _) :-
 	clause(module_export(Pred, N, Module1), true), !,
 	error('predicate ~q already exported from module ~q', [Pred/N, Module1]).
 
-add_module_export_info(Pred / N, Module) :-
+add_module_export_info(Pred/N, Module) :-
 	assertz(module_export(Pred, N, Module)),
 	(   test_pred_flag(def, Pred, N) ->
 	    check_module_clash(Pred, N)
@@ -1077,7 +1077,7 @@ check_pi_list((P1, P2), _) :-
 	check_pi_list(P1, t),
 	check_pi_list(P2, t).
 
-check_pi_list(Pred / N, _) :-
+check_pi_list(Pred/N, _) :-
 	atom(Pred),
 	integer(N),
 	N >= 0, !.
@@ -1138,7 +1138,7 @@ check_module_clash(Pred, N) :-  % Pred/N is defined in current module check for 
 	g_read(module, Module1),
 	Module \== Module1, !,
 	error('clash on ~q - defined in module ~q (here) and imported from ~q',
-	      [Pred / N, Module1, Module]).
+	      [Pred/N, Module1, Module]).
 
 check_module_clash(_, _).
 
@@ -1184,14 +1184,14 @@ set_flag_for_preds((P1, P2), Flag) :-
 	set_flag_for_preds(P1, Flag),
 	set_flag_for_preds(P2, Flag).
 
-set_flag_for_preds(Pred / N, Flag) :-
+set_flag_for_preds(Pred/N, Flag) :-
 	set_flag_for_preds1(Flag, Pred, N).
 	
 
 set_flag_for_preds1(_, Pred, N) :-
 	test_pred_flag(def, Pred, N), !,
 	warn('directive occurs after definition of ~q - directive ignored',
-	     [Pred / N]).
+	     [Pred/N]).
 
 set_flag_for_preds1(-Flag, Pred, N) :-
 	!,
@@ -1336,26 +1336,35 @@ f_n_to_key(F, N, Key) :-
 
 
 check_predicate(Pred, N) :-
+	reserved_predicate(Pred, N), !,
+	error('defining reserved predicate ~q', [Pred/N]).
+
+check_predicate(Pred, N) :-
 	g_read(redef_error, t),
 	control_construct(Pred, N), !,
-	error('redefining control construct ~q', [Pred / N]).
+	error('redefining control construct ~q', [Pred/N]).
 
 check_predicate(Pred, N) :-
 	g_read(redef_error, t),
 	bip(Pred, N), !,
-	error('redefining built-in predicate ~q', [Pred / N]).
+	error('redefining built-in predicate ~q', [Pred/N]).
 
 check_predicate(Pred, N) :-
 	g_read(susp_warn, t),
 	suspicious_predicate(Pred, N), !,
-	warn('suspicious predicate ~q', [Pred / N]).
+	warn('suspicious predicate ~q', [Pred/N]).
 
 check_predicate(Pred, N) :-
 	'$aux_name'(Pred), !,
-	warn('using system auxiliary predicate ~q', [Pred / N]).
+	warn('using system auxiliary predicate ~q', [Pred/N]).
 
 check_predicate(_, _).
 
+
+      /* (:-)/1-2 cannot be defined (WG17 https://www.complang.tuwien.ac.at/ulrich/iso-prolog/stc#56)
+       * (:-)/1 will be treated as a directive (maybe unknown) - we only have to check (:-)/2 here
+       */
+reserved_predicate(':-', 1).
 
 
 bip(F, N) :-

@@ -664,7 +664,7 @@ Call_C_Arg_Int(int offset, PlLong int_val)
 {
   BEFORE_ARG;
 
-  Inst_Printf("movl", "$%ld, %s", int_val, r);
+  Inst_Printf("movl", "$%" PL_FMT_d ", %s", int_val, r);
 
   AFTER_ARG;
 
@@ -1050,7 +1050,7 @@ Cmp_Ret_And_Int(PlLong int_val)
   if (int_val == 0)
     Inst_Printf("testl", "%%eax, %%eax");
   else
-    Inst_Printf("cmpl", "$%ld, %%eax", int_val);
+    Inst_Printf("cmpl", "$%" PL_FMT_d ", %%eax", int_val);
 }
 
 
@@ -1216,16 +1216,16 @@ Dico_Long(LongInf *l)
     defined(M_solaris) || defined(M_bsd)
       if (!l->global)
 	Inst_Printf(".local", UN "%s", l->name);
-      Inst_Printf(".comm", UN "%s,%ld,4", l->name, l->value * 4);
+      Inst_Printf(".comm", UN "%s,%" PL_FMT_d ",4", l->name, l->value * 4);
 #else
       if (!l->global)
 #ifdef M_darwin
-	Inst_Printf(".lcomm", UN "%s,%ld,2", l->name, l->value * 4);
+	Inst_Printf(".lcomm", UN "%s,%" PL_FMT_d ",2", l->name, l->value * 4);
 #else
-	Inst_Printf(".lcomm", UN "%s,%ld", l->name, l->value * 4);
+	Inst_Printf(".lcomm", UN "%s,%" PL_FMT_d, l->name, l->value * 4);
 #endif
       else
-	Inst_Printf(".comm", UN "%s,%ld", l->name, l->value * 4);
+	Inst_Printf(".comm", UN "%s,%" PL_FMT_d, l->name, l->value * 4);
 #endif
       break;
 
@@ -1242,7 +1242,7 @@ Dico_Long(LongInf *l)
 #endif
 #endif
       Label_Printf(UN "%s:", l->name);
-      Inst_Printf(".long", "%ld", l->value);
+      Inst_Printf(".long", "%" PL_FMT_d, l->value);
       break;
     }
 }

@@ -137,7 +137,7 @@ Cpp_File(char *name, int skip_comment)
 {
   char **d;
   int i;
-  FILE *fin;
+  FILE *fin = NULL;
   char *p, *q;
   int line = 0;
   char name1[1024];

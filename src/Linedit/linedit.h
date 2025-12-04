@@ -75,6 +75,8 @@ enum {
 
 /* overwritten if needed to customize linedit */
 
+int pl_le_no_gui;
+
 void (*pl_le_hook_start) (int silent);
 
 				/* is it mandatory to define a hook ? */

@@ -342,9 +342,9 @@ emit_list([X|L], PrefixTab, PrefixSpc, Stream) :-
 emit_ensure_linked :-
 	g_read(streamwamfile, Stream),
 	retract(ensure_linked(Name, Arity)), !,
-	format(Stream, '~n~nensure_linked([~q', [Name / Arity]),
+	format(Stream, '~n~nensure_linked([~q', [Name/Arity]),
 	(   clause(ensure_linked(Name1, Arity1), _),
-	    format(Stream, ',~q', [Name1 / Arity1]),
+	    format(Stream, ',~q', [Name1/Arity1]),
 	    fail
 	;   true
 	),

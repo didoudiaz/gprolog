@@ -695,7 +695,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
   WamWord word, tag_mask;
   WamWord *adr;
   WamWord *fdv_adr;
-  WamWord word1, word2, word3;
+  WamWord word1, word2, word3 = 0; /* init for the compiler */
   WamWord f_n, le_word, re_word;
   int i;
   PlLong n1, n2, n3;
@@ -1052,7 +1052,7 @@ Normalize(WamWord e_word, int sign, Poly *p)
 	      if (i == QUOT_2 || i == QUOT_REM_3)
 		{
 		  if (i == QUOT_REM_3)
-		    PRIM_CSTR_2(pl_x_eq_c, word3, word);
+		    PRIM_CSTR_2(pl_x_eq_c, word3, Tag_INT(n3));
 		  else
 		    H--;	/* recover word3 space */
 		  n3 = n1 / n2;

@@ -120,7 +120,7 @@ format_pred(Module:Pred, NoPred, DicoVar, p(NoPred, Module, FN, ArgLst), InlineP
 	!,
 	format_pred(Pred, NoPred, DicoVar, p(NoPred, _, FN, ArgLst), InlinePred).
 
-format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F / N, ArgLst1), InlinePred) :-
+format_pred(Pred, NoPred, DicoVar, p(NoPred, Module, F/N, ArgLst1), InlinePred) :-
 	functor(Pred, F, N),
 	get_owner_module(F, N, Module),
 	Pred =.. [_|ArgLst],

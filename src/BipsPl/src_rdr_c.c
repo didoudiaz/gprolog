@@ -313,6 +313,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 {
   SRInf *sr = cur_sr;
   int atom_file_name;
+  char *path;
   int stm;
   SRFile *file;
   Bool from_stream = Pl_Rd_Boolean(from_stream_word);
@@ -330,19 +331,23 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
       else
 	{
 	  atom_file_name = Pl_Rd_Atom(file_name_word);
-	  if (strcmp(pl_atom_tbl[atom_file_name].name, "user") == 0)
+	  path = pl_atom_tbl[atom_file_name].name;
+	  if (strcmp(path, "user") == 0)
+	    {
 #if 0
-	    stm = pl_stm_current_input;
+	      stm = pl_stm_current_input;
 #else
-	  {
-	    stm = Pl_Add_Stream(0, NULL, 0, pl_stm_tbl[pl_stm_current_input]->prop,
-				NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	    *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_current_input];
-	  }
+	      stm = Pl_Add_Stream(0, NULL, 0, pl_stm_tbl[pl_stm_current_input]->prop,
+				  NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	      *pl_stm_tbl[stm] = *pl_stm_tbl[pl_stm_current_input];
 #endif
+	    }
 	  else
 	    {
-	      stm = Pl_Add_Stream_For_Stdio_File(pl_atom_tbl[atom_file_name].name, STREAM_MODE_READ, TRUE);
+	      if ((path = Pl_M_Absolute_Path_Name(path)) == NULL)
+		Pl_Err_Existence(pl_existence_source_sink, file_name_word);
+	      
+	      stm = Pl_Add_Stream_For_Stdio_File(path, STREAM_MODE_READ, TRUE);
 	      if (stm < 0)
 		{
 		  if (errno == ENOENT || errno == ENOTDIR)
@@ -364,11 +369,11 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	{
 	  file->tmp_path = Pl_M_Tempnam(NULL, NULL);
 	  file->tmp_stm = Pl_Add_Stream_For_Stdio_File(file->tmp_path,
-						    STREAM_MODE_WRITE, TRUE);
+						       STREAM_MODE_WRITE, TRUE);
 	  if (file->tmp_stm < 0)
 	    Pl_Fatal_Error("cannot create tmp file %s in %s:%d", file->tmp_path, __FILE__, __LINE__);
 
-				/* try to be similar to original file */
+	  /* try to be similar to original file */
 	  pstm_tmp = pl_stm_tbl[file->tmp_stm];
 	  pstm_tmp->atom_file_name = atom_file_name;
 	  pstm_tmp->prop.eof_action = pstm->prop.eof_action;
@@ -1395,6 +1400,8 @@ Write_Location(WamWord sora_word, WamWord list_word, int atom_file_name,
   SRFile *file = NULL;
   PlLong char_count;
 
+  word = 0;			/* init for the compiler */
+  
   stm = (sora_word == NOT_A_WAM_WORD)
     ? pl_stm_current_output : Pl_Get_Stream_Or_Alias(sora_word, STREAM_CHECK_OUTPUT);
   pstm = pl_stm_tbl[stm];

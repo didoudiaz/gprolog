@@ -75,6 +75,13 @@ static double Arg_Float(WamWord **lst_adr);
 
 
 
+#define GET_WRITE_OPTIONS            X1_246765745F77726974655F6F7074696F6E73
+
+Prolog_Prototype(GET_WRITE_OPTIONS, 1);
+
+
+
+
 /*-------------------------------------------------------------------------*
  * PL_FORMAT_3                                                             *
  *                                                                         *
@@ -144,7 +151,7 @@ Format(StmInf *pstm, char *format, WamWord args_word)
   PlLong x;
   double d;
   int lg, stop;
-  int i, k;
+  int i, k, res;
   char *format_stack[256];
   char **top_stack;
   char buff[2048];
@@ -168,6 +175,8 @@ Format(StmInf *pstm, char *format, WamWord args_word)
           if (*++format == '*')
             {
               n = Arg_Integer(&lst_adr);
+	      if (n < 0)
+		Pl_Err_Domain(pl_domain_not_less_than_zero, Tag_INT(n));
               format++;
               has_n = TRUE;
             }
@@ -178,6 +187,7 @@ Format(StmInf *pstm, char *format, WamWord args_word)
               has_n = (format != p);
             }
 
+	  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
           switch (*format)
             {
             case 'a':
@@ -290,11 +300,8 @@ Format(StmInf *pstm, char *format, WamWord args_word)
             case 's':
             case 'S':
               word = Read_Arg(&lst_adr);
-              if (*format == 's')
-                p = Pl_Rd_Codes_Check(word);
-              else
-                p = Pl_Rd_Chars_Check(word);
-
+	      p = Pl_Rd_Atom_Or_Chars_Or_Codes_Check(word);
+ 
               if (has_n)
                 Pl_Stream_Printf(pstm, "%-*.*s", n, n, p);
               else
@@ -302,9 +309,7 @@ Format(StmInf *pstm, char *format, WamWord args_word)
               break;
 
             case 'i':
-	      DEFAULT_N(1);
-              while (n-- > 0)
-                Read_Arg(&lst_adr);
+	      Read_Arg(&lst_adr);
               break;
 
             case 'k':
@@ -331,13 +336,29 @@ Format(StmInf *pstm, char *format, WamWord args_word)
                             WRITE_NAME_VARS, NULL, word);
               break;
 
+            case 'W':
+              word = Read_Arg(&lst_adr);
+	      A(0) = Read_Arg(&lst_adr);
+
+	      Pl_Query_Begin(TRUE);
+	      res = Pl_Query_Call_Native(Prolog_Predicate(GET_WRITE_OPTIONS, 1));
+	      Pl_Query_End(PL_RECOVER);
+  
+	      if (res == PL_EXCEPTION)
+		Pl_Throw(Pl_Get_Exception());
+
+	      Pl_Write_Term_Options_In_Sys_Var(pstm, word);
+              break;
+
             case '~':
               Pl_Stream_Putc('~', pstm);
               break;
 
-            case 'N':
-              if (pstm->line_pos == 0)
-                break;
+            case 'N':		/* NB: the 'n' is ignored since after the the first \n we are at the begin of line */
+              if (pstm->line_pos > 0)
+		Pl_Stream_Putc('\n', pstm);
+	      break;
+
             case 'n':
 	      DEFAULT_N(1);
 	      while (n-- > 0)

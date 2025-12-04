@@ -16,7 +16,6 @@ RANLIB               = @RANLIB@
 SOCKETS_OBJS      = sockets@OBJ_SUFFIX@ sockets_c@OBJ_SUFFIX@
 NO_SOCKETS_OBJS   = no_sockets@OBJ_SUFFIX@
 
-
 LE_INTERF_OBJS    = le_interf@OBJ_SUFFIX@ le_interf_c@OBJ_SUFFIX@
 NO_LE_INTERF_OBJS = no_le_interf@OBJ_SUFFIX@
 
@@ -73,7 +72,7 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
           src_rdr@OBJ_SUFFIX@ src_rdr_c@OBJ_SUFFIX@ \
           all_pl_bips@OBJ_SUFFIX@ \
           $(MAKE_SOCKETS_OBJS) \
-	  $(MAKE_LE_INTERF_OBJS)
+          $(MAKE_LE_INTERF_OBJS)
 
 
 .SUFFIXES:
@@ -84,6 +83,7 @@ OBJLIB  = error_supp@OBJ_SUFFIX@ \
 #	$(GPLC) -W $(PLFLAGS) $*.pl
 .pl.wam:
 	$(PL2WAM) $(PLFLAGS) $*.pl
+	@fix-wam.sh $@
 
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam
@@ -176,6 +176,7 @@ control.wam:     control.pl
 expand.wam:      expand.pl
 debugger.wam:    debugger.pl
 	$(PL2WAM) $(PLFLAGS) --fast-math debugger.pl
+	@fix-wam.sh $@
 dec10io.wam:     dec10io.pl
 file.wam:        file.pl
 flag.wam:        flag.pl

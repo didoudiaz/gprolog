@@ -120,11 +120,15 @@ void Pl_Emit_Syntax_Error(char *file_name, int err_line, int err_col, char *err_
 
 void Pl_Exec_Continuation(int func, int arity, WamWord *arg_adr);
 
+#define Pl_Exec_Continuation_Native(codep) Pl_Execute_A_Continuation(codep)
+
 void Pl_Throw(WamWord ball_word);
 
 void Pl_Query_Begin(Bool recoverable);
 
 int Pl_Query_Call(int func, int arity, WamWord *arg_adr);
+
+int Pl_Query_Call_Native(CodePtr codep);
 
 int Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable);
 

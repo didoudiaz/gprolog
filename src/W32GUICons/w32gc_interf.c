@@ -128,7 +128,7 @@ typedef __declspec(dllimport) int (*Fct) ();
 static void
 Start_GUI(int silent)
 {
-  Fct W32GC_Start_Window;
+  int (*W32GC_Start_Window)(char *(*)(void), int (*)(void), PlLong (*)(QueryStackCmd, int));
   HANDLE h;
 
 #if 1 /* O to force console mode */
@@ -170,7 +170,8 @@ Start_GUI(int silent)
   pl_le_hook_message_box = (void (*)(char *, char *, int)) Find_Fct(h, "_W32GC_Message_Box");
   pl_le_hook_exit_process = (void (*)(int)) Find_Fct(h, "_W32GC_Exit_Process");
 
-  W32GC_Start_Window = (Fct) Find_Fct(h, "_W32GC_Start_Window");
+  W32GC_Start_Window = (int (*)(char *(*)(void), int (*)(void), PlLong (*)(QueryStackCmd, int)))
+    Find_Fct(h, "_W32GC_Start_Window");
   (*W32GC_Start_Window) (Pl_LE_Get_Separators, Pl_LE_Get_Prompt_Length,
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES
                          Query_Stack

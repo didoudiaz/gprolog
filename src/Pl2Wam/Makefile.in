@@ -2,11 +2,12 @@ GPLC    = @GPLC@
 PL2WAM  = pl2wam
 PLFLAGS = --fast-math
 CFLAGS  = @CFLAGS@
-PLS     = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
+
+PLS  = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
           code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
           indexing.pl wam_emit.pl
-OBJS    = $(PLS:.pl=@OBJ_SUFFIX@)
-WAMS    = $(PLS:.pl=.wam)
+OBJS = $(PLS:.pl=@OBJ_SUFFIX@)
+WAMS = $(PLS:.pl=.wam)
 
 
 .SUFFIXES:
@@ -18,6 +19,7 @@ WAMS    = $(PLS:.pl=.wam)
 # only to be able to execute check-e (in emulated mode)
 .pl.wam:
 	$(PL2WAM) $(PLFLAGS) $*.pl
+	@fix-wam.sh $@
 
 .wam@OBJ_SUFFIX@:
 	$(GPLC) -c $*.wam

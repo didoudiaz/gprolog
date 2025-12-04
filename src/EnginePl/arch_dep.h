@@ -109,7 +109,7 @@
 
 /* check printf arguments */
 
-#if defined(__GNUC__) && !defined(M_win64) /* gcc on mingw64 warns about PRIdPTR in x86_64_any.c ??? */
+#if defined(__GNUC__)
 #define ATTR_PRINTF(x) __attribute__((format(printf, x, x + 1)))
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
 #else
@@ -118,6 +118,18 @@
 
 #define AVOID_UNUSED_WARNING(x) ((void)(x))
 
+
+/* Alignment compiler attribute
+ * in MSVC the attribute must be before the variable,
+ * in GCC is seems OK before or after the variable.
+ */
+#ifdef __GNUC__			/* GCC accepts sizeof(type) */
+#   define ATTR_ALIGN(x) __attribute__((aligned(x)))
+#elif defined(_MSC_VER)		/* MSVC needs a constant */
+#  define ATTR_ALIGN(x) __declspec(align(x))
+#else
+#  define ATTR_ALIGN(x)
+#endif
 
 
 
@@ -212,7 +224,7 @@
     for((_p) = NULL, _ptr = (_path); *_ptr; _ptr++)	\
       if (Is_Dir_Sep(*_ptr))				\
 	(_p) = _ptr;					\
-  } while(0)
+  } while (0)
 
 
 
@@ -258,12 +270,6 @@
 #endif
 
 
-#ifndef HAVE_SIGSETJMP
-#define sigjmp_buf jmp_buf
-#define sigsetjmp(jb, x) setjmp(jb)
-#define siglongjmp longjmp
-#endif
-
 #if defined(_WIN64) && !defined(_MSC_VER) && !defined(__CYGWIN__)
 /* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
  * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
@@ -287,12 +293,24 @@
  *    d:   ff 20                   jmpq   *(%rax)
  *    f:   90                      nop
  *
+ * We here redefine setjmp to pass NULL. BEWARE do not include <setjmp.h> after
+ * that EVEN if setjmp.h has already been included. On mingw64 setjmp will be
+ * redefined ignoring our definition (see /mingw64/include/setjmp.h and _INC_SETJMP macro).
  */
 #ifdef setjmp
 #undef setjmp
 #endif
 #define setjmp(buf) _setjmp(buf, NULL)
 #endif
+
+#ifndef HAVE_SIGSETJMP
+#define sigjmp_buf jmp_buf
+#define sigsetjmp(jb, x) setjmp(jb)
+#define siglongjmp longjmp
+#endif
+
+
+
 				/* Fast call macros */
 #if defined(M_ix86)
 
@@ -303,8 +321,9 @@
 #define FC_MAX_ARGS_IN_REGS 3
 #define FC_SET_OF_REGISTERS { "%eax", "%edx", "%ecx" };
 #define FC_ATTRIB __attribute__((regparm(FC_MAX_ARGS_IN_REGS)))
-#elif 0  /* under MSVC++ we can use __fastcall convention (#elif 1 if wanted) */
-         /* see file ix86_any.c to see why it is not selected by default */
+#elif defined(_MSC_VER)
+	/* under MSVC++ we can use __fastcall convention */
+        /* however maybe little gain (see file ix86_any.c) */
 #define FC_MAX_ARGS_IN_REGS 2
 #define FC_SET_OF_REGISTERS { "%ecx", "%edx" };
 #define FC_ATTRIB __fastcall
@@ -316,7 +335,7 @@
 
 #endif
 
-#if !defined(NO_USE_FAST_CALL) && defined(FC_ATTRIB)
+#if defined(USE_FAST_CALL) && defined(FC_ATTRIB)
 #define FC_USED_TO_COMPILE_CORE
 #ifndef FC /* to compile Ma2Asm/check.c without FC */
 #define FC FC_ATTRIB

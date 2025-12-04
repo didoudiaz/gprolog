@@ -9,9 +9,12 @@
   linux/lib/rbtree.c
 */
 
-// DD: #include <linux/rbtree_augmented.h>
-// DD: #include <linux/export.h>
+#if 0
+#include <linux/rbtree_augmented.h>
+#include <linux/export.h>
+#else /* DD */
 #include "rbtree_augmented.h"
+#endif
 
 /*
  * red-black trees properties:  https://en.wikipedia.org/wiki/Rbtree
@@ -59,7 +62,7 @@
 
 static inline void rb_set_black(struct rb_node *rb)
 {
-	rb->__rb_parent_color |= RB_BLACK;
+	rb->__rb_parent_color += RB_BLACK;
 }
 
 static inline struct rb_node *rb_red_parent(struct rb_node *red)

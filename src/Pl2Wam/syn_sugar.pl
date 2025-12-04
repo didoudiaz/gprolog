@@ -376,7 +376,7 @@ lst_var_args(I, N, P, V, V2) :-
         % Other predicate rewriting
 
 pred_rewriting(fd_tell(X), T) :-                          % FD transformation
-	test_c_call_allowed(fd_tell / 1),
+	test_c_call_allowed(fd_tell/1),
 	pred_rewriting('$call_c'(X, [boolean]), T).
 
 pred_rewriting(set_bip_name(Name, Arity), Pred1) :-
