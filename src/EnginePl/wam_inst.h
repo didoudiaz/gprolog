@@ -136,9 +136,9 @@
 				   /* reserve 10 bits for the arity */
 #define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 10)
 
-#define Functor_Arity(f, n)        (((PlULong) (n) << ATOM_MAX_BITS) | (f))
+#define Functor_Arity(f, n)        ((WamWord) (((PlULong)(n) << ATOM_MAX_BITS) | (f)))
 #define Functor_Of(word)           ((int) ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1)))
-#define Arity_Of(word)             ((int) ((PlULong) (word) >> ATOM_MAX_BITS))
+#define Arity_Of(word)             ((int) ((PlULong)(word) >> ATOM_MAX_BITS))
 
 
 #ifndef NO_USE_FD_SOLVER

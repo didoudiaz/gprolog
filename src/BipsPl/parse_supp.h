@@ -97,8 +97,6 @@ WamWord Pl_Read_Term(StmInf *pstm, int parse_end_of_term);
 
 WamWord Pl_Read_Atom(StmInf *pstm);
 
-WamWord Pl_Read_Integer(StmInf *pstm);
-
-WamWord Pl_Read_Number(StmInf *pstm);
+WamWord Pl_Read_Number(StmInf *pstm, Bool integer_only);
 
 WamWord Pl_Read_Token(StmInf *pstm);

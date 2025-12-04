@@ -4648,12 +4648,13 @@ replacing each format control sequence \texttt{F} by the corresponding
 element of \texttt{Arguments} (formatted according to \texttt{F}) to the
 stream associated with the stream-term or alias \texttt{SorA}.
 
-\SPart{Format control sequences}: the general format of a control sequence is
-\texttt{\~{}NC}. The character \texttt{C} determines the type of the
-control sequence. \texttt{N} is an optional numeric argument. An alternative
+\SPart{Format control sequences}: the general format of a control
+sequence is \texttt{\~{}NC}. The character \texttt{C} determines the
+type of the control sequence. \texttt{N} is an optional numeric
+argument (must evaluate to a positive integer integer). An alternative
 form of \texttt{N} is \texttt{*}. A \texttt{*} implies that the next
-argument \texttt{Arg} in \texttt{Arguments} should be used as a numeric
-argument in the control sequence.
+argument \texttt{Arg} in \texttt{Arguments} should be used as a
+numeric argument in the control sequence.
 
 As an extension, the use of C \texttt{printf()} formatting sequence is also
 recognized. It must be introduced by \texttt{\~{}\%} (in versions prior to
@@ -4719,17 +4720,12 @@ Format sequence  & type of the argument & Description \\
 
 \hline
 
-\texttt{\~{}Ns} & character code list & print exactly \texttt{N} characters
+\texttt{\~{}Ns} & character list, character code list or atom & print exactly \texttt{N} characters
                                         (default: the length of the list) \\
 
 \hline
 
-\texttt{\~{}NS} & character list & print exactly \texttt{N} characters
-                                   (default: the length of the list) \\
-
-\hline
-
-\texttt{\~{}Ni} & term & ignore \texttt{N} arguments (default: 1) \\
+\texttt{\~{}i} & term & ignore the next argument \\
 
 \hline
 

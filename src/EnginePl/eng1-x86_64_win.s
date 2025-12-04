@@ -135,7 +135,9 @@ Pl_Call_Prolog_Success:
    Microsoft Visual Studio (rewritten in gas AT&T syntax). It thus respects the
    definition of jmp_buf in setjmp.h which can be found in:
    C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29333\include/setjmp.h
-
+   Same in 2022:
+   C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\setjmp.h
+	
     I report the relevant part (I added the offset in the buffer as comments)
 
     typedef struct _JUMP_BUFFER

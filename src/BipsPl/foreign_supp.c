@@ -321,8 +321,7 @@ Pl_Query_Begin(Bool recoverable)
 
 {
   if (query_stack_top - query_stack >= QUERY_STACK_SIZE)
-    Pl_Fatal_Error("too many nested Pl_Query_Start() (max: %d)",
-		QUERY_STACK_SIZE);
+    Pl_Fatal_Error("too many nested Pl_Query_Start() (max: %d)", QUERY_STACK_SIZE);
 
   if (recoverable)
     Pl_Create_Choice_Point(Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0), 0);
@@ -342,6 +341,24 @@ Pl_Query_Call(int func, int arity, WamWord *arg_adr)
   pl_query_exception = pl_atom_void;
 
   return Pl_Call_Prolog(Prepare_Call(func, arity, arg_adr));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_QUERY_CALL_NATIVE                                                    *
+ *                                                                         *
+ * Faster version of Pl_Query_Call when we know the predicate is native.   *
+ * Arguments of the call are expected in WAM A(i) arguments.               *
+ *-------------------------------------------------------------------------*/
+int
+Pl_Query_Call_Native(CodePtr codep)
+{
+  *query_stack_top++ = pl_query_top_b = B;
+  pl_query_exception = pl_atom_void;
+
+  return Pl_Call_Prolog(codep);
 }
 
 
@@ -409,8 +426,7 @@ Pl_Query_End(int op)
   query_b = *--query_stack_top;
   pl_query_top_b = query_stack_top[-1];
 
-  recoverable =
-    (ALTB(query_b) == Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0));
+  recoverable = (ALTB(query_b) == Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0));
   prev_b = BB(query_b);
 
   switch (op)

@@ -1,4 +1,13 @@
+# Set PATH to ease local development (avoiding make install)
 a=`pwd`
 PATH=$a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$a/W32GUICons:$PATH
 
 export PATH
+
+# Under windows tell git to ignore file mode changes (executable attribute)
+if echo "${OS:-none}" | grep -iq '^win'; then
+   if command -v git >/dev/null 2>&1; then
+      git config core.filemode false >/dev/null 2>&1
+   fi
+fi
+

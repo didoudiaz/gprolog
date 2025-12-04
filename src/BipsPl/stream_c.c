@@ -213,8 +213,8 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
   int mode = STREAM_MODE_READ;	/* to avoid clang warning */
   Bool text;
   StmProp prop;
-  char *path;
   int atom_file_name;
+  char *path;
   int stm;
   FILE *f;
   int mask = (int) SYS_VAR_OPTION_MASK;

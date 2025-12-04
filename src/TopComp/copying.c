@@ -38,6 +38,11 @@
 
 /* This file included by top_comp.c, wam2ma.c, ma2asm.c,... */
 
+#ifdef __GNUC__			/* ignore 'Display_Copying' defined but not used */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 
 /*-------------------------------------------------------------------------*
  * MK_COPYING_MESSAGE                                                      *
@@ -74,3 +79,7 @@ Display_Copying(char *sub_part)
 {
   fprintf(stderr, "%s", Mk_Copying_Message(sub_part));
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

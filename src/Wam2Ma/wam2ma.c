@@ -1768,7 +1768,7 @@ F_call_c(ArgVal arg[])
 
 	case INTEGER:
 	  LOAD_INTEGER(n);
-	  fprintf(file_out, "%" PL_FMT_d, (tagged) ? Tag_INT(n) : n);
+	  fprintf(file_out, "%" PL_FMT_d, (tagged) ? (PlLong) Tag_INT(n) : n);
 	  break;
 
 	case FLOAT:

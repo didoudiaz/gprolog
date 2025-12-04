@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include "../EnginePl/engine_pl.h"
+#include "../Linedit/linedit.h"
 #include "../BipsPl/c_supp.h"
 #include "../BipsPl/inl_protos.h"
 #include "../BipsPl/flag_supp.h"
@@ -96,26 +97,25 @@ Main_Wrapper(int argc, char *argv[])
   int i;
   int new_argc = 0;
   char **new_argv;
-  WamWord *init_goal;
+  char **init_goal;
   int nb_init_goal = 0;
-  WamWord *entry_goal;
-  int nb_entry_goal = 0;
-  WamWord *consult_file;
+  char **consult_file;
   int nb_consult_file = 0;
-  WamWord *query_goal;
+  char **entry_goal;
+  int nb_entry_goal = 0;
+  char **query_goal;
   int nb_query_goal = 0;
+  Bool quiet = 0;
   WamWord word;
 
-
-  Pl_Start_Prolog(argc, argv);	/* argc and argv will be changed */
-
+  
   new_argv = (char **) Malloc(sizeof(char *) * (argc + 1));
   new_argv[new_argc++] = argv[0];
 
-  consult_file = (WamWord *) Malloc(sizeof(WamWord) * argc);
-  init_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
-  entry_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
-  query_goal = (WamWord *) Malloc(sizeof(WamWord) * argc);
+  consult_file = (char **) Malloc(sizeof(char *) * argc);
+  init_goal = (char **) Malloc(sizeof(char *) * argc);
+  entry_goal = (char **) Malloc(sizeof(char *) * argc);
+  query_goal = (char **) Malloc(sizeof(char *) * argc);
 
   for (i = 1; i < argc; i++)
     {
@@ -127,18 +127,12 @@ Main_Wrapper(int argc, char *argv[])
 	      break;
 	    }
 
-	  if (Check_Arg(i, "--version"))
-	    {
-	      Display_Copying("Prolog top-Level");
-	      exit(0);
-	    }
-
 	  if (Check_Arg(i, "--init-goal"))
 	    {
 	      if (++i >= argc)
 		Pl_Fatal_Error("Goal missing after --init-goal option");
 
-	      init_goal[nb_init_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
+	      init_goal[nb_init_goal++] = argv[i];
 	      continue;
 	    }
 
@@ -147,7 +141,7 @@ Main_Wrapper(int argc, char *argv[])
 	      if (++i >= argc)
 		Pl_Fatal_Error("File missing after --consult-file option");
 
-	      consult_file[nb_consult_file++] = Tag_ATM(Pl_Create_Atom(argv[i]));
+	      consult_file[nb_consult_file++] = argv[i];
 	      continue;
 	    }
 
@@ -156,7 +150,7 @@ Main_Wrapper(int argc, char *argv[])
 	      if (++i >= argc)
 		Pl_Fatal_Error("Goal missing after --entry-goal option");
 
-	      entry_goal[nb_entry_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
+	      entry_goal[nb_entry_goal++] = argv[i];
 	      continue;
 	    }
 
@@ -165,14 +159,26 @@ Main_Wrapper(int argc, char *argv[])
 	      if (++i >= argc)
 		Pl_Fatal_Error("Goal missing after --query-goal option");
 
-	      query_goal[nb_query_goal++] = Tag_ATM(Pl_Create_Atom(argv[i]));
+	      query_goal[nb_query_goal++] = argv[i];
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "--no-gui-console"))
+	    {
+	      pl_le_no_gui = 1;	/* overwrite var of linedit.c */
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--quiet"))
 	    {
-	      Flag_Value(show_banner) = 0;
+	      quiet = TRUE;
 	      continue;
+	    }
+
+	  if (Check_Arg(i, "--version"))
+	    {
+	      Display_Copying("Prolog top-Level");
+	      exit(0);
 	    }
 
 	  if (Check_Arg(i, "-h") || Check_Arg(i, "--help"))
@@ -190,33 +196,35 @@ Main_Wrapper(int argc, char *argv[])
 
   new_argv[new_argc] = NULL;
 
-  pl_os_argc = new_argc;
-  pl_os_argv = new_argv;
+  Pl_Start_Prolog(new_argc, new_argv);
+
+  if (quiet)
+    Flag_Value(show_banner) = 0;
 
   for (i = 0; i < nb_init_goal; i++)
     {
-      A(0) = init_goal[i];
+      A(0) = Tag_ATM(Pl_Create_Atom(init_goal[i]));
       Pl_Call_Prolog(Prolog_Predicate(EXEC_CMD_LINE_GOAL, 1));
       Pl_Reset_Prolog();
     }
 
   if (nb_consult_file)
     {
-      word = Pl_Mk_Proper_List(nb_consult_file, consult_file);
+      word = Pl_Mk_Proper_Atom_List(nb_consult_file, consult_file);
       Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_consult_file")), word);
     }
   Free(consult_file);
 
   if (nb_entry_goal)
     {
-      word = Pl_Mk_Proper_List(nb_entry_goal, entry_goal);
+      word = Pl_Mk_Proper_Atom_List(nb_entry_goal, entry_goal);
       Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_entry_goal")), word);
     }
   Free(entry_goal);
 
   if (nb_query_goal)
     {
-      word = Pl_Mk_Proper_List(nb_query_goal, query_goal);
+      word = Pl_Mk_Proper_Atom_List(nb_query_goal, query_goal);
       Pl_Blt_G_Assign(Tag_ATM(Pl_Create_Atom("$cmd_line_query_goal")), word);
     }
   Free(query_goal);
@@ -249,6 +257,7 @@ Display_Help(void)
   L("  --init-goal    GOAL         execute GOAL before entering the top-level");
   L("  --entry-goal   GOAL         execute GOAL inside the top-level");
   L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
+  L("  --no-gui-console            disable Windows GUI console (run in text mode)");
   L("  --quiet                     suppress informational messages (banner, ...)");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");

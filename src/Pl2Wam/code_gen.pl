@@ -46,7 +46,7 @@ code_generation(Head, Body, NbChunk, NbY, WamHead) :-
 
 
 
-generate_head(p(_, _, _ / N, LArg), NbChunk, NbY, WamNext, WamHead) :-
+generate_head(p(_, _, _/N, LArg), NbChunk, NbY, WamNext, WamHead) :-
 	gen_list_integers(0, N, LReg),
 	(   g_read(reorder, t) ->
 	    reorder_head_arg_lst(LArg, LReg, LArg1, LReg1)
@@ -78,7 +78,7 @@ reorder_head_arg_lst(LArg, LReg, LArg1, LReg1) :-
 
 generate_body([], _, [proceed]).
 
-generate_body([p(NoPred, Module, Pred / N, LArg)|Body], NbChunk, WamPred) :-
+generate_body([p(NoPred, Module, Pred/N, LArg)|Body], NbChunk, WamPred) :-
 	(   NoPred = NbChunk ->
 	    g_assign(last_pred, t)
 	;
@@ -270,7 +270,7 @@ gen_unif_arg(stc(F, N, LStcArg), Reg, WamNext, [WamInst|WamStcArg]) :-
 	(   F = '.',
 	    N = 2 ->
 	    WamInst = get_list(Reg)
-	;   WamInst = get_structure(F / N, Reg)
+	;   WamInst = get_structure(F/N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, head, LStcArg1, LArgAux, LRegAux),
 	gen_subterm_arg_lst(LStcArg1, WamArgAux, WamStcArg),
@@ -342,7 +342,7 @@ gen_load_arg(stc(F, N, LStcArg), Reg, WamNext, WamArgAux) :-
 	    N = 2 ->
 	    WamInst = put_list(Reg)
 	;
-	    WamInst = put_structure(F / N, Reg)
+	    WamInst = put_structure(F/N, Reg)
 	),
 	flat_stc_arg_lst(LStcArg, body, LStcArg1, LArgAux, LRegAux),
 	gen_load_arg_lst(LArgAux, LRegAux, [WamInst|WamStcArg], WamArgAux),
@@ -435,7 +435,7 @@ gen_subterm_arg(stc(F, N, LStcArg), WamNext, [WamInst|WamLStcArg]) :-
 	    N = 2 ->
 	    WamInst = unify_list
 	;
-	    WamInst = unify_structure(F / N)
+	    WamInst = unify_structure(F/N)
 	),
 	gen_subterm_arg_lst(LStcArg, WamNext, WamLStcArg).
 
@@ -473,7 +473,7 @@ dummy_instruction(put_value(x(X), X), f).
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
 
-:-	discontiguous(gen_inline_pred / 5).
+:-	discontiguous(gen_inline_pred/5).
 
 
 	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)
@@ -653,10 +653,10 @@ load_math_expr1(F, N, LArg, Reg, WamNext, WamMath) :-
 
 load_math_expr1(F, N, _, _, _, _) :-
 	math_exp_functor_name(F, N, _),
-	error('arithmetic operation not allowed in fast math (~q)', [F / N]).
+	error('arithmetic operation not allowed in fast math (~q)', [F/N]).
 
 load_math_expr1(F, N, _, _, _, _) :-
-	error('unknown operation in arithmetic expression (~q)', [F / N]).
+	error('unknown operation in arithmetic expression (~q)', [F/N]).
 
 
 
@@ -751,7 +751,7 @@ math_exp_functor_name(floor, 1, 'Pl_Fct_Floor').
 math_exp_functor_name(round, 1, 'Pl_Fct_Round').
 math_exp_functor_name(truncate, 1, 'Pl_Fct_Truncate').
 math_exp_functor_name(float_fractional_part, 1, 'Pl_Fct_Float_Fract_Part').
-math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integ_Part').
+math_exp_functor_name(float_integer_part, 1, 'Pl_Fct_Float_Integer_Part').
 
 
 gen_inline_pred(F, 2, LArg, WamNext, WamMath) :-

@@ -54,12 +54,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"          /* ensure __unix__ defined if not Win32 */
+#include "gp_config.h"          /* ensure __unix__ defined if not _WIN32 */
 
-#if !defined(__MSYS__) && (defined(__unix__) || defined(__CYGWIN__))
-#include <unistd.h>
-#elif defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__MSYS__)
 #include <windows.h>
+#else /* __unix__ || __CYGWIN__ (but not __MSYS__) */
+#include <unistd.h>
 #endif
 
 #include "engine_pl.h"
@@ -141,8 +141,6 @@ static int nb_handler = 0;
  *---------------------------------*/
 
 static void Install_SIGSEGV_Handler(void);
-
-static void SIGSEGV_Handler();
 
 static void Handle_Bad_Address(void *bad_addr);
 
@@ -399,7 +397,7 @@ Pl_Allocate_Stacks(void)
   defined(M_sparc32_solaris) || defined(M_ix86_solaris) || defined(M_x86_64_solaris)
 
 static void
-SIGSEGV_Handler(int sig, siginfo_t *sip)
+SIGSEGV_Handler(int sig, siginfo_t *sip, void *ctx)
 {
   void *addr = (void *) sip->si_addr;
   Handle_Bad_Address(addr);
@@ -548,7 +546,7 @@ Install_SIGSEGV_Handler(void)
 
   struct sigaction act;
 
-  act.sa_sigaction = (void (*)()) SIGSEGV_Handler;
+  act.sa_sigaction = SIGSEGV_Handler;
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO | SA_RESTART;
 

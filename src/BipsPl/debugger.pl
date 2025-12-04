@@ -261,8 +261,8 @@ spypoint_condition(Goal, _, _) :-
 
 '$spypoint_condition1'(Goal, Port, Test) :-
 	functor(Goal, N, A),
-	(   '$current_predicate_any'(N / A) ->
-	    '$debug_spy_set'([N / A], c(Goal, Port, Test)),
+	(   '$current_predicate_any'(N/A) ->
+	    '$debug_spy_set'([N/A], c(Goal, Port, Test)),
 	    g_read('$debug_mode', nodebug),
 	    debug
 	;   format(debugger_output, 'Warning: The predicate ~a/~d is undefined~n', [N, A])
@@ -318,7 +318,7 @@ nospyall.
 
 '$debug_spy_set'([], _).
 
-'$debug_spy_set'([N / A|L], Cond) :-
+'$debug_spy_set'([N/A|L], Cond) :-
 	(   retract('$debug_spy_point'(N, A, _)) ->
 	    Msg = 'There is already a spypoint on'
 	;   Msg = 'Spypoint placed on'
@@ -332,7 +332,7 @@ nospyall.
 
 '$debug_spy_reset'([]).
 
-'$debug_spy_reset'([N / A|L]) :-
+'$debug_spy_reset'([N/A|L]) :-
 	(   retract('$debug_spy_point'(N, A, _)) ->
 	    Msg = 'Spypoint removed from'
 	;   Msg = 'There is no spypoint on'
@@ -392,7 +392,7 @@ nospyall.
 	'$debug_list_of_pred'(Spec2, L2),
 	append(L1, L2, L).
 
-'$debug_list_of_pred'(N / A1 - A2, L) :-
+'$debug_list_of_pred'(N/A1 - A2, L) :-
 	!,
 	'$debug_list_of_pred1'(N, A1, A2, L).
 
@@ -430,11 +430,11 @@ nospyall.
 	A2 >= 0,
 	A2 =< Max,
 	g_assign('$debug_work', []),
-	(   '$current_predicate_any'(N / A),
+	(   '$current_predicate_any'(N/A),
 	    A >= A1,
 	    A =< A2,
 	    g_read('$debug_work', X),
-	    g_assign('$debug_work', [N / A|X]),
+	    g_assign('$debug_work', [N/A|X]),
 	    fail
 	;   g_read('$debug_work', L)
 	),
@@ -774,7 +774,7 @@ nospyall.
 '$debug_exec_cmd'('.', Goal, _, _, _, _) :-                     % father file
 	!,
 	functor(Goal, N, A),
-	(   '$get_predicate_file_info'(N / A, PlFile, PlLine) ->
+	(   '$get_predicate_file_info'(N/A, PlFile, PlLine) ->
 	    format(debugger_output, '~a/~d defined in ~a:~d~n', [N, A, PlFile, PlLine])
 	;   format(debugger_output, 'no file information for ~a/~d~n', [N, A])
 	),
@@ -782,7 +782,7 @@ nospyall.
 
 '$debug_exec_cmd'(+, Goal, _, _, _, _) :-                          % spy this
 	functor(Goal, N, A),
-	spy(N / A), !,
+	spy(N/A), !,
 	fail.
 
 '$debug_exec_cmd'(*, Goal, _, _, _, _) :-                 % spy conditionally
@@ -797,13 +797,13 @@ nospyall.
 
 '$debug_exec_cmd'(-, Goal, _, _, _, _) :-                        % nospy this
 	functor(Goal, N, A),
-	nospy(N / A), !,
+	nospy(N/A), !,
 	fail.
 
 '$debug_exec_cmd'('L', Goal, _, _, _, _) :-                         % listing
 	!,
 	functor(Goal, N, A),
-	PI = N / A,
+	PI = N/A,
 	(   '$current_predicate_any'(PI) ->
 	    (   '$predicate_property1'(N, A, native_code) ->
 	        format(debugger_output, 'native code predicate ~a/~d~n', [N, A])
@@ -938,7 +938,7 @@ nospyall.
 '$debug_disp_alt1'(_, _, B) :-                           % clause selection ?
 	'$call_c_test'('Pl_Scan_Choice_Point_Info_3'(B, N, A)),    % fail if not
 	'$pred_without_aux'(N, A, N1, A1),
-	'$debug_disp_alt2'(N1 / A1).
+	'$debug_disp_alt2'(N1/A1).
 
 '$debug_disp_alt1'('$catch_internal1', 5, B) :-            % hide debug catch
 	'$choice_point_arg'(B, 1, Goal),
@@ -956,13 +956,13 @@ nospyall.
 		sub_atom(N, 1, _, 1, N1),
 	        '$debug_check_bip'(N1, A1)
 	    ) ->
-	    '$debug_disp_alt2'(N1 / A1)
+	    '$debug_disp_alt2'(N1/A1)
 	;
-	    '$debug_disp_alt2'('system predicate'(N / A))
+	    '$debug_disp_alt2'('system predicate'(N/A))
 	).
 
 '$debug_disp_alt1'(N, A, _) :-                             % normal predicate
-	'$debug_disp_alt2'(N / A).
+	'$debug_disp_alt2'(N/A).
 
 
 '$debug_disp_alt2'(X) :-

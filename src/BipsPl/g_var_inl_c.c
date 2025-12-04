@@ -941,7 +941,7 @@ Get_Target_From_Selector(WamWord *stc_adr)
   if (tag_mask == STC)
     {
       adr = UnTag_STC(word);
-      if (arg_no < 1 || (PlULong) arg_no > Arity(adr))
+      if (arg_no < 1 || arg_no > Arity(adr))
 	goto error;
 
       gt->g_arg = &Arg(adr, arg_no - 1);

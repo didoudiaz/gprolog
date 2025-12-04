@@ -1,3 +1,20 @@
+2025-12-04  <daniel.diaz@univ-paris1.fr>
+
+	* fix bug in the FD solver when using quot_rem/3.
+	* fix issue #81: improve number_atom/2, number_chars/2, number_codes/2
+	* improve atom_concat, now atom_concat(A, A, 'abab') succeeds deterministically
+	* prohibit the definition of (:-)/1-2 (follows WG17)
+	* fix issue #78: write_term/3 option portrayed(true) writes to the correct stream
+	* add option --no-gui-console to gprolog to disable Windows GUI console
+	* fix issue #83: bugs in the Prolog parser
+	* add configure option ./configure --with-c-flags=debug2 with more C compiler warnings
+	* fix common section alignement ld warning on Mac with clang 17.0.0
+	* update/fix/improve Windows port 32 and 64 bits with msys gcc 15.2.0 and MSVC v17.14.17)
+
+2025-10-13  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #82: compilation problem with gcc version 15
+
 2023-07-14  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #56: write_term/2-3 max_depth option (improve ... inside a list)
@@ -18,7 +35,7 @@
 
 	* improve other arithmetic error detection (in both integer and float functions)
 	* fix issue #47: add integer overflow detection
-	* fix issue #48: error in min/2 and (^)/2.
+	* fix issue #48: error in min/2 and (^)/2
 
 2023-07-03  <daniel.diaz@univ-paris1.fr>
 
@@ -54,7 +71,7 @@
 
 2023-06-20  <daniel.diaz@univ-paris1.fr>
 
-	* replace previous pragma directives by the unique compiler_mode/1 directive.
+	* replace previous pragma directives by the unique compiler_mode/1 directive
 
  2023-06-15  <daniel.diaz@univ-paris1.fr>
 
@@ -395,7 +412,7 @@
 	* modify atom table management (its size can be defined via env. var MAX_ATOM)
 	* fix a bug with soft-call inside a meta-call
 	* implement term_hash/2 and term_hash/4. Backward incompatibility:
-	  new_atom/3 and and atom_hash/2 no longer exists.
+	  new_atom/3 and and atom_hash/2 no longer exists
 	* fix some little bugs with 64 bits (e.g. stream id)
 
 2012-10-30  <daniel.diaz@univ-paris1.fr>
@@ -553,7 +570,7 @@
 2009-11-20  <daniel.diaz@univ-paris1.fr>
 
 	* fix a bug in read_from_codes/2 and number_codes/2
-	* improve speed of built-in predicates on list (append, member, reverse,...).
+	* improve speed of built-in predicates on list (append, member, reverse,...)
 
 2009-11-16  <daniel.diaz@univ-paris1.fr>
 

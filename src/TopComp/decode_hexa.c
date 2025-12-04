@@ -306,7 +306,8 @@ Decode_Hexa(char *str, int strict, int quote, int decode_aux,
   int n;
   int module_encode;
   int pred_encode;
-  char *p, *q;
+  char *p = NULL;		/* init for the compiler */
+  char *q;
 
   if (*str++ != 'X' || *str < '0' || *str >= '5')
     return NULL;

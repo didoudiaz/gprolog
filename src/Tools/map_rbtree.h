@@ -109,7 +109,7 @@
  *     value        the value (only if MAP_VALUE_TYPE is defined)
  *     node_inv:    the rbtree node (mainly for internal use)
  *
- *   NB: the map_rbt type neither depends on the type of they nor the value.
+ *   NB: the map_rbt type neither depends on the type of the key nor the value.
  *
  * Declaration of a map variable:
  *
@@ -523,16 +523,16 @@ struct map_entry
 
 /* API: macros */
 
-// here MSVC does not want a cast for RB_ROOT (removed in rbtree.h)
+// here MSVC does not want a cast for RB_ROOT
 #define MAP_INIT { .size = 0, .counter_add = 0, .counter_del = 0, .root = RB_ROOT_NO_CAST }
 
 #define map_init(map)		\
- do {				\
-   (map)->size = 0;		\
-   (map)->counter_add = 0;	\
-   (map)->counter_del = 0;	\
-   (map)->root = RB_ROOT;	\
- } while(0)
+  do {				\
+    (map)->size = 0;		\
+    (map)->counter_add = 0;	\
+    (map)->counter_del = 0;	\
+    (map)->root = RB_ROOT;	\
+  } while(0)
 
 #define map_size(map)          ((map)->size)
 

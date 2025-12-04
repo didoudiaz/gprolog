@@ -284,7 +284,7 @@ write_default_include_file(_).
 
 
 '$load_pred'(predicate(PI, PlLine, StaDyn, PubPriv, MonoMulti, UsBplBfd, NbCl), Stream) :-
-	PI = Pred / N,
+	PI = Pred/N,
 	g_read('$pl_file', PlFile),
 	'$check_pred_type'(Pred, N, PlFile, PlLine),
 	(   MonoMulti = multifile, '$predicate_property1'(Pred, N, multifile) ->
@@ -332,7 +332,7 @@ write_default_include_file(_).
 '$check_owner_files'(PI, PlFile, PlLine) :-
 	'$get_predicate_file_info'(PI, PlFile1, PlLine1),
 	PlFile \== PlFile1, !,
-	PI = Name / _,
+	PI = Name/_,
 	(   '$aux_name'(Name) ->
 	    true
 	;   format(top_level_output, 'warning: ~a:~d: redefining procedure ~q~n', [PlFile, PlLine, PI]),
@@ -441,7 +441,7 @@ listing(PI) :-
 
 listing(N) :-
 	atom(N), !,
-	'$listing_all'(N / _).
+	'$listing_all'(N/_).
 
 listing(PI) :-
 	'$listing_all'(PI).
@@ -465,7 +465,7 @@ listing(PI) :-
 
 '$listing_any'(N) :-
 	atom(N), !,
-	'$listing_all'(N / _).
+	'$listing_all'(N/_).
 
 '$listing_any'(PI) :-
 	'$listing_all'(PI).
@@ -491,7 +491,7 @@ listing(PI) :-
 	(   '$sys_var_read'(5, 0) ->
 	    '$current_predicate'(PI)
 	;
-	    '$current_predicate_any'(PI), PI = Pred / _, '$not_aux_name'(Pred)
+	    '$current_predicate_any'(PI), PI = Pred/_, '$not_aux_name'(Pred)
 	),
 	\+ '$predicate_property_pi_any'(PI, native_code),
 	'$predicate_property_pi_any'(PI, prolog_file(File)),

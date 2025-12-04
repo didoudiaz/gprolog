@@ -159,7 +159,7 @@ static WamWord Load_Math_Expression(WamWord exp_word);
   evaluable_info.f_n = Functor_Arity(Pl_Create_Atom(atom_str), arity); \
   evaluable_info.signat_atom = Pl_Create_Atom(signat_str);             \
   evaluable_info.is_iso = iso;             			       \
-  evaluable_info.fct = f;                                              \
+  evaluable_info.fct = (WamWord (FC *)(void)) f;		       \
   Pl_Hash_Insert(evaluable_tbl, (char *) &evaluable_info, FALSE)
 
 
@@ -326,12 +326,14 @@ Check_Double_Errors(double x, Bool for_int)
     {
     case PL_FP_NAN:
       Pl_Err_Evaluation(pl_evaluation_undefined);
+      break;
 
     case PL_FP_INFINITE:
       if (for_int)
 	Pl_Err_Evaluation(pl_evaluation_int_overflow);
       else
 	Pl_Err_Evaluation(pl_evaluation_float_overflow);
+      break;
 
 #if 0  /* ignored for the moment, maybe add prolog_flags to control this, see swi */
     case PL_FP_SUBNORMAL:
@@ -441,9 +443,9 @@ static WamWord
 Load_Math_Expression(WamWord exp_word)
 {
   WamWord word, tag_mask;
-  WamWord *adr;
+  WamWord *adr = NULL;		/* init for the compiler */
   WamWord *lst_adr;
-  WamWord func, arity;
+  int func, arity;
   EvaluableInf *evaluable;
 
   DEREF(exp_word, word, tag_mask);
@@ -501,9 +503,9 @@ Load_Math_Expression(WamWord exp_word)
       Pl_Err_Type(pl_type_evaluable, word);
     }
 
-#define CALL_MATH_FCT_0(x)    (* (WamWord (*)())                 (evaluable->fct)) ()
-#define CALL_MATH_FCT_1(x)    (* (WamWord (*)(WamWord))          (evaluable->fct)) (x)
-#define CALL_MATH_FCT_2(x, y) (* (WamWord (*)(WamWord, WamWord)) (evaluable->fct)) (x, y)
+#define CALL_MATH_FCT_0(x)    (* (WamWord (FC *)())                 (evaluable->fct)) ()
+#define CALL_MATH_FCT_1(x)    (* (WamWord (FC *)(WamWord))          (evaluable->fct)) (x)
+#define CALL_MATH_FCT_2(x, y) (* (WamWord (FC *)(WamWord, WamWord)) (evaluable->fct)) (x, y)
 
   if (arity == 2)
     return CALL_MATH_FCT_2(Load_Math_Expression(Arg(adr, 0)), Load_Math_Expression(Arg(adr, 1)));
@@ -1262,8 +1264,8 @@ static int
 Compare_Numbers(WamWord x_word, WamWord y_word)
 {
   Bool x_is_int, y_is_int;
-  PlLong x_int, y_int;
-  double x_flt, y_flt;
+  PlLong x_int = 0, y_int = 0;	/* init for the compiler */
+  double x_flt = 0, y_flt = 0;	/* init for the compiler */
   
   if ((x_is_int = Tag_Is_INT(x_word)))
     x_int = UnTag_INT(x_word);

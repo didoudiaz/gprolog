@@ -140,6 +140,8 @@ Read_Next_Char(StmInf *pstm, Bool convert)
  * Scan the next pl_token. The flag comma_is_punct specifies if ',' must be*
  * considered as a punctuation (e.g. separator of args of compound term or *
  * of a list) or as an atom.                                               *
+ * Fill the pl_token variable (even on error line and line_pos are set).   *
+ * Returns NULL if OK else a string explaining the error.                  *
  * The scanner only consumes the needed characters of the pl_token, calling*
  * Unget_Last_Char if necessary (see Scan_Number). Thus after a pl_token   *
  * has been read Pl_Stream_Peekc() will return the character directly      *
@@ -628,7 +630,7 @@ Scan_Quoted_Char(StmInf *pstm, Bool convert, int c0, Bool no_escape)
 	  Unget_Last_Char;
 	  pl_token.line = pstm->line_count + 1;
 	  pl_token.col = pstm->line_pos + 1;
-	  err_msg = "unexpected end of file";
+	  err_msg = "closing quote expected here";
 	}
       return -3;		/* -3 means EOF */
     }
@@ -778,8 +780,11 @@ Pl_Recover_After_Error(StmInf *pstm)
       if (c == '.')
 	{
 	  Next_Char;
-	  if (c_type & (LA | CM))
-	    return;		/* full stop found */
+	  if (c_type & (LA | CM)) /* full stop found */
+	    {
+	      Pl_Stream_Ungetc(c, pstm);
+	      return;		
+	    }
 	}
 
       if ((c_type & (QT | DQ | BQ)) == 0)
@@ -867,6 +872,7 @@ Pl_Scan_Next_Atom(StmInf *pstm)
   pl_token.line = pstm->line_count + 1;
   pl_token.col = pstm->line_pos;
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (c_type)
     {
     case SL:			/* small letter */
@@ -891,6 +897,7 @@ Pl_Scan_Next_Atom(StmInf *pstm)
       if (Flag_Value(back_quotes) != PF_QUOT_AS_ATOM &&
 	  Flag_Value(back_quotes) != PF_QUOT_AS_ATOM_NO_ESCAPE)
 	goto error;
+      // fall through
     case QT:			/* quote */
     do_scan_quoted:
       err_msg = NULL;
@@ -922,77 +929,5 @@ Pl_Scan_Next_Atom(StmInf *pstm)
     }
 
   pl_token.type = TOKEN_NAME;
-  return NULL;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_SCAN_NEXT_NUMBER                                                     *
- *                                                                         *
- * Scan the next number (integer if integer_only is TRUE).                 *
- *-------------------------------------------------------------------------*/
-char *
-Pl_Scan_Next_Number(StmInf *pstm, Bool integer_only)
-{
-  Bool minus_op = FALSE;
-
-  err_msg = NULL;
-
-  for (;;)
-    {
-      Read_Next_Char(pstm, TRUE);
-      if (c_type != LA)		/* layout character */
-	break;
-    }
-
-
-  pl_token.line = pstm->line_count + 1;
-  pl_token.col = pstm->line_pos;
-
-
-  if (c == '-'
-#ifdef MINUS_SIGN_CANNOT_BE_FOLLOWED_BY_SPACES
-      && isdigit(Pl_Scan_Peek_Char(pstm, FALSE))	/* negative number */
-#endif
-      )
-    {
-
-      for (;;)
-	{
-	  Read_Next_Char(pstm, TRUE);
-	  if (c_type != LA)		/* layout character */
-	    break;
-	}
-      minus_op = TRUE;
-    }
-
-  if (c_type != DI)
-    {
-      Unget_Last_Char;
-      return "cannot start a number";
-    }
-
-
-  Scan_Number(pstm, integer_only);
-  if (err_msg != NULL)
-    return err_msg;
-
-  if (minus_op)
-    {
-      if (pl_token.type == TOKEN_INTEGER)
-	{
-	  if (pl_token.int_num > -INT_LOWEST_VALUE)
-	    return "integer underflow (exceeds min_integer)";
-	  pl_token.int_num = -pl_token.int_num;
-	}
-      else
-	pl_token.float_num = -pl_token.float_num;
-    }
-  else
-    if (pl_token.type == TOKEN_INTEGER && pl_token.int_num > INT_GREATEST_VALUE)
-      return "integer overflow (exceeds max_integer)";
-
   return NULL;
 }

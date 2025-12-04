@@ -1027,7 +1027,7 @@ Pl_Fatal_Error(char *format, ...)
 void
 Parse_Arguments(int argc, char *argv[])
 {
-  int i, file_name_out_i;
+  int i, file_name_out_i = 0;	/* init for the compiler */
   char **p, *q;
   FileInf *f = file_lopt;
   int nb_file = 0;

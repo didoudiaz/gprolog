@@ -643,10 +643,10 @@ Pl_Err_Representation(int atom_flag)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_Evaluation(int pl_atom_error)
+Pl_Err_Evaluation(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_EVALUATION, 1));
 }
 
@@ -673,10 +673,10 @@ Pl_Err_Resource(int atom_resource)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_Syntax(int pl_atom_error)
+Pl_Err_Syntax(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYNTAX, 1));
 }
 
@@ -688,9 +688,9 @@ Pl_Err_Syntax(int pl_atom_error)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Err_System(int pl_atom_error)
+Pl_Err_System(int atom_error)
 {
   Update_Cur_From_C_Bip();
-  A(0) = Tag_ATM(pl_atom_error);
+  A(0) = Tag_ATM(atom_error);
   Pl_Execute_A_Continuation(Prolog_Predicate(PL_ERR_SYSTEM, 1));
 }

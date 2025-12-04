@@ -60,14 +60,9 @@
 
 
  /* The output of the term -(T) using operator notation requires some attention if the
-  * notation representation of T starts with a number. It is important to disinguish
-  * between the compound term -(1) and the integer -1.
-  *
-  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is not defined, we can simply use a space.
-  *    -(1) can be output as - 1
-  *
-  * If MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES is defined we need brackets. 
-  *    -(1) can be output as - (1) NB: -(1) is also OK but does not show the op notation
+  * notation representation of T starts with a number. Brackets are needed to disinguish
+  * between the compound term -(1) and the integer -1. 
+  * -(1) can be output as - (1) NB: -(1) is also OK but does not show the op notation.
   * 
   * The following macros control how brackets are handled around T (or part of T). 
   * For this we consider 2 cases (pointed out by Ulrich Neumerkel).
@@ -163,8 +158,9 @@ static WamWord dollar_var_1;
 static WamWord dollar_varname_1;
 
 static int atom_dots;
+static int atom_portray;
 
-static StmInf *pstm_o;
+static StmInf *pstm_o = NULL;
 static Bool quoted;
 static Bool ignore_op;
 static Bool number_vars;
@@ -224,13 +220,13 @@ static Bool Try_Portray(WamWord word);
 
 
 #ifdef SPACE_ARGS_FOR_LIST_PIPE
-#define SHOW_LIST_PIPE do { if (space_args) Out_String(" | "); else Out_Char('|'); } while(0)
+#define SHOW_LIST_PIPE do { if (space_args) Out_String(" | "); else Out_Char('|'); } while (0)
 #else
 #define SHOW_LIST_PIPE Out_Char('|')
 #endif
 
 
-#define SHOW_COMMA   do { Out_Char(','); if (space_args) Out_Space(); } while(0)
+#define SHOW_COMMA   do { Out_Char(','); if (space_args) Out_Space(); } while (0)
 
 
 /*-------------------------------------------------------------------------*
@@ -241,10 +237,33 @@ static void
 Write_Supp_Initializer(void)
 {
   atom_dots = Pl_Create_Atom("...");
+  atom_portray = Pl_Create_Atom("portray");
 
   curly_brackets_1 = Functor_Arity(pl_atom_curly_brackets, 1);
   dollar_var_1 = Functor_Arity(Pl_Create_Atom("$VAR"), 1);
   dollar_varname_1 = Functor_Arity(Pl_Create_Atom("$VARNAME"), 1);
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_WRITE_TERM_OPTIONS_IN_SYS_VAR                                        *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Write_Term_Options_In_Sys_Var(StmInf *pstm, WamWord term_word)
+{
+  WamWord *above_H = NULL;
+
+  if (SYS_VAR_WRITE_ABOVE > 0)
+    {
+      WamWord *b = LSSA + SYS_VAR_WRITE_ABOVE; /* see Pl_Get_Current_Choice / Pl_Cut */
+      above_H = HB(b);
+    }
+
+  Pl_Write_Term(pstm, (int) SYS_VAR_WRITE_DEPTH, (int) SYS_VAR_WRITE_PREC,
+		(int) SYS_VAR_OPTION_MASK, above_H, term_word);
 }
 
 
@@ -389,6 +408,7 @@ Emit_Space_If_Needed(int c)
   int c_type = pl_char_type[c];
   Bool space;
 
+  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (pl_last_writing)
     {
     case W_NUMBER_0:
@@ -397,6 +417,7 @@ Emit_Space_If_Needed(int c)
 	  space = TRUE;
 	  break;
 	} /* then in W_NUMBER */
+      // fall through
     case W_NUMBER:
       space = (c_type & (UL | CL | SL | DI)) || c == '.';
       break;
@@ -421,17 +442,12 @@ Emit_Space_If_Needed(int c)
     Out_Space();
   else if (c_type == DI && last_prefix_op == W_PREFIX_OP_MINUS)
     {
-#ifndef MINUS_SIGN_CAN_BE_FOLLOWED_BY_SPACES
-      Out_Space();	     /* a space is enough to show - is an operator */
-#else			     /* we need brackets  to show - is an operator */
-      (*p_bracket_op_minus)++;
-	
+      (*p_bracket_op_minus)++;	/* we need brackets  to show - is an operator */
 #if 1	/* to show it is an op notation display a space (not strictly necessary) */
       Out_Space();
 #endif
 
       Out_Char('(');
-#endif
     }
 
   last_prefix_op = W_NO_PREFIX_OP;
@@ -1357,48 +1373,68 @@ Try_Portray(WamWord word)
   return FALSE;
 #else
   PredInf *pred;
-  StmInf *print_pstm_o;
-  Bool print_quoted;
-  Bool print_ignore_op;
-  Bool print_number_vars;
-  Bool print_name_vars;
-  Bool print_space_args;
-  Bool print_portrayed;
-  Bool print_ok;
-  static CodePtr try_portray_code = NULL;
+  int stm_o;
+  StmInf *save_pstm_o;
+  Bool save_quoted;
+  Bool save_ignore_op;
+  Bool save_number_vars;
+  Bool save_name_vars;
+  Bool save_space_args;
+  Bool save_portrayed;
+  int save_stm_current_output;
+  int res;
+/* fix_bug is because when gcc sees &xxx where xxx is a fct argument variable
+ * it allocates a frame even with -fomit-frame-pointer.
+ * This corrupts ebp on ix86 */
+  static WamWord fix_bug;
 
   if (!portrayed)
     return FALSE;
 
-  if (try_portray_code == NULL)
-    {
-      pred = Pl_Lookup_Pred(Pl_Create_Atom("$try_portray"), 1);
-      if (pred == NULL || pred->codep == NULL)
-	Pl_Err_Resource(pl_resource_print_object_not_linked);
+  pred = Pl_Lookup_Pred(atom_portray, 1);
+  if (pred == NULL)
+    return FALSE;
 
-      try_portray_code = (CodePtr) (pred->codep);
-    }
+  stm_o = pstm_o->stm; /* associated smt, to check if stm is still alive after call to portray/1 */
+  
+  save_pstm_o = pstm_o;
+  save_quoted = quoted;
+  save_ignore_op = ignore_op;
+  save_number_vars = number_vars;
+  save_name_vars = name_vars;
+  save_space_args = space_args;
+  save_portrayed = portrayed;
 
-  print_pstm_o = pstm_o;
-  print_quoted = quoted;
-  print_ignore_op = ignore_op;
-  print_number_vars = number_vars;
-  print_name_vars = name_vars;
-  print_space_args = space_args;
-  print_portrayed = portrayed;
+  /* save current output stream, ie. current_output(SaveOut) (see Pl_Current_Output_1) */
+  save_stm_current_output = pl_stm_current_output;
+  /* change output stream with pstm_o, ie. set_output(Stm_o) (see Pl_Set_Output_1) */
+  pl_stm_current_output = stm_o; 
+  Pl_Set_Alias_To_Stream(pl_atom_current_output, pl_stm_current_output, TRUE);
 
-  A(0) = word;
-  print_ok = Pl_Call_Prolog(try_portray_code);
+  fix_bug = word;
+  Pl_Query_Begin(TRUE);
+  res = Pl_Query_Call(atom_portray, 1, &fix_bug);
+  Pl_Query_End(PL_RECOVER);
+  
+  /* restore output stream, ie. set_output(SaveOut) (see Pl_Set_Output_1) */
+  pl_stm_current_output = save_stm_current_output; 
+  Pl_Set_Alias_To_Stream(pl_atom_current_output, pl_stm_current_output, TRUE);
 
-  pstm_o = print_pstm_o;
-  quoted = print_quoted;
-  ignore_op = print_ignore_op;
-  number_vars = print_number_vars;
-  name_vars = print_name_vars;
-  space_args = print_space_args;
-  portrayed = print_portrayed;
+  if (pl_stm_tbl[stm_o] != pstm_o)
+    Pl_Err_Resource(Pl_Create_Atom("no longer available stream after portray/1"));
 
-  return print_ok;
+  pstm_o = save_pstm_o;
+  quoted = save_quoted;
+  ignore_op = save_ignore_op;
+  number_vars = save_number_vars;
+  name_vars = save_name_vars;
+  space_args = save_space_args;
+  portrayed = save_portrayed;
+
+  if (res == PL_EXCEPTION)
+    Pl_Throw(Pl_Get_Exception());
+
+  return (res == PL_SUCCESS);
 #endif
 }
 
@@ -1412,9 +1448,9 @@ Try_Portray(WamWord word)
 Bool
 Pl_Get_Print_Stm_1(WamWord stm_word)
 {
-  int stm = Pl_Find_Stream_From_PStm(pstm_o);
+  int stm;
 
-  if (stm < 0)
+  if (pstm_o == NULL || (stm = Pl_Find_Stream_From_PStm(pstm_o)) < 0)
     stm = pl_stm_current_output;
 
   return Pl_Get_Integer(stm, stm_word);

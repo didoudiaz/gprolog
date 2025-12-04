@@ -131,6 +131,23 @@ call_nth(_, Nth) :-
 
 
 
+/* retrieve the last solution of a goal. Add it as a built-in ?
+:- meta_predicate(call_last(0)).
+
+call_last(Goal) :-
+	g_assign('$call_last_sol', 0),
+	'$call'(Goal, call_last, 1, true),
+	g_assign('$call_last_sol', Goal),
+	fail.
+
+call_last(Goal) :-
+	g_read('$call_last_sol', Goal1),
+	g_assign('$call_last_sol', 0), % free memory if Goal1 is a large term
+	Goal = Goal1.
+*/
+
+
+
 
 /* Optimized version storing the counter in a WAM permanent Y variable
  * (see issue #45). For this, use the (new) option to '$call_c': ret(RetVar).

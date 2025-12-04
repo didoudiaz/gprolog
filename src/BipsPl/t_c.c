@@ -159,17 +159,24 @@ calling_c(PlTerm In,PlTerm* Out)
   return PL_SUCCESS; 
 } 
 
+#endif
 
-
+#if 0
+#include <string.h>
+#include "gprolog.h" 
+#include "terminal.h"
 
 Bool 
-Is_Kbd_Empty(void)
+Kbd_Has_Char(void)
 {
   /* to put in stream_supp.c
-  if (tty_ptr != NULL && *tty_ptr != '\0')
-    return FALSE;
+     if (tty_ptr != NULL && *tty_ptr != '\0')
+     return FALSE;
+     put in linedit.c as a function this following code
   */
-  int result = !Pl_LE_Kbd_Is_Not_Empty();
+  Pl_LE_Open_Terminal();
+  int result = Pl_LE_Kbd_Is_Not_Empty();
+  Pl_LE_Close_Terminal();
   printf("result: %d\n", result);
   return result;
 }

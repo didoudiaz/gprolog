@@ -84,4 +84,4 @@ defines_first_arg(get_nil(0), atm([])).
 
 defines_first_arg(get_list(0), lst).
 
-defines_first_arg(get_structure(F / N, 0), stc(F, N)).
+defines_first_arg(get_structure(F/N, 0), stc(F, N)).

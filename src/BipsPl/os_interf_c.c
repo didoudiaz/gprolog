@@ -61,6 +61,7 @@
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #endif
 
 #define OBJ_INIT Os_Interf_Initializer
@@ -402,7 +403,7 @@ Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
   FILE *f_in = NULL, *f_out = NULL;
   int is_dir;
   char *base, *suffix;
-  size_t size_rd;
+  long size_rd;			/* not size_t to test < 0 on error */
   char buff[BUFSIZ];
 
   strcpy(path_name1, Get_Path_Name(path_name1_word));
@@ -433,7 +434,7 @@ Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
   if ((f_out = fopen(path_name2, "wb")) == NULL)
     goto error;
 
-  while((size_rd = fread(buff, 1, BUFSIZ, f_in)) > 0)
+  while((size_rd = (long) fread(buff, 1, BUFSIZ, f_in)) > 0)
     {
       size_t size_left = size_rd;
       int try_wr = 0;
@@ -919,14 +920,14 @@ void
 Pl_Sleep_1(WamWord seconds_word)
 {
 #ifdef _WIN32
-  DWORD ms;
+  PlLong ms;
 
-  ms = (DWORD) (Pl_Rd_Number_Check(seconds_word) * 1000);
+  ms = (PlLong) (Pl_Rd_Number_Check(seconds_word) * 1000);
 
   if (ms < 0)
     Pl_Err_Domain(pl_domain_not_less_than_zero, seconds_word);
 
-  Sleep(ms);
+  Sleep((DWORD) ms);
 #else
   PlLong us;
 

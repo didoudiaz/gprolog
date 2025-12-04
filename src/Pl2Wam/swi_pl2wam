@@ -1,2 +1,2 @@
 #!/bin/sh
-swipl -g "op(0, fx, dynamic), [whole, swilib], go_other" -- $*
+swipl -g "op(0, fx, dynamic), [whole, swilib], go_other" -- "$@"

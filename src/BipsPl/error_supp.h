@@ -321,7 +321,7 @@ void Pl_Err_System(int pl_atom_error);
 	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
-  } while(0)
+  } while (0)
 
 
 #define Os_Test_Error(tst)			\
@@ -332,4 +332,4 @@ void Pl_Err_System(int pl_atom_error);
 	Pl_Os_Error(errno);			\
 	return FALSE;				\
       }						\
-  } while(0)
+  } while (0)

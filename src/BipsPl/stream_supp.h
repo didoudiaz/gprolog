@@ -126,7 +126,7 @@ PbStk;
 
 
 
-typedef int (*StmFct) ();	/* generic type for file fctions */
+typedef int (*StmFct) ();	/* generic type for file function */
 
 typedef struct stm_lst *PStmLst;
 
@@ -139,6 +139,7 @@ typedef struct stm_lst		/* Chained stream list            */
 
 typedef struct stm_inf		/* Stream information             */
 {				/* ------------------------------ */
+  int stm;			/* back ref to index in pl_stm_tbl*/
   int atom_file_name;		/* atom associated to filename    */
   void *file;			/* accessor (FILE *,TTYInf *) != 0*/
   int fileno;			/* fileno (-1 if not a POSIX file)*/
