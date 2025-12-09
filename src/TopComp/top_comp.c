@@ -1570,7 +1570,7 @@ Display_Help(void)
   L("  %d for the directory part (or empty if not specified)");
   L("  %c for a auto-increment counter");
   L("");
-  L("Report bugs to bug-prolog@gnu.org.");
+  L("Visit www.gprolog.org for more information.");
 }
 
 #undef L

@@ -150,7 +150,7 @@ cmd_line_arg1('--help', LArg, LArg) :-
 	    nl,
 	    fail
 	;   nl,
-	    write('Report bugs to bug-prolog@gnu.org.'),
+	    write('Visit www.gprolog.org for more information.'),
 	    nl,
 	    stop
 	).

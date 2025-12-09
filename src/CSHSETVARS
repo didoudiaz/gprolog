@@ -1,4 +1,13 @@
-set a=`pwd`
+# GNU Prolog
+# Set PATH to ease local development (avoiding make install)
+# source this file with: source ./CSHSETVARS
 
-setenv PATH $a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$a/W32GUICons:"$PATH":/usr/ucb/:/usr/ccs/bin/
+set a = `pwd`
+setenv PATH "$a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$a/W32GUICons:$PATH"
 
+# Under Windows tell git to ignore file mode changes (executable attribute)
+if ("$OS" =~ win* || "$OS" =~ Win* || "$OS" =~ WIN*) then
+    if ( `which git >& /dev/null` == 0 ) then
+        git config core.filemode false >& /dev/null
+    endif
+endif

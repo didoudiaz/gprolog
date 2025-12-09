@@ -149,7 +149,7 @@ static void Parse_Error(char *err_msg);
     if (pl_token.int_num > INT_GREATEST_VALUE)				    \
       err = "integer overflow (exceeds max_integer)";			    \
     else if (pl_token.int_num < INT_LOWEST_VALUE)			    \
-      err = "integer underflow (exceeds min_integer)";			    \
+      err = "integer overflow (exceeds min_integer)";			    \
     if (err != NULL)							    \
       {									    \
         if (raise_error)						    \

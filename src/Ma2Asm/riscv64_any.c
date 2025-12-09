@@ -391,7 +391,12 @@ Pl_Ret(void)
 void
 Jump(char *label)
 {
+#if 0				/* limited to +-1MB offset */
   Inst_Printf("j", "%s", label);
+#else
+  Inst_Printf("la", "%s, %s", SCRATCH, label);
+  Inst_Printf("jr", "%s", SCRATCH);
+#endif
 }
 
 

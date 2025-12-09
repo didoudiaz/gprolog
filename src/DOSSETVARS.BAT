@@ -1,11 +1,12 @@
 @echo off
-REM Set PATH to ease local development (avoiding make install)
-set A=%CD%
-SET PATH=%A%\TopComp;%A%\EnginePl;%A%\Pl2Wam;%A%\Wam2Ma;%A%\Ma2Asm;%A%\Fd2C;%A%\DevUtils;%A%\W32GUICons;%PATH%
+# GNU Prolog
+# Set PATH to ease local development (avoiding make install)
+# execute this file under cmd.exe:
+
+set a=%cd%
+set PATH=%a%\TopComp;%a%\EnginePl;%a%\Pl2Wam;%a%\Wam2Ma;%a%\Ma2Asm;%a%\Fd2C;%a%\DevUtils;%a%\W32GUICons;%PATH%
 
 REM Under Windows tell git to ignore file mode changes (executable attribute)
-git config core.filemode false
-
 REM Check that git.exe exists
 where git >nul 2>&1
 if not errorlevel 1 (

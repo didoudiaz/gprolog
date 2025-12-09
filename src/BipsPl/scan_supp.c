@@ -367,10 +367,10 @@ Scan_Number(StmInf *pstm, Bool integer_only)
   *p = '\0';
 
 
-  /* if case of an underflow/overflow strtol() returns LONG_MIN/LONG_MAX and
-   * sets errno to ERANGE. We dont test it because LONG_MIN is < INT_LOWEST_VALUE
-   * and LONG_MAX is > INT_GREATEST_VALUE. We will detect it at return from
-   * this function.
+  /* In case of overflow strtol() returns either LONG_MIN or LONG_MAX and
+   * sets errno to ERANGE (NB: not on windows). We dont test it because 
+   * LONG_MIN is < INT_LOWEST_VALUE and LONG_MAX is > INT_GREATEST_VALUE. 
+   * We will detect it at return from this function.
    */
   pl_token.int_num = Str_To_PlLong(pl_token.name, &p, 10);
 

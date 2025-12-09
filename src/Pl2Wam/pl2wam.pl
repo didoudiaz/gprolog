@@ -53,7 +53,7 @@ pl2wam1(LArg) :-
 	prolog_file_name(PlFile, PlFile1),
 	compile_msg_start(PlFile1),
 	init_counters,
-	emit_code_init(WamFile, PlFile),
+	emit_code_init(WamFile, PlFile1),
 	compile_list_include(LInclude),
 	compile_and_emit_file(PlFile1),
 	emit_ensure_linked,
@@ -425,7 +425,7 @@ cmd_line_arg1('--help', LArg, LArg) :-
 	    nl,
 	    fail
 	;   nl,
-	    write('Report bugs to bug-prolog@gnu.org.'),
+	    write('Visit www.gprolog.org for more information.'),
 	    nl,
 	    stop
 	).

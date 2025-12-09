@@ -1,9 +1,10 @@
 #!/bin/sh
 
-emul=0
+mode=native
 
 do_diff() {
-    diff --ignore-space-change -I '^%' -I '^file_name[(]' $1 $2 || \
+    diff -w -I '^%' -I '^file_name[(]' $1 $2 || \
+    # diff -b -I '^%' -I '^file_name[(]' $1 $2 || \
 	( echo "difference encountered: $1 <> $2"; exit 1 )
 }
 
@@ -17,8 +18,10 @@ copy_files() {
 
 rm_make() {
     rm -f "$@"
-    [ "$emul" = 1 ] && mkflags='PL2WAM=pl2wam_emul'
-#    [ "$emul" = 1 ] && echo CHECK IN EMULATED Mode with make $mkflags
+    [ "$mode" = emul ] && mkflags='PL2WAM=pl2wam_emul'
+#    [ "$emul" = emul ] && echo CHECK IN EMULATED Mode with make $mkflags
+    [ "$mode" = interp ] && mkflags='PL2WAM=pl2wam_interp'
+#    [ "$emul" = interp ] && echo CHECK IN INTERPRETED Mode with make $mkflags
     make $mkflags >/tmp/make.log 2>&1 || (echo /tmp/make.log ; exit 1)
     fix-wam.sh "$@"
     #make $mkflags || exit 1
@@ -61,7 +64,10 @@ usage() {
 
 
 if [ "$1" = '-e' ]; then
-   emul=1
+   mode=emul
+   shift
+elif [ "$1" = '-i' ]; then
+   mode=interp
    shift
 fi
  

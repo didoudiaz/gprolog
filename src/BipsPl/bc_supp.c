@@ -987,7 +987,7 @@ BC_Emulate_Clause(DynCInf *clause)
    * To fix the issue: either do not use BC if debug is active (use interpreted code - see below)
    * or do not call the debugger inside EXECUTE_NATIVE (and CALL_NATIVE for consistency ?)
    */
-  if (bc && !debug_call)	/* emulated code (see above for test !debug_call) */
+  if (bc && (!debug_call || pl_debug_call_code == NULL)) /* emulated code (see above for test !debug_call) */
     return BC_Emulate_Byte_Code(bc);
 				/* interpreted code */
   Pl_Copy_Clause_To_Heap(clause, &head_word, &body_word);

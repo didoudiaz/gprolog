@@ -165,13 +165,19 @@ check:
 	(cd Pl2Wam; $(MAKE) check) && \
 	(cd BipsPl; $(MAKE) check) && \
 	(cd EngineFD; $(MAKE) check) && \
-	echo All tests succeeded
+	echo "All tests succeeded"
 
 check-e:
 	. ./SETVARS; \
 	(cd Pl2Wam; $(MAKE) check-e) && \
 	(cd BipsPl; $(MAKE) check-e) && \
-	echo All tests succeeded
+	echo "All tests succeeded (emulated)"
+
+check-i:
+	. ./SETVARS; \
+	(cd Pl2Wam; $(MAKE) check-i) && \
+	(cd BipsPl; $(MAKE) check-i) && \
+	echo "All tests succeeded (interpreted)"
 
 # --- CLEAN --- #
 

@@ -164,10 +164,6 @@ static WamWord Load_Math_Expression(WamWord exp_word);
 
 
 
-#define TEST_INT_OVERFLOW(x) (((x) < INT_LOWEST_VALUE) || ((x) > INT_GREATEST_VALUE))
-
-
-
 
 /*-------------------------------------------------------------------------*
  * ARITH_INITIALIZER                                                       *
@@ -587,7 +583,7 @@ static inline Bool
 mul_overflow(PlLong a, PlLong b, PlLong *r)
 {
   /* GCC/clang __bultin_mul_oveflow deactivated since the asm code 
-   * is better without (due to optimlization after inlining since 
+   * is better without (due to optimization after inlining since 
    * INT_LOWEST_VALUE/INT_GREATEST_VALUE wrt INT64_MIN/INT64_MAX)
    */
 #if 0//defined(__GNUC__) // also includes clang (else test __clang__)

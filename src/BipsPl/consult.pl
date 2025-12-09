@@ -257,6 +257,101 @@ write_default_include_file(_).
 	).
 
 
+/* --- consult_assert ---
+ * Consult a Prolog file and assert its contents
+ * (used to check bootstrapping, see emul_interp).
+ * Thus very simple Prolog support (no char_conversion, few checks, few directives, ...)
+ */
+
+'$consult_assert'(PlFile) :-
+	retractall('$consult_assert'(_, _)),
+	'$consult_assert1'(PlFile, []).
+
+
+'$consult_assert1'(PlFile, OpenFileStack) :-
+	prolog_file_name(PlFile, PlFile1),
+	'$open_pl_file'(PlFile1, OpenFileStack, PlFile2, Stream), !,
+	OpenFileStack1 = [PlFile2|OpenFileStack],
+	repeat,
+	read_term(Stream, Cl, []),
+	'$treat_term'(Cl, OpenFileStack1),
+	Cl = end_of_file, !,
+	close(Stream).
+
+
+
+
+'$open_pl_file'(user, _, user, Stream) :-
+	current_input(Stream).
+	
+'$open_pl_file'(PlFile, _, PlFile, Stream) :-
+%	format('~n*** Trying to open ~a~n', [PlFile]),
+	catch(open(PlFile, read, Stream), error(existence_error(source_sink, _), _), fail).
+
+'$open_pl_file'(PlFile, OpenFileStack, PlFile1, Stream) :-
+%	format('file stack: ~w~n', [OpenFileStack]),
+	is_relative_file_name(PlFile),
+	'$try_parent_dir'(OpenFileStack, PlFile, PlFile1, Stream).
+
+'$open_pl_file'(PlFile, _, _, _) :-
+	throw(error(existence_error(source_sink, PlFile), open/3)).
+
+
+	/* If an included file is not found try to look in "parents" (includers) path.
+	 * If found return the new name (to have correct error msg and file_name in .wam)
+	 */
+
+'$try_parent_dir'([PlFile1|_], PlFile, PlFile2, Stream) :-
+	decompose_file_name(PlFile1, Directory, _, _),
+	Directory \== '',
+	atom_concat(Directory, PlFile, PlFile2),
+%	format('   fail.~n+++ Trying to open ~a~n', [PlFile2]),
+	catch(open(PlFile2, read, Stream), _, fail).
+
+'$try_parent_dir'([_|OpenFileStack], PlFile, PlFile1, Stream) :-
+	'$try_parent_dir'(OpenFileStack, PlFile, PlFile1, Stream).
+
+
+
+
+'$treat_term'(end_of_file, _) :-
+	!.
+
+'$treat_term'((:- Directive), OpenFileStack) :-
+	'$treat_directive'(Directive, OpenFileStack), !.
+
+'$treat_term'(Cl, _) :-
+	( Cl = (Head :- _) ; Cl = Head ), !,
+	functor(Head, F, N),
+	(   clause('$consult_assert'(F, N), _)
+	;
+	    functor(Proto, F, N),
+	    retractall(Proto),
+	    assertz('$consult_assert'(F, N))
+	), !,
+	assertz(Cl).
+
+
+
+'$treat_directive'(include(PlFile), OpenFileStack) :-
+	'$consult_assert1'(PlFile, OpenFileStack).
+
+'$treat_directive'(initialization(Goal), _) :-
+	call(Goal).
+
+'$treat_directive'(op(X, Y, Z), _) :-
+	op(X, Y, Z).
+
+'$treat_directive'(set_prolog_flag(X, Y), _) :-
+	set_prolog_flag(X, Y).
+
+'$treat_directive'(discontiguous(_), _).
+
+'$treat_directive'(Directive, _) :-
+	format('ignored directive ~w~n', [Directive]).
+
+
+/* --- load file --- (byte-code) */
 
 '$load_file'(BCFile) :-
 	open(BCFile, read, Stream),

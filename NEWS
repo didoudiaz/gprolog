@@ -1,5 +1,10 @@
 Change in GNU Prolog version 1.6.0
 
+* fix issue #59: riscv64 assembly jump range limitation ±1MB
+* improve execution speed under the top-level (re issue #12)
+* fix issue #87: git local leftover changes (add .gitattributes with *.wam merge=theirs)
+* add interpreted checks (make check-i) (using '$consult_assert'/1 added in consult.pl)
+* fix issue #84: dead link in README (replace by www.gprolog.org)
 * fix bug in the FD solver when using quot_rem/3.
 * fix issue #81: improve number_atom/2, number_chars/2, number_codes/2
 * improve atom_concat, now atom_concat(A, A, 'abab') succeeds deterministically

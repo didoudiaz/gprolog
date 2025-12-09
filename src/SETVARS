@@ -1,4 +1,7 @@
+# GNU Prolog
 # Set PATH to ease local development (avoiding make install)
+# source this file with: source ./SETVARS
+
 a=`pwd`
 PATH=$a/TopComp:$a/EnginePl:$a/Pl2Wam:$a/Wam2Ma:$a/Ma2Asm:$a/Fd2C:$a/DevUtils:$a/W32GUICons:$PATH
 

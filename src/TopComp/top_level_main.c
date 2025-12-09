@@ -263,7 +263,7 @@ Display_Help(void)
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");
   L("");
-  L("Report bugs to bug-prolog@gnu.org.");
+  L("Visit www.gprolog.org for more information.");
 }
 
 #undef L

@@ -2425,7 +2425,7 @@ Display_Help(void)
   L("");
   L("'-' can be given as FILE for the standard input/output");
   L("");
-  L("Report bugs to bug-prolog@gnu.org.");
+  L("Visit www.gprolog.org for more information.");
 }
 
 #undef L

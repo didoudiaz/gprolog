@@ -92,7 +92,6 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
   WamWord word, tag_mask;
   int stm;
   StmInf *pstm;
-  char *str;
   char buff[2048];
 
 
@@ -105,14 +104,8 @@ Pl_Format_3(WamWord sora_word, WamWord format_word, WamWord args_word)
 
   DEREF(format_word, word, tag_mask);
 
-  if (tag_mask == TAG_ATM_MASK && word != NIL_WORD)
-    str = pl_atom_tbl[UnTag_ATM(word)].name;
-  else
-    {
-      strcpy(buff, Pl_Rd_Chars_Or_Codes_Check(format_word));
-      str = buff;
-    }
-  Format(pstm, str, args_word);
+  strcpy(buff, Pl_Rd_Atom_Or_Chars_Or_Codes_Check(format_word));
+  Format(pstm, buff, args_word);
 }
 
 
@@ -183,7 +176,16 @@ Format(StmInf *pstm, char *format, WamWord args_word)
           else
             {
               p = format;
-              n = strtol(format, &format, 10); /* 0 is returned if no conversion is possible */
+              n = (PlLong) Str_To_PlLong(format, &format, 10); /* 0 is returned if no conversion is possible */
+
+	      /* In case of overflow strtol() returns LONG_MIN or LONG_MAX and
+	       * sets errno to ERANGE (NB: not on windows). We dont test it because 
+	       * LONG_MIN is < INT_LOWEST_VALUE and LONG_MAX is > INT_GREATEST_VALUE. 
+	       * We will detect it at return from this function.
+	       */
+	      if (TEST_INT_OVERFLOW(n))
+		Pl_Err_Evaluation(pl_evaluation_int_overflow);
+
               has_n = (format != p);
             }
 

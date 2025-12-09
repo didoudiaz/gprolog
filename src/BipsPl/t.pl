@@ -416,9 +416,3 @@ d :- told,
 :- endif.
 
 
-abcdefghijklmnopqrst.
-% a b.
-% +(z;p).
-% (+,(!)).
-% +,(!).
-

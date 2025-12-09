@@ -1,3 +1,11 @@
+2025-12-09  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #59: riscv64 assembly jump range limitation ±1MB
+	* improve execution speed under the top-level (re issue #12)
+	* fix issue #87: git local leftover changes (add .gitattributes with *.wam merge=theirs)
+	* add interpreted checks (make check-i) (using '$consult_assert'/1 added in consult.pl)
+	* fix issue #84: dead link in README (replace by www.gprolog.org)
+
 2025-12-04  <daniel.diaz@univ-paris1.fr>
 
 	* fix bug in the FD solver when using quot_rem/3.
@@ -197,7 +205,7 @@
 
 2021-10-14  <daniel.diaz@univ-paris1.fr>
 
-	* fix infinite loop in debugger for multifile/dynamic predicates (issue #12)
+	* fix issue #12: infinite loop in debugger for multifile/dynamic predicates
 
 2021-09-29  <daniel.diaz@univ-paris1.fr>
 

@@ -38,7 +38,7 @@ clean:
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
 
 
-distclean: clean
+distclean: clean clean-test
 	rm -f test_linedit@EXE_SUFFIX@ test_noecho@EXE_SUFFIX@
 
 # test files

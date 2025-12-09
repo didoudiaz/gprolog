@@ -168,8 +168,10 @@
 
 	  /* Integer */
 
-#define INT_GREATEST_VALUE         (((PlLong)1<<(WORD_SIZE-TAG_SIZE-1))-1)
-#define INT_LOWEST_VALUE           ((-INT_GREATEST_VALUE)-1)
+#define INT_GREATEST_VALUE         (((PlLong) 1 << (WORD_SIZE-TAG_SIZE - 1)) - 1)
+#define INT_LOWEST_VALUE           ((-INT_GREATEST_VALUE) - 1)
+
+#define TEST_INT_OVERFLOW(x) (((x) < INT_LOWEST_VALUE) || ((x) > INT_GREATEST_VALUE))
 
 
 
