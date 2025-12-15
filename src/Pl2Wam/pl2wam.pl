@@ -518,4 +518,4 @@ go :-
 	argument_list(LArg),
 	pl2wam(LArg).
 
-:-	initialization(go).
+:- initialization(go).

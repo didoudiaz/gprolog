@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 
 '$term_to_goal'(P, CallInfo, P1) :-
@@ -173,6 +173,15 @@
 	nonvar(X), !.
 
 '$check_nonvar'(_) :-
+	'$pl_err_instantiation'.
+
+
+
+
+'$check_ground'(X) :-
+	ground(X), !.
+
+'$check_ground'(_) :-
 	'$pl_err_instantiation'.
 
 

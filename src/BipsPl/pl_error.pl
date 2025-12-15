@@ -36,14 +36,14 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 
-set_bip_name(Name, Arity) :-  % it is an inline predicate
-	set_bip_name(Name, Arity).
+set_bip_name(BipFunc, BipArity) :-  % it is an inline predicate
+	set_bip_name(BipFunc, BipArity).
 
-current_bip_name(Name, Arity) :-
-	'$call_c_test'('Pl_Current_Bip_Name_2'(Name, Arity)).
+current_bip_name(BipFunc, BipArity) :-
+	'$call_c_test'('Pl_Current_Bip_Name_2'(BipFunc, BipArity)).
 
 
 

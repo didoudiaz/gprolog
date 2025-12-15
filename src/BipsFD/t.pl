@@ -136,7 +136,7 @@ q :-
 
 a:- q, fail ; true.
 
-:-	initialization(a).
+:- initialization(a).
 */
 
 dd(A,B,C,D):-fd_tell(dd(A,B,C,D)).

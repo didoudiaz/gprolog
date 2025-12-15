@@ -37,7 +37,7 @@
 
 
 
-:-	built_in.
+:- built_in.
 
 '$use_unify'.
 

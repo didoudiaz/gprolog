@@ -436,6 +436,7 @@ get_next_clause(Pred, N, SrcCl) :-
 	(   var(Err) ->
 	    last_read_start_line_column(L1, _),
 	    '$catch'('$expand_term1'(Cl, Cl1, TermExpans), error(Err, _), expand_error(Err, Cl, Cl1), any, 0, false),
+	    % ( Cl \== Cl1 -> format('Rewriting ~w -> ~w\n', [Cl, Cl1]) ; true ),
 	    stream_line_column(Stream, Line, Col),
 	    (   Col = 1 ->
 	        L2 is Line - 1
@@ -927,6 +928,7 @@ embed_clause(Pred, N, Cl) :-
 	    functor(Head, Pred, N),
 	    retractall(Head)	% reinit when pl2wam executed under top-level
 	),
+	% format('Adding (assert) embed: ~w\n', [Cl]),
 	assertz(Cl),
 	CompMode \== embed.	% fail if embed only (do not compile)
 
@@ -1102,7 +1104,7 @@ check_callable(X, What) :-
 
 
 	% check_module_name(Module, VarOK)
-check_module_name(Module, t) :-	
+check_module_name(Module, t) :-
 	var(Module), !.
 
 check_module_name(Module, _) :-

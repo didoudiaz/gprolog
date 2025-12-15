@@ -144,7 +144,7 @@ indexing(LCC, WamCode1) :-
 
 
 
-indexing1(LCC, Lev1, Lab, [label(Lab)|WamCode]) :-	
+indexing1(LCC, Lev1, Lab, [label(Lab)|WamCode]) :-
 	look_for_var(LCC, Case, LCCBefore, CCVar, LCCAfter),
 	Case \== 2, !, % GC for large database with many ground facts/clauses (e.g. wordnet)
 	mk_indexing(Case, LCCBefore, CCVar, LCCAfter, Lev1, WamCode), !.

@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 '$use_expand'.
 
@@ -86,8 +86,8 @@ phrase(DcgBody, In, Out) :-
 
 
 
-'$phrase'(DcgBody, In, Out, Arity) :-
-	set_bip_name(phrase, Arity),
+'$phrase'(DcgBody, In, Out, BipArity) :-
+	set_bip_name(phrase, BipArity),
         (   var(DcgBody) ->
 	    '$pl_err_instantiation'
 	;
@@ -98,7 +98,7 @@ phrase(DcgBody, In, Out) :-
 	'$dcg_trans_body'(DcgBody, In1, Out1, Body),
 	In = In1,
 	Out = Out1, % is it important to put Out = Out1 after the '$call' ?
-	'$call'(Body, phrase, Arity, true).
+	'$call'(Body, phrase, BipArity, true).
 
 
 

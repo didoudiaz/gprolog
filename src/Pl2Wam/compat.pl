@@ -1,7 +1,7 @@
 
-:-	op(0, fx, dynamic).
-:-	op(0, fx, discontiguous).
-:-	op(0, fx, multifile).
+:- op(0, fx, dynamic).
+:- op(0, fx, discontiguous).
+:- op(0, fx, multifile).
 
 prolog_file_name(PlFile, PlFile1) :-
 	decompose_file_name(PlFile, _Dir, _Prefix, Suffix),

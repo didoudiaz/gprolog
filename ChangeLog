@@ -1,5 +1,6 @@
-2025-12-09  <daniel.diaz@univ-paris1.fr>
+2025-12-16  <daniel.diaz@univ-paris1.fr>
 
+	* fix re issue #10: mul int_overflow not detected with gcc -O
 	* fix issue #59: riscv64 assembly jump range limitation ±1MB
 	* improve execution speed under the top-level (re issue #12)
 	* fix issue #87: git local leftover changes (add .gitattributes with *.wam merge=theirs)

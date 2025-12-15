@@ -322,6 +322,19 @@ label(1),
     execute('$pl_err_instantiation'/0)]).
 
 
-predicate('$get_pred_indic'/3,181,static,private,monofile,built_in,[
+predicate('$check_ground'/1,181,static,private,monofile,built_in,[
+    pragma_arity(2),
+    get_current_choice(x(1)),
+    try_me_else(1),
+    call_c('Pl_Blt_Ground',[fast_call,boolean],[x(0)]),
+    cut(x(1)),
+    proceed,
+
+label(1),
+    trust_me_else_fail,
+    execute('$pl_err_instantiation'/0)]).
+
+
+predicate('$get_pred_indic'/3,190,static,private,monofile,built_in,[
     call_c('Pl_Get_Pred_Indic_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).

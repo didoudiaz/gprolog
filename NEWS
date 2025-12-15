@@ -1,5 +1,6 @@
 Change in GNU Prolog version 1.6.0
 
+* fix re issue #10: muliplication overflow not detected with gcc -O (case 9^63)
 * fix issue #59: riscv64 assembly jump range limitation ±1MB
 * improve execution speed under the top-level (re issue #12)
 * fix issue #87: git local leftover changes (add .gitattributes with *.wam merge=theirs)

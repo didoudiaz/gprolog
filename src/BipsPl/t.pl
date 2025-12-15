@@ -137,7 +137,7 @@ q :-
 
 a:- q, fail ; true.
 
-:-	initialization(a).
+:- initialization(a).
 */
 /*
 condition_opaque_to_cut_3(1) :-

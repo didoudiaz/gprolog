@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
        % $force_foreign_link is used by pl2wam to force the link of
        % foreign.o and then foreign_supp.o needed by Ma2Asm for translations

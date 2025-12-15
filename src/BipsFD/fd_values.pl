@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in_fd.
+:- built_in_fd.
 
 '$use_fd_values'.
 
@@ -241,7 +241,7 @@ fd_labeling(List, Options) :-
 	'$call_c_test'('Pl_Indomain_2'(X, ValMethod)).
 
 
-'$indomain_alt' :-		% used by C code to create a choice-point
+'$indomain_alt' :- 	% used by C code to create a choice-point
 	'$call_c_test'('Pl_Indomain_Alt_0').
 
 '$extra_cstr_alt' :-                % used by C code to create a choice-point

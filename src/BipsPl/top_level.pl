@@ -36,9 +36,9 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
-:-	ensure_linked([consult/1, load/1]).
+:- ensure_linked([consult/1, load/1]).
 
 
 top_level :-

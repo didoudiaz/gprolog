@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 '$use_type_inl'.
 
@@ -84,7 +84,7 @@ list_or_partial_list(X) :-
 	list_or_partial_list(X).
 
 
-:-	built_in_fd(fd_var/1, non_fd_var/1, generic_var/1, non_generic_var/1).
+:- built_in_fd(fd_var/1, non_fd_var/1, generic_var/1, non_generic_var/1).
 
 fd_var(X) :-
 	fd_var(X).

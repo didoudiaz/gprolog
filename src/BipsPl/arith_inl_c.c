@@ -49,6 +49,18 @@
 #include <float.h>
 #endif
 
+#ifdef _MSC_VER
+#if 0				/* actually windows.h is useless */
+#define WIN32_LEAN_AND_MEAN	/* minimal windows.h */
+#include <windows.h>
+#endif
+#define ENABLE_INTSAFE_SIGNED_FUNCTIONS /* activate signed LongLongMult */
+#include <intsafe.h>
+#endif
+
+
+
+
 /* ISO round/1 (neither lrint nor lround) - see Core 1, section 9.1.6.1 */
 #define pl_round(x)  (floor((x) + (double) 0.5))
 
@@ -582,17 +594,32 @@ Pl_Succ_2(WamWord x_word, WamWord y_word)
 static inline Bool
 mul_overflow(PlLong a, PlLong b, PlLong *r)
 {
-  /* GCC/clang __bultin_mul_oveflow deactivated since the asm code 
-   * is better without (due to optimization after inlining since 
-   * INT_LOWEST_VALUE/INT_GREATEST_VALUE wrt INT64_MIN/INT64_MAX)
+  /* Initially for GCC/clang __bultin_mul_oveflow was deactivated
+   * since the asm code was better without (due to optimization
+   * after inlining since INT_LOWEST_VALUE/INT_GREATEST_VALUE
+   * wrt INT64_MIN/INT64_MAX). Thus using default code.
+   * Reactivated since recent gcc with -O algebraically
+   * replaced res / a by b. The default code is then ineffective.
    */
-#if 0//defined(__GNUC__) // also includes clang (else test __clang__)
+#if defined(__GNUC__) // also includes clang (else test __clang__)
+
   return __builtin_mul_overflow(a, b, r);
-#else
+
+#elif defined(_MSC_VER) && WORD_SIZE == 64
+
+  return LongLongMult(a, b, r) != S_OK;
+
+#elif defined(_MSC_VER) && WORD_SIZE == 64
+
+  return LongMult(a, b, r) != S_OK;
+
+#else	/* default code: do not work with algebraical simplifcation */
+
   PlLong res = a * b;
   *r = res;
-    
+
   return (a != 0 && res / a != b);/* this also detects the case INT64_MIN * -1 */
+
 #endif
 }
 

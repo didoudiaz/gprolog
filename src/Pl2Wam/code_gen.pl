@@ -473,7 +473,7 @@ dummy_instruction(put_value(x(X), X), f).
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
 
-:-	discontiguous(gen_inline_pred/5).
+:- discontiguous(gen_inline_pred/5).
 
 
 	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)

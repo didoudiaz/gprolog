@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 '$use_consult'.
 
@@ -60,8 +60,8 @@ consult(File, Options) :-
 	'$consult'(File, Options, 2).
 
 
-'$consult'(File, Options, Arity) :-
-	set_bip_name(consult, Arity),
+'$consult'(File, Options, BipArity) :-
+	set_bip_name(consult, BipArity),
 	'$check_atom_or_atom_list'(File),
 	'$set_consult_defaults',
 	'$get_consult_options'(Options, Pl2WamArgs1, Pl2WamArgs),
@@ -73,7 +73,7 @@ consult(File, Options) :-
 	;   LFile = File
 	),
 	member(File1, LFile),
-	\+ '$consult1'(File1, Pl2WamArgs, Arity),
+	\+ '$consult1'(File1, Pl2WamArgs, BipArity),
 	!,
 	fail.
 
@@ -114,10 +114,21 @@ consult(File, Options) :-
 '$get_consult_options2'(quiet, Pl2WamArgs, Pl2WamArgs) :-
 	'$sys_var_set_bit'(0, 0).
 
-'$get_consult_options2'(include(X), Pl2WamArgs, ['--include', X|Pl2WamArgs]) :-
-	'$check_nonvar'(X),
-	atom(X).
+'$get_consult_options2'(include(File), Pl2WamArgs, ['--include', File|Pl2WamArgs]) :-
+	'$check_nonvar'(File),
+	atom(File).
+/*
+'$get_consult_options2'(incremental(Dir), Pl2WamArgsEnd, Pl2WamArgs) :-
+	'$get_consult_options2'(incremental(Dir, []), Pl2WamArgsEnd, Pl2WamArgs).
 
+'$get_consult_options2'(incremental(Dir, OtherDeps), Pl2WamArgs, Pl2WamArgs) :-
+	'$check_nonvar'(Dir),
+	'$check_ground'(OtherDeps),
+	atom(Dir),
+	list(DepList
+	g_assign('$increm_dir', Dir),
+	g_assign('$increm_other_deps', OtherDeps).
+*/
 '$get_consult_options2'(X, _, _) :-
 	'$pl_err_domain'(consult_option, X).
 
@@ -141,14 +152,14 @@ consult(File, Options) :-
 
 
 
-'$consult1'(File, Pl2WamArgs1, Arity) :-
+'$consult1'(File, Pl2WamArgs1, BipArity) :-
 	'$call_c_test'('Pl_Prolog_File_Name_2'(File, File1)),
 	(   File1 = user ->
 	    File2 = File1
 	;   '$call_c_test'('Pl_Absolute_File_Name_2'(File1, File2)),
 	    (   file_exists(File2) ->
 	        true
-	    ;   set_bip_name(consult, Arity),
+	    ;   set_bip_name(consult, BipArity),
 	        '$pl_err_existence'(source_sink, File1)
 	    )
 	),
@@ -156,10 +167,12 @@ consult(File, Options) :-
 	temporary_file('', gplc, TmpFile),
 	atom_concat(TmpFile, '.wbc', TmpByteCodeFile),
 	atom_concat(TmpFile, '.pl', TmpIncludeFile),
+%format('consule include file: ~a\n', [TmpIncludeFile]),
 	'$create_include_file'(PipedConsult, TmpIncludeFile),
+%atom_concat('cat ', TmpIncludeFile, Cmd), system(Cmd),
 	Pl2WamArgs = ['-w', File2, '--include', TmpIncludeFile, '-o', TmpByteCodeFile|Pl2WamArgs1],
 %	Pl2WamArgs = ['-w', File2, '-o', TmpByteCodeFile|Pl2WamArgs1], % without --include (for debug)
-	set_bip_name(consult, Arity),	
+	set_bip_name(consult, BipArity),	
 	(   '$consult2'(PipedConsult, Pl2WamArgs) ->
 	    '$load_file'(TmpByteCodeFile),
 	    unlink(TmpByteCodeFile),
@@ -208,20 +221,20 @@ write_default_include_file(IncludeFile) :-
 	    true
 	),
 	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
-	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)),
-	(   current_char_conversion(Ch1,Ch2),
+		%%% any drawback in adding term_expansion/2 clauses ? %%%
+	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)), 
+	(   current_char_conversion(Ch1, Ch2),
 	    '$write_include_goal'(S, char_conversion(Ch1, Ch2)),
 	    fail
 	;
 	    true
 	),
-	/*
+	format(S, ':- discontiguous(term_expansion/2).~n', []),
 	(   TermHead = term_expansion(_, _),
 	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
 	;
 	    true
 	),
-	*/
 	format(S, ':- compiler_mode(default).~n', []),
 	close(S),
 	fail.			% GC
@@ -354,6 +367,7 @@ write_default_include_file(_).
 /* --- load file --- (byte-code) */
 
 '$load_file'(BCFile) :-
+	g_read('$pl_file', PlFile), % save reentrancy (a directive invoking consult modifies '$pl_file')
 	open(BCFile, read, Stream),
 	repeat,
 	read(Stream, P),
@@ -362,6 +376,7 @@ write_default_include_file(_).
 	;   '$load_pred'(P, Stream),
 	    fail
 	),
+	g_assign('$pl_file', PlFile), % restore reentrancy
 	close(Stream).
 
 
@@ -371,6 +386,8 @@ write_default_include_file(_).
 	g_assign('$pl_file', PlFile).
 
 '$load_pred'(directive(PlLine, Type, Goal), _) :-
+	g_read('$pl_file', PlFile), % reentrancy (the directive can invoke consult/1-2 whic m
+	    
 	(   '$catch'(Goal, CallErr, '$load_directive_exception'(CallErr, PlLine, Type), load, 1, true) ->
 	    true
 	;   g_read('$pl_file', PlFile),

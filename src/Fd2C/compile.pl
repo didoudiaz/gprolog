@@ -38,10 +38,10 @@
 
         % to correctly write C expressions
 
-:-	op(750, yfx, [&&, '||']).
-:-	op(700, xfx, [==, '!=', <=]).
-:-	op(400, yfx, [/<, />, '%']).
-:-	op(300, fy, [&]).
+:- op(750, yfx, [&&, '||']).
+:- op(700, xfx, [==, '!=', <=]).
+:- op(400, yfx, [/<, />, '%']).
+:- op(300, fy, [&]).
 
 
 emit_code_init(FdFile) :-
@@ -533,7 +533,7 @@ emit_inst_lst([WInst|LWInst], Alloc) :-
 
 
 
-:-	include('../Pl2Wam/reg_alloc.pl').
+:- include('../Pl2Wam/reg_alloc.pl').
 
           % alias stopping instructions
 

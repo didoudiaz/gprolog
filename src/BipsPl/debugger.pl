@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-:-	built_in.
+:- built_in.
 
 '$init_debugger' :-                           % called by Debug_Initializer()
 	'$sys_var_write'(13, 1),                        % debugger is present

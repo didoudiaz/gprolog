@@ -17,7 +17,7 @@ callable(X) :-
 
 /* g_vars */
 
-:-	dynamic(gvar/2).
+:- dynamic(gvar/2).
 
 g_assign(Var, Value) :-
 	(   retract(gvar(Var, _))

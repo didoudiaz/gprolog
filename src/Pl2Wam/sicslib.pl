@@ -61,4 +61,4 @@ go_other1(L) :-
 	halt.
 
 
-:-	initialization(go_other).
+:- initialization(go_other).

@@ -250,4 +250,4 @@ go :-
 	argument_list(L),
 	fd2c(L).
 
-:-	initialization(go).
+:- initialization(go).
