@@ -6,7 +6,7 @@
  * Descr.: general engine - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -73,7 +73,7 @@ int pl_os_argc;
 char **pl_os_argv;
 
 char *pl_home;
-int pl_devel_mode;
+Bool pl_devel_mode;
 
 
 /* The pl_glob_buff is in the common section (with -fcommon). In clang/aarch64, by default 
@@ -98,7 +98,7 @@ extern int pl_os_argc;
 extern char **pl_os_argv;
 
 extern char *pl_home;
-extern int pl_devel_mode;
+extern Bool pl_devel_mode;
 
 extern char pl_glob_buff[];
 

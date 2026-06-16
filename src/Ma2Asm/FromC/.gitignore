@@ -1,4 +1,8 @@
 Makefile
 asm_inst.s
 wam_archi.h
+asm[0-9].c
+asm[0-9].asm
+asm[0-9].s
+
 

@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : flag.pl
+% file: flag.pl
+% hash: 7437e476bfde011d37a1ee30de88b50e8da374dc  flag.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/flag.pl').
@@ -10,13 +11,13 @@ predicate('$use_flag'/0,41,static,private,monofile,built_in,[
 
 
 predicate(set_prolog_flag/2,44,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[set_prolog_flag,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[set_prolog_flag,2]),
     call_c('Pl_Set_Prolog_Flag_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(current_prolog_flag/2,51,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_prolog_flag,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[current_prolog_flag,2]),
     call_c('Pl_Current_Prolog_Flag_2',[boolean],[x(0),x(1)]),
     proceed]).
 
@@ -82,25 +83,25 @@ predicate('$set_current_B'/1,107,static,private,monofile,built_in,[
 
 
 predicate(argument_counter/1,113,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_counter,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[argument_counter,1]),
     call_c('Pl_Argument_Counter_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(argument_value/2,120,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_value,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[argument_value,2]),
     call_c('Pl_Argument_Value_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(argument_list/1,127,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[argument_list,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[argument_list,1]),
     call_c('Pl_Argument_List_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(environ/2,132,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[environ,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[environ,2]),
     call_c('Pl_Environ_2',[boolean],[x(0),x(1)]),
     proceed]).
 

@@ -3,10 +3,10 @@
  *                                                                         *
  * Part  : configuration                                                   *
  * File  : set_locale.h                                                    *
- * Descr.: localization management - Header file                           *
+ * Descr.: localization management - header file                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *

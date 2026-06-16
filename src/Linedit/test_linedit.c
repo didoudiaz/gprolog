@@ -6,7 +6,7 @@
  * Descr.: test file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,28 +35,13 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
-
-#define printf Pl_LE_Printf
-
-#include "../EnginePl/gp_config.h"
-
-#include "../EnginePl/set_locale.h"
-
-#include "../W32GUICons/w32gc_interf.h" /* only to test GUI Console memory size dialog box */
-int pl_max_atom;			/* to test the same dialog box */
-
-#ifdef GUI_CONSOLE_WITH_STACK_SIZES
-#define ENGINE_FILE                      /* to define stacks data */
-typedef PlLong WamWord;
-#include "../EnginePl/wam_stacks.h"
-#endif
-
 
 #if defined(__unix__) || defined(__CYGWIN__)
 #include <unistd.h>
@@ -65,8 +50,22 @@ typedef PlLong WamWord;
 #include <process.h>
 #endif
 
+
+#include "../EnginePl/set_locale.h"
+
+#include "../W32GUICons/w32gc_interf.h" /* only to test GUI Console memory size dialog box */
+int pl_max_atom;			/* to test the same dialog box */
+
+#ifdef GUI_CONSOLE_WITH_STACK_SIZES
+#define ENGINE_FILE                      /* to define stacks data */
+typedef PlULong WamWord;
+#include "../EnginePl/wam_stacks.h"
+#endif
+
 #include "ctrl_c.h"
 #include "linedit.h"
+
+#define printf Pl_LE_Printf
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +43,6 @@
 #include <string.h>
 #include <locale.h>
 
-#include "../EnginePl/gp_config.h"
 #define ONLY_TAG_PART
 #include "../EnginePl/wam_archi.h"
 #include "../EnginePl/pl_params.h"
@@ -50,8 +50,8 @@
 
 #include "wam_parser.h"
 #include "wam_protos.h"
-#include "../TopComp/copying.c"
-#include "../TopComp/decode_hexa.c"
+#include "../TopComp/copying.h"
+#include "../TopComp/mangling.h"
 
 
 /* we need several maps of same type: key=string -> value=int (sequential no) */
@@ -89,7 +89,7 @@
 #define DEFAULT_OUTPUT_SUFFIX      ".ma"
 
 #define MAX_PRED_NAME_LENGTH       2048
-#define MAX_HEXA_LENGTH            MAX_PRED_NAME_LENGTH * 2 + 2 + 16
+#define MAX_MANGLE_LENGTH          MAX_PRED_NAME_LENGTH * 2 + 2 + 16
 #define MAX_LABEL_LENGTH           32
 
 
@@ -165,7 +165,7 @@ typedef struct predinf
   struct map_entry *module;		/* not NULL */
   struct map_entry *functor;
   int arity;
-  char *hexa;
+  char *mangle;
   int line_no;
   int prop;
   struct map_entry *pl_file;
@@ -206,7 +206,7 @@ struct map_rbt map_tagged_f_n = MAP_INIT;
 
 struct map_entry *cur_pl_file;
 
-char buff_hexa[MAX_HEXA_LENGTH];
+char buff_mangle[MAX_MANGLE_LENGTH];
 
 Pred dummy_pred_start;
 Pred *pred_end = &dummy_pred_start;
@@ -237,7 +237,7 @@ SwtTbl *Create_Switch_Table(int type, int nb_elem);
 void Init_Foreign_Table(void);
 
 
-void Emit_Obj_Initializer(void);
+void Emit_Unit_Initializer(void);
 
 void Emit_Exec_Directives(void);
 
@@ -311,7 +311,7 @@ void Display_Help(void);
 #define DEF_X_Y(xy)           int xy; char c
 
 #define LOAD_X_Y(xy)          Get_Arg(top, int, xy); \
-                              if (xy < 5000) c = 'X'; else xy -= 5000, c='Y'
+                              if (xy < 5000) c = 'X'; else xy -= 5000, c = 'Y'
 
 
 
@@ -385,24 +385,24 @@ void Display_Help(void);
 #define FORMAT_SUB_LABEL(sl)  ".pred%d_sub_%d", cur_pred_no, (sl)
 
 
-#define CREATE_CHOICE_INST(l)                                               \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
+#define CREATE_CHOICE_INST(l)                                                  \
+  if (cur_arity >= 1 && cur_arity <= 4)                                        \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                      \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Create_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define UPDATE_CHOICE_INST(l)                                               \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
+#define UPDATE_CHOICE_INST(l)                                                  \
+  if (cur_arity >= 1 && cur_arity <= 4)                                        \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point%d(&%s)", cur_arity, l); \
-  else                                                                      \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Update_Choice_Point(&%s,%d)", l, cur_arity)
 
 
-#define DELETE_CHOICE_INST                                                  \
-  if (cur_arity >= 1 && cur_arity <= 4)                                     \
-    Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);    \
-  else                                                                      \
+#define DELETE_CHOICE_INST                                                     \
+  if (cur_arity >= 1 && cur_arity <= 4)                                        \
+    Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point%d()", cur_arity);       \
+  else                                                                         \
     Inst_Printf("call_c", FAST "Pl_Delete_Choice_Point(%d)", cur_arity)
 
 
@@ -444,7 +444,7 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-  Emit_Obj_Initializer();
+  Emit_Unit_Initializer();
   Emit_Exec_Directives();
 
   if (file_out != stdout)
@@ -589,16 +589,16 @@ F_predicate(ArgVal arg[])
 		   module, functor, arity, cur_pl_file->key, pl_line);
     }
 
-  /* do not qualif with module in Encode_Hexa if:
+  /* do not qualif with module in Mangle if:
    *    - it is not an exported predicate (i.e. it is a local_symbol)
    *    - it belongs to module 'user' or 'system'
    */
 
-  Encode_Hexa((local_symbol || module_user_system) ? NULL : module, functor, (int) arity, buff_hexa + 1);
-  *buff_hexa = '&';
-  cur_pred->hexa = strdup(buff_hexa);
+  Mangle((local_symbol || module_user_system) ? NULL : module, functor, (int) arity, buff_mangle + 1);
+  *buff_mangle = '&';
+  cur_pred->mangle = strdup(buff_mangle);
 
-  Label_Printf("\n\npl_code %s %s", (local_symbol) ? "local" : "global", buff_hexa + 1);
+  Label_Printf("\n\npl_code %s %s", (local_symbol) ? "local" : "global", buff_mangle + 1);
 }
 
 
@@ -666,8 +666,8 @@ F_ensure_linked(ArgVal arg[])
   while (nb_elem--)
     {
       LOAD_MP_N(m, p, n);
-      Encode_Hexa(m, p, (int) n, buff_hexa);
-      Inst_Printf("pl_jump", "%s", buff_hexa);
+      Mangle(m, p, (int) n, buff_mangle);
+      Inst_Printf("pl_jump", "%s", buff_mangle);
     }
 }
 
@@ -1202,9 +1202,9 @@ F_call(ArgVal arg[])
 {
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa(m, p, (int) n, buff_hexa);
+  Mangle(m, p, (int) n, buff_mangle);
 
-  Inst_Printf("pl_call", "%s", buff_hexa);
+  Inst_Printf("pl_call", "%s", buff_mangle);
 }
 
 
@@ -1219,9 +1219,9 @@ F_execute(ArgVal arg[])
 {
   Args1(MP_N(m, p, n));
 
-  Encode_Hexa(m, p, (int) n, buff_hexa);
+  Mangle(m, p, (int) n, buff_mangle);
 
-  Inst_Printf("pl_jump", "%s", buff_hexa);
+  Inst_Printf("pl_jump", "%s", buff_mangle);
 }
 
 
@@ -1651,13 +1651,13 @@ F_soft_cut(ArgVal arg[])
 /*-------------------------------------------------------------------------*
  * F_CALL_C                                                                *
  *                                                                         *
- * call_c(F, [T,...], [W,...])                                             *
- *   F=FctName, T=option only these options are relevant:                  *
+ * call_c(F, [O,...], [W,...])                                             *
+ *   F=FctName, O=option only these options are relevant:                  *
  *    - jump/boolean/x(X)/y(Y) (jump at / test / move returned value)      *
  *    - set_cp (set CP before the call at the next instruction)            *
  *    - fast_call (use a fast call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
- *   W= atom  &,fun,arity  integer  double  x(X)  y(Y)  &,x(X)  &,y(Y)     *
+ *   W= atom  integer  double  F_N  x(X)  y(Y)  &(x(X))  &(y(Y))  &(MP_N)  *
  *-------------------------------------------------------------------------*/
 void
 F_call_c(ArgVal arg[])
@@ -1666,8 +1666,6 @@ F_call_c(ArgVal arg[])
   Bool fast_call = FALSE;
   Bool tagged = FALSE;
   Bool set_cp = FALSE;
-  char *str;
-  Bool adr_of;
   int ret_xy = 0;		/* init for the compiler */
   char ret_c = 0;		/* init for the compiler */
   int i;
@@ -1675,11 +1673,12 @@ F_call_c(ArgVal arg[])
   DEF_STR(c_option);
   DEF_C_INT(arg_type);
   DEF_ATOM(atom);
-  DEF_STR(aux_functor);
-  DEF_C_INT(aux_arity);
   DEF_INTEGER(n);
   DEF_FLOAT(n1);
   DEF_X_Y(xy);
+  DEF_STR(module);		/* for &(MP_N) */
+  DEF_STR(functor);
+  DEF_C_INT(arity);
 
   Args2(STR(fct_name), C_INT(nb_elem));
 
@@ -1695,6 +1694,9 @@ F_call_c(ArgVal arg[])
 	  continue;
 	}
       /* else should be ATOM */
+      if (arg_type != ATOM)
+	Syntax_Error("unrecognized call_c option (in first list, atoms are expected)");
+      
       LOAD_STR(c_option);
       if (strcmp(c_option, "boolean") == 0)
 	ret = 1;
@@ -1720,41 +1722,13 @@ F_call_c(ArgVal arg[])
   fprintf(file_out, "%s(", fct_name);
 
   i = 0;
-  adr_of = FALSE;
-  goto write_a_arg;
   while(i < nb_elem)
     {
-      fputc(',', file_out);
-
-    write_a_arg:
       LOAD_C_INT(arg_type);
       switch(arg_type)
 	{
-	case ATOM:		/* detect  &,func,arity   &,x(X)   &,y(Y) */
-	  str = *((char **) top);
-	  if (*str == '&' && str[1] == '\0')
-	    {
-	      if ((i < nb_elem - 1 && *(PlLong *) (top+1) == X_Y) ||
-		  (i < nb_elem - 2 && *(PlLong *) (top+1) == ATOM && *(PlLong *) (top+3) == INTEGER))
-		{
-		  adr_of = TRUE;
-		  i++;
-		  top++;
-		  goto write_a_arg;
-		}
-	    }
-
-	  if (adr_of)
-	    {
-	      LOAD_STR(aux_functor);
-	      i++;
-	      top++;
-	      LOAD_C_INT(aux_arity);
-	      Encode_Hexa(NULL, aux_functor, (int) aux_arity, buff_hexa);
-	      fprintf(file_out, "&%s", buff_hexa);
-	      adr_of = FALSE;
-	    }
-	  else if (tagged)
+	case ATOM:
+	  if (tagged)
 	    {
 	      LOAD_ATOM_1(atom);
 	      fprintf(file_out, "ta(%d)", atom->value);
@@ -1776,13 +1750,11 @@ F_call_c(ArgVal arg[])
 	  fprintf(file_out, "%1.20e", n1);
 	  break;
 
+	case ADR_OF_X_Y:
+	  fprintf(file_out, "&");
+	  // fall through
 	case X_Y:
 	  LOAD_X_Y(xy);
-	  if (adr_of)
-	    {
-	      fprintf(file_out, "&");
-	      adr_of = FALSE;
-	    }
 	  fprintf(file_out, "%c(%d)", c, xy);
 	  break;
 
@@ -1800,8 +1772,18 @@ F_call_c(ArgVal arg[])
 	      fprintf(file_out, "at(%d),%d", atom->value, n);
 	    }
 	  break;
+
+	case ADR_OF_MP_N:
+	  LOAD_STR(module);
+	  LOAD_STR(functor);
+	  LOAD_C_INT(arity);
+	  Mangle(module, functor, arity, buff_mangle);
+	  fprintf(file_out, "&%s", buff_mangle);
+	  break;
 	}
-      i++;
+
+      if (++i < nb_elem)
+	fputc(',', file_out);
     }
 
   fprintf(file_out, ")\n");
@@ -2020,11 +2002,11 @@ F_foreign_call_c(ArgVal arg[])
 
 
 /*-------------------------------------------------------------------------*
- * EMIT_OBJ_INITIALIZER                                                    *
+ * EMIT_UNIT_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Emit_Obj_Initializer(void)
+Emit_Unit_Initializer(void)
 {
   SwtTbl *t;
   Pred *p;
@@ -2048,15 +2030,17 @@ Emit_Obj_Initializer(void)
 
   Label_Printf("\n");
 
-  Label_Printf("c_code  initializer Object_Initializer\n");
-  Inst_Printf("call_c", "Pl_New_Object(&Prolog_Object_Initializer,&System_Directives,&User_Directives)");
+  Label_Printf("c_code  initializer Unit_Constructor\n");
+  Inst_Printf("call_c", "Pl_Register_Unit(&Unit_Initializer,"
+	      "&System_Directives,&User_Directives)");
   Inst_Printf("c_ret", "");
   Label_Printf("\n");
 
-  Label_Printf("c_code  local Prolog_Object_Initializer\n");
+  Label_Printf("c_code  local Unit_Initializer\n");
 
 #ifdef DEBUG
-  Inst_Printf("call_c", "printf(\"executing init obj of %s\\n\")", file_name_in);
+  Inst_Printf("call_c", "printf(\"executing unit inititializer of %s\\n\")",
+	      file_name_in);
 #endif
 
   map_foreach(&map_atom, entry)
@@ -2079,7 +2063,7 @@ Emit_Obj_Initializer(void)
       fputc('\n', file_out);
 
       if (p->prop & MASK_PRED_NATIVE_CODE)
-	q = p->hexa;
+	q = p->mangle;
       else
 	q = "0";
 

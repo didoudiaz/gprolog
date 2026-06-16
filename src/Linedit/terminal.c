@@ -6,7 +6,7 @@
  * Descr.: basic terminal operations                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,8 +46,6 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <errno.h>
-
-#include "../EnginePl/gp_config.h"
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -85,14 +84,16 @@ typedef struct termio TermIO;
 
 
 #define LE_DEFINE_HOOK_MACROS
-
 #define TERMINAL_FILE
 
+#include "../EnginePl/bool.h"
+#include "../EnginePl/pl_long.h"
+#include "../Tools/ctor.h"
 #include "terminal.h"
 #include "linedit.h"
 
 
-/* Interesting infos: The Open Group Base Specifications Issue 7
+/* Interesting info: The Open Group Base Specifications Issue 7
  * Chapter 11. General Terminal Interface
  * https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap11.html#tag_11
  */
@@ -110,9 +111,9 @@ typedef struct termio TermIO;
  * Global Variables                *
  *---------------------------------*/
 
-static bool use_linedit;
+static Bool use_linedit;
 static int use_gui;		/* 0, 1 or 2 */
-static bool use_ansi;
+static Bool use_ansi;
 #if defined(__unix__) || defined(__CYGWIN__)
 static int fd_in = 0;           /* not changed */
 #endif
@@ -182,6 +183,14 @@ static void Displ_Str(char *s);
 static void Erase(int n);
 
 
+/*-------------------------------------------------------------------------*
+ * LE_REGISTER                                                             *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+INITIALIZER(LE_Register)
+{
+  pl_le_initialize = Pl_LE_Initialize;
+}
 
 
 /*-------------------------------------------------------------------------*

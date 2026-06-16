@@ -6,7 +6,7 @@
  * Descr.: Ctrl+C management                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
@@ -49,10 +48,12 @@
 #define WIN32_CONSOLE_CTRL_HANDLER
 #endif
 
-
 #ifdef WIN32_CONSOLE_CTRL_HANDLER
 #include <windows.h>
 #endif
+
+#include "../EnginePl/pl_long.h"
+
 
 /*---------------------------------*
  * Constants                       *

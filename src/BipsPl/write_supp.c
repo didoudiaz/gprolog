@@ -6,7 +6,7 @@
  * Descr.: write term support                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,12 +34,10 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-
-
 #include <string.h>
+#include "gp_config.h"
 #include <ctype.h>
 
-#define OBJ_INIT Write_Supp_Initializer
 
 #define WRITE_SUPP_FILE
 
@@ -233,8 +231,7 @@ static Bool Try_Portray(WamWord word);
  * WRITE_SUPP_INITIALIZER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Write_Supp_Initializer(void)
+PL_INITIALIZER(Write_Supp_Initializer)
 {
   atom_dots = Pl_Create_Atom("...");
   atom_portray = Pl_Create_Atom("portray");
@@ -408,7 +405,6 @@ Emit_Space_If_Needed(int c)
   int c_type = pl_char_type[c];
   Bool space;
 
-  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (pl_last_writing)
     {
     case W_NUMBER_0:

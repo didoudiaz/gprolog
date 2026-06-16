@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation - header file                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,11 +36,6 @@
  *-------------------------------------------------------------------------*/
 
 
-#if 0
-#define GARBAGE_COLLECTOR
-#endif
-
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -63,53 +58,37 @@
 
 	  /* Environment Frame */
 
-#ifdef GARBAGE_COLLECTOR
-
-#define ENVIR_STATIC_SIZE          4
+#define ENVIR_STATIC_SIZE          2
 
 #define CPE(e)                     (*(WamCont *)  &(e[-1]))
-#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
-#define EE(e)                      (*(WamWord **) &(e[-3]))
-#define NBYE(e)                    (*(WamWord *)  &(e[-4]))
-#define Y(e, y)                    (*(WamWord *)  &(e[-5 - (y)]))
+#define EE(e)                      (*(WamWord **) &(e[-2]))
+#define Y(e, y)                    (*(WamWord *)  &(e[-3 - (y)]))
 
-#define ENVIR_NAMES                {"CPE", "BCIE", "EE", "NBYE"}
+#define ENVIR_NAMES                {"CPE", "EE"}
 
-#else
 
-#define ENVIR_STATIC_SIZE          3
-
-#define CPE(e)                     (*(WamCont *)  &(e[-1]))
-#define BCIE(e)                    (*(WamWord *)  &(e[-2]))
-#define EE(e)                      (*(WamWord **) &(e[-3]))
-#define Y(e, y)                    (*(WamWord *)  &(e[-4 - (y)]))
-
-#define ENVIR_NAMES                {"CPE", "BCIE", "EE"}
-
-#endif
 
 
 	  /* Choice Point Frame */
 
-#define CHOICE_STATIC_SIZE         8
+#define CHOICE_STATIC_SIZE         7
 
 #define ALTB(b)                    (*(CodePtr *)  &(b[-1]))
 #define CPB(b)                     (*(WamCont *)  &(b[-2]))
-#define BCIB(b)                    (*(WamWord *)  &(b[-3]))
-#define EB(b)                      (*(WamWord **) &(b[-4]))
-#define BB(b)                      (*(WamWord **) &(b[-5]))
-#define HB(b)                      (*(WamWord **) &(b[-6]))
-#define TRB(b)                     (*(WamWord **) &(b[-7]))
-#define CSB(b)                     (*(WamWord **) &(b[-8]))
-#define AB(b, a)                   (*(WamWord *)  &(b[-9 - (a)]))
+#define EB(b)                      (*(WamWord **) &(b[-3]))
+#define BB(b)                      (*(WamWord **) &(b[-4]))
+#define HB(b)                      (*(WamWord **) &(b[-5]))
+#define TRB(b)                     (*(WamWord **) &(b[-6]))
+#define CSB(b)                     (*(WamWord **) &(b[-7]))
+#define AB(b, a)                   (*(WamWord *)  &(b[-8 - (a)]))
 
-#define CHOICE_NAMES               {"ALTB", "CPB", "BCIB", "EB", "BB", \
+#define CHOICE_NAMES               {"ALTB", "CPB", "EB", "BB", \
                                     "HB", "TRB", "CSB"}
 
 
 
 
-	  /* Wam Objects Manipulation */
+	  /* Wam Data Structures Manipulation */
 
 	  /* Trail Tags */
 
@@ -136,7 +115,7 @@
 				   /* reserve 10 bits for the arity */
 #define ATOM_MAX_BITS              (sizeof(PlULong) * 8 - 10)
 
-#define Functor_Arity(f, n)        ((WamWord) (((PlULong)(n) << ATOM_MAX_BITS) | (f)))
+#define Functor_Arity(f, n)        ((((PlULong)(n) << ATOM_MAX_BITS) | (f)))
 #define Functor_Of(word)           ((int) ((PlULong)(word) & (((PlULong) 1 << ATOM_MAX_BITS) - 1)))
 #define Arity_Of(word)             ((int) ((PlULong)(word) >> ATOM_MAX_BITS))
 
@@ -149,7 +128,7 @@
 
 
 #define Do_Copy_Of_Word(tag_mask, word) \
-  if (Dont_Separate_Tag(tag_mask)) \
+  if (Dont_Separate_Tag(tag_mask)) 	\
     word = Tag_REF(UnTag_Address(word))
 
 
@@ -192,7 +171,7 @@
 
 #define Functor(adr)               (Functor_Of(Functor_And_Arity(adr)))
 #define Arity(adr)                 (Arity_Of(Functor_And_Arity(adr)))
-#define Functor_And_Arity(adr)     (((WamWord *) (adr))[0])
+#define Functor_And_Arity(adr)     (((PlULong *) (adr))[0])
 #define Arg(adr, i)                (((WamWord *) (adr))[OFFSET_ARG+i])
 							/* i in 0..arity-1 */
 

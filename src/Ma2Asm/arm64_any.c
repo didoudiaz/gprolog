@@ -6,7 +6,7 @@
  * Descr.: translation file arm 64 bits (aarch64)                          *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,11 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
 
-
-/* Supported arch: arm 64 bits (aarch64) (e.g. armv8) 
+/*
+ * Supported arch: arm 64 bits (aarch64) (e.g. armv8) 
  *                 on Linux, Darwin (MacOS)
  *
  * AArch64 Instruction Set Architecture
@@ -47,36 +45,16 @@
  *
  * ARM A64 instruction set
  * https://developer.arm.com/documentation/dui0801/k/A64-General-Instructions?lang=en
+ *
+ * We need pl_reg_bank to be in a register (see machine_regs.h, M_TRAMPOLINE_REG_BANK)
  */
 
 
-/* pl_reg_bank is normally the first mapped register. If it is not mapped 
- * it is because:
- *
- * 1) no registers are used (either none available or --disable-regs).
- *    In that case it is loaded in a callee-save register by engine1.c
- *    (see ASM_REG_BANK)
- *
- * 2) or because NO_MACHINE_REG_FOR_REG_BANK is defined (debug only ?).
- *    In that case Load_Reg_Bank loads it in a callee-save register. 
- *    But this register must not be already used (mapped), 
- *    so we here check no registers are used at all !
- */
-
-#if defined(NO_MACHINE_REG_FOR_REG_BANK) && NB_USED_MACHINE_REGS > 0
-#error NO_MACHINE_REG_FOR_REG_BANK can only be defined if no registers are used at all (use --disable_regs)
-#endif
-
-#ifdef MAP_REG_BANK
-#define ASM_REG_BANK MAP_REG_BANK
-#else
-#define ASM_REG_BANK "x20"	/* see engine1.c. If NO_MACHINE_REG_FOR_REG_BANK see Load_Reg_Bank */
-#endif
-
-
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK		/* should not occurs (see machine_regs.h) */
+#define ASM_REG_BANK "x20"
 #define Load_Reg_Bank()   Load_Address(ASM_REG_BANK, "pl_reg_bank")
 #else
+#define ASM_REG_BANK MAP_REG_BANK
 #define Load_Reg_Bank()
 #endif
 
@@ -94,14 +72,14 @@
  */
 
 
-/* Double constants are loaded as a 64-bit immediate
- */
+/* Double constants are loaded as a 64-bit immediate */
 #if 1
 #define DOUBLE_CST_AS_IMM64
 #endif
 
 
-/* The conditional branching (be immX, bne immX,...) cannot branch too far.
+/*
+ * The conditional branching (be immX, bne immX,...) cannot branch too far.
  * The offset = immX * 4. X is 19 bits (26 bits for unconditional). 
  * We use a simple measure: we count the "distance" between the instruction and
  * the location of the label in terms of MA source approx inst lines between the 
@@ -199,15 +177,20 @@
 #define GOT_PAGE_FMT               "%s%s@GOTPAGE"
 #define GOT_PAGEOFF_FMT            "%s%s@GOTPAGEOFF"
 
-#else
+#else /* unix or windows */
 
 #define UN_EXT                     ""
 
 #define PAGE_FMT                   "%s%s"
 #define PAGEOFF_FMT                ":lo12:%s%s"
 
+#ifdef _WIN64
+#define GOT_PAGE_FMT               "%s%s"
+#define GOT_PAGEOFF_FMT            ":lo12:%s%s"
+#else
 #define GOT_PAGE_FMT               ":got:%s%s"
 #define GOT_PAGEOFF_FMT            ":got_lo12:%s%s"
+#endif
 
 #endif
 
@@ -248,11 +231,11 @@ void Init_Mapper(void)
 #ifdef M_darwin
 
   /* clang-as issue #61475 (https://github.com/llvm/llvm-project/issues/61475)
-   * pb when loading far away local symbol address (for large souce files, e.g. wordnet).
-   * Until it is fixed don't use local prefixes
-   * In practice, no problem for string which are only referenced at the end)
-   * of the object by the initialize to be put in atoms (at or ta).
-   * Nor for double constants which are loaded as immediate (with DOUBLE_CST_AS_IMM64) 
+   * pb when loading far away local symbol address (e.g. large files: wordnet).
+   * Until it is fixed don't use local prefixes.
+   * In practice, no problem for string which are only referenced at the end
+   * of the object by the initializer to be put in atoms (at or ta).
+   * Nor for double constants loaded as immediate (with DOUBLE_CST_AS_IMM64) 
    */
   if (nb_appox_inst_line > MAX_INST_LINE_NO_BUG_LOCAL_SYMBOL) /* remove when bug is fixed */
     mi.local_symb_prefix = "Z";	/* put something (not "") else Scope_Of_Symbol will not detect it is local */
@@ -318,17 +301,23 @@ Asm_Stop(void)
 void
 Code_Start(CodeInf *c)
 {
-  Label_Printf("%s", "");
+  Label_Printf("");
 #ifdef M_darwin
   Inst_Printf(".p2align", "2");
-#else
+#elif defined(_WIN64)
+  Inst_Printf(".def", "%s", c->name);
+  /*  Inst_Printf(".scl", "2"); */
+  Inst_Printf(".type", "32");
+  Inst_Printf(".endef", "");
+  Inst_Printf(".p2align", "2");
+#else	      
   Inst_Printf(".p2align", "3,,7");
   Inst_Printf(".type", UN_EXT "%s, %%function", c->name);
 #endif
   if (c->global)
     Inst_Printf(".global", UN_EXT "%s", c->name);
 
-  Label_Printf("%s", "");
+  Label_Printf("");
   Label_Printf(UN_EXT "%s:", c->name);
 
   if (c->type == CODE_TYPE_C || c->type == CODE_TYPE_INITIALIZER)
@@ -360,7 +349,7 @@ Code_Stop(CodeInf *c)
 void
 Label(char *label)		/* only used for a local label */
 {
-  Label_Printf("%s", "");
+  Label_Printf("");
   Label_Printf("%s:", label);
 }
 
@@ -541,7 +530,11 @@ Load_Address(char *r, char *name)
   else
     {
       Inst_Printf("adrp", "%s, " GOT_PAGE_FMT, r, UN_EXT, name);
+#if defined(_WIN64)
+      Inst_Printf("add", "%s, %s, " GOT_PAGEOFF_FMT, r, r, UN_EXT, name);
+#else
       Inst_Printf("ldr", "%s, [%s, " GOT_PAGEOFF_FMT "]", r, r, UN_EXT, name);
+#endif
     }
 }
 
@@ -710,11 +703,12 @@ Load_Store_Reg_Y(char *ldr_str, char *r, int index)
     }
   else
     {
-      /* Needs another register R for the mov R, E. 
+      /*
+       * Needs another register R for the mov R, E. 
        * In case of a ldr we can use the same destination register r.
-       * In case of a str we cannot use r because it is the source register to store.
-       * We cannot use x0..x7, (call_c args) neither a gloal reg used in machine.h. 
-       * x9 is OK 
+       * In case of a str we cannot use r because it is the source reg to store.
+       * We cannot use x0..x7, (call_c args) neither a global reg used
+       * in machine_regs.h. x9 is OK 
        */
 #if 1
       Inst_Printf("mov", "x9, %s", asm_reg_e);
@@ -1197,7 +1191,7 @@ C_Ret(void)
 {
   Inst_Printf("ldr", "x30, [sp]");
   Inst_Printf("add", "sp, sp, #%d", RESERVED_STACK_SPACE);
-  Inst_Printf("ret", "%s", "");
+  Inst_Printf("ret", "");
 }
 
 
@@ -1250,10 +1244,6 @@ Dico_String_Stop(int nb)
 
 
 
-
-
-
-
 /*-------------------------------------------------------------------------*
  * DICO_DOUBLE_START                                                       *
  *                                                                         *
@@ -1287,7 +1277,7 @@ Dico_Double(DoubleInf *d)
   Inst_Printf(".long", "%d", d->v.i32[0]);
   Inst_Printf(".long", "%d", d->v.i32[1]);
 
-  //  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->v.dbl);
+  /*  Inst_Printf(".double", ASM_DOUBLE_DIRECTIV_PREFIX "%1.20e", d->v.dbl); */
 #endif
 }
 
@@ -1373,15 +1363,17 @@ Data_Start(char *initializer_fct)
   if (initializer_fct == NULL)
     return;
 
-#ifdef M_darwin
+#ifdef _MSC_VER
+  Inst_Printf(".section", ".CRT$XCU,\"dr\""); /* d=data (alloc), r=readonly */
+#elif defined(_WIN64)
+  Inst_Printf(".section", ".ctors,\"dw\"");
+#elif M_darwin
   Inst_Printf(".section", "__DATA,__mod_init_func,mod_init_funcs");
-  Inst_Printf(".p2align", "3");
-  Inst_Printf(".quad", UN_EXT "%s", initializer_fct);	/* .quad and .xword are synonyms (aliases) */
 #else
   Inst_Printf(".section", ".init_array,\"aw\"");
-  Inst_Printf(".align", "3");
-  Inst_Printf(".xword", UN_EXT "%s", initializer_fct);
 #endif
+  Inst_Printf(".p2align", "3");
+  Inst_Printf(".xword", UN_EXT "%s", initializer_fct);
 }
 
 
@@ -1394,13 +1386,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-#if 0
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_stop:");
-
-  Inst_Printf(".xword", UN "obj_chain_start");
-#endif
 }

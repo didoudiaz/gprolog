@@ -6,7 +6,7 @@
  * Descr.: Prolog source file reader - C part                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,11 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-
-#include "gp_config.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -344,7 +343,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
 	    }
 	  else
 	    {
-	      if ((path = Pl_M_Absolute_Path_Name(path)) == NULL)
+	      if ((path = Pl_Absolute_Path_Name(path)) == NULL)
 		Pl_Err_Existence(pl_existence_source_sink, file_name_word);
 	      
 	      stm = Pl_Add_Stream_For_Stdio_File(path, STREAM_MODE_READ, TRUE);
@@ -367,7 +366,7 @@ Pl_SR_Open_File_2(WamWord file_name_word, WamWord from_stream_word)
       file->reposition = pstm->prop.reposition;
       if (!file->reposition)
 	{
-	  file->tmp_path = Pl_M_Tempnam(NULL, NULL);
+	  file->tmp_path = Pl_Tempnam(NULL, NULL);
 	  file->tmp_stm = Pl_Add_Stream_For_Stdio_File(file->tmp_path,
 						       STREAM_MODE_WRITE, TRUE);
 	  if (file->tmp_stm < 0)

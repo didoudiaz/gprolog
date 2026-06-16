@@ -6,7 +6,7 @@
  * Descr.: byte-code support                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,11 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define OBJ_INIT Byte_Code_Initializer
 
 #define BC_SUPP_FILE
 
@@ -159,7 +158,7 @@ typedef union
     unsigned i24:24;
   }
   t2;
-  unsigned word;
+  uint32_t word;
 }
 BCWord;
 
@@ -170,7 +169,7 @@ typedef union
   double d;
 #if WORD_SIZE == 64
   int *p;
-  PlLong l; // why not uint64_t l;
+  PlLong l; /* same size as uint64_t */
 #endif
   uint32_t u[2];
 }
@@ -187,7 +186,7 @@ C64To32;
 static BCWord op_tbl[MAX_OP];
 static int nb_op;
 
-static BCWord *bc;
+static BCWord *bc_buff;
 static BCWord *bc_sp;
 static int bc_nb_block;
 
@@ -198,14 +197,8 @@ static int atom_built_in;
 static int atom_built_in_fd;
 static int atom_fail;
 
-static int caller_func;
-static int caller_arity;
-
-static int glob_func;
-static DynPInf *glob_dyn;
-static Bool debug_call;
-
-WamCont pl_debug_call_code;	/* overwritten by debugger_c.c */
+static int glob_caller_func;
+static int glob_caller_arity;
 
 
 
@@ -216,7 +209,7 @@ WamCont pl_debug_call_code;	/* overwritten by debugger_c.c */
 
 static int Find_Inst_Code_Op(int inst);
 
-static int Compar_Inst_Code_Op(BCWord *w1, BCWord *w2);
+static int Compar_Inst_Code_Op(const void *p1, const void *p2);
 
 static int BC_Arg_X_Or_Y(WamWord arg_word, int *op);
 
@@ -224,24 +217,6 @@ static int BC_Arg_Func_Arity(WamWord arg_word, int *arity);
 
 
 
-WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
-
-static WamCont BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last);
-
-static WamCont BC_Emulate_Clause(DynCInf *clause);
-
-static WamCont BC_Emulate_Byte_Code(BCWord *bc);
-
-static void Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity);
-
-
-
-#define BC_EMULATE_CONT            X1_2462635F656D756C6174655F636F6E74
-
-#define CALL_INTERNAL_WITH_CUT     X1_2463616C6C5F696E7465726E616C5F776974685F637574
-
-Prolog_Prototype(BC_EMULATE_CONT, 0);
-Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define BC_Op(w)                   ((w).t1.code_op)
 
@@ -267,7 +242,8 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
 
 #define Fit_In_24bits(n)           ((PlULong) (n) < (1 << 24))
 
-#define Op_In_Tbl(str, op)  BC_Op(*p) = op; BC2_Atom(*p) = Pl_Create_Atom(str); p++
+#define Op_In_Tbl(str, op) \
+  BC_Op(*p) = op; BC2_Atom(*p) = Pl_Create_Atom(str); p++
 
 
 
@@ -276,8 +252,7 @@ Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
  * BYTE_CODE_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Byte_Code_Initializer(void)
+PL_INITIALIZER(Byte_Code_Initializer)
 {
   BCWord *p = op_tbl;
 
@@ -327,11 +302,11 @@ Byte_Code_Initializer(void)
 
   nb_op = (int) (p - op_tbl);
 
-  qsort(op_tbl, nb_op, sizeof(op_tbl[0]), (int (*)(const void *, const void *)) Compar_Inst_Code_Op);
-
+  qsort(op_tbl, nb_op, sizeof(op_tbl[0]),
+	(int (*)(const void *, const void *)) Compar_Inst_Code_Op);
 
   bc_nb_block = 1;
-  bc = (BCWord *) Malloc(bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
+  bc_buff = (BCWord *) Malloc(bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
 
   atom_dynamic = Pl_Create_Atom("dynamic");
   atom_public = Pl_Create_Atom("public");
@@ -363,7 +338,6 @@ Find_Inst_Code_Op(int inst)
 
   BC2_Atom(w) = inst;
   p = (BCWord *) bsearch(&w, op_tbl, nb_op, sizeof(op_tbl[0]),
-			 (int (*)(const void *, const void *))
 			 Compar_Inst_Code_Op);
   if (p == NULL)
     Pl_Fatal_Error(ERR_UNKNOWN_INSTRUCTION, pl_atom_tbl[inst].name);
@@ -379,16 +353,18 @@ Find_Inst_Code_Op(int inst)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Compar_Inst_Code_Op(BCWord *p1, BCWord *p2)
+Compar_Inst_Code_Op(const void *p1, const void *p2)
 {
-  return BC2_Atom(*p1) - BC2_Atom(*p2);
+  BCWord w1 = *(BCWord *) p1;
+  BCWord w2 = *(BCWord *) p2;
+  return BC2_Atom(w1) - BC2_Atom(w2);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_BC_START_PRED_7                                                      *
+ * PL_BC_START_PRED_8                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
@@ -427,7 +403,7 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
     prop |= MASK_PRED_BUILTIN_FD;
 
 
-  pred = Pl_Update_Dynamic_Pred(func, arity, 0, (multi) ? pl_file : -1);
+  pred = Pl_Update_Dynamic_Pred(func, arity, 0, (multi) ? pl_file : -pl_file);
   if (pred == NULL)
     pred = Pl_Create_Pred(func, arity, pl_file, pl_line, prop, NULL);
   else
@@ -443,14 +419,14 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
     }
 
 #if 1
-  caller_func = Pl_Pred_Without_Aux(func, arity, &caller_arity);
+  glob_caller_func = Pl_Pred_Without_Aux(func, arity, &glob_caller_arity);
 #else
-  caller_func = func;
-  caller_arity = arity;
+  glob_caller_func = func;
+  glob_caller_arity = arity;
 #endif
 
 #ifdef DEBUG
-  DBGPRINTF("BC start %s/%d\n", pl_atom_tbl[func].name, arity);
+  DBGPRINTF("\nBC start for %s/%d\n", pl_atom_tbl[func].name, arity);
 #endif
 }
 
@@ -464,7 +440,7 @@ Pl_BC_Start_Pred_8(WamWord func_word, WamWord arity_word,
 void
 Pl_BC_Start_Emit_0(void)
 {
-  bc_sp = bc;
+  bc_sp = bc_buff;
 }
 
 
@@ -477,30 +453,62 @@ Pl_BC_Start_Emit_0(void)
 void
 Pl_BC_Stop_Emit_0(void)
 {
-  int pl_byte_code_len;		/* could be declared in bc_supp.h if needed elsewhere */
+  int pl_byte_code_len;	/* could be declared in bc_supp.h if needed elsewhere */
+  int bc_len_bytes;
   int i;
   
-  pl_byte_code_len = (int) (bc_sp - bc);
-
-  pl_byte_code = (unsigned *) Malloc(pl_byte_code_len * sizeof(BCWord));
+  pl_byte_code_len = (int) (bc_sp - bc_buff);
+  bc_len_bytes = pl_byte_code_len * sizeof(BCWord);
+ 
+  pl_byte_code = Malloc(bc_len_bytes);
 
 #if 0
-  memcpy(pl_byte_code, bc, pl_byte_code_len * sizeof(BCWord));
+  memcpy(pl_byte_code, bc_buff, bc_len_bytes);
 #else
   for (i = 0; i < pl_byte_code_len; i++)
-    pl_byte_code[i] = bc[i].word;
+    pl_byte_code[i] = bc_buff[i].word;
 #endif
 
 #ifdef DEBUG
-  DBGPRINTF("byte-code size:%d\n", pl_byte_code_len);
+  DBGPRINTF(" byte-code at: %p  bc size: %d words (%d bytes)\n",
+	    pl_byte_code, pl_byte_code_len, bc_len_bytes);
 #endif
 }
 
 
 
+#ifdef DEBUG
+#define DBG_PRINT_INST(iw, bc_sp, op, nb_word, w, w1, w2, w3)	\
+  DBGPRINTF("%6d: op: %3d (%2x)  bc_buff: %010x  ",		\
+	    (int) ((char *) bc_sp - (char *) bc_buff),		\
+	    op, op, w.word);					\
+								\
+  if (nb_word >= 2)						\
+    DBGPRINTF("%010x  ", w1);					\
+  else								\
+    DBGPRINTF("            ");					\
+								\
+  if (nb_word >= 3)						\
+    DBGPRINTF("%010x  ", w2);					\
+  else								\
+    DBGPRINTF("            ");					\
+								\
+  if (nb_word >= 4)						\
+    DBGPRINTF("%010x  ", w3);					\
+  else								\
+    DBGPRINTF("            ");					\
+								\
+  if (iw != NOT_A_WAM_WORD)					\
+    Pl_Write(iw);						\
+  DBGPRINTF("\n")
+#else
+#define DBG_PRINT_INST(bc_sp, op, nb_word, w, w1, w2, w3, iw)
+#endif
 
-#define ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3)	\
+
+#define ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3, iw)	\
   BC_Op(w) = op;						\
+  DBG_PRINT_INST(iw, bc_sp, op, nb_word, w, w1, w2, w3);	\
   *bc_sp++ = w;							\
   if (nb_word >= 2)						\
     {								\
@@ -535,7 +543,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
   int op;
   int size_bc;
   BCWord w;			/* code-op word */
-  unsigned w1 = 0, w2 = 0, w3 = 0; /* additional words */ /* init for the compiler */
+  unsigned w1 = 0, w2 = 0, w3 = 0; /* additional words (init for the compiler)*/
   PlLong l;
   int nb_word;
   C64To32 cv;
@@ -546,12 +554,12 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
 
   op = Find_Inst_Code_Op(func);
 
-  size_bc = (int) (bc_sp - bc);
+  size_bc = (int) (bc_sp - bc_buff);
   if (size_bc + 3 >= bc_nb_block * BC_BLOCK_SIZE)
     {
       bc_nb_block++;
-      bc = (BCWord *) Realloc((char *) bc, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
-      bc_sp = bc + size_bc;
+      bc_buff = Realloc(bc_buff, bc_nb_block * BC_BLOCK_SIZE * sizeof(BCWord));
+      bc_sp = bc_buff + size_bc;
     }
 
 
@@ -697,7 +705,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       pred = Pl_Lookup_Pred(func, arity);
       if (pred && (pred->prop & MASK_PRED_NATIVE_CODE))
 	{
-	  op++;
+	  op++;			/* change op by op_NATIVE */
 #if WORD_SIZE == 32
 	  nb_word = 3;
 	  w2 = (unsigned) (pred->codep);
@@ -712,36 +720,12 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
       else
 	{
 	  nb_word = 3;
-	  w2 = (unsigned) Functor_Arity(caller_func, caller_arity);
+	  w2 = (unsigned) Functor_Arity(glob_caller_func, glob_caller_arity);
 	}
       break;
     }
 
-
-  ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3);
-
-
-#ifdef DEBUG
-  DBGPRINTF("   op: %3d  bc: %10.10x  ", op, w.word);
-
-  if (nb_word >= 2)
-    DBGPRINTF("%10.10x  ", w1);
-  else
-    DBGPRINTF("            ");
-
-  if (nb_word >= 3)
-    DBGPRINTF("%10.10x  ", w2);
-  else
-    DBGPRINTF("            ");
-
-  if (nb_word >= 4)
-    DBGPRINTF("%10.10x  ", w3);
-  else
-    DBGPRINTF("            ");
-
-  Pl_Write(inst_word);
-  DBGPRINTF("\n");
-#endif
+  ASSEMBLE_INST(bc_sp, op, nb_word, w, w1, w2, w3, inst_word);
 }
 
 
@@ -753,7 +737,7 @@ Pl_BC_Emit_Inst_1(WamWord inst_word)
  * predicate. Each clause has been compiled to native code (aux pred).     *
  * We here create a call to this clause.                                   *
  * This function is called between Pl_BC_Start_Emit_0 and Pl_BC_Stop_Emit_0*
- * The buffer bc has always enough room for our 3 or 4 words.              *
+ * NB: bc_buff has always enough room for our 3 or 4 words.                *
  *-------------------------------------------------------------------------*/
 void
 Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
@@ -778,7 +762,12 @@ Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep)
   w3 = cv.u[1];
 #endif
 
-  ASSEMBLE_INST(bc_sp, EXECUTE_NATIVE, nb_word, w, w1, w2, w3);
+#ifdef DEBUG
+  DBGPRINTF("\nBC Wrapper: execute native %s/%d, code at %p\n",
+	    pl_atom_tbl[func].name, arity, codep);
+#endif
+
+  ASSEMBLE_INST(bc_sp, EXECUTE_NATIVE, nb_word, w, w1, w2, w3, NOT_A_WAM_WORD);
 }
 
 
@@ -852,6 +841,186 @@ BC_Arg_Func_Arity(WamWord arg_word, int *arity)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
+/*
+ * This byte-code (BC) emulator handles the execution of the WAM code of a
+ * dynamic clause (clause selection by indexing is performed beforehand by
+ * the dynamic code manager; see dynam_supp.c).
+ *
+ * The BC emulator requires specific information, at minimum the byte-code
+ * program counter (BC PC) and a boolean indicating whether execution is
+ * in debug_call mode (for interaction with the debugger). In an initial
+ * version, this information was grouped into a new WAM register (BCI),
+ * which therefore had to be saved in NC frames (environments and
+ * choicepoints).
+ *
+ * With the introduction of GC-clause (see dynam_supp.c), it is also
+ * necessary to detect clauses whose byte-code is currently executing, in
+ * order to delay their deletion. This detection is performed by scanning
+ * the local stack, which requires reliably identifying the environments
+ * associated with BC execution and the corresponding clause. Introducing
+ * new WAM registers or extending NC frames is not desirable.
+ *
+ * The adopted approach therefore keeps the WAM for native code (NC)
+ * strictly unchanged: NC frames (environments and choicepoints) are not
+ * extended. The information specific to BC execution is stored in the
+ * first permanent variables of the environment.
+ *
+ * To reliably recognize a BC frame during GC-clause, CPE(E) is
+ * temporarily replaced by a sentinel code address. The original CPE(E)
+ * must therefore be saved when the environment is created (allocate) and
+ * restored when it is destroyed (deallocate). The clause associated with
+ * the currently executing byte-code must also be recorded.
+ *
+ * Three permanent variables are thus reserved for BC execution:
+ *
+ *   - Y_SAVE_CPE(e): saved value of CP(E)
+ *   - Y_CLAUSE(e)  : pointer to the clause associated with the running BC
+ *   - Y_BCPC_DBG(e): BC PC with the debug_call flag encoded in bit 0
+ *
+ * Macros:
+ *
+ *   - BC_FRAME_BEGIN: executed immediately after ALLOCATE to save CP(E)
+ *     and replace CPE(E) with the sentinel.
+ *
+ *   - BC_FRAME_END: executed immediately before DEALLOCATE to restore
+ *     CPE(E).
+ *
+ *   - BC_BEFORE_CALL: executed just before a CALL to save the BC
+ *     continuation (BC PC + debug_call) and set CP to a native
+ *     continuation that restarts the emulator (BC_EMULATE_CONT_0, which
+ *     calls the trampoline function BC_Emulate_Cont_0).
+ *
+ *   - BC_AFTER_CALL: executed in BC_Emulate_Cont_0 to restore the BC PC
+ *     and the debug_call mode, and then resume byte-code execution.
+ *
+ * When modifying Y_BCPC_DBG(e), it may be necessary to trail it in order 
+ * to restore its value upon backtracking. Currently, it is possible that
+ * several trailings occur (only one trail per choicepoint is necessary). In
+ * practice, these multiple trails are rare and shallow (dbg_check_Trail).
+ * If needed, the same timestamp technique used for the FD solver could be
+ * applied. This would require one additional Y variable to store the STAMP.
+ *
+ * The functions that manage execution return a native code address
+ * (WamCont) to which control must be transferred, or NULL in the case of
+ * a call to an interpreted predicate.
+ */
+
+
+static DynPInf *glob_dyn;   /* BC_Emulate_Byte_Code to return multiple values */
+static Bool debug_call;	    /* debug call ? (for the whole clause byte-code) */
+
+WamCont pl_debug_call_code;	/* overwritten by debugger_c.c */
+
+
+static PlLong BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last);
+
+static WamCont BC_Emulate_Clause(DynCInf *clause);
+
+static WamCont BC_Emulate_Byte_Code(BCWord *bc_start, DynCInf *clause);
+
+static void Prep_Debug_Call(int func, int arity, int caller_func,
+			    int caller_arity);
+
+
+
+
+#define BC_EMULATE_CONT        X1_2462635F656D756C6174655F636F6E74
+#define CALL_INTERNAL_WITH_CUT X1_2463616C6C5F696E7465726E616C5F776974685F637574
+
+Prolog_Prototype(BC_EMULATE_CONT, 0);
+Prolog_Prototype(CALL_INTERNAL_WITH_CUT, 3);
+
+#define Y_SAVE_CPE(e) Y(e, 0)
+#define Y_CLAUSE(e)   Y(e, 1)
+#define Y_BCPC_DBG(e) Y(e, 2)
+
+
+#define BC_GET_CLAUSE(e)  ((DynCInf *) Y_CLAUSE(e))
+
+#define BC_BEFORE_CALL(bc_pc)				\
+do { /* prep cont: save BC pc, debug_call and set CP */	\
+  WamWord w = (WamWord) (bc_pc) | debug_call;		\
+  Bind_OV(&Y_BCPC_DBG(E), w);				\
+  Dbg_Check_Trail(&Y_BCPC_DBG(E)); 			\
+  CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));	\
+}  while(0)
+
+#define BC_AFTER_CALL(bc_pc)				\
+do { /* in continuation: restore BC pc, debug_call */	\
+  WamWord w = Y_BCPC_DBG(E);				\
+  debug_call = w & 1;					\
+  /*bc_pc = (BCWord *) (w - debug_call);*/		\
+  bc_pc = (BCWord *) (w & ~(WamWord) 1);		\
+} while(0)
+
+
+#define BC_FRAME_BEGIN					\
+  Y_CLAUSE(E)   = (WamWord) clause;			\
+  Y_SAVE_CPE(E) = (WamWord) CP; /* NB: CP == CPE(E) */	\
+  CPE(E)        = (WamCont) BC_Frame_Sentinel
+
+#define BC_FRAME_END					\
+  CPE(E) = (WamCont) Y_SAVE_CPE(E)
+
+#define Is_BC_Frame(e) (CPE(e) == (WamCont) BC_Frame_Sentinel)
+
+static void
+BC_Frame_Sentinel(void)
+{
+  printf("!!! ERROR: in BC_Frame_Sentinel !!!\n"); exit(1);
+}
+
+#if 0
+void
+Dbg_Check_Trail(WamWord *adr_save)
+{
+  WamWord *base_tr = TRB(B);
+  /*WamWord *base_tr = Trail_Stack;*/
+  WamWord *tr = TR;
+  WamWord *adr;
+  WamWord word;
+  int c = 0;
+  int nb;
+  
+  while (tr > base_tr)
+    {
+      word = *--tr;
+      adr = (WamWord *) (Trail_Value_Of(word));
+
+      switch (Trail_Tag_Of(word))
+        {
+        case TUV:
+          break;
+
+        case TOV:
+	  word = *--tr;
+	  if (adr == adr_save)
+	    c++;
+	  break;
+
+	case TMV:
+	  nb = (int) *--tr;
+	  tr -= nb;
+	  break;
+
+	default:                /* TFC */
+	  --tr;
+	  nb = (int) (*--tr);
+	  tr -= nb;
+	}
+    }
+
+  if (c > 1)
+    printf("------------ SAVED %d times\n", c);
+
+}
+#else
+#define Dbg_Check_Trail(a)
+#endif
+
+
+
+
 /*-------------------------------------------------------------------------*
  * PL_BC_CALL_TERMINAL_PRED_3                                              *
  *                                                                         *
@@ -869,7 +1038,8 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
 
   debug_call = (call_info_word & (1 << TAG_SIZE_LOW)) != 0;
 
-  if (pl_debug_call_code != NULL && debug_call && (first_call_word & (1 << TAG_SIZE_LOW)))
+  if (pl_debug_call_code && debug_call &&
+      (first_call_word & (1 << TAG_SIZE_LOW)))
     {
       A(0) = pred_word;
       A(1) = call_info_word;
@@ -893,7 +1063,7 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, pred->dyn);
+  return Pl_BC_Emulate_Pred(pred->dyn);
 }
 
 
@@ -904,14 +1074,15 @@ Pl_BC_Call_Terminal_Pred_3(WamWord pred_word, WamWord call_info_word,
  *                                                                         *
  *-------------------------------------------------------------------------*/
 WamCont
-Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
+Pl_BC_Emulate_Pred(DynPInf *dyn)
 {
   DynCInf *clause;
   WamCont codep;
-  int arity;
+  int func, arity;
 
   while (dyn)
     {
+      func = dyn->func;
       arity = dyn->arity;
       A(arity) = Pl_Get_Current_Choice();	/* init cut register */
       A(arity + 1) = debug_call;
@@ -924,9 +1095,8 @@ Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
 
       codep = BC_Emulate_Clause(clause);
       if (codep)
-	return (codep);
+	return codep;
 
-      func = glob_func;
       dyn = glob_dyn;
     }
   /* fail */
@@ -940,7 +1110,7 @@ Pl_BC_Emulate_Pred(int func, DynPInf *dyn)
  * BC_EMULATE_PRED_ALT                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static WamCont
+static PlLong /* a WamCont in fact but respect type ScanFct see dynam_supp.h */
 BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 {
   DynPInf *dyn;
@@ -959,7 +1129,7 @@ BC_Emulate_Pred_Alt(DynCInf *clause, WamWord *w, Bool is_last)
   debug_call = (Bool) *w;
 
   codep = BC_Emulate_Clause(clause);
-  return (codep) ? codep : Pl_BC_Emulate_Pred(glob_func, glob_dyn);
+  return (PlLong) ((codep) ? codep : Pl_BC_Emulate_Pred(glob_dyn));
 }
 
 
@@ -980,16 +1150,27 @@ BC_Emulate_Clause(DynCInf *clause)
 
   bc = (BCWord *) clause->byte_code;
 
-  /* Issue #12: infinite loop when debugger is active on Call ports for dynamic/multifile compiled code.
-   * Each clause of such a predicate gives rise to both an assert (suitable for interpretation) and
-   * a native code which is invoked by BC with a EXECUTE_NATIVE instruction (CALL_NATIVE exists but
-   * not yet used). See in .wam call_c to Pl_Emit_BC_Execute_Wrapper and Pl_BC_Emit_Inst_Execute_Native.
-   * To fix the issue: either do not use BC if debug is active (use interpreted code - see below)
-   * or do not call the debugger inside EXECUTE_NATIVE (and CALL_NATIVE for consistency ?)
+  /* Issue #12: infinite loop when debugger is active on Call ports for
+   * dynamic/multifile compiled code.
+   * Each clause of such a predicate gives rise to both an assert
+   * (suitable for interpretation) and a native code which is invoked by BC
+   * with an EXECUTE_NATIVE instruction. See in .wam call_c to
+   * Pl_Emit_BC_Execute_Wrapper and Pl_BC_Emit_Inst_Execute_Native.
+   *
+   * To fix the issue: either do not use BC if debug is active
+   * (use interpreted code - see below) or do not call the debugger inside
+   * EXECUTE_NATIVE (and CALL_NATIVE for consistency ?)
    */
-  if (bc && (!debug_call || pl_debug_call_code == NULL)) /* emulated code (see above for test !debug_call) */
-    return BC_Emulate_Byte_Code(bc);
-				/* interpreted code */
+#if 1
+  /* emulated code (see above for test !debug_call) */
+  if (bc && (!debug_call || pl_debug_call_code == NULL)) 
+    return BC_Emulate_Byte_Code(bc, clause);
+#else
+  if (bc && !debug_call)
+    return BC_Emulate_Byte_Code(bc, clause);
+#endif
+
+  /* interpreted code */
   Pl_Copy_Clause_To_Heap(clause, &head_word, &body_word);
 
   arg_adr = Pl_Rd_Callable_Check(head_word, &func, &arity);
@@ -998,9 +1179,10 @@ BC_Emulate_Clause(DynCInf *clause)
     if (!Pl_Unify(A(i), *arg_adr++))
       return ALTB(B);		/* fail */
 
-  A(2) = A(arity);		/* before since pb with cut if arity <= 1 */
+  A(2) = A(arity);		/* set first else overwritte if arity <= 1 */
   A(0) = body_word;
   A(1) = Tag_INT(Call_Info(func, arity, debug_call));
+
   return (CodePtr) Prolog_Predicate(CALL_INTERNAL_WITH_CUT, 3);
 }
 
@@ -1012,23 +1194,31 @@ BC_Emulate_Clause(DynCInf *clause)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static WamCont
-BC_Emulate_Byte_Code(BCWord *bc)
+BC_Emulate_Byte_Code(BCWord *bc_start, DynCInf *clause)
 {
+  BCWord *bc_sp = bc_start;
   BCWord w;
+  unsigned code_op;
   int x0, x, y;
   int w1;
   PlLong l;
   WamCont codep;
   int func, arity;
+  int caller_func, caller_arity;
   PredInf *pred;
   C64To32 cv;
 
+  /* This function is also called fron Pl_BC_Emulate_Cont_0 (cotinuation).
+   * In this, clause = NULL, this is OK the allocate instruction has
+   * already been encountered. 
+   * However, if necessary, we could get the clause from Y_CLAUSE.
+   */
 
 bc_loop:
-  w = *bc++;
+  w = *bc_sp++;
+  code_op = BC_Op(w);
 
-  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
-  switch (BC_Op(w))
+  switch (code_op)
     {
     case GET_X_VARIABLE:
       x0 = BC1_X0(w);
@@ -1064,8 +1254,8 @@ bc_loop:
 
     case GET_ATOM_BIG:
       x0 = BC1_X0(w);
-      w1 = bc->word;
-      bc++;
+      w1 = bc_sp->word;
+      bc_sp++;
       if (!Pl_Get_Atom(w1, X(x0)))
 	goto fail;
       goto bc_loop;
@@ -1079,13 +1269,13 @@ bc_loop:
     case GET_INTEGER_BIG:
       x0 = BC1_X0(w);
 #if WORD_SIZE == 32
-      l = bc->word;
-      bc++;
+      l = bc_sp->word;
+      bc_sp++;
 #else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       l = cv.l;
 #endif
       if (!Pl_Get_Integer(l, X(x0)))
@@ -1094,10 +1284,10 @@ bc_loop:
 
     case GET_FLOAT:
       x0 = BC1_X0(w);
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       if (!Pl_Get_Float(cv.d, X(x0)))
 	goto fail;
       goto bc_loop;
@@ -1117,8 +1307,8 @@ bc_loop:
     case GET_STRUCTURE:
       x0 = BC1_X0(w);
       arity = BC1_Arity(w);
-      func = bc->word;
-      bc++;
+      func = bc_sp->word;
+      bc_sp++;
       if (!Pl_Get_Structure(func, arity, X(x0)))
 	goto fail;
       goto bc_loop;
@@ -1166,8 +1356,8 @@ bc_loop:
 
     case PUT_ATOM_BIG:
       x0 = BC1_X0(w);
-      w1 = bc->word;
-      bc++;
+      w1 = bc_sp->word;
+      bc_sp++;
       X(x0) = Pl_Put_Atom(w1);
       goto bc_loop;
 
@@ -1179,13 +1369,13 @@ bc_loop:
     case PUT_INTEGER_BIG:
       x0 = BC1_X0(w);
 #if WORD_SIZE == 32
-      l = bc->word;
-      bc++;
+      l = bc_sp->word;
+      bc_sp++;
 #else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       l = cv.l;
 #endif
       X(x0) = Pl_Put_Integer(l);
@@ -1193,10 +1383,10 @@ bc_loop:
 
     case PUT_FLOAT:
       x0 = BC1_X0(w);
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       X(x0) = Pl_Put_Float(cv.d);
       goto bc_loop;
 
@@ -1213,16 +1403,16 @@ bc_loop:
     case PUT_STRUCTURE:
       x0 = BC1_X0(w);
       arity = BC1_Arity(w);
-      func = bc->word;
-      bc++;
+      func = bc_sp->word;
+      bc_sp++;
       X(x0) = Pl_Put_Structure(func, arity);
       goto bc_loop;
 /*
     case PUT_META_TERM:
       x0 = BC1_X0(w);
       x = BC1_XY(w);
-      module = bc->word;
-      bc++;
+      module = bc_sp->word;
+      bc_sp++;
       X(x) = Pl_Put_Meta_Term(module, X(x0));
       goto bc_loop;
 */
@@ -1282,8 +1472,8 @@ bc_loop:
       goto bc_loop;
 
     case UNIFY_ATOM_BIG:
-      w1 = bc->word;
-      bc++;
+      w1 = bc_sp->word;
+      bc_sp++;
       if (!Pl_Unify_Atom(w1))
 	goto fail;
       goto bc_loop;
@@ -1295,13 +1485,13 @@ bc_loop:
 
     case UNIFY_INTEGER_BIG:
 #if WORD_SIZE == 32
-      l = bc->word;
-      bc++;
+      l = bc_sp->word;
+      bc_sp++;
 #else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       l = cv.l;
 #endif
       if (!Pl_Unify_Integer(l))
@@ -1320,32 +1510,32 @@ bc_loop:
 
     case UNIFY_STRUCTURE:
       arity = BC2_Arity(w);
-      func = bc->word;
-      bc++;
+      func = bc_sp->word;
+      bc_sp++;
       if (!Pl_Unify_Structure(func, arity))
 	goto fail;
       goto bc_loop;
 
     case ALLOCATE:
       Pl_Allocate(BC2_Int(w));
+      BC_FRAME_BEGIN;
       goto bc_loop;
 
     case DEALLOCATE:
+      BC_FRAME_END;
       Pl_Deallocate();
       goto bc_loop;
 
     case CALL:
-      BCI = (WamWord) (bc + 2) | debug_call;	/* use low bit of adr */
-      CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
+      BC_BEFORE_CALL(bc_sp + 2);
       // fall through
     case EXECUTE:
       arity = BC2_Arity(w);
-      func = bc->word;
-      bc++;
-      if (pl_debug_call_code != NULL && debug_call &&
-	  Pl_Detect_If_Aux_Name(func) == NULL)
+      func = bc_sp->word;
+      bc_sp++;
+      if (pl_debug_call_code && debug_call && !Pl_Detect_If_Aux_Name(func))
 	{
-	  w1 = bc->word;
+	  w1 = bc_sp->word;
 	  caller_func = Functor_Of(w1);
 	  caller_arity = Arity_Of(w1);
 	  Prep_Debug_Call(func, arity, caller_func, caller_arity);
@@ -1354,61 +1544,38 @@ bc_loop:
 
       if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
 	{
-	  w1 = bc->word;
+	  w1 = bc_sp->word;
 	  caller_func = Functor_Of(w1);
 	  caller_arity = Arity_Of(w1);
-	  Pl_Set_Bip_Name_2(Tag_ATM(caller_func),
-			 Tag_INT(caller_arity));
+	  Pl_Set_Bip_Name_2(Tag_ATM(caller_func), Tag_INT(caller_arity));
 	  Pl_Unknown_Pred_Error(func, arity);
 	  goto fail;
 	}
-
 #if 0
-      bc++;			/* useless since CP already set */
+      bc_sp++;			/* useless since BC_BEFORE_CALL already done */
 #endif
-      glob_func = func;
       glob_dyn = pred->dyn;
       return NULL;		/* to then call BC_Emulate_Pred */
 
     case CALL_NATIVE:
-      arity = BC2_Arity(w);
-      func = bc->word;
-      bc++;
-#if WORD_SIZE == 32
-      codep = (WamCont) (bc->word);
-      bc++;
-#else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
-      codep = (WamCont) (cv.p);
-#endif
-      BCI = (WamWord) bc | debug_call;
-      CP = Adjust_CP(Prolog_Predicate(BC_EMULATE_CONT, 0));
-      if (pl_debug_call_code != NULL && debug_call)
-	{
-	  Prep_Debug_Call(func, arity, 0, 0);
-	  return pl_debug_call_code;
-	}
-      return codep;
-
+      BC_BEFORE_CALL(bc_sp + (1 + WORD_SIZE / 32));
+      // fall through
     case EXECUTE_NATIVE:
       arity = BC2_Arity(w);
-      func = bc->word;
-      bc++;
+      func = bc_sp->word;
+      bc_sp++;
 #if WORD_SIZE == 32
-      codep = (WamCont) (bc->word);
-      bc++;
+      codep = (WamCont) (bc_sp->word);
+      bc_sp++;
 #else
-      cv.u[0] = bc->word;
-      bc++;
-      cv.u[1] = bc->word;
-      bc++;
+      cv.u[0] = bc_sp->word;
+      bc_sp++;
+      cv.u[1] = bc_sp->word;
+      bc_sp++;
       codep = (WamCont) (cv.p);
 #endif
       /* Issue #12: alternative fix could be to never call the debugger here */
-      if (pl_debug_call_code != NULL && debug_call)
+      if (pl_debug_call_code && debug_call)
 	{
 	  Prep_Debug_Call(func, arity, 0, 0);
 	  return pl_debug_call_code;
@@ -1419,8 +1586,8 @@ bc_loop:
       return UnAdjust_CP(CP);
 
     case FAIL:
-      if (pl_debug_call_code != NULL && debug_call)
-	{			/* invoke the debugger which will then call fail/0 */
+      if (pl_debug_call_code && debug_call)
+	{		   /* invoke the debugger which will then call fail/0 */
 	  Prep_Debug_Call(atom_fail, 0, 0, 0);
 	  return pl_debug_call_code;
 	}
@@ -1467,18 +1634,21 @@ fail:
 /*-------------------------------------------------------------------------*
  * PL_BC_EMULATE_CONT_0                                                    *
  *                                                                         *
+ * Trampoline function (pl->bc) that receives a continuation of bytecode   *
+ * (after a WAM call or call_native) and restarts the bytecode emulator.   *
+ * So, we know E is the BC frame (bc_sp between allocate and deallocate).  *
  *-------------------------------------------------------------------------*/
 WamCont
 Pl_BC_Emulate_Cont_0(void)
 {
   WamCont codep;
-  BCWord *bc;
+  BCWord *bc_sp;
 
-  debug_call = BCI & 1;
-  bc = (BCWord *) ((BCI >> 1) << 1);
+  BC_AFTER_CALL(bc_sp);
 
-  codep = BC_Emulate_Byte_Code(bc);
-  return (codep) ? codep : Pl_BC_Emulate_Pred(glob_func, glob_dyn);
+  		/* see BC_Emulate_Byte_Code for the NULL */
+  codep = BC_Emulate_Byte_Code(bc_sp, NULL); 
+  return (codep) ? codep : Pl_BC_Emulate_Pred(glob_dyn);
 }
 
 
@@ -1507,4 +1677,20 @@ Prep_Debug_Call(int func, int arity, int caller_func, int caller_arity)
       A(0) = word;
     }
   A(1) = Tag_INT(Call_Info(caller_func, caller_arity, debug_call));
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
+ * PL_BC_CLAUSE_ENVIRONMENT                                                *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+DynCInf *
+Pl_BC_Clause_Environment(WamWord *e)
+{
+  if (Is_BC_Frame(e))
+    return BC_GET_CLAUSE(e);
+  
+  return NULL;
 }

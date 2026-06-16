@@ -6,7 +6,7 @@
  * Descr.: operating system interface management - C part                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,8 +47,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "gp_config.h"
-
 #ifdef _WIN32
 #include <process.h>
 #include <direct.h>
@@ -55,7 +54,6 @@
 #include <winsock.h>
 #include <fcntl.h>
 #else
-#define _XOPEN_SOURCE_EXTENDED	/* for alpha/OSF (usleep prototype) */
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/param.h>
@@ -63,8 +61,6 @@
 #include <sys/wait.h>
 #include <sys/select.h>
 #endif
-
-#define OBJ_INIT Os_Interf_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -149,8 +145,7 @@ static Bool Select_Init_Ready_List(WamWord list_word, fd_set *set,
  * OS_INTERF_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Os_Interf_Initializer(void)
+PL_INITIALIZER(Os_Interf_Initializer)
 {
   atom_dt = Pl_Create_Atom("dt");
 
@@ -295,7 +290,7 @@ Pl_Working_Directory_1(WamWord path_name_word)
 {
   char *path_name;
 
-  path_name = Pl_M_Get_Working_Dir();
+  path_name = Pl_Get_Working_Dir();
 
   return Pl_Un_String_Check(path_name, path_name_word);
 }
@@ -315,7 +310,7 @@ Pl_Change_Directory_1(WamWord path_name_word)
   path_name = Get_Path_Name(path_name_word);
 
   errno = -1;
-  if (!Pl_M_Set_Working_Dir(path_name))
+  if (!Pl_Set_Working_Dir(path_name))
     Os_Test_Error(-1);
   return TRUE;
 }
@@ -422,12 +417,12 @@ Pl_Copy_File_2(WamWord path_name1_word, WamWord path_name2_word)
       Os_Test_Error(-1);
     }
 
-  is_dir = Pl_M_Is_Dir_Name(path_name2, FALSE);
+  is_dir = Pl_Is_Dir_Name(path_name2, FALSE);
   if (is_dir < 0)
     goto error;
   if (is_dir)
     {
-      Pl_M_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
+      Pl_Decompose_File_Name(path_name1, FALSE, &base, &suffix);
       sprintf(path_name2 + strlen(path_name2), "/%s", base);
     }
 
@@ -799,7 +794,7 @@ Pl_Temporary_Name_2(WamWord template_word, WamWord path_name_word)
 
   template = Get_Path_Name(template_word);
 
-  path_name = Pl_M_Mktemp(template);
+  path_name = Pl_Mktemp(template);
   Os_Test_Error_Null(path_name);
 
   return path_name && Pl_Un_String_Check(path_name, path_name_word);
@@ -819,6 +814,7 @@ Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
   char *dir;
   char *prefix;
   char *path_name;
+  Bool ret;
 
   dir = Pl_Rd_String_Check(dir_word);
   if (*dir == '\0')
@@ -830,10 +826,12 @@ Pl_Temporary_File_3(WamWord dir_word, WamWord prefix_word,
   if (*prefix == '\0')
     prefix = NULL;
 
-  path_name = Pl_M_Tempnam(dir, prefix);
+  path_name = Pl_Tempnam(dir, prefix);
   Os_Test_Error_Null(path_name);
+  ret = Pl_Un_String_Check(path_name, path_name_word);
+  Free(path_name);
 
-  return path_name && Pl_Un_String_Check(path_name, path_name_word);
+  return ret;
 }
 
 
@@ -870,7 +868,7 @@ Pl_Host_Name_1(WamWord host_name_word)
 				        /* (ifndef NO_USE_SOCKETS) */
 
   if (atom_host_name < 0)
-    atom_host_name = Pl_Create_Allocate_Atom(Pl_M_Host_Name_From_Name(NULL));
+    atom_host_name = Pl_Create_Allocate_Atom(Pl_Host_Name_From_Name(NULL));
 
   DEREF(host_name_word, word, tag_mask);
   if (tag_mask == TAG_REF_MASK)
@@ -879,7 +877,7 @@ Pl_Host_Name_1(WamWord host_name_word)
   atom = Pl_Rd_Atom_Check(word);
 
   return atom == atom_host_name ||
-    strcmp(Pl_M_Host_Name_From_Name(pl_atom_tbl[atom].name),
+    strcmp(Pl_Host_Name_From_Name(pl_atom_tbl[atom].name),
 	   pl_atom_tbl[atom_host_name].name) == 0;
 }
 
@@ -893,7 +891,7 @@ Pl_Host_Name_1(WamWord host_name_word)
 Bool
 Pl_Os_Version_1(WamWord os_version_word)
 {
-  return Pl_Un_String_Check(pl_m_os_version, os_version_word);
+  return Pl_Un_String_Check(pl_os_version, os_version_word);
 }
 
 
@@ -906,7 +904,7 @@ Pl_Os_Version_1(WamWord os_version_word)
 Bool
 Pl_Architecture_1(WamWord architecture_word)
 {
-  return Pl_Un_String_Check(pl_m_architecture, architecture_word);
+  return Pl_Un_String_Check(pl_architecture, architecture_word);
 }
 
 
@@ -959,7 +957,7 @@ Pl_Shell_2(WamWord cmd_word, WamWord status_word)
   Pl_Check_For_Un_Integer(status_word);
 
   Pl_Flush_All_Streams();
-  status = Pl_M_Shell(cmd);
+  status = Pl_Shell(cmd);
 
   return Pl_Get_Integer(status, status_word);
 }
@@ -1036,7 +1034,7 @@ Pl_Spawn_3(WamWord cmd_word, WamWord list_word, WamWord status_word)
   Pl_Check_For_Un_Integer(status_word);
 
   Pl_Flush_All_Streams();
-  status = Pl_M_Spawn(arg);
+  status = Pl_Spawn(arg);
 
   if (status == -1)
     Os_Test_Error(status);
@@ -1132,14 +1130,14 @@ Pl_Exec_5(WamWord cmd_word, WamWord sora_in_word, WamWord sora_out_word,
     }
   
   cmd = Pl_Rd_String_Check(cmd_word);
-  arg = Pl_M_Create_Shell_Command(cmd);
+  arg = Pl_Create_Shell_Command(cmd);
 
   Pl_Flush_All_Streams();
-  pid = Pl_M_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out,
-			    (merge_var_out_err) ? &f_out : &f_err);
+  pid = Pl_Spawn_Redirect(arg, (mask & 1) == 0, &f_in, &f_out,
+			  (merge_var_out_err) ? &f_out : &f_err);
 
   /* If the command is not found we get ENOENT under Windows. 
-   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
+   * Under Unix the information is only obtained at Pl_Get_Status(). */
 
   if (pid == -1 && errno != ENOENT)
     Os_Test_Error(pid); /* ENOENT is for Windows */
@@ -1507,7 +1505,7 @@ Pl_Wait_2(WamWord pid_word, WamWord status_word)
   pid = Pl_Rd_C_Int_Check(pid_word);
   Pl_Check_For_Un_Integer(status_word);
 
-  status  = Pl_M_Get_Status(pid);
+  status  = Pl_Get_Status(pid);
   Os_Test_Error(status);
 
   return Pl_Get_Integer(status, status_word);
@@ -1526,7 +1524,7 @@ Get_Path_Name0(WamWord path_name_word, Bool del_trail_slash)
   char *path_name;
 
   path_name = Pl_Rd_String_Check(path_name_word);
-  if ((path_name = Pl_M_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
+  if ((path_name = Pl_Absolute_Path_Name0(path_name, del_trail_slash)) == NULL)
     Pl_Err_Domain(pl_domain_os_path, path_name_word);
 
   return path_name;

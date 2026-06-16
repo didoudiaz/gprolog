@@ -6,7 +6,7 @@
  * Descr.: parser - header file                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,11 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-#include "../EnginePl/pl_long.h"
-#include "../EnginePl/bool.h"
-
-
 /*---------------------------------*
  * Constants                       *
  *---------------------------------*/
@@ -50,6 +45,8 @@
 
 typedef enum
 {
+  END_OF_FILE = -1,		/* EOF, 0..255 to specify a given char */
+  ADR_OF = '&',
   IDENTIFIER = 256,		/* not a type but a token */
   INTEGER,
   FLOAT,
@@ -97,6 +94,6 @@ SwtInf;
  * Function Prototypes             *
  *---------------------------------*/
 
-Bool Parse_Ma_File(char *file_name_in, int comment);
+Bool Parse_Ma_File(char *file_name_in, Bool comment);
 
 void Syntax_Error(char *format, ...) ATTR_PRINTF(1);

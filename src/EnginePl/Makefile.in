@@ -7,28 +7,27 @@ AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
 PROLOG_DIALECT= @PROLOG_DIALECT@
 
-
-LIBNAME = $(LIB_ENGINE_PL)
-OBJLIB  = arch_dep@OBJ_SUFFIX@ machine@OBJ_SUFFIX@ machine1@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ \
-          misc@OBJ_SUFFIX@ ../Tools/hash_fct@OBJ_SUFFIX@ hash@OBJ_SUFFIX@ obj_chain@OBJ_SUFFIX@ \
-          engine@OBJ_SUFFIX@ engine1@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
-          atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
-          mem_alloc@OBJ_SUFFIX@ if_no_fd@OBJ_SUFFIX@ main@OBJ_SUFFIX@
-
-all: config wam_regs.h $(LIBNAME)
-
-
-$(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME)
-	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
-	$(RANLIB) $(LIBNAME)
-
+LIB_NAME  = $(LIB_ENGINE_PL)
+LIB_OBJS = machine@OBJ_SUFFIX@ stacks_sigsegv@OBJ_SUFFIX@ \
+           unit_ctor@OBJ_SUFFIX@ misc@OBJ_SUFFIX@ winsup@OBJ_SUFFIX@ \
+	   os_detect@OBJ_SUFFIX@ os_spawn@OBJ_SUFFIX@ os_path@OBJ_SUFFIX@ os_error@OBJ_SUFFIX@ \
+           engine@OBJ_SUFFIX@ trampoline@OBJ_SUFFIX@ wam_inst@OBJ_SUFFIX@ \
+           atom@OBJ_SUFFIX@ pred@OBJ_SUFFIX@ oper@OBJ_SUFFIX@ \
+           mem_alloc@OBJ_SUFFIX@ if_no_fd@OBJ_SUFFIX@ ../Tools/hash_fct@OBJ_SUFFIX@ hash_tbl@OBJ_SUFFIX@ \
+	   main@OBJ_SUFFIX@
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
 
+
+
 .c@OBJ_SUFFIX@:
 	$(GPLC) -c -C '$(CFLAGS)' $*.c
+
+
+
+all: config top_comp $(LIB_NAME)
+
 
 
 
@@ -36,13 +35,12 @@ $(LIBNAME): $(OBJLIB)
 
 config: pl_config@EXE_SUFFIX@ wam_regs.h
 
-pl_config@EXE_SUFFIX@: pl_config.c gp_config.h machine.h stacks_sigsegv.h wam_archi.def
+pl_config@EXE_SUFFIX@: pl_config.c gp_config.h arch_dep.h machine_regs.h stacks_sigsegv.h wam_archi.def
 	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@pl_config@EXE_SUFFIX@ pl_config.c
 
 
 wam_regs.h: pl_config@EXE_SUFFIX@ machine.h stacks_sigsegv.h wam_archi.def
 	./pl_config@EXE_SUFFIX@
-	(cd ../TopComp; $(MAKE) $(GPLC)@EXE_SUFFIX@)
 
 
 gp_config.h:
@@ -54,10 +52,33 @@ try_sigaction@EXE_SUFFIX@: try_sigaction.c
 	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@try_sigaction@EXE_SUFFIX@ try_sigaction.c
 
 
+top_comp: pl_config@EXE_SUFFIX@ os_path@OBJ_SUFFIX@ os_spawn@OBJ_SUFFIX@ os_error@OBJ_SUFFIX@ winsup@OBJ_SUFFIX@
+	(cd ../TopComp; $(MAKE) $(GPLC)@EXE_SUFFIX@)
+
+
+
 
 # General core
 
-arch_dep@OBJ_SUFFIX@: arch_dep.h gp_config.h
+$(LIB_NAME): $(LIB_OBJS)
+	rm -f $(LIB_NAME)
+	$(AR_RC)@AR_SEP@$(LIB_NAME) $(LIB_OBJS)
+	$(RANLIB) $(LIB_NAME)
+
+# the first are needed to create TopComp/gplc (compiled with CC)
+winsup@OBJ_SUFFIX@: winsup.h winsup.c gp_config.h
+	$(CC) -c $(CFLAGS) $*.c
+
+os_spawn@OBJ_SUFFIX@: os_spawn.c os_spawn.h gp_config.h
+	$(CC) -c $(CFLAGS) $*.c
+
+os_path@OBJ_SUFFIX@: os_path.c os_path.h gp_config.h win_registry.h
+	$(CC) -c $(CFLAGS) $*.c
+
+os_error@OBJ_SUFFIX@: os_error.c os_error.h gp_config.h
+	$(CC) -c $(CFLAGS) $*.c
+
+os_detect@OBJ_SUFFIX@: os_detect.c os_detect.h gp_config.h
 
 machine@OBJ_SUFFIX@: machine.h machine.c gp_config.h wam_regs.h
 
@@ -67,24 +88,24 @@ mem_alloc@OBJ_SUFFIX@: mem_alloc.c
 
 misc@OBJ_SUFFIX@: misc.h misc.c machine.h
 
-hash@OBJ_SUFFIX@: hash.h hash.c
+hash_tbl@OBJ_SUFFIX@: hash_tbl.h hash_tbl.c
 
 main@OBJ_SUFFIX@: main.c
 
-obj_chain@OBJ_SUFFIX@: obj_chain.h obj_chain.c
+unit_ctor@OBJ_SUFFIX@: unit_ctor.h unit_ctor.c
+
+
 
 
 
 # Prolog engine
 
-# engine1.c should be compiled without optimizations (or else it is a .s)
+trampoline@OBJ_SUFFIX@: trampoline.S machine_regs.h wam_regs.h
+	$(GPLC) -C '$(CFLAGS)' -c -o trampoline@OBJ_SUFFIX@ trampoline.S
 
-engine1@OBJ_SUFFIX@: @MAKE_ENGINE1_SRC@
-	$(GPLC) -c -o engine1@OBJ_SUFFIX@ @MAKE_ENGINE1_SRC@
+engine@OBJ_SUFFIX@: engine.h engine.c gp_config.h win_registry.h
 
-engine@OBJ_SUFFIX@: engine.h engine.c
-
-wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c
+wam_inst@OBJ_SUFFIX@: wam_archi.h wam_inst.h wam_inst.c unify.c gp_config.h
 
 ../Tools/hash_fct@OBJ_SUFFIX@:
 	(cd ../Tools; $(MAKE))
@@ -98,32 +119,32 @@ oper@OBJ_SUFFIX@: oper.h oper.c
 if_no_fd@OBJ_SUFFIX@: if_no_fd.h if_no_fd.c
 
 
-clean: clean-test_oc
-	rm -f pl_config@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
+clean: clean-test_uc
+	rm -f pl_config@EXE_SUFFIX@ try_sigaction@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIB_NAME)
 
-distclean: clean clean-test_oc
+distclean: clean clean-test_uc
 	rm -f wam_archi.h wam_regs.h gp_config.h $(PROLOG_DIALECT)_cst.h
 
 
 
 
-check:	test_oc@EXE_SUFFIX@
-	./test_oc@EXE_SUFFIX@
+check:	test_uc@EXE_SUFFIX@
+	./test_uc@EXE_SUFFIX@
 
-clean-check: clean-test_oc
+clean-check: clean-test_uc
 
 # test obj chain utility
 
-TEST_OC_SRC=obj_chain.c test_oc.c
+TEST_UC_SRC=unit_ctor.c test_uc.c
 
-test_oc@EXE_SUFFIX@: obj_chain.c obj_chain.h test_oc.c test_oc_defs.h
+test_uc@EXE_SUFFIX@: unit_ctor.c unit_ctor.h test_uc.c test_uc_defs.h
 	for i in 1 2 3 4 5; do \
-	  (echo "#define OBJ_NO $$i" && \
-	   echo "#include \"test_oc_defs.h\"") >test_oc_m$$i.c || exit; \
+	  (echo "#define UNIT_NO $$i" && \
+	   echo "#include \"test_uc_defs.h\"") >test_uc_m$$i.c || exit; \
 	done
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@test_oc@EXE_SUFFIX@ test_oc.c obj_chain.c -I. test_oc_m[1-5].c
-	rm -f test_oc_m* test_oc*@OBJ_SUFFIX@
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@test_uc@EXE_SUFFIX@ test_uc.c unit_ctor.c -I. test_uc_m[1-5].c
+	rm -f test_uc_m* test_uc*@OBJ_SUFFIX@
 
-clean-test_oc:
-	rm -f test_oc@EXE_SUFFIX@ test_oc_m*
+clean-test_uc:
+	rm -f test_uc@EXE_SUFFIX@ test_uc_m*
 

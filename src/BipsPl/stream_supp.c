@@ -6,7 +6,7 @@
  * Descr.: stream support                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -139,11 +140,11 @@ static Bool Remove_In_Stream_List(int stm, StmLst **p_start);
 
 #ifndef NO_USE_LINEDIT
 
-static int TTY_Getc(void);
+static int TTY_Getc(void *unused);
 
 static int TTY_Get_Key(Bool echo, Bool catch_ctrl_c);
 
-static void TTY_Clearerr(void);
+static void TTY_Clearerr(void *unused);
 
 #endif
 
@@ -151,9 +152,10 @@ static int Basic_Call_Fct_Getc(StmInf *pstm);
 
 static void Basic_Call_Fct_Putc(int c, StmInf *pstm);
 
-static int Str_Stream_Getc(StrSInf *str_stream);
+/* declare a void * to make the clang sanitizer OK with fct ptr exact type */
+static int Str_Stream_Getc(void *a_str_stream);
 
-static void Str_Stream_Putc(int c, StrSInf *str_stream);
+static int Str_Stream_Putc(int c, void *a_str_stream);
 
 
 
@@ -176,7 +178,7 @@ Init_Stream_Supp(void)
   pl_stm_tbl = (StmInf **) Calloc(pl_stm_tbl_size, sizeof(StmInf *));
   pl_stm_last_used = -1;
 
-  pl_alias_tbl = Pl_Hash_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
+  pl_alias_htbl = Pl_HTBL_Alloc_Table(START_ALIAS_TBL_SIZE, sizeof(AliasInf));
 
   pl_atom_stream = Pl_Create_Atom("$stream");
   stream_1 = Functor_Arity(pl_atom_stream, 1);
@@ -534,7 +536,7 @@ Pl_Find_Stream_By_Alias(int atom_alias)
 {
   AliasInf *alias;
 
-  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
+  alias = (AliasInf *) Pl_HTBL_Find(pl_alias_htbl, atom_alias);
 
   return (alias == NULL) ? -1 : alias->stm;
 }
@@ -552,7 +554,7 @@ Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
   AliasInf *alias;
   AliasInf alias_info;
 
-  alias = (AliasInf *) Pl_Hash_Find(pl_alias_tbl, atom_alias);
+  alias = (AliasInf *) Pl_HTBL_Find(pl_alias_htbl, atom_alias);
   if (alias != NULL)
     {
       if (!reassign) /* return NULL if the alias is assigned to another stream */
@@ -567,12 +569,12 @@ Pl_Set_Alias_To_Stream(int atom_alias, int stm, Bool reassign)
       return alias;
     }      
 
-  Pl_Extend_Table_If_Needed(&pl_alias_tbl);
+  Pl_Extend_HTBL_If_Needed(&pl_alias_htbl);
 
   alias_info.atom = atom_alias;
   alias_info.stm = stm;
 
-  alias = (AliasInf *) Pl_Hash_Insert(pl_alias_tbl, (char *) &alias_info, FALSE);
+  alias = (AliasInf *) Pl_HTBL_Insert(pl_alias_htbl, (char *) &alias_info, FALSE);
 
   return alias;
 }
@@ -590,8 +592,8 @@ Del_Aliases_Of_Stream(int stm)
   HashScan scan;
   AliasInf *alias;
 
-  for (alias = (AliasInf *) Pl_Hash_First(pl_alias_tbl, &scan); alias;
-       alias = (AliasInf *) Pl_Hash_Next(&scan))
+  for (alias = (AliasInf *) Pl_HTBL_First(pl_alias_htbl, &scan); alias;
+       alias = (AliasInf *) Pl_HTBL_Next(&scan))
     {
       if (alias->stm != stm)
 	continue;
@@ -620,7 +622,7 @@ Del_Aliases_Of_Stream(int stm)
 	  continue;
 	}
       
-      Pl_Hash_Delete(pl_alias_tbl, alias->atom);
+      Pl_HTBL_Delete(pl_alias_htbl, alias->atom);
     }
 }
 
@@ -1109,7 +1111,7 @@ Pl_Io_Fileno_Of_Stream(int stm)
  * calls LE_FGets + Ctrl_C + b(reak) + new top_level + TTY_Getc...         *
  *-------------------------------------------------------------------------*/
 static int
-TTY_Getc(void)
+TTY_Getc(void *unused)
 {
   int c;
   StmInf *pstm;
@@ -1205,7 +1207,7 @@ TTY_Get_Key(Bool echo, Bool catch_ctrl_c)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-TTY_Clearerr(void)
+TTY_Clearerr(void *unused)
 {
   clearerr(stdin);
 }
@@ -1534,7 +1536,7 @@ Pl_Stream_Gets_Prompt(char *prompt, StmInf *pstm_o,
 
   pl_use_le_prompt = 1;
 
-  if (pstm_i->fct_getc != TTY_Getc)
+  if (pstm_i->fct_getc != (StmFct) TTY_Getc)
 #endif
     Pl_Stream_Printf(pstm_o, prompt);
 
@@ -1833,7 +1835,7 @@ err:
 
 
 /*-------------------------------------------------------------------------*
- * The following functions allows the user to handle streams on C strings  *
+ * The following functions allows the user to handle streams on C strings. *
  * Any stream can be a string stream. To avoid unnecessary malloc/free, we *
  * use as long as possible 2 str stream statically allocated (1 for input, *
  * 1 for output). This optimizes the use of preds like write_to_atom/2,... *
@@ -1847,6 +1849,7 @@ err:
  * PL_ADD_STR_STREAM                                                       *
  *                                                                         *
  * buff == NULL means output stream mode (str_stream->buff_alloc_size != 0)*
+ * Returns a stm.                                                          *
  *-------------------------------------------------------------------------*/
 int
 Pl_Add_Str_Stream(char *buff, int prop_other)
@@ -1934,12 +1937,11 @@ Pl_Delete_Str_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
- * PL_TERM_WRITE_STR_STREAM                                                *
+ * PL_TERMINATE_OUTPUT_STR_STREAM                                          *
  *                                                                         *
- * only needed for output string stream.                                   *
  *-------------------------------------------------------------------------*/
 char *
-Pl_Term_Write_Str_Stream(int stm)
+Pl_Terminate_Output_Str_Stream(int stm)
 {
   StrSInf *str_stream = pl_stm_tbl[stm]->file;
   *(str_stream->ptr) = '\0';
@@ -1951,12 +1953,32 @@ Pl_Term_Write_Str_Stream(int stm)
 
 
 /*-------------------------------------------------------------------------*
+ * PL_REWIND_STR_STREAM                                                    *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+void
+Pl_Rewind_Str_Stream(int stm)
+{
+  StmInf *pstm = pl_stm_tbl[stm];
+  StrSInf *str_stream = pstm->file;
+  str_stream->ptr = str_stream->buff;
+  
+  pstm->char_count = 0;
+  pstm->line_count = 0;
+  pstm->line_pos = 0;
+}
+
+
+
+
+/*-------------------------------------------------------------------------*
  * STR_STREAM_GETC                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static int
-Str_Stream_Getc(StrSInf *str_stream)
+Str_Stream_Getc(void *a_str_stream)
 {
+  StrSInf *str_stream = a_str_stream;
   int c;
 
   c = *(str_stream->ptr);
@@ -1975,9 +1997,10 @@ Str_Stream_Getc(StrSInf *str_stream)
  * STR_STREAM_PUTC                                                         *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Str_Stream_Putc(int c, StrSInf *str_stream)
+static int
+Str_Stream_Putc(int c, void *a_str_stream)
 {
+  StrSInf *str_stream = a_str_stream;
   int size = (int) (str_stream->ptr - str_stream->buff);
   int new_size;
 
@@ -1993,4 +2016,5 @@ Str_Stream_Putc(int c, StrSInf *str_stream)
     }
 
   *(str_stream->ptr)++ = c;
+  return c;
 }

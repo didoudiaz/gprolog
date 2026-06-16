@@ -6,7 +6,7 @@
  * Descr.: file name management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <string.h>
 
@@ -83,7 +84,7 @@ Pl_Absolute_File_Name_2(WamWord path1_word, WamWord path2_word)
 
   path1 = pl_atom_tbl[Pl_Rd_Atom_Check(path1_word)].name;
 
-  path2 = Pl_M_Absolute_Path_Name(path1);
+  path2 = Pl_Absolute_Path_Name(path1);
   if (path2 == NULL)
     Pl_Err_Domain(pl_domain_os_path, path1_word);
 
@@ -102,7 +103,7 @@ Pl_Is_Absolute_File_Name_1(WamWord path_word)
 {
   char *path = pl_atom_tbl[Pl_Rd_Atom_Check(path_word)].name;
 
-  return Pl_M_Is_Absolute_File_Name(path);
+  return Pl_Is_Absolute_File_Name(path);
 }
 
 
@@ -137,7 +138,7 @@ Pl_Decompose_File_Name_4(WamWord path_word, WamWord dir_word,
   Pl_Check_For_Un_Atom(prefix_word);
   Pl_Check_For_Un_Atom(suffix_word);
 
-  dir = Pl_M_Decompose_File_Name(path, FALSE, &base, &suffix);
+  dir = Pl_Decompose_File_Name(path, FALSE, &base, &suffix);
 
   if (!Pl_Un_String(dir, dir_word))
     return FALSE;
@@ -172,7 +173,7 @@ Pl_Prolog_File_Name_2(WamWord path1_word, WamWord path2_word)
   atom = Pl_Rd_Atom_Check(path1_word);
   path1 = pl_atom_tbl[atom].name;
 
-  path1 = Pl_M_Absolute_Path_Name(path1);
+  path1 = Pl_Absolute_Path_Name(path1);
   if (path1 == NULL)
     Pl_Err_Domain(pl_domain_os_path, path1_word);
 

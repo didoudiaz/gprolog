@@ -6,7 +6,7 @@
  * Descr.: term (inline) management - C part                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -54,8 +55,8 @@
  * Global Variables                *
  *---------------------------------*/
 
-static PlLong *var_ptr;
-static PlLong *base_var_ptr;
+static WamWord *var_ptr;
+static WamWord *base_var_ptr;
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -569,7 +570,7 @@ Pl_Term_Ref_2(WamWord term_word, WamWord ref_word)
 Bool
 Pl_Term_Variables_3(WamWord start_word, WamWord list_word, WamWord tail_word)
 {
-  PlLong *p;
+  WamWord *p;
 
   /* only check if no Tail since if there is no vars in Term
    * then List = Tail and Tail can be any term */
@@ -615,16 +616,16 @@ Pl_Term_Variables_2(WamWord start_word, WamWord list_word)
 static Bool
 Collect_Variable(WamWord *adr, WamWord var_word)
 {
-  PlLong *p;
+  WamWord *p;
 
   for (p = pl_glob_dico_var; p < var_ptr; p++)
-    if (*p == (PlLong) adr)	/* already present */
+    if (*p == (WamWord) adr)	/* already present */
       return TRUE;
 
   if (var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *var_ptr++ = (PlLong) adr;
+  *var_ptr++ = (WamWord) adr;
 
   return TRUE;
 }
@@ -681,13 +682,13 @@ Check_Variable(WamWord *adr, WamWord var_word)
 {
   WamWord word, tag_mask;
   WamWord *adr1;
-  PlLong *p;
+  WamWord *p;
 
   if (Tag_Of(var_word) == FDV)	/* improve FDV */
     return FALSE;
 
   for (p = pl_glob_dico_var; p < base_var_ptr; p++) /* check if already found until now */
-    if (*p == (PlLong) adr)	/* test if already present (thus well dereferenced) */
+    if (*p == (WamWord) adr) /* test if already present (thus well dereferenced) */
       return TRUE;
 
   if (base_var_ptr >= var_ptr)

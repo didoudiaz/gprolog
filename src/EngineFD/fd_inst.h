@@ -6,7 +6,7 @@
  * Descr.: FD instruction implementation - header file                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -54,17 +54,17 @@
 
 
 #define FD_Tag_Value(fdv_adr)      (((WamWord *)  fdv_adr)[0])
-#define FD_INT_Date(fdv_adr)       (((PlULong *)  fdv_adr)[1])
+#define FD_INT_Date(fdv_adr)       (((WamWord *)  fdv_adr)[1])
 
 #define Queue_Propag_Mask(fdv_adr) (((WamWord *)  fdv_adr)[2])
 #define Queue_Next_Fdv_Adr(fdv_adr)(((WamWord **) fdv_adr)[3])
 
 #define Range_Stamp(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_RANGE])
-#define Nb_Elem(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_RANGE + 1])
+#define Nb_Elem(fdv_adr)           (((PlLong *)   fdv_adr)[OFFSET_RANGE + 1])
 #define Range(fdv_adr)             ((Range *) ((WamWord *) fdv_adr+OFFSET_RANGE + 2))
 
 #define Chains_Stamp(fdv_adr)      (((WamWord *)  fdv_adr)[OFFSET_CHAINS])
-#define Nb_Cstr(fdv_adr)           (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 1])
+#define Nb_Cstr(fdv_adr)           (((PlLong *)   fdv_adr)[OFFSET_CHAINS + 1])
 #define Chains_Mask(fdv_adr)       (((WamWord *)  fdv_adr)[OFFSET_CHAINS + 2])
 #define Chain_Min(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 3])
 #define Chain_Max(fdv_adr)         (((WamWord **) fdv_adr)[OFFSET_CHAINS + 4])

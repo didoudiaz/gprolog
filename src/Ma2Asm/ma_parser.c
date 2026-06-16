@@ -6,7 +6,7 @@
  * Descr.: mini-assembler parser                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,6 +47,8 @@
 
 #define MA_PARSER_FILE
 
+#include "../EnginePl/pl_long.h"
+#include "../EnginePl/bool.h"
 #include "ma_parser.h"
 #include "ma_protos.h"
 
@@ -63,7 +66,7 @@
 
 
 
-enum
+typedef enum
 {
   PL_CODE,
   PL_JUMP,
@@ -83,7 +86,8 @@ enum
   C_RET,
   LONG,
   LABEL
-};
+}
+Mnemonic;
 
 
 
@@ -121,9 +125,9 @@ jmp_buf jumper;
 
 
 
-	  /* scanner variables */
+	  /* lexer variables */
 
-int keep_source_lines;
+Bool keep_source_lines;
 
 FILE *file_in;
 
@@ -152,7 +156,7 @@ double dbl_val;
  * For the switch_ret instruction (which can be very large), we also count 
  * the number of pairs (value,label) since each will give rise to asm inst. 
  * BTW: we could do the same for call_c (adding the number of arguments) but
- * there is in general too much arguments. 
+ * there is not in general too much arguments. 
  * This mechanism needs a pre-pass and provides a sufficient approximation 
  * in practice (see usage in ma2asm.c / arm64_any.c).
  */
@@ -176,9 +180,9 @@ static int Read_Index(void);
 
 static int Read_Optional_Index(void);
 
-static int Read_Token(int what);
+static ArgTyp Read_Token(ArgTyp what);
 
-static int Scanner(void);
+static ArgTyp Lexer(void);
 
 static void Skip_Rest_Of_Line(void);
 
@@ -190,7 +194,7 @@ static void Skip_Rest_Of_Line(void);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Parse_Ma_File(char *file_name_in, int comment)
+Parse_Ma_File(char *file_name_in, Bool comment)
 {
   int ret_val;
   int i, nb_passes = mi.needs_pre_pass + 1; /* pre-pass is to discover all defined symbols */
@@ -262,7 +266,9 @@ Parser(int pass_no, int nb_passes)
   CodeInf cur_code;
   LongInf l;
   char **in;
-  int k, i;
+  ArgTyp k;
+  Mnemonic mnemo;
+  int i;
 
   if (Pre_Pass())
     keep_source_lines = FALSE;
@@ -274,8 +280,8 @@ Parser(int pass_no, int nb_passes)
   
   for (;;)
     {
-      k = Scanner();
-      if (k == 0)		/* end of file */
+      k = Lexer();
+      if (k == END_OF_FILE)
 	break;
 
       if (k != IDENTIFIER)
@@ -285,13 +291,13 @@ Parser(int pass_no, int nb_passes)
 	if (strcmp(str_val, *in) == 0)
 	  break;
 
-      k = (int) (in - inst);
+      mnemo = (int) (in - inst);
 
       
       cur_approx_inst_line++; /* count 1 for each MA inst (could be more precise, e.g. 0 for label, ...) */
       if (Pre_Pass())
 	{			/* special case in in pre-pass */
-	  if (k != PL_CODE && k != C_CODE && k != LONG && k != SWITCH_RET && k != LABEL)
+	  if (mnemo != PL_CODE && mnemo != C_CODE && mnemo != LONG && mnemo != SWITCH_RET && mnemo != LABEL)
 	    {
 	    ignore_eol:
 	      Skip_Rest_Of_Line();
@@ -300,11 +306,11 @@ Parser(int pass_no, int nb_passes)
 	}
       else if (pass_no > 1)		/* special case in second pass */
 	{
-	  if (k == LONG)		/* ignore long decl (treated in pre-pass)  */
+	  if (mnemo == LONG)		/* ignore long decl (treated in pre-pass)  */
 	    goto ignore_eol;
 	}
 
-      switch (k)
+      switch (mnemo)
 	{
 	case PL_CODE:
 	  Stop_Previous_Code();
@@ -416,7 +422,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	case MOVE_RET:
-	  switch ((k = Scanner()))
+	  switch ((k = Lexer()))
 	    {
 	    case IDENTIFIER:
 	      Move_Ret_To_Mem_L(str_val, Read_Optional_Index());
@@ -495,7 +501,7 @@ Parser(int pass_no, int nb_passes)
 	  break;
 
 	default:		/* should never occurs */
-	  Syntax_Error("Unhandled MA element (pseudo:%s token id: %d)", str_val, k);
+	  fprintf(stderr, "BAD MA element: unhandled menmonic (pseudo: %s id: %d)\n", str_val, mnemo);
 	}
     }
   Stop_Previous_Code();		/* in case the last code is not followed by any declaration */
@@ -516,7 +522,7 @@ Parser(int pass_no, int nb_passes)
 static int
 Read_If_Global(Bool initializer_accepted)
 {
-  if (Scanner() != IDENTIFIER)
+  if (Lexer() != IDENTIFIER)
     goto err;
 
   if (strcmp(str_val, "local") == 0)
@@ -547,7 +553,7 @@ err:
 static void
 Read_Function(void)
 {
-  int k;
+  ArgTyp k;
 
   fc = FALSE;
   Read_Token(IDENTIFIER);
@@ -561,7 +567,7 @@ Read_Function(void)
   nb_args = 0;
   nb_args_in_words = 0;
   Read_Token('(');
-  k = Scanner();
+  k = Lexer();
   if (k == ')')
     return;
 
@@ -572,8 +578,8 @@ Read_Function(void)
     one_arg:
       switch (k)
 	{
-	case '&':
-	  k = Scanner();
+	case ADR_OF:		/* &... */
+	  k = Lexer();
 	  if (k != IDENTIFIER && k != X_REG && k != Y_REG && k != FL_ARRAY && k != FD_ARRAY)
 	    Syntax_Error("identifier, X(...), Y(...), FL(...) or FD(...) expected");
 	  arg[nb_args].type = k;
@@ -605,16 +611,20 @@ Read_Function(void)
 	case FD_ARRAY:
 #if WORD_SIZE < 64
 	  if (arg[nb_args].adr_of == 0)
-	    nb_args_in_words++;	/* double count 1 word more for 32 bits machines */
+	    nb_args_in_words++;	/* double needs +1 word for 32-bit machines */
 #endif
+	  // fall through
 	case FL_ARRAY:
 	case X_REG:
 	case Y_REG:
 	  arg[nb_args].index = Read_Index();
 	  break;
+
+	default:		/* should never occurs */
+	  fprintf(stderr, "BAD token id: %d - unhandled\n", k);
 	}
 
-      k = Scanner();
+      k = Lexer();
       nb_args++;
       nb_args_in_words++;
       if (k == ')')
@@ -622,7 +632,7 @@ Read_Function(void)
 
       if (k != ',')
 	Syntax_Error(") or , expected");
-      k = Scanner();
+      k = Lexer();
     }
 }
 
@@ -636,13 +646,13 @@ Read_Function(void)
 static void
 Read_Switch(void)
 {
-  int k;
+  ArgTyp k;
 
   Read_Token('(');
   nb_swt = 0;
   for (;;)
     {
-      if (Scanner() != INTEGER)
+      if (Lexer() != INTEGER)
 	Syntax_Error("integer expected");
 
       Read_Token('=');
@@ -653,7 +663,7 @@ Read_Switch(void)
       swt[nb_swt].label = strdup(str_val);
 
       nb_swt++;
-      k = Scanner();
+      k = Lexer();
       if (k == ')')
 	break;
       if (k != ',')
@@ -671,7 +681,7 @@ Read_Switch(void)
 static int
 Read_Index(void)
 {
-  int k = Scanner();		/* accepts (index) or [index] syntax */
+  ArgTyp k = Lexer();		/* accepts (index) or [index] syntax */
   if (k == '(')
     k = ')';
   else if (k == '[')
@@ -702,13 +712,13 @@ Read_Optional_Index(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_READ_TOKEN                                                           *
+ * READ_TOKEN                                                              *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
-Read_Token(int what)
+static ArgTyp
+Read_Token(ArgTyp what)
 {
-  int k = Scanner();
+  ArgTyp k = Lexer();
 
   if (k == what || (what == X_REG && k == Y_REG) || (what == FL_ARRAY && k == FD_ARRAY))
     return k;
@@ -751,11 +761,11 @@ Read_Token(int what)
 
 
 /*-------------------------------------------------------------------------*
- * SCANNER                                                                 *
+ * LEXER                                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
-Scanner(void)
+static ArgTyp
+Lexer(void)
 {
   char *p, *p1;
   PlLong i;
@@ -776,7 +786,7 @@ Scanner(void)
 	}
 
       if (feof(file_in))
-	return 0;
+	return END_OF_FILE;
 
       cur_line_no++;
       cur_line_p = cur_line_str;

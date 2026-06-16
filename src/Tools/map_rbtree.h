@@ -6,7 +6,7 @@
  * Descr.: map data structure based on red-black trees                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -37,7 +37,8 @@
   
 
 
-/* An Efficient Sorted Map Implementation Based on Red-Black Trees in C.
+/*
+ * An Efficient Sorted Map Implementation Based on Red-Black Trees in C.
  * 
  * Introduction
  * ------------

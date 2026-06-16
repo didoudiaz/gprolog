@@ -6,7 +6,7 @@
  * Descr.: hash function                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 /*
  * These hash functions are mainly based on MurmurHash3.
@@ -57,11 +58,6 @@
 #include <math.h>
 #include <sys/types.h>		/* some systems need this */
 
-#if 0
-#include "../EnginePl/engine_pl.h"
-#else  /* to test appart from gprolog (only need HAVE_xxx macros defined by autoconf) */
-#include "../EnginePl/gp_config.h"
-#endif
 
 #include "hash_fct.h"
 
@@ -191,12 +187,12 @@ Hash_Finalize(uint32_t h, int len)
  */
 
 #define HASH_BUFFER_FCT  Hash_Buffer_Aligned
-#include "hash_fct1.c"
+#include "hash_fct_aux.h"
 
 #undef HASH_BUFFER_FCT
 #define HASH_BUFFER_FCT  Hash_Buffer_Unaligned
 #define USE_32BITS_ALIGNMENT
-#include "hash_fct1.c"
+#include "hash_fct_aux.h"
 
 uint32_t
 Hash_Buffer(const void *key, int len, uint32_t seed)

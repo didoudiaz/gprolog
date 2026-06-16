@@ -6,7 +6,7 @@
  * Descr.: sockets management - C part                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -67,8 +67,6 @@
 #include <netdb.h>
 #endif
 
-#define OBJ_INIT Socket_Initializer
-
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -109,8 +107,7 @@ static Bool Create_Socket_Streams(int sock, char *stream_name,
  * SOCKET_INITIALIZER                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Socket_Initializer(void)
+PL_INITIALIZER(Socket_Initializer)
 {
 #ifdef _WIN32
   WORD versReqstd = MAKEWORD( 2, 2);		/* Current Winsock 2 DLL's */
@@ -277,7 +274,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
-      if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+      if ((path_name = Pl_Absolute_Path_Name(path_name)) == NULL)
 	Pl_Err_Domain(pl_domain_os_path, Arg(stc_adr, 0));
 
       adr_un.sun_family = AF_UNIX;
@@ -296,7 +293,7 @@ Pl_Socket_Bind_2(WamWord socket_word, WamWord address_word)
   if (tag_mask == TAG_REF_MASK)
     {
       if (atom_host_name < 0)
-	atom_host_name = Pl_Create_Allocate_Atom(Pl_M_Host_Name_From_Name(NULL));
+	atom_host_name = Pl_Create_Allocate_Atom(Pl_Host_Name_From_Name(NULL));
 
       Pl_Get_Atom(atom_host_name, word);
     }
@@ -369,7 +366,7 @@ Pl_Socket_Connect_4(WamWord socket_word, WamWord address_word,
   if (Functor_Arity(atom_AF_UNIX, 1) == Functor_And_Arity(stc_adr))
     {
       path_name = Pl_Rd_String_Check(Arg(stc_adr, 0));
-      if ((path_name = Pl_M_Absolute_Path_Name(path_name)) == NULL)
+      if ((path_name = Pl_Absolute_Path_Name(path_name)) == NULL)
 	Pl_Err_Domain(pl_domain_os_path, Arg(stc_adr, 0));
 
       adr_un.sun_family = AF_UNIX;
@@ -566,7 +563,7 @@ Pl_Hostname_Address_2(WamWord host_name_word, WamWord host_address_word)
   if (tag_mask == TAG_REF_MASK)
     {
       host_address = Pl_Rd_String_Check(host_address_word);
-      host_name = Pl_M_Host_Name_From_Adr(host_address);
+      host_name = Pl_Host_Name_From_Adr(host_address);
       return host_name && Pl_Un_String_Check(host_name, host_name_word);
     }
 

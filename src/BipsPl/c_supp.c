@@ -6,7 +6,7 @@
  * Descr.: C interface support                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -287,10 +287,10 @@ Pl_Rd_Positive(WamWord start_word)
 static
 int PlLong_To_C_Int(PlLong x, WamWord start_word) {
 
-#if SIZEOF_LONG > SIZEOF_INT
+#if SIZEOF_VOIDP > SIZEOF_INT
 
-#define C_INT_MIN (-(1L << (8 * SIZEOF_INT - 1)))
-#define C_INT_MAX ( (1L << (8 * SIZEOF_INT - 1)) - 1)
+#define C_INT_MIN (-((PlLong) 1 << (8 * SIZEOF_INT - 1)))
+#define C_INT_MAX ( ((PlLong) 1 << (8 * SIZEOF_INT - 1)) - 1)
 
   if (x < C_INT_MIN || x > C_INT_MAX)
     Pl_Err_Domain(pl_representation_integer_32bits, start_word);
@@ -1078,7 +1078,7 @@ Pl_Rd_Chars_Or_Codes_Str_Check(WamWord start_word, char *str)
       lst_adr = UnTag_LST(word);
 
       if (n == 0)
-	is_chars = Pl_Builtin_Atom(Car(lst_adr));
+	is_chars = Pl_Blt_Atom(Car(lst_adr));
       
       *str++ = (is_chars) ? Pl_Rd_Char_Check(Car(lst_adr)) : Pl_Rd_Code_Check(Car(lst_adr));
       n++;
@@ -1115,7 +1115,7 @@ Pl_Rd_Chars_Or_Codes_Str(WamWord start_word, char *str)
       lst_adr = UnTag_LST(word);
 
       if (n == 0)
-	is_chars = Pl_Builtin_Atom(Car(lst_adr));
+	is_chars = Pl_Blt_Atom(Car(lst_adr));
       
       *str++ = (is_chars) ? Pl_Rd_Char_Check(Car(lst_adr)) : Pl_Rd_Code_Check(Car(lst_adr));
       n++;

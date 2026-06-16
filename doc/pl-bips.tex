@@ -4635,31 +4635,41 @@ options are GNU Prolog extensions.
 
 
 \begin{TemplatesOneCol}
-format(+stream\_or\_alias, +character\_code\_list\_or\_atom,
+format(+stream\_or\_alias, +character\_list\_or\_character\_code\_list\_or\_atom,
 +list)\\
-format(+character\_code\_list\_or\_atom, +list)
+format(+character\_list\_or\_character\_code\_list\_or\_atom, +list)
 
 \end{TemplatesOneCol}
 
 \Description
 
-\texttt{format(SorA, Format, Arguments)} writes the \texttt{Format} string
-replacing each format control sequence \texttt{F} by the corresponding
-element of \texttt{Arguments} (formatted according to \texttt{F}) to the
-stream associated with the stream-term or alias \texttt{SorA}.
+\texttt{format(SorA, Control, Arguments)} interprets the \texttt{Arguments}
+according to the \texttt{Control} string and prints the result to the stream
+associated with the stream-term or alias \texttt{SorA}.
+\texttt{format/2} applies to the current output stream.
 
-\SPart{Format control sequences}: the general format of a control
-sequence is \texttt{\~{}NC}. The character \texttt{C} determines the
-type of the control sequence. \texttt{N} is an optional numeric
-argument (must evaluate to a positive integer integer). An alternative
-form of \texttt{N} is \texttt{*}. A \texttt{*} implies that the next
-argument \texttt{Arg} in \texttt{Arguments} should be used as a
-numeric argument in the control sequence.
+\texttt{Control} is a text (represented as atom, chars or codes), which may
+contain control sequences of the form \texttt{\~{}NC}, where \texttt{C} is a
+(single-character) format control option, and \texttt{N} is its optional
+non-negative integer parameter. As an extension, the use of C \texttt{printf()}
+formatting sequence is also recognized. It must be introduced by \texttt{\~{}\%}
+(in versions prior to 1.6.0. a single \texttt{\%} was enough but this created
+too many compatibility issues when writing portable code displaying a
+\texttt{\%}). Any characters that are not part of a control sequence are written to the
+stream. \texttt{N} can be omitted, or given in one of the following ways:
 
-As an extension, the use of C \texttt{printf()} formatting sequence is also
-recognized. It must be introduced by \texttt{\~{}\%} (in versions prior to
-1.6.0. a single \texttt{\%} was enough but this created too many
-compatibility issues when writing portable code displaying a \texttt{\%}).
+\begin{itemize}
+\item as a sequence of decimal digits
+\item as the character \texttt{*}, in which case \texttt{N} will be taken as the
+  next argument from \texttt{Arguments} (which must evaluate to a non-negative integer)
+\item as \texttt{`}\textit{character}, \texttt{N} is then the integer code of the given
+  \textit{character} (only really useful for \texttt{\~{}t}).
+\end{itemize}
+
+If a format option accepts a parameter, but \texttt{N} is omitted, a default
+value is assumed. If a format option does not accept a parameter, but \texttt{N}
+is given, \texttt{N} is ignored.
+
 
 \begin{tabular}{|C{1.4cm}|C{2.8cm}|p{10.45cm}|}
 \hline
@@ -4670,112 +4680,172 @@ Format sequence  & type of the argument & Description \\
 
 \texttt{\~{}Na} & atom & print the atom without quoting. \texttt{N} is minimal
                          number of characters to print using spaces on the right
-                         if needed (default: the length of the atom) \\
+                         if needed (default: the length of the atom). \\
 
 \hline
 
 \texttt{\~{}Nc} & character code & print the character associated with the
                                    code. \texttt{N} is the number of times to
-                                   print the character (default: 1)\\
+                                   print the character (default: 1). \\
 
 \hline
 
-\texttt{ \~{}Nf}
-\linebreak
-\texttt{\~{}Ne \~{}NE \~{}Ng \~{}NG}
+\texttt{\~{}Nf \~{}NF \~{}Ne \~{}NE \~{}Ng \~{}NG}
                &  float expression & pass the argument \texttt{Arg} and
                                      \texttt{N} to the C \texttt{printf()}
                                      function as:
-\linebreak
+\newline
                                if \texttt{N} is not specified
                                \texttt{printf("\%f",Arg)} else
                                \texttt{printf("\%.Nf",Arg)}.
-\linebreak
-                                     Similarly for \texttt{\~{}Ne}, \texttt{\~{}NE},
-                                     \texttt{\~{}Ng} and \texttt{\~{}NG} \\
+\newline
+                                     Similarly for  \texttt{\~{}NF}, \texttt{\~{}Ne}, \texttt{\~{}NE},
+                                     \texttt{\~{}Ng} and \texttt{\~{}NG}. \\
 
 \hline
 
-\texttt{\~{}Nd} & integer expression & print the argument. \texttt{N} is the
-                                       number of digits after the decimal point.
-                                       If \texttt{N} is 0 no decimal point is printed (default: 0)\\
+\texttt{\~{}Nd} & integer expression & print the argument as a decimal number,
+                                         shifted right \texttt{N} decimal places.
+                                         If \texttt{N} is 0 no decimal point is printed (default: 0). \\
 
 \hline
 
-\texttt{\~{}ND} & integer expression & identical to \texttt{\~{}Nd} except
+\texttt{\~{}ND} & integer expression & same as\texttt{\~{}Nd} except
                                        that \texttt{','} separates groups of
                                        three digits to the left of the
-                                       decimal point \\
+                                       decimal point. \\
 
 \hline
 
 \texttt{\~{}Nr} & integer expression & print the argument according to the
                                        radix \texttt{N}. 2 $\leq$ \texttt{N} $\leq$ 36 (default: 8).
-                                       The letters \texttt{a-z} denote digits $>$ 9 \\
+                                       The letters \texttt{a-z} denote digits $>$ 9. \\
 
 \hline
 
 \texttt{\~{}NR} & integer expression & identical to \texttt{\~{}Nr} except
-                                       that the letters \texttt{A-Z} denote digits $>$ 9 \\
+                                       that the letters \texttt{A-Z} denote digits $>$ 9. \\
 
 \hline
 
 \texttt{\~{}Ns} & character list, character code list or atom & print exactly \texttt{N} characters
-                                        (default: the length of the list) \\
+                                        (default: the length of the list). \\
 
 \hline
 
-\texttt{\~{}i} & term & ignore the next argument \\
+\texttt{\~{}i} & term & ignore the next argument. \\
 
 \hline
 
 \texttt{\~{}k} & term & pass the argument to
-                        \IdxPB{write\_canonical/1} \RefSP{write-term/3} \\
+                        \IdxPB{write\_canonical/1} \RefSP{write-term/3}. \\
 
 \hline
 
 \texttt{\~{}p} & term & pass the argument to \IdxPB{print/1}
-                        \RefSP{write-term/3} \\
+                        \RefSP{write-term/3}. \\
 
 \hline
 
 \texttt{\~{}q} & term & pass the argument to \IdxPB{writeq/1}
-                        \RefSP{write-term/3} \\
+                        \RefSP{write-term/3}. \\
 
 \hline
 
 \texttt{\~{}w} & term & pass the argument to \IdxPB{write/1}
-                        \RefSP{write-term/3} \\
+                        \RefSP{write-term/3}. \\
 
 \hline
 
-\texttt{\~{}\~{}} & none & print the character \texttt{'\~{}'} \\
+\texttt{\~{}W} & term & pass the argument to \IdxPB{write/1}
+                        \RefSP{write-term/3}. \\
 
 \hline
 
-\texttt{\~{}Nn} & none & print \texttt{N} new-line characters (default: 1) \\
+\texttt{\~{}\~{}} & none & print the character \texttt{'\~{}'}. \\
 
 \hline
 
-\texttt{\~{}NN} & none & print \texttt{N} new-line characters if not at the beginning
-of a line (default: 1) \\
+\texttt{\~{}Nn} & none & print \texttt{N} new-line characters (default: 1). \\
 
 \hline
 
-\texttt{\~{}?} & atom & use the argument as a nested format string \\
+\texttt{\~{}\%F} & atom, integer or float expression & interface to the C \texttt{printf(3)}.
+\newline
+                                                       The printf format \texttt{F}
+                                                       can include flags,
+                                                       minimum and precision fields
+                                                       (\texttt{*} is allowed) but not
+                                                       length-modifiers.
+\newline
+                                                       The argument can be:
+                                                       atom, chars, codes, integer or
+                                                       float expression. \\
 
 \hline
 
-\texttt{\~{}\%F} & atom, integer or float expression & interface to the C function
-                                                   \texttt{printf(3)} for outputting
-                                                   atoms (C string), integers and
-                                                   floating point numbers.
-                                                   \texttt{*} are also allowed. \\
+\texttt{\~{}N} & none & print a new-line characters if not at the beginning
+                        of a line (default: 1). \\
+
+\hline
+
+\texttt{\~{}N|} & none & sets a column boundary at position \texttt{N} and moves
+                         the cursor to that line position (default: current position). \\
+
+\hline
+  
+\texttt{\~{}N+} & none & sets a column boundary at \texttt{N} positions past the
+                         previous column boundary and moves the cursor to that line
+                         position (default: 8). \\
+
+\hline
+
+\texttt{\~{}Nt} & none & defines a location where padding can be
+                         inserted. If \texttt{N} is given, it is taken as the
+                         character code to be used for the padding character
+                         (default is 32 = space). \\
 
 \hline
 \end{tabular}
 
-\texttt{format/2} applies to the current output stream.
+\SPart{Column boundaries and padding}. The control sequences \texttt{\~{}|},
+\texttt{\~{}+} and \texttt{\~{}t} manage column boundaries (tab stops) for text
+alignment. Column boundaries are local to the current output line (and reset
+when a newline is output). An implicit boundary always exists at column 0 (start
+of line). Additional column boundaries may be specified either at an absolute
+position using \texttt{\~{}N|} or relative to the previous boundary using
+\texttt{\~{}N+}.
+
+Padding is inserted between two successive column boundaries. The total padding
+required to reach the next boundary is distributed across all padding points
+defined by \texttt{\~{}t} that appear between those boundaries. Distribution is
+as even as possible: earlier \texttt{\~{}t} s never receive more padding than
+later ones, and the difference is at most one character. If no padding points
+are present, all padding is inserted immediately before the right
+boundary. Examples:
+
+\begin{Code}
+\begin{verbatim}
+| ?- format("[~|~t~a~t~a~t~a~t~10+]", [a,b,c]).
+[ a  b  c  ]
+
+| ?- format('~`*t NICE TABLE ~`*t~61|~n', []),
+   format('*~t*~61|~n', []),
+   format('*~t~a~20|~t~a~t~20+~a~t~20+~t*~61|~n',
+                  ['Right aligned','Centered','Left aligned']),
+   format('*~t~d~20|~t~d~t~20+~d~t~20+~t*~61|~n', [123,45,678]),
+   format('*~t~d~20|~t~d~t~20+~d~t~20+~t*~61|~n', [1,2345,6789]),
+   format('~`*t~61|~n', []).
+
+************************ NICE TABLE *************************
+*                                                           *
+*      Right aligned      Centered      Left aligned        *
+*                123         45         678                 *
+*                  1        2345        6789                *
+*************************************************************
+\end{verbatim}
+\end{Code}
+
 
 \begin{PlErrors}
 
@@ -4846,7 +4916,7 @@ variable nor character code while a character code was expected}
 
 \Portability
 
-GNU Prolog predicates.
+Since 1.6.0: follows \MyUrl{https://prolog-lang.org/ImplementersForum/0110-format.html}{PIP-0110} (non-standard format \texttt{~{}?} has been removed).
 
 \subsubsection{\IdxPBD{portray\_clause/2},\label{portray-clause/2}
                \IdxPBD{portray\_clause/1}}
@@ -5809,7 +5879,7 @@ GNU Prolog predicates. Deprecated.
 \label{DCG}
 \index{Definite clause grammars|see {DCG}}
 
-Definite clause grammars are a useful notation to express grammar rules.
+Definite clause grammars (\Idx{DCG}) are a useful notation to express grammar rules.
 However the ISO reference does not include them, so they should be considered
 as a system dependent feature. Definite clause grammars are an extension of
 context-free grammars. A grammar rule is of the form:
@@ -5860,25 +5930,25 @@ is translated into:
 Extra arguments can be provided and the body of the rule can contain several
 non-terminals. Example:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 p(X, Y) -->
         q(X),
         r(X, Y),
         s(Y).
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 is translated into:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 p(X, Y, Start, End) :-
         q(X, Start, A),
         r(X, Y, A, B),
         s(Y, B, End).
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 Terminals are translated using unification:
 
@@ -5886,7 +5956,7 @@ Terminals are translated using unification:
 
 is translated into:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 assign(X,Y,Start,End) :-
         left(X, Start, A),
@@ -5894,7 +5964,7 @@ assign(X,Y,Start,End) :-
         right(Y, B, C),
         C=[;|End].
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 Terminals appearing on the left-hand side of a rule are connected to the
 output argument of the head.
@@ -5907,7 +5977,7 @@ brackets (to distinguish them from non-terminals):
 
 is translated into:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 assign(X,Y,Start,End) :-
         left(X, Start, A),
@@ -5916,7 +5986,7 @@ assign(X,Y,Start,End) :-
         Y is Y0,
         C=[;|End].
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 Cut, disjunction and if-then(-else) are translated literally (and do not need
 to be enclosed in curly brackets).
@@ -7571,7 +7641,7 @@ GNU Prolog predicates.
 \SPart{Simulating \texttt{g\_inc/3}}: this predicate behaves like:
 global variable:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 my_g_inc(Var, Old, New) :-
         g_read(Var, Old),
@@ -7579,7 +7649,7 @@ my_g_inc(Var, Old, New) :-
         g_assign(Var, X),
         New = N.
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 The query: \texttt{my\_g\_inc(c, X, \_)} will succeed unifying \texttt{X} with
 \texttt{0}, another call to \texttt{my\_g\_inc(a, Y, \_)} will then unify
@@ -7630,7 +7700,7 @@ The query \texttt{test(B)} will succeed unifying \texttt{B} with
 \SPart{Simple array definition}: here are some queries to show how arrays
 can be handled:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(w, g_array(3)), g_read(w, X).
 
@@ -7640,11 +7710,11 @@ X = g_array([0,0,0])
 
 X = g_array([16,32,64])
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 this is equivalent to:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(k, g_array([16,32,64])), g_read(k, X).
 
@@ -7655,20 +7725,20 @@ X = g_array([16,32,64])
 S = 3
 X = g_array([null,null,null])
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \SPart{2-D array definition}:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(w, g_array(2, g_array(3))), g_read(w, X).
 
 X = g_array([g_array([0,0,0]),g_array([0,0,0])])
 
 | ?- (   for(I,0,1), for(J,0,2), K is I*3+J, g_assign(w(I,J), K),
-         fail
-     ;   g_read(w, X)
-     ).
+       fail
+   ;   g_read(w, X)
+   ).
 
 X = g_array([g_array([0,1,2]),g_array([3,4,5])])
 
@@ -7676,11 +7746,11 @@ X = g_array([g_array([0,1,2]),g_array([3,4,5])])
 
 X = g_array([3,4,5])
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \SPart{Hybrid array}:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(w,g_array([1,2,g_array([a,b,c]), g_array(2,z),5])), g_read(w, X).
 
@@ -7695,11 +7765,11 @@ Z = z
 | ?- g_read(w(1,2),X).
 uncaught exception: error(domain_error(g_array_index,w(1,2)),g_read/2)
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \SPart{Array extension}:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(a, g_array([10,20,30])), g_read(a, X).
 
@@ -7717,11 +7787,11 @@ X = g_array([10,20,30])
 
 X = g_array([10,20,30,4,5,6])
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \SPart{Automatic array}:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 | ?- g_assign(t, g_array_auto(3)), g_assign(t(1), foo), g_read(t,X).
 
@@ -7732,7 +7802,7 @@ X = g_array([0,foo,0])
 X = g_array([0,foo,0,0,0,bar,0,0])
 
 | ?- g_assign(t, g_array_auto(2, g_array(2))), g_assign(t(1,1), foo),
-     g_read(t,X).
+   g_read(t,X).
 
 X = g_array([g_array([0,0]),g_array([0,foo])])
 
@@ -7744,7 +7814,7 @@ X = g_array([g_array([0,0]),g_array([0,foo]),g_array([0,0]),g_array([bar,0])])
 uncaught exception: error(domain_error(g_array_index,t(3,4)),g_assign/2)
 
 | ?- g_assign(t, g_array_auto(2, g_array_auto(2))), g_assign(t(1,1), foo),
-     g_read(t,X).
+   g_read(t,X).
 
 X = g_array([g_array([0,0]),g_array([0,foo])])
 
@@ -7754,13 +7824,13 @@ X = g_array([g_array([0,0]),g_array([0,foo]),g_array([0,0]),
     g_array([0,0,0,bar])])
 
 | ?- g_assign(t, g_array_auto(2, g_array_auto(2, null))), g_read(t(2,3), U),
-     g_read(t, X).
+   g_read(t, X).
 
 U = null
 X = g_array([g_array([null,null]),g_array([null,null]),
              g_array([null,null,null,null]),g_array([null,null])])
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \subsection{Prolog state}
 
@@ -7837,10 +7907,10 @@ Flag & Values & Description & ISO \\
 \hline
 
 \IdxPFD{integer\_rounding\_function} & \texttt{toward\_zero}
-\linebreak
+\newline
                                        \texttt{down} &
    \texttt{\textit{rnd}(X)} = integer part of \texttt{X}
-   \linebreak
+   \newline
    \texttt{\textit{rnd}(X)} = $\lfloor$\texttt{X$\rfloor$}
    \RefSP{Evaluation-of-an-arithmetic-expression} & Y \\
 
@@ -7958,147 +8028,147 @@ character conversion activated ? & Y \\
 \hline
 
 ~
-\linebreak
+\newline
 \IdxPFD{double\_quotes} &
   ~
-\linebreak
+\newline
   \texttt{atom}
-\linebreak
+\newline
   \texttt{chars}
-\linebreak
+\newline
   \texttt{\underline{codes}}
-\linebreak
+\newline
   \texttt{atom\_no\_escape}
-\linebreak
+\newline
   \texttt{chars\_no\_escape}
-\linebreak
+\newline
   \texttt{codes\_no\_escape} &
     a double quoted constant is returned as:
-\linebreak
+\newline
     an atom
-\linebreak
+\newline
     a list of characters
-\linebreak
+\newline
     a list of character codes
-\linebreak
+\newline
     as \texttt{atom} but ignore \IdxD{escape sequence}s
-\linebreak
+\newline
     as \texttt{chars} but ignore escape sequences
-\linebreak
+\newline
     as \texttt{code} but ignore escape sequences &
       ~
-\linebreak
+\newline
       Y
-\linebreak
+\newline
     ~
-\linebreak
+\newline
     ~
-\linebreak
+\newline
       N
  \\
 
 \hline
 
 ~
-\linebreak
+\newline
 \IdxPFD{back\_quotes} &
   ~
-\linebreak
+\newline
   \texttt{atom}
-\linebreak
+\newline
   \texttt{chars}
-\linebreak
+\newline
   \texttt{codes}
-\linebreak
+\newline
   \texttt{\underline{atom\_no\_escape}}
-\linebreak
+\newline
   \texttt{chars\_no\_escape}
-\linebreak
+\newline
   \texttt{codes\_no\_escape} &
     a back quoted constant is returned as:
-\linebreak
+\newline
     an atom
-\linebreak
+\newline
     a list of characters
-\linebreak
+\newline
     a list of character codes
-\linebreak
+\newline
     as \texttt{atom} but ignore escape sequences
-\linebreak
+\newline
     as \texttt{chars} but ignore escape sequences
-\linebreak
+\newline
     as \texttt{code} but ignore escape sequences &
       ~
-\linebreak
+\newline
       N
  \\
 \hline
 
 ~
-\linebreak
+\newline
 \IdxPFD{unknown} &
   ~
-\linebreak
+\newline
   \texttt{\underline{error}}
-\linebreak
+\newline
   \texttt{warning}
-\linebreak
+\newline
   \texttt{fail} &
     a predicate calls an unknown procedure:
-\linebreak
+\newline
     an \texttt{existence\_error} is raised
-\linebreak
+\newline
     a message is displayed then fails
-\linebreak
+\newline
     quietly fails &
       ~
-\linebreak
+\newline
       Y \\
 
 \hline
 
 ~
-\linebreak
+\newline
 \IdxPFD{syntax\_error} &
   ~
-\linebreak
+\newline
   \texttt{\underline{error}}
-\linebreak
+\newline
   \texttt{warning}
-\linebreak
+\newline
   \texttt{fail} &
     a predicate causes a syntax error:
-\linebreak
+\newline
     a \texttt{syntax\_error} is raised
-\linebreak
+\newline
     a message is displayed then fails
-\linebreak
+\newline
     quietly fails &
       ~
-\linebreak
+\newline
       N \\
 
 \hline
 
 ~
-\linebreak
+\newline
 \IdxPFD{os\_error} &
   ~
-\linebreak
+\newline
   \texttt{\underline{error}}
-\linebreak
+\newline
   \texttt{warning}
-\linebreak
+\newline
   \texttt{fail} &
     a predicate causes an O.S. error:
-\linebreak
+\newline
     a \texttt{system\_error} is raised
-\linebreak
+\newline
     a message is displayed then fails
-\linebreak
+\newline
     quietly fails &
       ~
-\linebreak
+\newline
       N \\
 
 \hline

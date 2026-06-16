@@ -41,7 +41,7 @@ decl ::=	'long' ( 'local' | 'global' ) var_name [ '=' integer | '(' integer ')' 
 fct_arg ::=	integer
 	|	float
 	|	string
-        |       & label				NB: & label = special case of & mem
+        |       '&' label		NB: & label = special case of & mem
 	|	[ '&' ] mem
 	|	[ '&' ] reg
 	|	[ '&' ] f_array

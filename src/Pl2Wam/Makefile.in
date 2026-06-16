@@ -1,7 +1,8 @@
-GPLC    = @GPLC@
-PL2WAM  = pl2wam
-PLFLAGS = --fast-math
-CFLAGS  = @CFLAGS@
+GPLC     = @GPLC@
+PL2WAM   = pl2wam
+PLFLAGS  = --fast-math
+CFLAGS   = @CFLAGS@
+HASH_SUM = @HASH_SUM@
 
 PLS  = pl2wam.pl read_file.pl syn_sugar.pl internal.pl \
           code_gen.pl reg_alloc.pl inst_codif.pl first_arg.pl \
@@ -13,12 +14,8 @@ WAMS = $(PLS:.pl=.wam)
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .wam .pl $(SUFFIXES)
 
-#.pl.wam:
-#	$(GPLC) -W $(GPLCFLAGS) $*.pl
-# we now use pl2wam to compile .pl->.wam 
-# only to be able to execute check-e (in emulated mode)
 .pl.wam:
-	$(PL2WAM) $(PLFLAGS) $*.pl
+	$(PL2WAM) $(PLFLAGS) $*.pl --wam-comment "hash: `$(HASH_SUM) $<`"
 	@fix-wam.sh $@
 
 .wam@OBJ_SUFFIX@:
@@ -68,13 +65,13 @@ wam_emit.wam:   wam_emit.pl
 
 
 check:
-	@./check_boot -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK'
+	@./check_boot.sh -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK'
 
 check-e:
-	@./check_boot -e -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [EMULATED MODE]'
+	@./check_boot.sh -e -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [EMULATED MODE]'
 
 check-i:
-	@./check_boot -i -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [INTERPRETED MODE]'
+	@./check_boot.sh -i -a [a-z][a-z_-]*.wam  && echo 'Bootstrap Prolog Compiler OK [INTERPRETED MODE]'
 
 
 swi_pl2wam: swilib.pl $(PLS)

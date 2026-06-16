@@ -6,18 +6,18 @@ AR_RC         = @AR_RC@
 RANLIB        = @RANLIB@
 
 
-LIBNAME = $(LIB_ENGINE_FD)
-OBJLIB  = fd_inst@OBJ_SUFFIX@ fd_range@OBJ_SUFFIX@  fd_unify@OBJ_SUFFIX@
+LIB_NAME = $(LIB_ENGINE_FD)
+LIB_OBJS = fd_inst@OBJ_SUFFIX@ fd_range@OBJ_SUFFIX@  fd_unify@OBJ_SUFFIX@
 
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c .fd $(SUFFIXES)
 
 
-$(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME)
-	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
-	$(RANLIB) $(LIBNAME)
+$(LIB_NAME): $(LIB_OBJS)
+	rm -f $(LIB_NAME)
+	$(AR_RC)@AR_SEP@$(LIB_NAME) $(LIB_OBJS)
+	$(RANLIB) $(LIB_NAME)
 
 
 .fd@OBJ_SUFFIX@:
@@ -37,8 +37,8 @@ fd_unify@OBJ_SUFFIX@: fd_unify.fd
 
 
 
-clean:
-	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
+clean: clean-check
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIB_NAME)
 
 
 distclean: clean clean-check

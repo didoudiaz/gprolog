@@ -70,8 +70,6 @@
 -T MapperInf
 -T Monom
 -T NonLin
--T ObjChain
--T ObjInf
 -T OneSol
 -T OneSolP
 -T OperInf
@@ -109,6 +107,7 @@
 -T TokInf
 -T TypTag
 -T TypTok
+-T UnitInf
 -T UsedFile
 -T UsedMachRegInf
 -T VType

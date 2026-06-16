@@ -1,0 +1,12 @@
+#!/bin/sh
+
+prog=`basename "$0"`
+
+fullpath=`which $prog`
+dir=`dirname "$fullpath"`
+type -P cygpath >/dev/null && dir=`cygpath -m "$dir"`
+file_consult="$dir/all.pl"
+
+echo "[INTERPRETED MODE (assert)]: $prog $@"
+echo gprolog --no-gui-console --quiet --init-goal "\"'\\\$consult_assert'('$file_consult'), halt\"" -- "$@"
+gprolog --no-gui-console --quiet --init-goal "'\$consult_assert'('$file_consult'), halt" -- "$@"

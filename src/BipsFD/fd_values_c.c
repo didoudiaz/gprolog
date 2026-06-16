@@ -6,7 +6,7 @@
  * Descr.: FD variable values management - C part                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdlib.h>
 
@@ -313,7 +314,7 @@ Select_Value(WamWord *fdv_adr, int value_method)
 
     case METHOD_RANDOM_V:
       n = (int) Nb_Elem(fdv_adr);
-      n = (int) Pl_M_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
+      n = (int) Pl_Random_Integer(n);		       /* random returns in 0..nb_elem-1 */
       return Pl_Range_Ith_Elem(Range(fdv_adr), n + 1); /* Ith is in 1..nb_elem */
     }
 
@@ -541,7 +542,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
   WamWord **array;
   WamWord **p, **end;
   CmpFct cmp_meth = NULL;	/* init for the compiler */
-  PlLong n;
+  int n;
   int i;
   WamWord *fdv_adr;
   WamWord **res_elem = NULL;
@@ -554,7 +555,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
 
   array = (WamWord **) (Cstr_Stack + Pl_Rd_Integer_Check(sel_array_word));
 
-  n = (PlLong) array[0];
+  n = (int) (PlLong) array[0];
   if (n == 0)
     return FALSE;
 
@@ -588,7 +589,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
     case METHOD_RANDOM:
       for (;;)
 	{
-	  i = (int) Pl_M_Random_Integer(n);
+	  i = (int) Pl_Random_Integer(n);
 	  end--;
 	  n--;
 	  fdv_adr = array[i];
@@ -598,7 +599,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
 	  if (!Fd_Variable_Is_Ground(fdv_adr))
 	    {
 	      Trail_OV(array - 1);
-	      array[-1] = (WamWord *) n;
+	      array[-1] = (WamWord *) (PlLong) n;
 	      goto finish;
 	    }
 
@@ -641,7 +642,7 @@ Pl_Fd_Sel_Array_Pick_Var_4(WamWord sel_array_word, WamWord method_word,
     {
       n = n - nb_ground;
       Trail_MV(array - 1, (int) (n + 1));
-      array[-1] = (WamWord *) n;
+      array[-1] = (WamWord *) (PlLong) n;
       for (p = q = array; n; p++)
 	{
 	  fdv_adr = *p;

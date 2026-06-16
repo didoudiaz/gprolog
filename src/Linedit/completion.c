@@ -6,7 +6,7 @@
  * Descr.: completion facility                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,6 +34,8 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+
+#include "../EnginePl/gp_config.h"
 
 /* This utility provides primitives for completion facility. 
  * This implementation is based on a sorted map provided by map_rbtree.h.

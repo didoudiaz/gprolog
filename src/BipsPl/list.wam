@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : list.pl
+% file: list.pl
+% hash: 8d3e07c4f734fac43366076ecf4781e6ebc7b7f9  list.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/list.pl').
@@ -310,7 +311,7 @@ predicate(nth1/3,264,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(3)),
-    call_c('Pl_Nth0_3',[boolean,by_value],[x(0),x(1),x(2),1]),
+    call_c('Pl_Nth0_3',[boolean],[x(0),x(1),x(2),1]),
     proceed,
 
 label(1),
@@ -329,7 +330,7 @@ predicate(nth0/3,273,static,private,monofile,built_in,[
     try_me_else(1),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
     cut(x(3)),
-    call_c('Pl_Nth0_3',[boolean,by_value],[x(0),x(1),x(2),0]),
+    call_c('Pl_Nth0_3',[boolean],[x(0),x(1),x(2),0]),
     proceed,
 
 label(1),
@@ -366,7 +367,7 @@ label(5),
     get_list(0),
     unify_void(1),
     unify_variable(x(0)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[is,2]),
     math_load_value(x(2),2),
     call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(2)]),
     execute('$nth_gener'/4)]).
@@ -404,7 +405,7 @@ label(5),
     get_list(0),
     unify_variable(x(4)),
     unify_variable(x(0)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=<,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[=<,2]),
     math_load_value(x(4),4),
     math_load_value(x(1),5),
     call_c('Pl_Blt_Lte',[fast_call,boolean],[x(4),x(5)]),
@@ -453,7 +454,7 @@ label(5),
     get_list(0),
     unify_variable(x(4)),
     unify_variable(x(0)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>=,2]),
     math_load_value(x(4),4),
     math_load_value(x(1),5),
     call_c('Pl_Blt_Gte',[fast_call,boolean],[x(4),x(5)]),
@@ -494,7 +495,7 @@ label(4),
     get_list(0),
     unify_variable(x(3)),
     unify_variable(x(0)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[is,2]),
     math_load_value(x(3),3),
     math_load_value(x(1),1),
     call_c('Pl_Fct_Add',[fast_call,x(1)],[x(3),x(1)]),
@@ -1148,7 +1149,7 @@ predicate('$prop_meta_pred'/3,354,static,private,multifile,local,[
 
 
 directive(354,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux1'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(2),
@@ -1160,7 +1161,7 @@ directive(354,system,[
 
 
 directive(368,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(3),
@@ -1173,7 +1174,7 @@ directive(368,system,[
 
 
 directive(382,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux3'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(4),
@@ -1187,7 +1188,7 @@ directive(382,system,[
 
 
 directive(396,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux4'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(5),
@@ -1202,7 +1203,7 @@ directive(396,system,[
 
 
 directive(410,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux5'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(6),
@@ -1218,7 +1219,7 @@ directive(410,system,[
 
 
 directive(424,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux6'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(7),
@@ -1235,7 +1236,7 @@ directive(424,system,[
 
 
 directive(438,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux7',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux7'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(8),
@@ -1253,7 +1254,7 @@ directive(438,system,[
 
 
 directive(452,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux8',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux8'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(maplist),
     unify_integer(9),

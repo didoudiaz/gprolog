@@ -6,7 +6,7 @@
  * Descr.: parser                                                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,17 +35,15 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#include <setjmp.h>
 #include <locale.h>
-
-
-#include "../EnginePl/gp_config.h" /* ensure ATTR_PRINTF */
+#include <setjmp.h>
 
 #include "wam_parser.h"
 #include "wam_protos.h"
@@ -174,9 +172,9 @@ jmp_buf jumper;
 
 
 
-	  /* scanner variables */
+	  /* lexer variables */
 
-int keep_source_lines;
+Bool keep_source_lines;
 
 FILE *file_in;
 
@@ -198,15 +196,15 @@ double dbl_val;
 
 static void Parser(void);
 
-static int Parse_And_Treat_Decl_Or_Inst(ParseInf *in);
+static Bool Parse_And_Treat_Decl_Or_Inst(ParseInf *in);
 
 static void Read_Argument(ArgTyp arg_type, ArgVal **top);
 
-static void Read_Token(int what);
+static void Read_Token(ArgTyp what);
 
-static int Scanner(int complex_atom);
+static ArgTyp Lexer(Bool complex_atom);
 
-static char Peek_Char(int skip_spaces);
+static char Peek_Char(Bool skip_spaces);
 
 
 
@@ -215,7 +213,7 @@ static char Peek_Char(int skip_spaces);
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Parse_Wam_File(char *file_name_in, int comment)
+Parse_Wam_File(char *file_name_in, Bool comment)
 {
   int ret_val;
 
@@ -267,19 +265,20 @@ Parser(void)
  * READ_DECL_OR_INST                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
+static Bool
 Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 {
   ParseInf *in = what;
   ArgVal *top = arg;
-  int i, k;
+  ArgTyp t;
+  int i;
   Bool fct_called = FALSE;
 
-  k = Scanner(0);
-  if (k == 0 && what == decl)			/* end of file */
-    return 0;
+  t = Lexer(FALSE);
+  if (t == END_OF_FILE && what == decl)
+    return FALSE;
 
-  if (k != ATOM)
+  if (t != ATOM)
     Syntax_Error((what == decl) ? "wam declaration expected" : "wam instruction expected");
 
   for(in = what; in->keyword && strcmp(str_val, in->keyword) != 0; in++)
@@ -304,11 +303,12 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 	      Read_Token('[');
 	      for (;;)
 		{
-		  Parse_And_Treat_Decl_Or_Inst(inst); /* only works because LIST_INST is the last argument */
-		  k = Scanner(0);
-		  if (k == ']')
+		  /* recursive call works because LIST_INST is the last argument of decl/predicate */
+		  Parse_And_Treat_Decl_Or_Inst(inst); 
+		  t = Lexer(FALSE);
+		  if (t == ']')
 		    break;
-		  if (k != ',')
+		  if (t != ',')
 		    Syntax_Error("] or , expected");
 		}
 	    }
@@ -321,7 +321,7 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
   if (!fct_called)
     (*in->fct) (arg);
 
-  return 1;
+  return TRUE;
 }
 
 
@@ -341,7 +341,7 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
  * MP_N      : the loading of ATOM (M) or NULL (no module) followed by F_N *
  *             the loading of ATOM (F) and the loading of C_INT (N)        *
  * LABEL     : the associated (int) or -1 for 'fail'                       *
- * ANY       : the type of the arg (an C_INT) and the loading of arg       *
+ * ANY       : the type of the arg (a C_INT) and the loading of arg        *
  * L1(T)     : an (int) n associated to the number of elements and         *
  *             n * the loading of T                                        *
  * L2(T1, T2): an (int) n associated to the number of elements and         *
@@ -350,20 +350,22 @@ Parse_And_Treat_Decl_Or_Inst(ParseInf *what)
 static void
 Read_Argument(ArgTyp arg_type, ArgVal **top)
 {
-  int k, n;
+  int n;
   ArgVal *top1;
-  ArgTyp t1, t2;
+  ArgTyp t, t1, t2;
+  Bool adr_of = FALSE;
 
   switch (arg_type)
     {
     case ATOM:
       Read_Token(ATOM);
+    rest_of_atom:
       Add_Arg(*top, char *, strdup(str_val));
       return;
 
     case INTEGER:
       Read_Token(INTEGER);
-    load_integer:
+    rest_of_integer:
       Add_Arg(*top, PlLong, int_val);
       return;
 
@@ -374,41 +376,46 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 
     case FLOAT:
       Read_Token(FLOAT);
-    load_float:
+    rest_of_float:
       Add_Arg(*top, double, dbl_val);
       return;
 
     case X_Y:
-      if (Scanner(0) != ATOM ||
+      if (Lexer(FALSE) != ATOM ||
 	  (*str_val != 'x' && *str_val != 'y') || str_val[1] != '\0')
 	Syntax_Error("x(...) or y(...) expected");
-    load_x_y:
+    rest_of_x_y:
       Read_Token('(');
       Read_Token(INTEGER);
       Read_Token(')');
       if (*str_val == 'x')
-	Add_Arg(*top, PlLong, int_val);
+	Add_Arg(*top, int, (int) int_val);
       else
-	Add_Arg(*top, PlLong, 5000 + int_val);
+	Add_Arg(*top, int, 5000 + (int) int_val);
+      if (adr_of)
+	Read_Token(')');	/* closing parenthesis of &(...) */
       return;
 
     case F_N:
-      Read_Argument(ATOM, top);
+      Read_Token(ATOM);
+    rest_of_f_n:
+      Add_Arg(*top, char *, strdup(str_val));
       Read_Token('/');
       Read_Argument(INTEGER, top);
       return;
 
     case MP_N:
       Read_Token(ATOM);
-      k = Scanner(0);
-      if (k == ':')
+    rest_of_mp_n:
+      t = Lexer(FALSE);
+      if (t == ':')
 	{
 	  Add_Arg(*top, char *, strdup(str_val));
 	  Read_Token(ATOM);
 	  Add_Arg(*top, char *, strdup(str_val));
 	  Read_Token('/');
 	}
-      else if (k == '/')
+      else if (t == '/')
 	{
 	  Add_Arg(*top, char *, NULL);
 	  Add_Arg(*top, char *, strdup(str_val));
@@ -417,67 +424,85 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	Syntax_Error("/ or : expected");
 
       Read_Argument(INTEGER, top);
+      if (adr_of)
+	Read_Token(')');	/* closing parenthesis of &(...) */
       return;
 
     case LABEL:
-      k = Scanner(0);
-      if (k != INTEGER)
+      t = Lexer(FALSE);
+      if (t != INTEGER)
 	{
-	  if (k != ATOM || strcmp(str_val, "fail") != 0)
+	  if (t != ATOM || strcmp(str_val, "fail") != 0)
 	    Syntax_Error("label or fail expected");
 	  else
 	    int_val = -1;
 	}
-      Add_Arg(*top, PlLong, int_val);
+      Add_Arg(*top, int, (int) int_val);
       return;
 
     case ANY:
-      t1 = Scanner(1);
-      top1 = *top;		/* to update type if needed */
-      Add_Arg(*top, int, t1);
+      t = Lexer(TRUE);
+      top1 = *top;              /* to update type if needed */
+      Add_Arg(*top, int, t);
 
-      if (t1 == INTEGER)
-	goto load_integer;
+      if (t == INTEGER)
+	goto rest_of_integer;
+	
+      if (t == FLOAT)
+	goto rest_of_float;
 
-      if (t1 == FLOAT)
-	goto load_float;
+      if (t != ATOM)
+	Syntax_Error("x(...), y(...), &(...), atom, integer or float expected");
 
-      if (t1 != ATOM)
-	Syntax_Error("x(...), y(...), atom, integer or float expected");
-
-				/* t1 is an ATOM */
-
-      if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' && Peek_Char(0) == '(')
+				/* t is an ATOM */
+      adr_of = FALSE;
+      if (*str_val == '&' && str_val[1] == '\0' && Peek_Char(FALSE) == '(')
 	{
-	  Add_Arg(top1, PlLong, X_Y);
-	  goto load_x_y;
+	  adr_of = TRUE;
+	  Read_Token('(');	/* opening parenthesis of &(...) */
+	  t = Lexer(TRUE);	/* should be x(...), y(...) or MP_N */
+	  if (t != ATOM)
+	    Syntax_Error("x(...), y(...) or pred/n expected");
+	}
+      
+      if ((*str_val == 'x' || *str_val == 'y') && str_val[1] == '\0' && Peek_Char(FALSE) == '(')
+	{
+	  Add_Arg(top1, int, X_Y + adr_of); /* patch: either X_Y or ADR_OF_X_Y */
+	  goto rest_of_x_y;
 	}
 
-      Add_Arg(*top, char *, strdup(str_val)); /* load the atom */
-      if (Peek_Char(1) == '/')
+      if (adr_of)		/* case &(MP_N) */
 	{
-	  Read_Token('/');
-	  Read_Argument(INTEGER, top);
-	  Add_Arg(top1, PlLong, F_N);
+	  Add_Arg(top1, int, MP_N + adr_of); /* either MP_N or ADR_OF_MP_N */
+	  goto rest_of_mp_n;
 	}
-      return;
 
-    case LIST_INST:		/* should not occur */
-      fprintf(stderr, "BAD Read_Argument(LIST_INST) !!!\n");
+				/* atom or func/n */
+      if (Peek_Char(TRUE) != '/')
+	goto rest_of_atom;
+
+      Add_Arg(top1, int, F_N);	/* patch: F_N */
+      goto rest_of_f_n;
+
+    case END_OF_FILE:
+    case ADR_OF_X_Y:
+    case ADR_OF_MP_N:
+    case LIST_INST:             /* should not occur */
+      fprintf(stderr, "BAD Read_Argument(%d): invalid expected type!!!\n", arg_type);
       return;
     }
 
-				/* arg_type is a list L1(t) or L2(t1, t2) */
+				/* arg_type is a list L1(t1) or L2(t1, t2) */
   DECODE_L2(arg_type, t1, t2);
 
   top1 = *top;
-  Add_Arg(*top, PlLong, 0);	/* reserve space for counter */
+  Add_Arg(*top, int, 0);	/* reserve space for counter */
 
   n = 0;
-  k = Scanner(1);
-  if (k == ATOM && strcmp(str_val, "[]") == 0)	/* empty list */
+  t = Lexer(TRUE);
+  if (t == ATOM && strcmp(str_val, "[]") == 0)	/* empty list */
     return;
-  if (k != '[')
+  if (t != '[')
     Syntax_Error("[] or [ expected");
 
   for (;;)
@@ -494,13 +519,13 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
 	  Read_Token(')');
 	}
 
-      k = Scanner(0);
-      if (k == ']')
+      t = Lexer(FALSE);
+      if (t == ']')
 	break;
-      if (k != ',')
+      if (t != ',')
 	Syntax_Error("] or , expected");
     }
-  Add_Arg(top1, PlLong, n);
+  Add_Arg(top1, int, n);	/* patch the nb of elements */
 }
 
 
@@ -511,14 +536,14 @@ Read_Argument(ArgTyp arg_type, ArgVal **top)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static void
-Read_Token(int what)
+Read_Token(ArgTyp what)
 {
-  int k = Scanner(what == ATOM);
+  ArgTyp t = Lexer(what == ATOM);
 
-  if (k == what)
+  if (t == what)
     return;
 
-  if (what >= 256 && k == '(')
+  if (what >= 256 && t == '(')
     {
       Read_Token(what);		/* maybe ( what ) (useful for operators) */
       Read_Token(')');
@@ -549,16 +574,16 @@ Read_Token(int what)
 
 
 /*-------------------------------------------------------------------------*
- * SCANNER                                                                 *
+ * LEXER                                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static int
-Scanner(int complex_atom)
+static ArgTyp
+Lexer(Bool complex_atom)
 {
   char *p, *p1;
   PlLong i;
   double d;
-  double strtod(const char *nptr, char **endptr);
+  double strtod(const char *nptr, char **endptr); /* not always in stdlib.h ? */
 
 
   for (;;)
@@ -574,7 +599,7 @@ Scanner(int complex_atom)
 	}
 
       if (feof(file_in))
-	return 0;
+	return END_OF_FILE;
 
       cur_line_no++;
       cur_line_p = cur_line_str;
@@ -713,7 +738,7 @@ Scanner(int complex_atom)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static char
-Peek_Char(int skip_spaces)
+Peek_Char(Bool skip_spaces)
 {
   char *p = cur_line_p;
   if (skip_spaces)

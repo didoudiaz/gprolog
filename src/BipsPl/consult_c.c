@@ -6,7 +6,7 @@
  * Descr.: file consulting - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <errno.h>
 #include <sys/types.h>
@@ -70,12 +71,12 @@ Pl_Consult_1(WamWord pl2wam_args_word)
 {
   StmInf *pstm_o = pl_stm_tbl[pl_stm_top_level_output];
   StmInf *pstm_i = pl_stm_tbl[pl_stm_top_level_input];
-  int pid;
+  int pid, status;
   FILE *f_in = M_SPAWN_REDIRECT_CREATE;
   FILE *f_out = M_SPAWN_REDIRECT_CREATE;
   FILE **pf_in;
   unsigned char *p = NULL;
-  int status, c;
+  int c;
   int save_use_le_prompt;
 #if 0
   /* MSVC does not accept C99 VLA (variable length arrays)
@@ -113,13 +114,12 @@ Pl_Consult_1(WamWord pl2wam_args_word)
 #endif
 
   Pl_Flush_All_Streams();
-  pid = Pl_M_Spawn_Redirect(arg, 0, pf_in, &f_out, &f_out);
+  pid = Pl_Spawn_Redirect(arg, FALSE, pf_in, &f_out, &f_out);
 
   /* If pl2wam is not found we get ENOENT under Windows. 
-   * Under Unix the information is only obtained at Pl_M_Get_Status(). */
-
-  if (pid == -1 && errno != ENOENT)
-    Os_Test_Error(pid); /* ENOENT is for Windows */
+   * Under Unix the information is only obtained at Pl_Get_Status(). */
+  if (pid == -1 && errno != ENOENT) /* ENOENT is for Windows */
+    Os_Test_Error(pid);
   if (pid < 0)
     {
     error_pl2wam:
@@ -172,7 +172,7 @@ Pl_Consult_1(WamWord pl2wam_args_word)
     fclose(f_in);
   fclose(f_out);
 
-  status = Pl_M_Get_Status(pid);
+  status = Pl_Get_Status(pid);
   if (status < 0)
     goto error_pl2wam;
 

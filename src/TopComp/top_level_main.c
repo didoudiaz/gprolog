@@ -6,7 +6,7 @@
  * Descr.: top-level command-line option checking                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,7 +45,7 @@
 #include "../BipsPl/c_supp.h"
 #include "../BipsPl/inl_protos.h"
 #include "../BipsPl/flag_supp.h"
-#include "copying.c"
+#include "copying.h"
 
 
 
@@ -127,21 +128,21 @@ Main_Wrapper(int argc, char *argv[])
 	      break;
 	    }
 
-	  if (Check_Arg(i, "--init-goal"))
-	    {
-	      if (++i >= argc)
-		Pl_Fatal_Error("Goal missing after --init-goal option");
-
-	      init_goal[nb_init_goal++] = argv[i];
-	      continue;
-	    }
-
 	  if (Check_Arg(i, "--consult-file"))
 	    {
 	      if (++i >= argc)
 		Pl_Fatal_Error("File missing after --consult-file option");
 
 	      consult_file[nb_consult_file++] = argv[i];
+	      continue;
+	    }
+
+	  if (Check_Arg(i, "-g") || Check_Arg(i, "--init-goal"))
+	    {
+	      if (++i >= argc)
+		Pl_Fatal_Error("Goal missing after --init-goal option");
+
+	      init_goal[nb_init_goal++] = argv[i];
 	      continue;
 	    }
 
@@ -169,7 +170,7 @@ Main_Wrapper(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--quiet"))
+	  if (Check_Arg(i, "-q") || Check_Arg(i, "--quiet"))
 	    {
 	      quiet = TRUE;
 	      continue;
@@ -177,7 +178,7 @@ Main_Wrapper(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--version"))
 	    {
-	      Display_Copying("Prolog top-Level");
+	      Display_Copying("Prolog top-level");
 	      exit(0);
 	    }
 
@@ -253,12 +254,12 @@ Display_Help(void)
 {
   fprintf(stderr, "Usage: %s [OPTION]... \n", TOP_LEVEL);
   L("");
-  L("  --consult-file FILE         consult FILE inside the the top-level");
-  L("  --init-goal    GOAL         execute GOAL before entering the top-level");
-  L("  --entry-goal   GOAL         execute GOAL inside the top-level");
-  L("  --query-goal   GOAL         execute GOAL as a query for the top-level");
+  L("  --consult-file   FILE       consult FILE inside the the top-level");
+  L("  -g, --init-goal  GOAL       execute GOAL before entering the top-level");
+  L("  --entry-goal     GOAL       execute GOAL inside the top-level");
+  L("  --query-goal     GOAL       execute GOAL as a query for the top-level");
   L("  --no-gui-console            disable Windows GUI console (run in text mode)");
-  L("  --quiet                     suppress informational messages (banner, ...)");
+  L("  -q, --quiet                 suppress informational messages (banner, ...)");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L("  --                          do not parse the rest of the command-line");

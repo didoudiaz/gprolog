@@ -6,7 +6,7 @@
  * Descr.: general header file                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -46,8 +46,8 @@
 #include "term_supp.h"
 #include "stream_supp.h"
 #include "error_supp.h"
-#include "scan_supp.h"
-#include "parse_supp.h"
+#include "lexer_supp.h"
+#include "parser_supp.h"
 #include "write_supp.h"
 #include "flag_supp.h"
 #include "dynam_supp.h"

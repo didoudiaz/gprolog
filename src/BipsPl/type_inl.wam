@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : type_inl.pl
+% file: type_inl.pl
+% hash: 19985398e490ff7207a166cff0337d06a2b980f6  type_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/type_inl.pl').

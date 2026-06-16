@@ -6,7 +6,7 @@
  * Descr.: boolean and Meta-constraint predicate management - C part       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,8 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-#define OBJ_INIT Fd_Bool_Initializer
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -210,8 +209,7 @@ Bool Pl_Fd_Lte_2(WamWord le_word, WamWord re_word);
  * FD_BOOL_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Fd_Bool_Initializer(void)
+PL_INITIALIZER(Fd_Bool_Initializer)
 {
   bool_tbl[NOT] = Functor_Arity(Pl_Create_Atom("#\\"), 1);
 

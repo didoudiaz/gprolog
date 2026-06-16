@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : term_inl.pl
+% file: term_inl.pl
+% hash: 991e9a93e2fbedd5bc045766d3ec925860d38d25  term_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/term_inl.pl').
@@ -60,68 +61,68 @@ predicate((=..)/2,81,static,private,monofile,built_in,[
 
 
 predicate(copy_term/2,87,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[copy_term,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[copy_term,2]),
     call_c('Pl_Copy_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(nb_setarg/3,94,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nb_setarg,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[nb_setarg,3]),
     put_atom(false,3),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(setarg/3,99,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[setarg,3]),
     put_atom(true,3),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(setarg/4,104,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[setarg,4]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[setarg,4]),
     call_c('Pl_Setarg_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(term_ref/2,111,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_ref,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[term_ref,2]),
     call_c('Pl_Term_Ref_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(term_variables/2,117,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[term_variables,2]),
     call_c('Pl_Term_Variables_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(term_variables/3,122,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_variables,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[term_variables,3]),
     call_c('Pl_Term_Variables_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
 
 predicate(subsumes_term/2,128,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[subsumes_term,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[subsumes_term,2]),
     call_c('Pl_Subsumes_Term_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(acyclic_term/1,134,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[acyclic_term,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[acyclic_term,1]),
     call_c('Pl_Acyclic_Term_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(term_hash/4,140,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,4]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[term_hash,4]),
     call_c('Pl_Term_Hash_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
 
 predicate(term_hash/2,144,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[term_hash,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[term_hash,2]),
     call_c('Pl_Term_Hash_2',[boolean],[x(0),x(1)]),
     proceed]).

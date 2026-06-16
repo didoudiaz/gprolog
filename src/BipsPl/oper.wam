@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : oper.pl
+% file: oper.pl
+% hash: 1213379d61d14e7ad7aed3fd681bb426004dea1c  oper.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/oper.pl').
@@ -14,7 +15,7 @@ predicate(op/3,43,static,private,monofile,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[op,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[op,3]),
     put_value(y(2),0),
     call('$check_atom_or_atom_list'/1),
     put_value(y(2),0),
@@ -80,7 +81,7 @@ predicate('$op2'/3,59,static,private,monofile,built_in,[
 
 
 predicate(current_op/3,65,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_op,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[current_op,3]),
     call_c('Pl_Current_Op_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 

@@ -58,9 +58,7 @@ PORTS
 GNU Prolog is currently ported to the following architectures:
 
    - ix86 / GNU/Linux
-   - ix86 / Win32 using Cygwin (see file src/WINDOWS-OLD)
-   - ix86 / Win32 using MinGW  (see file src/WINDOWS-OLD)
-   - ix86 / Win32 using MSVC++ (see file src/WINDOWS-OLD)
+   - ix86 / Win32
    - ix86 / SCO
    - ix86 / Solaris
    - ix86 / FreeBSD
@@ -69,8 +67,7 @@ GNU Prolog is currently ported to the following architectures:
    - ix86 / Darwin (Mac OS X)
    - x86_64 / GNU/Linux
    - x86_64 / Solaris
-   - x86_64 / Win64 using MinGW64 (see file src/WINDOWS)
-   - x86_64 / Win64 using MSVC++  (see file src/WINDOWS)
+   - x86_64 / Win64
    - x86_64 / Darwin (Mac OS X)
    - PowerPC / GNU/Linux
    - PowerPC / Darwin (Mac OS X)
@@ -83,9 +80,10 @@ GNU Prolog is currently ported to the following architectures:
    - alpha / GNU/Linux
    - alpha / OSF1
    - mips / irix
-   - arm 32bits / GNU/Linux (armv6, armv7) 
-   - arm 64bits (aarch64)/ GNU/Linux (armv8)
-   - arm 64bits (aarch64) / Darwin (Mac OS X) (armv8)
+   - arm 32bits (armv6, armv7) / GNU/Linux
+   - arm 64bits aka. aarch64 (armv8) / GNU/Linux
+   - arm 64bits aka. aarch64 (armv8) / Darwin (Mac OS X)
+   - arm 64bits aka. aarch64 (armv8) / Win64
    - RISC-V 64bits / GNU/Linux
 
 
@@ -128,13 +126,11 @@ In Microsoft Windows if you intend to use the gplc compiler as described in
 the documentation ensure that the following conditions are met:
 
    - for the port compiled with Microsoft Visual C++ (aka MSVC++)
-     (tested with Microsoft Visual Studio 2019 Community) you'll need
-     MinGW as.exe (renamed as mingw-as.exe) installed and the cl.exe
-     compiler (used mainly as linker by GNU Prolog) available in 
-     your session path (alternatively link.exe is used).
+     you need Microsoft Visual Studio (tested on version 2026 Community).
 
-   - for the ports compiled either with MinGW, the gcc toolchain
-     must be installed and available in your session path.
+   - for the ports compiled via Msys, install Msys and needed toochain.
+
+See src/WINDOWS for more information.
 
 Observing these needs you will also be able to do the mixed
 language programming, as in the examples included in the ExamplesC

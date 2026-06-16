@@ -6,7 +6,7 @@
  * Descr.: test file for MA translation                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,13 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
+
+#include "../EnginePl/machine_regs.h"
 
 #if 0
 #define DEBUG
@@ -98,7 +101,9 @@ PlULong pl_max_atom;		/* so we do not need atom.o */
  * Global Variables                *
  *---------------------------------*/
 
-/* Recall: PlLong, PlTerm and WamWord are synonyms (all are intptr_t) */
+/* Recall: PlULong, PlTerm and WamWord are synonyms (all are intptr_t)
+ * NB/ in 1.6.0, a WamWord (tagged words) is a PlULong (was a PlLong before)
+ */
 
 /* these 4 lines are get from foreign_supp.c */
 
@@ -122,7 +127,7 @@ PlLong MA_GLOBAL_VAR2;
 PlLong MA_LOCAL_VAR2;		/* should not be the same as in check_ma.ma */
 
 
-#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
+#if NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
 #endif
 
@@ -292,15 +297,14 @@ main(int argc, char *argv[])
 
   Save_Machine_Regs(init_buff_regs);
 
-#ifndef NO_MACHINE_REG_FOR_REG_BANK
+#if 1 /* pl_reg_bank is a pointer to the allocated bank */
   pl_reg_bank = stack;
   B = stack + NB_OF_X_REGS + 100;
 #else
   B = stack;
 #endif
   E = B + 1024*20;		/* To allow hign Y-index testing */
-  printf("pl_reg_bank=&X(0):%p   B:%p   E:%p  &Y(0):%p\n",
-	 pl_reg_bank, B, E, &YY(0));
+  printf("pl_reg_bank=&X(0):%p   B:%p   E:%p  &Y(0):%p\n", pl_reg_bank, B, E, &YY(0));
 
   printf("stack:%p\n", stack);
 
@@ -684,7 +688,7 @@ test_arg_mem_l(void)
 
 
 void FC
-test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f)
+test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f, void *g)
 {
   CHECK_RESULT_LONG(a, 128);
   CHECK_RESULT_LONG(b, 12345);
@@ -692,6 +696,7 @@ test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f)
   CHECK_RESULT_LONG(d, MA_ARRAY[0]);
   CHECK_RESULT_LONG(e, MA_ARRAY[4097]);
   CHECK_RESULT_ADDR(f, &MA_ARRAY[4500]);
+  CHECK_RESULT_ADDR(g, (void *) error);
 
   x++;
 }
@@ -714,7 +719,7 @@ test_arg_x(void)
 
 
 void FC
-test_arg_x1(PlLong a, PlLong *b, PlLong c, PlLong *d)
+test_arg_x1(PlULong a, PlULong *b, PlULong c, PlULong *d)
 {
   CHECK_RESULT_LONG(a, 123987);
   CHECK_RESULT_ADDR(b, &X(0));
@@ -743,7 +748,7 @@ test_arg_y(void)
 
 
 void FC
-test_arg_y1(PlLong a, PlLong *b, PlLong c, PlLong *d, PlLong e)
+test_arg_y1(PlULong a, PlULong *b, PlULong c, PlULong *d, PlULong e)
 {
   CHECK_RESULT_LONG(a, 1928374);
   CHECK_RESULT_ADDR(b, &YY(0));
@@ -839,8 +844,8 @@ test_call_c_lot_args(void)
 void FC
 test_call_c_lot_args1(double n0, PlLong n1, double n2, PlLong n3, double n4, PlLong n5,
 		      void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
-		      PlLong g, PlLong *h, PlLong i, PlLong *j,
-		      PlLong k, PlLong *l, PlLong m, PlLong *n,
+		      PlULong g, PlULong *h, PlULong i, PlULong *j,
+		      PlULong k, PlULong *l, PlULong m, PlULong *n,
 		      double d1, double d2, double d3, double d4, double d5, double d6)
 {
   CHECK_RESULT_DOUBLE(n0, 0.1);
@@ -1102,6 +1107,15 @@ test_switch_ret2(PlLong k)
 
 /*--- dummy functions needed by engine.c ---*/
 
+char *
+Pl_Get_Prolog_Path(char *argv0, Bool *devel_mode)
+{
+  return NULL;
+}
+void
+Pl_Init_OS_Detect(void)
+{
+}
 void
 Pl_Init_Atom(void)
 {
@@ -1119,7 +1133,7 @@ Pl_Init_Machine(void)
 {
 }
 void
-Pl_Find_Linked_Objects(void)
+Pl_Initialize_Units(void)
 {
 }
 void

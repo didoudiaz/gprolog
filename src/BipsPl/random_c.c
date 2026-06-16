@@ -6,7 +6,7 @@
  * Descr.: random number generator management - C part                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -68,7 +69,7 @@
 void
 Pl_Set_Seed_1(WamWord seed_word)
 {
-  Pl_M_Set_Seed(Pl_Rd_C_Int_Positive_Check(seed_word));
+  Pl_Set_Seed(Pl_Rd_C_Int_Positive_Check(seed_word));
 }
 
 
@@ -81,7 +82,7 @@ Pl_Set_Seed_1(WamWord seed_word)
 Bool
 Pl_Get_Seed_1(WamWord seed_word)
 {
-  return Pl_Un_Positive_Check(Pl_M_Get_Seed(), seed_word);
+  return Pl_Un_Positive_Check(Pl_Get_Seed(), seed_word);
 }
 
 
@@ -95,7 +96,7 @@ void
 Pl_Random_1(WamWord n_word)
 {
   Pl_Check_For_Un_Variable(n_word);
-  Pl_Get_Float(Pl_M_Random_Float(1.0), n_word);
+  Pl_Get_Float(Pl_Random_Float(1.0), n_word);
 }
 
 
@@ -126,12 +127,12 @@ Pl_Random_3(WamWord l_word, WamWord u_word, WamWord n_word)
 
   if (l1 == l && u1 == u)
     {
-      i = l1 + Pl_M_Random_Integer(u1 - l1);
+      i = l1 + Pl_Random_Integer(u1 - l1);
       Pl_Get_Integer(i, n_word);
     }
   else
     {
-      d = l + Pl_M_Random_Float(u - l);
+      d = l + Pl_Random_Float(u - l);
       Pl_Get_Float(d, n_word);
     }
 

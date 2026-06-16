@@ -6,7 +6,7 @@
  * Descr.: pass 3: code generation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -107,8 +107,14 @@ generate_body1('$call_c', 2, _, [Fct, LCOpt], NoPred, Body, NbChunk, WamArgs) :-
 	;
 	    LCOpt3 = LCOpt1
 	),
-	load_c_call_args(LCOpt, LStcArg, LValue, WamCallC1, WamArgs),
-	WamCallCInst = call_c(FctName, LCOpt3, LValue),
+	(   select(by_value, LCOpt3, LCOpt4) ->
+	    ByValue = t
+	;
+	    LCOpt4 = LCOpt3,
+	    ByValue = f
+	),
+	load_call_c_args(ByValue, LStcArg, LValue, WamCallC1, WamArgs),
+	WamCallCInst = call_c(FctName, LCOpt4, LValue),
 	(   Body = [] ->
 	    (   NoPred > 1 ->
 	        WamCallC1 = [deallocate, WamCallCInst, proceed]
@@ -473,7 +479,7 @@ dummy_instruction(put_value(x(X), X), f).
 	% the predicates defined here must have a corresponding clause
 	% inline_predicate/2 (in pass 2).
 
-:- discontiguous(gen_inline_pred/5).
+:-	discontiguous(gen_inline_pred/5).
 
 
 	% Cut inline ('$get_cut_level'/1, '$get_current_choice'/1, '$cut'/1, '$soft_cut'/1)
@@ -487,8 +493,15 @@ gen_inline_pred('$get_cut_level', 1, [Arg], WamNext, WamArg) :-
 	set_pred_flag(need_cut_level, Pred, N),
 	gen_unif_arg(Arg, N, WamNext, WamArg).
 
-gen_inline_pred('$get_current_choice', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
-	WamInst = get_current_choice(VarName).
+gen_inline_pred('$get_current_choice', 1, [var(VarName, Info)], WamNext, WamArg) :-
+	% similar to gen_unif_arg for var(VarName, Info)
+	% we know Info is a var (first occurrence) and we be bound to an int (no unsafe)
+	(   VarName == x(void) -> % should not occur
+	    WamArg = WamNext
+	;   
+	    Info = not_in_cur_env,
+	    WamArg = [get_current_choice(VarName)|WamNext]
+	).
 
 gen_inline_pred('$cut', 1, [var(VarName, _)], WamNext, [WamInst|WamNext]) :-
 	WamInst = cut(VarName).
@@ -595,7 +608,7 @@ gen_inline_pred(is, 2, [var(VN1, Info1), stc(+, 2, [var(VN2, Info2), int(1)])], 
 	;   true
 	),
 	Info1 = not_in_cur_env,
-	WamMath = [call_c('Math_X_Is_Inc_Y', [fast], [&,VN1, VN2])|WamNext].
+	WamMath = [call_c('Math_X_Is_Inc_Y', [fast], [&(VN1), VN2])|WamNext].
 */
 gen_inline_pred(is, 2, [Arg1, Arg2], WamNext, WamMath) :-
 	load_math_expr(Arg2, Reg, WamUnif, WamMath), !,
@@ -793,13 +806,12 @@ gen_inline_pred('$foreign_call_c', 1, [args(FctName, Return, BipPred, ChcSize, L
           % call_c/3 management predicates
 
 
-load_c_call_args(LCOpt, LArg, LValue, WamNext, WamArg) :-
-	memberchk(by_value, LCOpt),
-	load_by_value_arg_lst(LArg, LValue, WamNext, WamArg), !.
-
-
-load_c_call_args(_, LArg, LValue, WamNext, WamArg) :-
+load_call_c_args(f, LArg, LValue, WamNext, WamArg) :-
 	load_by_reg_arg_lst(LArg, LValue, WamNext, WamArg), !.
+
+
+load_call_c_args(t, LArg, LValue, WamNext, WamArg) :-
+	load_by_value_arg_lst(LArg, LValue, WamNext, WamArg), !.
 
 
 
@@ -828,10 +840,20 @@ load_by_value_arg(flt(N), N, WamNext, WamNext).
 
 load_by_value_arg(nil, [], WamNext, WamNext).
 
-load_by_value_arg(stc('/', 2, [atm(F), int(N)]), F/N, WamNext, WamNext).
+load_by_value_arg(stc(/, 2, [atm(F), int(N)]), F/N, WamNext, WamNext).
+
+load_by_value_arg(stc(&, 1, [Arg]), Value, WamNext, WamNext) :-
+	load_by_value_adr_of(Arg, Value).
 
 load_by_value_arg(Arg, x(Reg), WamArg, WamNext) :-
 	gen_load_arg(Arg, Reg, WamArg, WamNext).
+
+
+load_by_value_adr_of(var(V, _), &(V)). % case &(x(...)) or &(y(...))
+
+load_by_value_adr_of(stc(/, 2, [atm(P), int(N)]), &(P/N)). % case &(P/N)
+
+load_by_value_adr_of(stc(':', 2, [atm(M), stc(/, 2, [atm(P), int(N)])]), &(M:P/N)). % case &(M:P/N)
 
 
 
@@ -845,7 +867,7 @@ gen_inline_pred(F, N, LArg, WamNext, WamCallC) :-
 	;
 	    LCOpt = [fast_call]
 	),
-	load_c_call_args(LCOpt, LArg, LValue, WamInst, WamCallC),
+	load_call_c_args(f, LArg, LValue, WamInst, WamCallC),
 	WamInst = [call_c(Name, LCOpt, LValue)|WamNext].
 
 

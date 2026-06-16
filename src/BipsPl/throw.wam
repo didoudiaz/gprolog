@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : throw.pl
+% file: throw.pl
+% hash: 256a427b0750ba7c6e415d6c59a1aee35905ee5a  throw.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/throw.pl').

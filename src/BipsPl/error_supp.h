@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support - header file                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -150,7 +150,7 @@ int pl_evaluation_underflow;
 int pl_evaluation_zero_divisor;
 
 
-int pl_resource_print_object_not_linked; 	/* for print and format */
+int pl_resource_print_unit_not_linked; 	/* for print and format */
 int pl_resource_finite_memory;			/* e.g. for length(L, L) */
 int pl_resource_too_big_fd_constraint; 		/* for FD */
 
@@ -261,7 +261,7 @@ extern int pl_evaluation_zero_divisor;
 
 
 extern int pl_resource_finite_memory;		/* e.g. for length(L, L) */
-extern int pl_resource_print_object_not_linked; /* for print and format */
+extern int pl_resource_print_unit_not_linked; /* for print and format */
 extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
 #endif

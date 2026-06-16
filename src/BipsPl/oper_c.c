@@ -6,7 +6,7 @@
  * Descr.: operator management - C part                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <string.h>
-
-#define OBJ_INIT Oper_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -95,8 +94,7 @@ Prolog_Prototype(CURRENT_OP_ALT, 0);
  * OPER_INITIALIZER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Oper_Initializer(void)
+PL_INITIALIZER(Oper_Initializer)
 {
   char *a[7] = { "fx", "fy", "xf", "yf", "xfx", "xfy", "yfx" };
   int i;
@@ -253,7 +251,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
     }
   else
     {
-      oper = (OperInf *) Pl_Hash_First(pl_oper_tbl, &scan);
+      oper = (OperInf *) Pl_HTBL_First(pl_oper_htbl, &scan);
       if (oper == NULL)
 	return FALSE;
 
@@ -261,7 +259,7 @@ Pl_Current_Op_3(WamWord prec_word, WamWord specif_word, WamWord oper_word)
       A(0) = prec_word;
       A(1) = specif_word;
       A(2) = oper_word;
-      A(3) = (WamWord) scan.endt;
+      A(3) = (WamWord) scan.end_t;
       A(4) = (WamWord) scan.cur_t;
       A(5) = (WamWord) scan.cur_p;
       Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_OP_ALT, 0), 6);
@@ -311,11 +309,11 @@ Pl_Current_Op_Alt_0(void)
     }
   else
     {
-      scan.endt = (char *) AB(B, 3);
-      scan.cur_t = (char *) AB(B, 4);
-      scan.cur_p = (char *) AB(B, 5);
+      scan.end_t = (HashNode *) AB(B, 3);
+      scan.cur_t = (HashNode *) AB(B, 4);
+      scan.cur_p = (HashNode)   AB(B, 5);
 
-      oper = (OperInf *) Pl_Hash_Next(&scan);
+      oper = (OperInf *) Pl_HTBL_Next(&scan);
       if (oper == NULL)
 	{
 	  Delete_Last_Choice_Point();
@@ -327,7 +325,7 @@ Pl_Current_Op_Alt_0(void)
       AB(B, 0) = prec_word;
       AB(B, 1) = specif_word;
       AB(B, 2) = oper_word;
-      AB(B, 3) = (WamWord) scan.endt;
+      AB(B, 3) = (WamWord) scan.end_t;
 #endif
       AB(B, 4) = (WamWord) scan.cur_t;
       AB(B, 5) = (WamWord) scan.cur_p;

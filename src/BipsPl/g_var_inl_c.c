@@ -6,7 +6,7 @@
  * Descr.: global variable (inline) management - C part                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -37,8 +37,6 @@
 
 
 #include <stdlib.h>
-
-#define OBJ_INIT G_Var_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -173,8 +171,7 @@ static Bool G_Test_Reset_Bit(WamWord gvar_word, WamWord bit_word);
  * G_VAR_INITIALIZER                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-G_Var_Initializer(void)
+PL_INITIALIZER(G_Var_Initializer)
 {
   atom_g_array = Pl_Create_Atom("g_array");
   atom_g_array_auto = Pl_Create_Atom("g_array_auto");
@@ -779,7 +776,7 @@ G_Alloc_Array(GVarElt *g_elem, PlLong new_size, Bool backtrack)
   if (old_size <= 0 || backtrack)
     p = (GVarElt *) Malloc((new_size + 1) * sizeof(GVarElt));
   else
-    p = (GVarElt *) Realloc((char *) src, (new_size + 1) * sizeof(GVarElt));
+    p = (GVarElt *) Realloc(src, (new_size + 1) * sizeof(GVarElt));
 
   p_new_end = p + new_size;
 
@@ -1173,7 +1170,7 @@ G_Trail_For_Backtrack(GVarElt *g_elem, PlLong save_size, WamWord save_val)
   g_elem->undo = u;
 
   arg_frame[0] = (WamWord) u;
-  Trail_FC(G_Untrail, 1, arg_frame);
+  Trail_FC(G_Untrail, 1, arg_frame); /* TFC */
 }
 
 

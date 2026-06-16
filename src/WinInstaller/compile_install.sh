@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# usage: compile_install.sh CONFOPT SRCPATH DSTPATH
+
+confopt="$1"
+src="$2"
+dst="$3"
+
+cd $src || exit 1
+(cd ../doc; make chm ) || exit 1
+rm -rf $dst
+./configure $confopt --with-install-dir=$dst --without-links-dir || exit 1
+make || exit 1
+make install
+

@@ -6,7 +6,7 @@
  * Descr.: test file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,14 +35,17 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
 
-#define printf Pl_LE_Printf
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
-#include "../EnginePl/gp_config.h"
+#define printf Pl_LE_Printf
 
 #include "../EnginePl/set_locale.h"
 
@@ -51,16 +54,13 @@ int pl_max_atom;			/* to test the same dialog box */
 
 #ifdef GUI_CONSOLE_WITH_STACK_SIZES
 #define ENGINE_FILE                      /* to define stacks data */
-typedef PlLong WamWord;
+typedef PlULong WamWord;
 #include "../EnginePl/wam_stacks.h"
 #endif
 
 #include "terminal.h"
 #include "linedit.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 /*---------------------------------*
  * Constants                       *

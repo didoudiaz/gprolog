@@ -6,7 +6,7 @@
  * Descr.: general header file                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,13 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-#include "gp_config.h"
+#include "pl_long.h"
+#include "bool.h"
+#include "machine_regs.h"
 #include "pl_params.h"
 #include "../Tools/hash_fct.h"
-#include "hash.h"
-#include "bool.h"
+#include "unit_ctor.h"
+#include "hash_tbl.h"
 #include "wam_regs.h"
 #include "wam_archi.h"
 #include "engine.h"
@@ -48,9 +49,11 @@
 #include "pred.h"
 #include "misc.h"
 #include "oper.h"
-#include "machine1.h"
 #include "machine.h"
+#include "winsup.h"
+#include "os_detect.h"
+#include "os_path.h"
+#include "os_spawn.h"
 #include "stacks_sigsegv.h"
-#include "obj_chain.h"
 #include "wam_inst.h"
 #include "if_no_fd.h"

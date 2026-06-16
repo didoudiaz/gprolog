@@ -6,7 +6,7 @@
  * Descr.: file consulting                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -221,20 +221,21 @@ write_default_include_file(IncludeFile) :-
 	    true
 	),
 	'$sys_var_read'(20, SysVar), % SYS_VAR_SAY_GETC
-		%%% any drawback in adding term_expansion/2 clauses ? %%%
-	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)), 
+	'$write_include_goal'(S, '$sys_var_write'(20, SysVar)),
 	(   current_char_conversion(Ch1, Ch2),
 	    '$write_include_goal'(S, char_conversion(Ch1, Ch2)),
 	    fail
 	;
 	    true
 	),
+		%%% any drawback in adding term_expansion/2 clauses ? %%%
 	format(S, ':- discontiguous(term_expansion/2).~n', []),
 	(   TermHead = term_expansion(_, _),
 	    catch(('$clause'(TermHead, TermBody, 2), portray_clause(S, (TermHead :- TermBody)), fail), _, fail)
 	;
 	    true
 	),
+		%%% end of term_expansion/2 inclusion %%%
 	format(S, ':- compiler_mode(default).~n', []),
 	close(S),
 	fail.			% GC

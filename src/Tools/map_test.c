@@ -6,7 +6,7 @@
  * Descr.: test for the map data structure with red-black trees            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -402,11 +402,11 @@ void
 test2(void)
 {
   struct map_rbt map;
-  long seed = (long) time(NULL);
+  unsigned int seed = (unsigned int) time(NULL);
 
   //printf("\nTest 2\n");
   //printf("N: %d\n", N);
-  //printf("seed: %ld\n", seed);
+  //printf("seed: %u\n", seed);
   srand(seed);
 
 

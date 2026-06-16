@@ -6,7 +6,7 @@
  * Descr.: translation file MIPS                                           *
  * Author: Alexander Diemand, Daniel Diaz                                  *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,14 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
-
-/* Supported arch: mips 32 bits on IRIX
- */
+/* Supported arch: mips 32 bits on IRIX */
 
 
 

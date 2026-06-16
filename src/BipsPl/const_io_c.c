@@ -6,7 +6,7 @@
  * Descr.: input/output from/to constant term management - C part          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -93,7 +94,7 @@ Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
 
 /*----- OUTPUT -----*/
 
-
+#if 0
 #define OUT_TO_STR(const_stream_type, str, stm_word, code_out, code_after) \
 {									\
   int stm;								\
@@ -105,12 +106,40 @@ Bool Pl_Read_Token_2(WamWord sora_word, WamWord token_word);
 									\
   { code_out; }								\
 									\
-  str = Pl_Term_Write_Str_Stream(stm);					\
+  str = Pl_Terminate_Output_Str_Stream(stm);				\
 									\
   { code_after; }							\
 									\
   Pl_Delete_Str_Stream(stm);						\
 }
+#else
+#define OUT_TO_STR(const_stream_type, str, stm_word, code_out, code_after) \
+{								\
+  char *str;							\
+  OUT_TO_STR_BEFORE(const_stream_type, stm, stm_word);		\
+								\
+  { code_out; }							\
+								\
+  OUT_TO_STR_AFTER(str, stm, code_after);			\
+}
+#endif
+
+
+
+#define OUT_TO_STR_BEFORE(const_stream_type, stm, stm_word) 	\
+  int stm;							\
+  WamWord stm_word;						\
+								\
+  stm = Pl_Add_Str_Stream(NULL, const_stream_type);		\
+  stm_word = Pl_Make_Stream_Tagged_Word(stm);
+
+
+#define OUT_TO_STR_AFTER(str, stm, code_after)			\
+  str = Pl_Terminate_Output_Str_Stream(stm);			\
+								\
+  { code_after; }						\
+								\
+  Pl_Delete_Str_Stream(stm);
 
 
 
@@ -477,17 +506,37 @@ Pl_Print_To_Codes_2(WamWord codes_word, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_WRITE_TERM_TO_ATOM_2                                                 *
+ * write_term_to_atom/chars/codes are more complex than e.g. write_to_atom *
+ * since the option variable_names assigns variables to '$VARNAME'(name)   *
+ * and these assignments must be undone (via backtracking).                *
+ * We split into 2 parts: before/after backtracking occurs.                *
+ *-------------------------------------------------------------------------*/
+
+static int last_str_stm;
+
+
+/*-------------------------------------------------------------------------*
+ * PL_WRITE_TERM_TO_ATOM                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-Pl_Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
+void
+Pl_Write_Term_To_Atom_Before_1(WamWord term_word)
 {
-  Bool ret;
+  OUT_TO_STR_BEFORE(TERM_STREAM_ATOM, stm, stm_word);
+  
+  Pl_Write_Term_2(stm_word, term_word);
+  last_str_stm = stm;
+}
 
-  OUT_TO_STR(TERM_STREAM_ATOM, str, stm_word,
-	     Pl_Write_Term_2(stm_word, term_word),
-	     ret = Pl_Un_String_Check(str, atom_word));
+
+Bool
+Pl_Write_Term_To_Atom_After_1(WamWord atom_word)
+{
+  char *str;
+  Bool ret;
+  
+  OUT_TO_STR_AFTER(str, last_str_stm,
+		   ret = Pl_Un_String_Check(str, atom_word));
 
   return ret;
 }
@@ -496,17 +545,27 @@ Pl_Write_Term_To_Atom_2(WamWord atom_word, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_WRITE_TERM_TO_CHARS_2                                                *
+ * PL_WRITE_TERM_TO_CHARS                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-Pl_Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
+void
+Pl_Write_Term_To_Chars_Before_1(WamWord term_word)
 {
-  Bool ret;
+  OUT_TO_STR_BEFORE(TERM_STREAM_CHARS, stm, stm_word);
+  
+  Pl_Write_Term_2(stm_word, term_word);
+  last_str_stm = stm;
+}
 
-  OUT_TO_STR(TERM_STREAM_CHARS, str, stm_word,
-	     Pl_Write_Term_2(stm_word, term_word),
-	     ret = Pl_Un_Chars_Check(str, chars_word));
+
+Bool
+Pl_Write_Term_To_Chars_After_1(WamWord chars_word)
+{
+  char *str;
+  Bool ret;
+  
+  OUT_TO_STR_AFTER(str, last_str_stm,
+		   ret = Pl_Un_Chars_Check(str, chars_word));
 
   return ret;
 }
@@ -515,17 +574,27 @@ Pl_Write_Term_To_Chars_2(WamWord chars_word, WamWord term_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_WRITE_TERM_TO_CODES_2                                                *
+ * PL_WRITE_TERM_TO_CODES                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-Bool
-Pl_Write_Term_To_Codes_2(WamWord codes_word, WamWord term_word)
+void
+Pl_Write_Term_To_Codes_Before_1(WamWord term_word)
 {
-  Bool ret;
+  OUT_TO_STR_BEFORE(TERM_STREAM_CODES, stm, stm_word);
+  
+  Pl_Write_Term_2(stm_word, term_word);
+  last_str_stm = stm;
+}
 
-  OUT_TO_STR(TERM_STREAM_CODES, str, stm_word,
-	     Pl_Write_Term_2(stm_word, term_word),
-	     ret = Pl_Un_Codes_Check(str, codes_word));
+
+Bool
+Pl_Write_Term_To_Codes_After_1(WamWord codes_word)
+{
+  char *str;
+  Bool ret;
+  
+  OUT_TO_STR_AFTER(str, last_str_stm,
+		   ret = Pl_Un_Codes_Check(str, codes_word));
 
   return ret;
 }

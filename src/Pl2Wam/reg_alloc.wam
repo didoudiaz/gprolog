@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : reg_alloc.pl
+% file: reg_alloc.pl
+% hash: 78100610f14303362936aaa6f855d5821ed25803  reg_alloc.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/reg_alloc.pl').

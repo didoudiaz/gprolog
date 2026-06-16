@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : no_sockets.pl
+% file: no_sockets.pl
+% hash: 7fcf7f0a31d66b56f176a60c16b31fc5f1bd2e3f  no_sockets.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/no_sockets.pl').

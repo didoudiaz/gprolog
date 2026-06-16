@@ -6,7 +6,7 @@
  * Descr.: translation file for arm 32 bits                                *
  * Author: Jasper Taylor and Daniel Diaz                                   *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,11 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
 
-
-/* Supported arch: arm 32 bits (e.g. armv6l/armv7hf) on GNU/Linux
+/*
+ * Supported arch: arm 32 bits (e.g. armv6l/armv7hf) on GNU/Linux
  *
  * ARM A32 instruction set
  * https://developer.arm.com/documentation/dui0801/k/A32-and-T32-Instructions?lang=en
@@ -51,9 +49,10 @@
  * Recall we need call-saved registers to map WAM registers.
  *
  * For temporaries (intermediat computations), we can use caller-saved freely.
- * We can also use callee-save registers if we push/pop them in case of a C code (see Code_Start and C_Ret).
- * This is not needed for Prolog code because it is surrounded by a global save/restore of machine registers
- * (e.g. setjmp/longjmp). So, it is not costly.
+ * We can also use callee-save registers if we push/pop them in case of a
+ * C code (see Code_Start and C_Ret).
+ * This is not needed for Prolog code because it is surrounded by a global
+ * save/restore of machine registers (setjmp/longjmp). So, it is not costly.
  *
  * Reg callee-save?  Role in the procedure call standard
  * -------------------------------------------------------
@@ -79,11 +78,11 @@
  *
  * On linux with Thumb code we can use: r4, r5, r6, r8, r9, r10, r11 for WAM registers.
  *
- * We need pl_reg_bank to be in a register. If not (i.e. no reg at all - see below) we use r10 here.
+ * We need pl_reg_bank to be in a register (see machine_regs.h, M_TRAMPOLINE_REG_BANK)
  *
  * We neeed E to be in a register, if not mapped we use r11 here. There are no enough registers
  * available to ensure E is in a reg (due to prioriy in wam_archi.def), se we do not put r11 in
- * machine.h to be sure it is free (we can assign it to E here).
+ * machine_regs.h to be sure it is free (we can assign it to E here).
  *
  * To load arguments of a call_c we need a temporary. No caller-save regs are available since
  * r0-r3 are reserved for 4 first args. We use a callee-save for it (e.g. r4, see REG_TMP_CALL_C).
@@ -92,39 +91,11 @@
  * Load_Store_Reg_Y().
  */
 
-
-
-
-/* pl_reg_bank is normally the first mapped register. If it is not mapped
- * it is because:
- *
- * 1) no registers are used (either none available or --disable-regs).
- *    In that case if is loaded in a callee-save register by engine1.c
- *    (see ASM_REG_BANK)
- *
- * 2) or because NO_MACHINE_REG_FOR_REG_BANK is defined (debug only ?).
- *    In that case Load_Reg_Bank loads it in a callee-save register.
- *    But this register must not be already used (mapped),
- *    so we here check no registers are used at all !
- */
-
-#if defined(NO_MACHINE_REG_FOR_REG_BANK)
-#error NO_MACHINE_REG_FOR_REG_BANK
-#endif
-#if defined(NO_MACHINE_REG_FOR_REG_BANK) && NB_USED_MACHINE_REGS > 0
-#error NO_MACHINE_REG_FOR_REG_BANK can only be defined if no registers are used at all (use --disable_regs)
-#endif
-
-#ifdef MAP_REG_BANK
-#define ASM_REG_BANK MAP_REG_BANK
-#else
-#define ASM_REG_BANK "r10"	/* see engine1.c. If NO_MACHINE_REG_FOR_REG_BANK see Load_Reg_Bank */
-#endif
-
-
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK		/* should not occurs (see machine_regs.h) */
+#define ASM_REG_BANK "r10"
 #define Load_Reg_Bank()   Load_Address(ASM_REG_BANK, "pl_reg_bank")
 #else
+#define ASM_REG_BANK MAP_REG_BANK
 #define Load_Reg_Bank()
 #endif
 
@@ -390,7 +361,7 @@ Increment_Reg(char *r, int int_val)
    *    ldr R, =int_val
    *    add r, r, R
    * But we need a register R which cannot be r0-r3 (args), neither REG_TMP_CALL_C (see BEFORE_ARG).
-   * So, select a reg (here r12), ensure it is not in the global registers in machine.h
+   * So, select a reg (here r12), ensure it is not in the global registers in machine_regs.h
    * and maybe push/pop it (remaining regs are all callee-save in arm32, r12 seems an exception).
    * This is only worth if there is at least 2 add in the loop.
    */
@@ -641,7 +612,7 @@ Load_Store_Reg_Y(char *ldr_str, char *r, int index)
       /* Needs another register R for the mov R, E.
        * In case of a ldr we can use the same destination register r.
        * In case of a str we cannot use r because it is the source register to store.
-       * We cannot use r0-r3, (args) neither a global register used in machine.h.
+       * We cannot use r0-r3, (args) neither a global register used in machine_regs.h.
        * NB: r4 is OK (even if used by BEFORE_ARG since only ldr is used in this case).
        */
       Inst_Printf("mov", "%s, %s", REG_TMP_CALL_C, asm_reg_e);
@@ -1295,13 +1266,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-#if 0
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_stop:");
-
-  Inst_Printf(".long", UN "obj_chain_start");
-#endif
 }

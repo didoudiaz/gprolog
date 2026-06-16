@@ -6,7 +6,7 @@
  * Descr.: byte-Code support - header file                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -52,7 +52,7 @@
 				/* defined as this to avoid to force the   */
 				/* inclusion of bc_supp.o if not needed    */
 				/* (dynam_supp.c uses pl_byte_code)        */
-unsigned *pl_byte_code;
+uint32_t *pl_byte_code;
 
 
 
@@ -60,10 +60,11 @@ unsigned *pl_byte_code;
  * Function Prototypes             *
  *---------------------------------*/
 
-WamCont Pl_BC_Emulate_Pred(int func, DynPInf *dyn);
+WamCont Pl_BC_Emulate_Pred(DynPInf *dyn);
 
 void Pl_BC_Start_Emit_0(void);
 void Pl_BC_Stop_Emit_0(void);
 void Pl_BC_Emit_Inst_1(WamWord inst_word);
 void Pl_BC_Emit_Inst_Execute_Native(int func, int arity, PlLong *codep);
 
+DynCInf *Pl_BC_Clause_Environment(WamWord *e);

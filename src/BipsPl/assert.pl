@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -75,11 +75,16 @@ assertz(C) :-
 retract(C) :-
 	set_bip_name(retract, 1),
 	'$get_head_and_body'(C, H, B),
-	'$retract'(H, B).
+	'$retract'(H, B, 1).
 
 
-'$retract'(H, B) :-      % call_c must be alone (inline) CP cannot be changed
-	'$call_c_test'('Pl_Retract_2'(H, B)).
+'$retract_no_check'(H, B) :- % version which do not check if dynamic (for debug)
+	'$retract'(H, B, 0).
+
+
+'$retract'(H, B, CheckPerm) :- % call_c must be alone (inline) CP cannot be changed
+	'$call_c_test'('Pl_Retract_3'(H, B, CheckPerm)).
+
 
 
 
@@ -87,13 +92,21 @@ retract(C) :-
 
 retractall(H) :-
 	set_bip_name(retractall, 1),
-	'$call_c_test'('Pl_Retractall_If_Empty_Head_1'(H)), !.
+	'$retractall'(H, 1).
 
-retractall(H) :-              % here only if Retractall_If_Empty_Head_1 fails
-	'$retract'(H, _),
+
+'$retractall_no_check'(H) :-	% version which does not check if dynamic (for debug)
+	'$retractall'(H, 0).
+
+
+'$retractall'(H, CheckPerm) :-
+	'$call_c_test'('Pl_Retractall_If_Empty_Head_2'(H, CheckPerm)), !.
+
+'$retractall'(H, CheckPerm) :-	% here only if Retractall_If_Empty_Head_2 fails
+	'$retract'(H, _, CheckPerm),
 	fail.
 
-retractall(_).
+'$retractall'(_, _).
 
 
 

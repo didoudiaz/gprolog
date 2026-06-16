@@ -29,7 +29,7 @@ q :-
 	statistics(runtime, [_, Y]),
 	write(A),
 	nl,
-	write_array(A, '%3d', 0),
+	write_array(A, '~%3d', 0),
 	write('time : '),
 	write(Y),
 	nl.

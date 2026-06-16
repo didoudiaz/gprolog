@@ -6,7 +6,7 @@
  * Descr.: debugger - C part                                               *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,16 +35,16 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <string.h>
 #include <stdlib.h>
-#include <setjmp.h>
+
+#include "pl_setjmp.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #endif
-
-#define OBJ_INIT Debug_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -147,7 +147,7 @@ static void Modify_Wam_Word(WamWord *word_adr);
 
 static WamWord *Detect_Stack(WamWord *adr, char **stack_name);
 
-static PredInf *Detect_Pred_From_Code(PlLong *codep);
+static PredInf *Detect_Pred_From_Code(WamWord *codep);
 
 static Bool Help(void);
 
@@ -172,12 +172,11 @@ Prolog_Prototype(DEBUG_CALL, 2);
  * count it in Exec_Directive() (cf engine.c). However, it cannot be called*
  * directly since we do not know if the initializer of g_var_inl_c.c has   *
  * been executed ('$init_debugger' uses g_assign).                         *
- * We thus act like a Prolog object, calling New_Object.                   *
+ * We thus act like a Prolog unit, calling Pl_Register_Unit.               *
  *-------------------------------------------------------------------------*/
-static void
-Debug_Initializer(void)
+PL_INITIALIZER(Debug_Initializer)
 {
-  Pl_New_Object(NULL, My_System_Directives, NULL);
+  Pl_Register_Unit(NULL, My_System_Directives, NULL);
 }
 
 
@@ -262,8 +261,8 @@ Pl_Choice_Point_Info_4(WamWord b_word, WamWord name_word, WamWord arity_word, Wa
 
   code = (PlULong) ALTB(b);
 
-  for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
-       pred = (PredInf *) Pl_Hash_Next(&scan))
+  for (pred = (PredInf *) Pl_HTBL_First(pl_pred_htbl, &scan); pred;
+       pred = (PredInf *) Pl_HTBL_Next(&scan))
     {
       code1 = (PlULong) (pred->codep);
       if (code >= code1 && code1 >= last_code)
@@ -533,8 +532,7 @@ Write_Data_Modify(void)
 static Bool
 What(void)
 {
-  PlLong *adr;
-  WamWord *adr1;
+  WamWord *adr, *adr1;
   char *stack_name;
   PredInf *pred;
   int func, arity;
@@ -546,7 +544,7 @@ What(void)
       return FALSE;
     }
 
-  adr = (PlLong *) Read_An_Integer(1);
+  adr = (WamWord *) Read_An_Integer(1);
 
   Pl_Stream_Printf(pstm_o, " %#" PL_FMT_x " = ", (PlLong) adr);
   if ((adr1 = Detect_Stack(adr, &stack_name)) != NULL)
@@ -561,7 +559,7 @@ What(void)
       func = Functor_Of(pred->f_n);
       arity = Arity_Of(pred->f_n);
       Pl_Stream_Printf(pstm_o, "%s/%d", pl_atom_tbl[func].name, arity);
-      if (adr > pred->codep)
+      if (adr > (WamWord *) (pred->codep))
 	Pl_Stream_Printf(pstm_o, "+%d", (char *) adr - (char *) (pred->codep));
       Pl_Stream_Printf(pstm_o, "\n");
       return FALSE;
@@ -720,7 +718,7 @@ Backtrack(void)
       Detect_Stack(B, &stack_name);
       for (adr = B; adr > Local_Stack + 10; adr = BB(adr))
 	{
-	  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
+	  pred = Detect_Pred_From_Code((WamWord *) ALTB(adr));
 
 	  func = Functor_Of(pred->f_n);
 	  arity = Arity_Of(pred->f_n);
@@ -755,7 +753,7 @@ Backtrack(void)
       adr += offset;
     }
 
-  pred = Detect_Pred_From_Code((PlLong *) ALTB(adr));
+  pred = Detect_Pred_From_Code((WamWord *) ALTB(adr));
 
   func = Functor_Of(pred->f_n);
   arity = Arity_Of(pred->f_n);
@@ -920,6 +918,8 @@ Print_Wam_Word(WamWord *word_adr)
     if (pl_tag_tbl[i].value == tag)
       break;
 
+#define IMPOSS_TAG (1 << 10)	/* any big value */
+  
   if (i < NB_OF_TAGS)
     switch (pl_tag_tbl[i].type)
       {
@@ -931,12 +931,13 @@ Print_Wam_Word(WamWord *word_adr)
 
       case SHORT_UNS:
 	value = (WamWord) UnTag_Short_Uns(word);
-	if (tag == ATM && Is_Valid_Atom(value) && pl_atom_tbl[value].name != NULL)
+	if (tag == ATM && Is_Valid_Atom(value) &&
+	    pl_atom_tbl[value].name != NULL)
 	  Pl_Stream_Printf(pstm_o, "ATM,%*s (%" PL_FMT_d ")",
 			   VALUE_PART_LENGTH, pl_atom_tbl[value].name,
 			   (PlLong) value);
 	else if (tag == ATM)
-	  tag = -1;
+	  tag = IMPOSS_TAG;
 	else
 	  Pl_Stream_Printf(pstm_o, "%s,%*" PL_FMT_u, pl_tag_tbl[i].name,
 			   VALUE_PART_LENGTH, (PlULong) value);
@@ -950,13 +951,13 @@ Print_Wam_Word(WamWord *word_adr)
 	    Print_Bank_Name_Offset("", stack_name, (WamWord *) value - adr);
 	  }
 	else
-	  tag = -1;
+	  tag = IMPOSS_TAG;
 	break;
       }
   else
-    tag = -1;
+    tag = IMPOSS_TAG;
 
-  if (tag == -1)
+  if (tag == IMPOSS_TAG)
     Pl_Stream_Printf(pstm_o, "???,%*s", VALUE_PART_LENGTH, "?");
 
   Pl_Stream_Printf(pstm_o, "  ");
@@ -1161,17 +1162,17 @@ Detect_Stack(WamWord *adr, char **stack_name)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static PredInf *
-Detect_Pred_From_Code(PlLong *codep)
+Detect_Pred_From_Code(WamWord *codep)
 {
   HashScan scan;
   PredInf *pred;
   PredInf *last_pred = NULL;
   PlLong dist = 0, d;		/* init for the compiler */
 
-  for (pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan); pred;
-       pred = (PredInf *) Pl_Hash_Next(&scan))
+  for (pred = (PredInf *) Pl_HTBL_First(pl_pred_htbl, &scan); pred;
+       pred = (PredInf *) Pl_HTBL_Next(&scan))
     {
-      d = codep - pred->codep;
+      d = codep - (WamWord *) (pred->codep);
 
       if ((pred->prop & MASK_PRED_DYNAMIC) || d < 0)
 	continue;

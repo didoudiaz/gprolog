@@ -6,7 +6,7 @@
  * Descr.: code emission                                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -56,8 +56,8 @@
  * unify_variable(V)                        allocate(N)                    *
  * unify_void(N)                            deallocate                     *
  * unify_value(V)                                                          *
- * unify_local_value(V)                     call(F/N)                      *
- * unify_atom(F)                            execute(F/N)                   *
+ * unify_local_value(V)                     call(MP/N)                     *
+ * unify_atom(F)                            execute(MP/N)                  *
  * unify_integer(N)                         proceed                        *
  * unify_nil                                fail                           *
  * unify_list           (only for the last subterm if it is a list)        *
@@ -78,12 +78,13 @@
  * cut(V)                                                                  *
  * soft_cut(V)                                                             *
  *                                                                         *
- * call_c(F, [T,...], [W,...])                                             *
- *   F=FctName, T=option only these options are relevant:                  *
- *    - jump/boolean/V (jump at / test / move return value to x(X) or y(Y) *
+ * call_c(F, [O,...], [W,...])                                             *
+ *   F=FctName, O=option (ONLY the following options are relevant):        *
+ *    - jump/boolean/V (jump at / test / move return value to x(X) or y(Y))*
  *    - set_cp (set CP before the call at the next instruction)            *
  *    - fast_call (use a fact call convention)                             *
  *    - tagged (use tagged calls for atoms, integers and F/N)              *
+ *    Other options (if present) should be ignored (ignored by wam2ma)     *
  *                                                                         *
  * foreign_call_c(F, T0, P/N, K, [(M1, T1),...])                           *
  *   F=FctName, T0=Return, P/N=BipName/BipArity, K=ChcSize                 *
@@ -94,8 +95,12 @@
  * A      : integer                                                        *
  * D      : float                                                          *
  * N, K   : integer                                                        *
- * F, T, M: atom                                                           *
- * W      : atom or integer or float or atom/integer or x(X)               *
+ * M, F, P: atom                                                           *
+ *   F/N  : functor/arity                                                  *
+ *   MP/N : predicate indicator M:P/N or P/N                               *
+ * O      : atom                                                           *
+ * W      : atom or integer or float or V or F/N or &(V) or &(F/N)         *
+ *          F/N, &(...) are handled only if '$call_c' has by_value option  *
  * L      : integer >= 1 (with no "holes") or 'fail' inside switch_on_term *
  *-------------------------------------------------------------------------*/
 
@@ -110,13 +115,18 @@ emit_code_init(WamFile, PlFile) :-
 	prolog_name(Name),
 	prolog_version(Version),
 	format(Stream, '% compiler: ~a ~a~n', [Name, Version]),
-	format(Stream, '% file    : ~a~n', [PlFile]),
-	g_read(wam_comment, Cmt),
-	(   Cmt = '' ->
-	    true
-	;
-	    format(Stream, '%           ~a~n', [Cmt])
-	).
+	format(Stream, '% file: ~a~n', [PlFile]),
+	g_read(wam_comment, CmtStack),
+	emit_wam_commet(CmtStack, Stream).
+
+
+
+
+emit_wam_commet([], _).
+
+emit_wam_commet([Cmt|CmtStack], Stream) :-
+	emit_wam_commet(CmtStack, Stream),
+	format(Stream, '% ~a~n', [Cmt]).
 
 
 

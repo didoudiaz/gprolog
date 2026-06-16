@@ -6,7 +6,7 @@
  * Descr.: code generation                                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,13 +35,16 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include "../EnginePl/gp_config.h"
-#include "../TopComp/copying.c"
+#include "../EnginePl/pl_long.h"
+#include "../EnginePl/bool.h"
+#include "../TopComp/copying.h"
 
 
 #define MA2ASM_FILE

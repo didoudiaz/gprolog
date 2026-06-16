@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate management - C part                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -82,7 +83,8 @@ Pl_Assert_5(WamWord head_word, WamWord body_word,
   Bool check_perm = Pl_Rd_C_Int(check_perm_word);
   int pl_file = Pl_Rd_Atom(pl_file_word);
 
-  last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta, check_perm, pl_file);
+  last_clause = Pl_Add_Dynamic_Clause(head_word, body_word, asserta,
+				      check_perm, pl_file);
 }
 
 
@@ -152,7 +154,8 @@ Pl_Clause_3(WamWord head_word, WamWord body_word, WamWord for_what_word)
   w[1] = body_word;
 
   clause = Pl_Scan_Dynamic_Pred(-1, 0, pred->dyn, word,
-				Clause_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
+				(ScanFct) Clause_Alt,
+				DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
 
@@ -182,12 +185,13 @@ Clause_Alt(DynCInf *clause, WamWord *w, Bool is_last)
 
 
 /*-------------------------------------------------------------------------*
- * PL_RETRACT_2                                                            *
+ * PL_RETRACT_3                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Retract_2(WamWord head_word, WamWord body_word)
+Pl_Retract_3(WamWord head_word, WamWord body_word, WamWord check_perm_word)
 {
+  Bool check_perm = Pl_Rd_C_Int(check_perm_word);
   WamWord word, tag_mask;
   WamWord *first_arg_adr;
   WamWord head_word1, body_word1;
@@ -218,7 +222,7 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     return FALSE;
 
-  if (!(pred->prop & MASK_PRED_DYNAMIC))
+  if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Atom(func);
@@ -238,7 +242,8 @@ Pl_Retract_2(WamWord head_word, WamWord body_word)
   w[1] = body_word;
 
   clause = Pl_Scan_Dynamic_Pred(-1, 0, pred->dyn, word,
-				Retract_Alt, DYN_ALT_FCT_FOR_TEST, 2, w);
+				(ScanFct) Retract_Alt,
+				DYN_ALT_FCT_FOR_TEST, 2, w);
   if (clause == NULL)
     return FALSE;
 
@@ -316,12 +321,13 @@ Pl_Setarg_In_Last_Found_2(WamWord arg_no_word, WamWord new_value_word)
 
 
 /*-------------------------------------------------------------------------*
- * PL_RETRACTALL_IF_EMPTY_HEAD_1                                           *
+ * PL_RETRACTALL_IF_EMPTY_HEAD_2                                           *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Retractall_If_Empty_Head_1(WamWord head_word)
+Pl_Retractall_If_Empty_Head_2(WamWord head_word, WamWord check_perm_word)
 {
+  Bool check_perm = Pl_Rd_C_Int(check_perm_word);
   WamWord word, tag_mask;
   WamWord *adr;
   WamWord *arg_adr;
@@ -336,7 +342,7 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
   if ((pred = Pl_Lookup_Pred(func, arity)) == NULL)
     return TRUE;
 
-  if (!(pred->prop & MASK_PRED_DYNAMIC))
+  if (check_perm && !(pred->prop & MASK_PRED_DYNAMIC))
     {
       word = Pl_Put_Structure(ATOM_CHAR('/'), 2);
       Pl_Unify_Atom(func);
@@ -368,7 +374,7 @@ Pl_Retractall_If_Empty_Head_1(WamWord head_word)
     }
 
   if (ret)
-    Pl_Update_Dynamic_Pred(func, arity, 1, -1);
+    Pl_Update_Dynamic_Pred(func, arity, 0, -1);
 
   return ret;
 }

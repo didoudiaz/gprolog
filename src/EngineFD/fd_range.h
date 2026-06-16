@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation - header file                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -279,7 +279,7 @@ char *Pl_Range_To_String(Range *range);
 #define Is_Not_Empty(range)        ((range)->max >= (range)->min)
 
 
-#define Set_To_Empty(range) (range)->max = (int)(1 << (sizeof(int) * 8 - 1))
+#define Set_To_Empty(range) (range)->max = (int)(1U << (sizeof(int) * 8 - 1))
 
 
 #define Range_Init_Interval(range, r_min, r_max)	\

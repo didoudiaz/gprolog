@@ -6,7 +6,7 @@
  * Descr.: expand term management - C part                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <sys/types.h>
-
-#define OBJ_INIT Expand_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -133,8 +132,7 @@ static WamWord Dcg_Compound2(int func, WamWord w1, WamWord w2);
  * EXPAND_INITIALIZER                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Expand_Initializer(void)
+PL_INITIALIZER(Expand_Initializer)
 {
   int atom_dcg;
 

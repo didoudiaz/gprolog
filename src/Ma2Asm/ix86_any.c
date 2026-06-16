@@ -6,7 +6,7 @@
  * Descr.: translation file for intel ix86                                 *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,36 +36,23 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
-/* Supported arch: ix86 (32 bits) on Linux, BSD
+/*
+ * Supported arch: ix86 (32 bits) on Linux, BSD
  *                 Solaris, SCO, MinGW, Cygwin, Windows, Darwin (MacOS)
- *
- * ARM A32 instruction set                                                                                      
- * https://developer.arm.com/documentation/dui0801/k/A32-and-T32-Instructions?lang=en
  */
 
 
-
-
-/* If no register is mapped for pl_reg_bank, %ebx is used (see engine1.c)
- */
-
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK		/* should not occurs (see machine_regs.h) */
 #define ASM_REG_BANK UN "pl_reg_bank"
-#elif defined(MAP_REG_BANK)
-#define ASM_REG_BANK "%" MAP_REG_BANK
 #else
-#define ASM_REG_BANK "%ebx"
+#define ASM_REG_BANK MAP_REG_BANK
 #endif
 
 
 
 
-/* For ix86/darwin: an important point is the C stack must be aligned
+/*
+ * For ix86/darwin: an important point is the C stack must be aligned
  * on 16 bytes. It is possible to use gcc option -mstackrealign but
  * it produces bigger and slower code (and uses %ecx as register).
  * If this is not done and if the called function performs a movdqa
@@ -206,19 +193,19 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%%%s", MAP_REG_E);
+  strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "%edi");
 #endif
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%%%s", MAP_REG_B);
+  strcpy(asm_reg_b, MAP_REG_B);
 #else
   strcpy(asm_reg_b, Off_Reg_Bank(MAP_OFFSET_B));
 #endif
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%%%s", MAP_REG_CP);
+  strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
@@ -238,7 +225,7 @@ Off_Reg_Bank(int offset)
 {
   static char str[20];
 
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK
   sprintf(str, ASM_REG_BANK "+%d", offset);
 #else
   sprintf(str, "%d(%s)", offset, ASM_REG_BANK);
@@ -642,7 +629,7 @@ Call_C_Start(char *fct_name, Bool fc, int nb_args, int nb_args_in_words)
   char r[10], *r_aux;				\
 						\
   if (fc_reg_no < FC_MAX_ARGS_IN_REGS)		\
-    SKIP_FC_REG;				\
+    { SKIP_FC_REG; }				\
   sprintf(r, "%d(%%esp)", stack_offset * 4);	\
   stack_offset++;				\
   r_aux = (eax_used_as_fc_reg) ? "%esi" : "%eax";
@@ -802,7 +789,7 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
     {
       if (!r_eq_r_aux && index == 0)
 	{
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK
 	  Inst_Printf("movl", "$%s, %s", ASM_REG_BANK, r);
 #else
 	  Inst_Printf("movl", "%s, %s", ASM_REG_BANK, r);
@@ -1280,9 +1267,11 @@ Data_Start(char *initializer_fct)
 #else
 
 #ifdef _MSC_VER
-  Inst_Printf(".section", ".GPLC$m");
+  Inst_Printf(".section", ".CRT$XCU");
 #elif defined( __CYGWIN__) || defined (_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
+#elif M_ix86_solaris
+  Inst_Printf(".section", ".init_array,\"aw\"");
 #else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
 #endif

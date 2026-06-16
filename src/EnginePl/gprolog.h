@@ -6,7 +6,7 @@
  * Descr.: GNU Prolog - general header file (for users)                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -120,18 +120,19 @@ extern int pl_type_callable;
 extern int pl_type_character;
 extern int pl_type_compound;
 extern int pl_type_evaluable;
-extern int pl_type_float;
-extern int pl_type_boolean;
+extern int pl_type_float;			/* for arithmetic */
+extern int pl_type_boolean;			/* for setarg/4 */
 extern int pl_type_in_byte;
 extern int pl_type_in_character;
 extern int pl_type_integer;
 extern int pl_type_list;
 extern int pl_type_number;
 extern int pl_type_predicate_indicator;
-extern int pl_type_variable;	/* deprecated: new code should emit an uninstantiation_error */
-extern int pl_type_fd_variable;
-extern int pl_type_fd_evaluable;
-extern int pl_type_fd_bool_evaluable;
+extern int pl_type_variable;  /* deprecated: new code should emit an uninstantiation_error */
+extern int pl_type_pair;
+extern int pl_type_fd_variable;			/* for FD */
+extern int pl_type_fd_evaluable;		/* for FD */
+extern int pl_type_fd_bool_evaluable;		/* for FD */
 
 
 extern int pl_domain_character_code_list;
@@ -139,6 +140,7 @@ extern int pl_domain_close_option;
 extern int pl_domain_flag_value;
 extern int pl_domain_io_mode;
 extern int pl_domain_non_empty_list;
+extern int pl_domain_number_of_arguments;
 extern int pl_domain_not_less_than_zero;
 extern int pl_domain_operator_priority;
 extern int pl_domain_operator_specifier;
@@ -150,22 +152,25 @@ extern int pl_domain_stream_option;
 extern int pl_domain_stream_or_alias;
 extern int pl_domain_stream_position;
 extern int pl_domain_stream_property;
+extern int pl_domain_file_stream;
 extern int pl_domain_write_option;
-extern int pl_domain_term_stream_or_alias;
-extern int pl_domain_g_array_index;
-extern int pl_domain_g_argument_selector;
-extern int pl_domain_stream_seek_method;
-extern int pl_domain_format_control_sequence;
-extern int pl_domain_radix;
-extern int pl_domain_os_path;
-extern int pl_domain_os_file_permission;
-extern int pl_domain_selectable_item;
-extern int pl_domain_date_time;
+extern int pl_domain_order;
+extern int pl_domain_term_stream_or_alias;	/* for term_streams */
+extern int pl_domain_g_array_index;		/* for g_vars */
+extern int pl_domain_g_argument_selector;	/* for g_vars */
+extern int pl_domain_stream_seek_method;	/* for seek/4 */
+extern int pl_domain_format_control_sequence;	/* for format/2-3 */
+extern int pl_domain_radix;			/* for format/2-3 */
+extern int pl_domain_os_path;			/* for absolute_file_name/2 */
+extern int pl_domain_os_file_permission; 	/* for file_permission/2 */
+extern int pl_domain_selectable_item; 		/* for select_read/3 */
+extern int pl_domain_date_time;			/* for os_interf */
+
 
 extern int pl_existence_procedure;
 extern int pl_existence_source_sink;
 extern int pl_existence_stream;
-extern int pl_existence_sr_descriptor;
+extern int pl_existence_sr_descriptor; 		/* for source reader */
 
 
 extern int pl_permission_operation_access;
@@ -195,18 +200,20 @@ extern int pl_representation_in_character_code;
 extern int pl_representation_max_arity;
 extern int pl_representation_max_integer;
 extern int pl_representation_min_integer;
-extern int pl_representation_too_many_variables;
-
-extern int pl_evluation_float_overflow;
-extern int pl_evluation_int_overflow;
-extern int pl_evluation_undefined;
-extern int pl_evluation_underflow;
-extern int pl_evluation_zero_divisor;
+extern int pl_representation_integer_32bits;
+extern int pl_representation_too_many_variables;/* for Pl_Copy_Term(),... */
 
 
-extern int pl_resource_print_object_not_linked;
-extern int pl_resource_finite_memory;
-extern int pl_resource_too_big_fd_constraint;
+extern int pl_evaluation_float_overflow;
+extern int pl_evaluation_int_overflow;
+extern int pl_evaluation_undefined;
+extern int pl_evaluation_underflow;
+extern int pl_evaluation_zero_divisor;
+
+
+extern int pl_resource_finite_memory;		/* e.g. for length(L, L) */
+extern int pl_resource_print_unit_not_linked; /* for print and format */
+extern int pl_resource_too_big_fd_constraint; 	/* for FD */
 
 
 
@@ -647,6 +654,8 @@ void Pl_Unset_C_Bip_Name(void);
 
 void Pl_Err_Instantiation(void);
 
+void Pl_Err_Uninstantiation(PlTerm term);
+
 void Pl_Err_Type(int atom_type, PlTerm term);
 
 void Pl_Err_Domain(int atom_domain, PlTerm term);
@@ -843,7 +852,7 @@ typedef PlFIOArg FIOArg;
 #define evluation_zero_divisor pl_evluation_zero_divisor
 
 
-#define resource_print_object_not_linked pl_resource_print_object_not_linked
+#define resource_print_unit_not_linked pl_resource_print_unit_not_linked
 #define resource_finite_memory pl_resource_finite_memory
 #define resource_too_big_fd_constraint pl_resource_too_big_fd_constraint
 

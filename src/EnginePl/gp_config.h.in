@@ -6,7 +6,7 @@
  * Descr.: general configuration file (handled by autoconf) - header file  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -116,7 +116,7 @@
 /* Define inline keyword */
 #undef inline
 
-/* Define if you don't want to use machine registers */
+/* Define if you don't want to use machine registers for the WAM (via gcc global registers) */
 #undef NO_USE_REGS
 
 /* Define if you don't want to use the ebp register on ix86 */
@@ -246,14 +246,17 @@
 /* Define if the system is a ix86/solaris */
 #undef M_ix86_solaris
 
-/* Define if the system is a sparc32/solaris */
-#undef M_sparc32_solaris
-
 /* Define if the system is a sparc32/sunos */
 #undef M_sparc32_sunos
 
+/* Define if the system is a sparc32/solaris */
+#undef M_sparc32_solaris
+
 /* Define if the system is a sparc32/bsd */
 #undef M_sparc32_bsd
+
+/* Define if the system is a sparc64/solaris */
+#undef M_sparc64_solaris
 
 /* Define if the system is a sparc64/bsd */
 #undef M_sparc64_bsd
@@ -317,51 +320,57 @@
 
 /* Constant definitions */
 
-#define PROLOG_DIALECT             any
-#define PROLOG_NAME                any
-#define PROLOG_VERSION             any
-#define PROLOG_DATE                any
-#define PROLOG_COPYRIGHT           any
+#undef PROLOG_DIALECT
+#undef PROLOG_NAME
+#undef PROLOG_VERSION
+#undef PROLOG_DATE
+#undef PROLOG_COPYRIGHT
 
-#define TOP_LEVEL                  any
-#define GPLC                       any
-#define HEXGPLC                    any
-#define ENV_VARIABLE               any
+#undef TOP_LEVEL
+#undef GPLC
+#undef GPLC_FILTER
+#undef ENV_VARIABLE
 
-#define M_VENDOR                   any
-#define M_CPU                      any
-#define M_OS                       any
+#undef M_VENDOR
+#undef M_CPU
+#undef M_OS
 
-#define CC                         any
-#define CFLAGS_PREFIX_REG          any
-#define CFLAGS                     any
-#define CFLAGS_MACHINE             any
-#define LDFLAGS                    any
-#define LDLIBS                     any
-#define AS                         any
-#define ASFLAGS                    any
-#define STRIP                      any
+#undef CC
+#undef CFLAGS_PREFIX_REG
+#undef CFLAGS
+#undef CFLAGS_MACHINE
+#undef LDFLAGS
+#undef LDFLAGS_END
+#undef LDLIBS
+#undef AS
+#undef ASFLAGS
+#undef STRIP
 
-#define ASM_SUFFIX                 any
-#define OBJ_SUFFIX                 any
-#define EXE_SUFFIX                 any
-#define CC_OBJ_NAME_OPT            any
-#define CC_EXE_NAME_OPT            any
+#undef ASM_SUFFIX
+#undef OBJ_SUFFIX
+#undef EXE_SUFFIX
+#undef CC_OBJ_NAME_OPT
+#undef CC_EXE_NAME_OPT
+
+
+
+/* define if WIN_AS_COPY (copy of msys as with a unique name) */
+#undef WIN_AS_COPY
 
 /* define if Windows HtmlHelp is used 1=static (-lhtmlhelp), 2=dynamic (DLL) */
 #undef WITH_HTMLHELP
 
-#define DLL_W32GUICONS             any
-#define LIB_LINEDIT                any
-#define LIB_ENGINE_PL              any
-#define LIB_BIPS_PL                any
-#define LIB_ENGINE_FD              any
-#define LIB_BIPS_FD                any
+#undef DLL_W32GUICONS
+#undef LIB_LINEDIT
+#undef LIB_ENGINE_PL
+#undef LIB_BIPS_PL
+#undef LIB_ENGINE_FD
+#undef LIB_BIPS_FD
 
 
-#define SIZEOF_INT                 any
-#define SIZEOF_LONG                any
-#define SIZEOF_VOIDP               any
+#undef SIZEOF_INT
+#undef SIZEOF_LONG
+#undef SIZEOF_VOIDP
 
 #define SIZEOF_PTR                 SIZEOF_VOIDP
 #define WORD_SIZE                  (8 * SIZEOF_PTR)
@@ -372,10 +381,13 @@
 /* Define if you have a working sigaction to detect SIGSEGV bad addr */
 #undef HAVE_WORKING_SIGACTION
 
-/* Define if obj chain needs to reverse order of collected objects */
-#undef OBJ_CHAIN_REVERSE_ORDER
+/* Define if unit init. needs to reverse order of collected units (objects) */
+#undef UNIT_CHAIN_REVERSE_ORDER
 
+
+
+#ifndef GP_CONFIG_H_MINIMAL
 #include "arch_dep.h"
-#include "pl_long.h"
+#endif
 
 #endif /* !_GP_CONFIG_H */

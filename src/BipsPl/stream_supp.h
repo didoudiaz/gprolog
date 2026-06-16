@@ -6,7 +6,7 @@
  * Descr.: stream support - header file                                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -182,7 +182,7 @@ typedef struct			/* String Stream information      */
 {				/* ------------------------------ */
   char *buff;			/* the I/O buffer                 */
   char *ptr;			/* current position into the buff */
-  Bool buff_alloc_size;		/* mallocated size (iff output)   */
+  int buff_alloc_size;		/* mallocated size (iff output)   */
 }
 StrSInf;
 
@@ -199,7 +199,7 @@ StmInf **pl_stm_tbl;
 int pl_stm_tbl_size;
 int pl_stm_last_used;
 
-char *pl_alias_tbl;
+void *pl_alias_htbl;
 
 WamWord pl_last_input_sora;
 WamWord pl_last_output_sora;
@@ -275,7 +275,7 @@ extern StmInf **pl_stm_tbl;
 extern int pl_stm_tbl_size;
 extern int pl_stm_last_used;
 
-extern char *pl_alias_tbl;
+extern void *pl_alias_htbl;
 
 
 extern WamWord pl_last_input_sora;
@@ -471,7 +471,16 @@ int Pl_Add_Str_Stream(char *buff, int prop_other);
 
 void Pl_Delete_Str_Stream(int stm);
 
-char *Pl_Term_Write_Str_Stream(int stm);
+void Pl_Rewind_Str_Stream(int stm);
+
+char *Pl_Terminate_Output_Str_Stream(int stm);
+
+#define Pl_Get_Buffer_Str_Stream(stm)  (((StrSInf *) (pl_stm_tbl[stm]->file))->buff)
+
+#define Pl_Get_Ptr_Str_Stream(stm)   (((StrSInf *) (pl_stm_tbl[stm]->file))->ptr)
+
+
+
 
 
 void Pl_Close_Stm(int stm, Bool force); /* from close_c.c */

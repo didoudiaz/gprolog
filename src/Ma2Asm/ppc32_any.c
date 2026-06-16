@@ -6,7 +6,7 @@
  * Descr.: translation file PowerPC 32 bits                                *
  * Author: Daniel Diaz and Lindsey Spratt                                  *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,12 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdio.h>
-#include <string.h>
-
-
-/* Supported arch: powerpc 32 bits on Linux, Darwin (MacOS)
- */
+/* Supported arch: powerpc 32 bits on Linux, Darwin (MacOS) */
 
 
 /*---------------------------------*
@@ -1028,14 +1023,12 @@ Data_Start(char *initializer_fct)
 
 #ifdef M_linux
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
-  Inst_Printf(".align", "2");
-  Inst_Printf(".long", UN "%s", initializer_fct);
 #else
   Label_Printf(".data");
   Label_Printf(".mod_init_func");
+#endif
   Inst_Printf(".align", "2");
   Inst_Printf(".long", UN "%s", initializer_fct);
-#endif
 }
 
 
@@ -1048,13 +1041,4 @@ Data_Start(char *initializer_fct)
 void
 Data_Stop(char *initializer_fct)
 {
-  if (initializer_fct == NULL)
-    return;
-
-#if 0
-  Label_Printf(".data");
-  Label_Printf(UN "obj_chain_stop:");
-
-  Inst_Printf(".long", UN "obj_chain_start");
-#endif
 }

@@ -6,7 +6,7 @@
  * Descr.: source file reading                                             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -77,7 +77,7 @@
  *                                                                         *
  * buff_dyn_interf_clause(Pred,N,SrcCl):                                   *
  *    records the interface clause of a dynamic predicate (:- dynamic).    *
- *    This clause is of the form Head:- call(Head) and only ensures that   *
+ *    This clause is of the form Head :- call(Head) and only ensures that  *
  *    an external invocation to this predicate will not need to know that  *
  *    it is dynamic (and should be called by call/1).                      *
  *    Asserted as soon as a :- dynamic directive is encountered.           *
@@ -285,7 +285,6 @@ read_predicate1(Pred, N, LSrcCl) :-
 	repeat,
 	get_next_clause(Pred, N, SrcCl),
 	SrcCl = _ + Cl,
-	retractall(empty_dyn_pred(Pred, N, _)),
 	(   test_pred_flag(discontig, Pred, N) ->
 	    assertz(buff_discontig_clause(Pred, N, SrcCl)),
 	    define_predicate(Pred, N),
@@ -297,8 +296,7 @@ read_predicate1(Pred, N, LSrcCl) :-
 	    fail                               % backtrack to read_predicate1
 	;   true
 	), !,
-	Cl \== end_of_file,                    % if end_of_file is read, fail
-                                            % and backtrack to read_predicate
+	Cl \== end_of_file,  % if end_of_file is read, fail and backtrack to read_predicate
 	define_predicate(Pred, N),
 	group_clauses_by_pred(Pred, N, SrcCl, LSrcCl).
 
@@ -313,11 +311,15 @@ read_predicate1(Pred, N, [SrcCl]) :-
 read_predicate1(Pred, N, [SrcCl]) :-
 	g_assign(reading_dyn_pred, t),
 	retract(empty_dyn_pred(Pred, N, Where)),        % empty dyn predicate
-	define_predicate(Pred, N),
-	(   g_read(native_code, t) ->
-	    create_dyn_interf_clause(Pred, N, Where, SrcCl)
-	;   SrcCl = Where + '$$empty$$predicate$$clause$$'
-	), !.
+	(   test_pred_flag(def, Pred, N) ->		% not empty in fact
+	    fail
+	;
+	    define_predicate(Pred, N),
+	    (   g_read(native_code, t) ->
+		create_dyn_interf_clause(Pred, N, Where, SrcCl)
+	    ;   SrcCl = Where + '$$empty$$predicate$$clause$$'
+	    ), !
+	).
 
 read_predicate1(Pred, N, LSrcCl) :-
 	g_assign(reading_dyn_pred, f),
@@ -397,9 +399,25 @@ create_exe_clauses_for_dyn_pred([SrcCl|LSrcCl], Pred, N) :-
 	SrcCl = Where + Cl,
 	get_file_name(Where, PlFile),
 	add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName),
-	record_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, '&', AuxName, N), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
+	record_initialization(system, ('$call_c'('Pl_Emit_BC_Execute_Wrapper'(Pred, N, &(AuxName/N)), [by_value]), '$add_clause_term'(Cl, PlFile)), Where),
 	create_exe_clauses_for_dyn_pred(LSrcCl, Pred, N).
 
+
+
+
+add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName) :-
+	init_aux_pred_name(Pred, N, AuxName, N),
+	(   Cl = (Head :- Body) ->
+	    head_wrapper(Head, AuxName, Head1),
+	    Cl1 = (Head1 :- Body)
+	;   head_wrapper(Cl, AuxName, Cl1)
+	),
+	assertz(buff_aux_pred(AuxName, N, [Where + Cl1])).
+
+
+head_wrapper(Head, AuxName, Head1) :-
+	Head =.. [_|LArgs],
+	Head1 =.. [AuxName|LArgs].
 
 
 
@@ -658,8 +676,8 @@ pp_stop :-
 % in pp_handle_directive the directive has been checked: it is a callable
 
 handle_directive(D, Where) :-
-	D =.. [DName|DLst],	% to handle include(a/1, b/2, c/3) and include([a/1, b/2, c/3]) as lists
-	handle_directive(DName, DLst, Where), !.
+	D =.. [DName|DArgs],	% to handle include(a/1, b/2, c/3) and include([a/1, b/2, c/3]) as lists
+	handle_directive(DName, DArgs, Where), !.
 
 handle_directive(D, _) :-
 	warn('invalid directive is ignored: ~q', [D]).
@@ -667,28 +685,28 @@ handle_directive(D, _) :-
 
 
 
-handle_directive(public, DLst, _) :-
+handle_directive(public, PIs, _) :-
 	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, pub).
+	check_pi_specif(PIs, f, PILst),
+	directive_set_flag_for_preds(PILst, pub).
 
-handle_directive(dynamic, DLst, Where) :-
+handle_directive(dynamic, PIs, Where) :-
 	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, dyn),
-	set_flag_for_preds(DLst, pub),
-	add_empty_dyn(DLst, Where).
+	check_pi_specif(PIs, f, PILst),
+	directive_set_flag_for_preds(PILst, dyn),
+	directive_set_flag_for_preds(PILst, pub),
+	add_empty_dyn(PILst, Where).
 
-handle_directive(multifile, DLst, Where) :-
+handle_directive(multifile, PIs, Where) :-
 	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, multi),
-	add_empty_dyn(DLst, Where).
+	check_pi_specif(PIs, f, PILst),
+	directive_set_flag_for_preds(PILst, multi),
+	add_empty_dyn(PILst, Where).
 
-handle_directive(discontiguous, DLst, _) :-
+handle_directive(discontiguous, PIs, _) :-
 	!,
-	check_pi_list(DLst, f),
-	set_flag_for_preds(DLst, discontig).
+	check_pi_specif(PIs, f, PILst),
+	directive_set_flag_for_preds(PILst, discontig).
 
 handle_directive(compiler_mode, [CompMode], _) :-
 	!,
@@ -698,33 +716,33 @@ handle_directive(compiler_mode, [CompMode], _) :-
 	    g_assign(compiler_mode, embed_compile)
 	), !.
 
-handle_directive(built_in, DLst, _) :-
+handle_directive(built_in, PIs, _) :-
 	!,
-	check_pi_list(DLst, t),
-	(   DLst = [] ->
+	check_pi_specif(PIs, t, PILst),
+	(   PILst = [] ->
 	    g_assign(default_kind, built_in)
-	;   set_flag_for_preds(DLst, bpl)
+	;   directive_set_flag_for_preds(PILst, bpl)
 	).
 
-handle_directive(built_in_fd, DLst, _) :-
+handle_directive(built_in_fd, PIs, _) :-
 	!,
-	check_pi_list(DLst, t),
-	(   DLst = [] ->
+	check_pi_specif(PIs, t, PILst),
+	(   PILst = [] ->
 	    g_assign(default_kind, built_in_fd)
-	;   set_flag_for_preds(DLst, bfd)
+	;   directive_set_flag_for_preds(PILst, bfd)
 	).
 
-handle_directive(ensure_linked, DLst, _) :-
+handle_directive(ensure_linked, PIs, _) :-
 	!,
-	check_pi_list(DLst, f),
+	check_pi_specif(PIs, f, PILst),
 	(   g_read(native_code, f) ->
 	    warn('ensure_linked directive ignored in byte-code compilation mode', [])
-	;   add_ensure_linked(DLst)
+	;   add_ensure_linked(PILst)
 	).
 
-handle_directive(ensure_loaded, DLst, _) :-
+handle_directive(ensure_loaded, PIs, _) :-
 	!,
-	check_pi_list(DLst, f),
+	check_pi_specif(PIs, f, _PILst),
 	warn('ensure_loaded directive not supported - directive ignored', []).
 
 handle_directive(encoding, _, _) :-
@@ -767,31 +785,31 @@ handle_directive(initialization, [Goal], Where) :-
 	!,
 	handle_init_directive(Goal, user, Where).
 
-handle_directive(module, [Module, DLst], _) :-
+handle_directive(module, [Module, PIs], _) :-
 	!,
-	check_pi_list(DLst, f),
+	check_pi_specif(PIs, f, PILst),
 	check_module_name(Module, f),
 	(   g_read(module_already_seen, f) ->
 	    g_assign(module_already_seen, t),
 	    g_assign(module, Module),
-	    add_module_export_info(DLst, Module)
+	    add_module_export_info(PILst, Module)
 	;
 	    error('directive module/2 already declared', [])
 	).
 
-handle_directive(use_module, [Module, DLst], _) :-
+handle_directive(use_module, [Module, PIs], _) :-
 	!,
 	check_module_name(Module, f),
-	add_module_export_info(DLst, Module).
+	add_module_export_info(PIs, Module).
 
 handle_directive(meta_predicate, [MetaDecl], Where) :-
 	!,
 	(   callable(MetaDecl) ->
 	    functor(MetaDecl, Pred, N),
-	    set_flag_for_preds(Pred/N, meta),
+	    directive_set_flag_for_preds1(meta, Pred, N),
 	    assertz(meta_pred(Pred, N, MetaDecl)),
-	    set_flag_for_preds('$prop_meta_pred'/3, discontig),
-	    set_flag_for_preds('$prop_meta_pred'/3, multi),
+	    directive_set_flag_for_preds1(discontig, '$prop_meta_pred', 3),
+	    directive_set_flag_for_preds1(multi, '$prop_meta_pred', 3),
 	    assertz(buff_discontig_clause('$prop_meta_pred', 3, Where+'$prop_meta_pred'(Pred, N, MetaDecl)))
 	;
 	    error('invalide directive meta_predicate/1 ~q', [MetaDecl])
@@ -828,7 +846,7 @@ handle_directive(foreign, [Template, Options], Where) :-
 	functor(Head, Pred, N),
 	SrcCl = Where + (Head :- '$foreign_call_c'(Args)),
 	assertz(buff_discontig_clause(Pred, N, SrcCl)),
-	add_ensure_linked('$force_foreign_link'/0).
+	add_ensure_linked(['$force_foreign_link'/0]).
                      % to force the link of foreign.o and then foreign_supp.o
 
 
@@ -986,106 +1004,84 @@ record_initialization(user, Body, Where) :-
 
 
 	
-add_empty_dyn([], _) :-
-	!.
+add_empty_dyn([], _).
 
-add_empty_dyn([P1|P2], Where) :-
-	!,
-	add_empty_dyn(P1, Where),
-	add_empty_dyn(P2, Where).
-
-add_empty_dyn((P1, P2), Where) :-
-	!,
-	add_empty_dyn(P1, Where),
-	add_empty_dyn(P2, Where).
-
-add_empty_dyn(Pred/N, Where) :-
+add_empty_dyn([Pred/N|PILst], Where) :-
 	(   clause(empty_dyn_pred(Pred, N, _), _) ->
 	    true
 	;   assertz(empty_dyn_pred(Pred, N, Where))
-	).
+	),
+	add_empty_dyn(PILst, Where).
 
 
 
 
-add_ensure_linked([]) :-
-	!.
+add_ensure_linked([]).
 
-add_ensure_linked([P1|P2]) :-
-	!,
-	add_ensure_linked(P1),
-	add_ensure_linked(P2).
-
-add_ensure_linked((P1, P2)) :-
-	!,
-	add_ensure_linked(P1),
-	add_ensure_linked(P2).
-
-add_ensure_linked(Pred/N) :-
-	clause(ensure_linked(Pred, N), true), !.
-
-add_ensure_linked(Pred/N) :-
-	assertz(ensure_linked(Pred, N)).
+add_ensure_linked([Pred/N|PILst]) :-
+	(   clause(ensure_linked(Pred, N), true) ->
+	    true
+	;
+	    assertz(ensure_linked(Pred, N))
+	),
+	add_ensure_linked(PILst).
 
 
 
 
-add_module_export_info([], _) :-
-	!.
+add_module_export_info([], _).
 
-add_module_export_info([P1|P2], Module) :-
-	!,
-	add_module_export_info(P1, Module),
-	add_module_export_info(P2, Module).
-
-add_module_export_info((P1, P2), Module) :-
-	!,
-	add_module_export_info(P1, Module),
-	add_module_export_info(P2, Module).
-
-add_module_export_info(Pred/N, _) :-
-	clause(module_export(Pred, N, Module1), true), !,
-	error('predicate ~q already exported from module ~q', [Pred/N, Module1]).
-
-add_module_export_info(Pred/N, Module) :-
-	assertz(module_export(Pred, N, Module)),
-	(   test_pred_flag(def, Pred, N) ->
-	    check_module_clash(Pred, N)
-	;   true
-	).
+add_module_export_info([Pred/N|PILst], Module) :-
+	(   clause(module_export(Pred, N, Module1), true) ->
+	    error('predicate ~q already exported from module ~q', [Pred/N, Module1])
+	;
+	    assertz(module_export(Pred, N, Module)),
+	    (   test_pred_flag(def, Pred, N) ->
+		check_module_clash(Pred, N)
+	    ;   true
+	    )
+	),
+	add_module_export_info(PILst, Module).
 
 
 
 
-	% check_pi_list(DLst, EmptyOK)
-check_pi_list(DLst, _) :-
-	var(DLst), !,
+	% check_pi_specif(PIs, EmptyOK, PILst)
+check_pi_specif(PIs, _, _) :-
+	var(PIs), !,
 	error('directive argument is a variable', []).
 
-check_pi_list([], f) :-
+check_pi_specif([], f, _) :-
 	!,
 	error('directive argument missing', []).
 
-check_pi_list([], _) :-
+check_pi_specif(PIs, _, PILst) :-
+	!,
+	check_pi_specif1(PIs, [], PILst).
+
+
+
+check_pi_specif1([], End, End) :-
 	!.
 
-check_pi_list([P1|P2], _) :-
+check_pi_specif1([PIs1|PIs2], End, PILst) :-
 	!,
-	check_pi_list(P1, t),
-	check_pi_list(P2, t).
+	check_pi_specif1(PIs1, PILst1, PILst),
+	check_pi_specif1(PIs2, End, PILst1).
 
-check_pi_list((P1, P2), _) :-
+check_pi_specif1((PIs1, PIs2), End, PILst) :-
 	!,
-	check_pi_list(P1, t),
-	check_pi_list(P2, t).
+	check_pi_specif1(PIs1, PILst1, PILst),
+	check_pi_specif1(PIs2, End, PILst1).
 
-check_pi_list(Pred/N, _) :-
+check_pi_specif1(PI, End, [PI|End]) :-
+	PI = Pred/N,
 	atom(Pred),
 	integer(N),
 	N >= 0, !.
 
-check_pi_list(P, _) :-
-	error('directive argument is not a valid predicate indicator (~q)', [P]).
+check_pi_specif1(PI, _, _) :-
+	error('directive argument is not a valid predicate indicator (~q)', [PI]).
 
 
 
@@ -1173,46 +1169,33 @@ get_module_of_cur_pred(Module) :-
 
 
 
-set_flag_for_preds([], _) :-
-	!.
+directive_set_flag_for_preds([], _).
 
-set_flag_for_preds([P1|P2], Flag) :-
-	!,
-	set_flag_for_preds(P1, Flag),
-	set_flag_for_preds(P2, Flag).
+directive_set_flag_for_preds([Pred/N|PILst], Flag) :-
+	directive_set_flag_for_preds1(Flag, Pred, N), !,
+	directive_set_flag_for_preds(PILst, Flag).
 
-set_flag_for_preds((P1, P2), Flag) :-
-	!,
-	set_flag_for_preds(P1, Flag),
-	set_flag_for_preds(P2, Flag).
 
-set_flag_for_preds(Pred/N, Flag) :-
-	set_flag_for_preds1(Flag, Pred, N).
-	
-
-set_flag_for_preds1(_, Pred, N) :-
-	test_pred_flag(def, Pred, N), !,
-	warn('directive occurs after definition of ~q - directive ignored',
-	     [Pred/N]).
-
-set_flag_for_preds1(-Flag, Pred, N) :-
+directive_set_flag_for_preds1(-Flag, Pred, N) :-
 	!,
 	unset_pred_flag(Flag, Pred, N).
 
-set_flag_for_preds1(bpl, Pred, N) :-
-	unset_pred_flag(bfd, Pred, N),
-	fail.
+directive_set_flag_for_preds1(Flag, Pred, N) :-
+	% if a flag is already set, do not warn about already def predicate
+	test_pred_flag(Flag, Pred, N), !.
 
-set_flag_for_preds1(bfd, Pred, N) :-
-	unset_pred_flag(bpl, Pred, N),
-	fail.
+directive_set_flag_for_preds1(_, Pred, N) :-
+	test_pred_flag(def, Pred, N), !,
+	warn('directive occurs after definition of ~q - directive ignored', [Pred/N]).
 
-set_flag_for_preds1(bfd, Pred, N) :-
-	unset_pred_flag(bpl, Pred, N),
-	fail.
-
-set_flag_for_preds1(Flag, Pred, N) :-
-	set_pred_flag(Flag, Pred, N).
+directive_set_flag_for_preds1(Flag, Pred, N) :-
+	set_pred_flag(Flag, Pred, N),
+	(   Flag = bpl ->
+	    unset_pred_flag(bfd, Pred, N)
+	;   Flag = bfd ->
+	    unset_pred_flag(bpl, Pred, N)
+	;   true
+	).
 
 
 
@@ -1364,9 +1347,11 @@ check_predicate(_, _).
 
 
       /* (:-)/1-2 cannot be defined (WG17 https://www.complang.tuwien.ac.at/ulrich/iso-prolog/stc#56)
-       * (:-)/1 will be treated as a directive (maybe unknown) - we only have to check (:-)/2 here
+       * same for (-->)/2
        */
 reserved_predicate(':-', 1).
+reserved_predicate(':-', 2).
+reserved_predicate('-->', 2).
 
 
 bip(F, N) :-
@@ -1391,10 +1376,10 @@ control_construct(throw, 1).
 %suspicious_predicate(;, 2).
 %suspicious_predicate(->, 2).
 %suspicious_predicate(!, 0).
+%suspicious_predicate(:-, 1).
+%suspicious_predicate(:-, 2).
+%suspicious_predicate(-->, 2).
 suspicious_predicate(:, 2).
-suspicious_predicate(:-, 1).
-suspicious_predicate(:-, 2).
-suspicious_predicate(-->, 2).
 suspicious_predicate({}, X) :- X < 2.
 suspicious_predicate(+, 2).
 suspicious_predicate(-, 2).

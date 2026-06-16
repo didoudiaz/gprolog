@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : call_args.pl
+% file: call_args.pl
+% hash: 06d93cea2765d825fafb9f89fedecb0ef3d42dcb  call_args.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/call_args.pl').
@@ -10,107 +11,107 @@ predicate('$use_call_args'/0,41,static,private,monofile,built_in,[
 
 
 predicate(call_with_args/1,55,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,0]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,0]),
     proceed]).
 
 
 predicate(call_with_args/2,58,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,1]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,1]),
     proceed]).
 
 
 predicate(call_with_args/3,61,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,2]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,2]),
     proceed]).
 
 
 predicate(call_with_args/4,64,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,3]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,3]),
     proceed]).
 
 
 predicate(call_with_args/5,67,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,4]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,4]),
     proceed]).
 
 
 predicate(call_with_args/6,70,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,5]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,5]),
     proceed]).
 
 
 predicate(call_with_args/7,73,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,6]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,6]),
     proceed]).
 
 
 predicate(call_with_args/8,76,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,7]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,7]),
     proceed]).
 
 
 predicate(call_with_args/9,79,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,8]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,8]),
     proceed]).
 
 
 predicate(call_with_args/10,82,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,9]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,9]),
     proceed]).
 
 
 predicate(call_with_args/11,85,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call_with_args,10]),
+    call_c('Pl_Call_Closure',[jump],[call_with_args,10]),
     proceed]).
 
 
 predicate(call/2,101,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,1]),
+    call_c('Pl_Call_Closure',[jump],[call,1]),
     proceed]).
 
 
 predicate(call/3,104,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,2]),
+    call_c('Pl_Call_Closure',[jump],[call,2]),
     proceed]).
 
 
 predicate(call/4,107,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,3]),
+    call_c('Pl_Call_Closure',[jump],[call,3]),
     proceed]).
 
 
 predicate(call/5,110,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,4]),
+    call_c('Pl_Call_Closure',[jump],[call,4]),
     proceed]).
 
 
 predicate(call/6,113,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,5]),
+    call_c('Pl_Call_Closure',[jump],[call,5]),
     proceed]).
 
 
 predicate(call/7,116,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,6]),
+    call_c('Pl_Call_Closure',[jump],[call,6]),
     proceed]).
 
 
 predicate(call/8,119,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,7]),
+    call_c('Pl_Call_Closure',[jump],[call,7]),
     proceed]).
 
 
 predicate(call/9,122,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,8]),
+    call_c('Pl_Call_Closure',[jump],[call,8]),
     proceed]).
 
 
 predicate(call/10,125,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,9]),
+    call_c('Pl_Call_Closure',[jump],[call,9]),
     proceed]).
 
 
 predicate(call/11,128,static,private,monofile,built_in,[
-    call_c('Pl_Call_Closure',[jump,by_value],[call,10]),
+    call_c('Pl_Call_Closure',[jump],[call,10]),
     proceed]).
 
 
@@ -405,7 +406,7 @@ predicate('$prop_meta_pred'/3,43,static,private,multifile,local,[
 
 
 directive(43,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux1'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(1),
@@ -416,7 +417,7 @@ directive(43,system,[
 
 
 directive(44,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(2),
@@ -428,7 +429,7 @@ directive(44,system,[
 
 
 directive(45,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux3'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(3),
@@ -441,7 +442,7 @@ directive(45,system,[
 
 
 directive(46,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux4'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(4),
@@ -455,7 +456,7 @@ directive(46,system,[
 
 
 directive(47,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux5'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(5),
@@ -470,7 +471,7 @@ directive(47,system,[
 
 
 directive(48,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux6'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(6),
@@ -486,7 +487,7 @@ directive(48,system,[
 
 
 directive(49,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux7',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux7'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(7),
@@ -503,7 +504,7 @@ directive(49,system,[
 
 
 directive(50,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux8',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux8'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(8),
@@ -521,7 +522,7 @@ directive(50,system,[
 
 
 directive(51,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux9',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux9'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(9),
@@ -540,7 +541,7 @@ directive(51,system,[
 
 
 directive(52,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux10',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux10'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(10),
@@ -560,7 +561,7 @@ directive(52,system,[
 
 
 directive(53,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux11',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux11'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_with_args),
     unify_integer(11),
@@ -581,7 +582,7 @@ directive(53,system,[
 
 
 directive(90,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux12',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux12'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(2),
@@ -593,7 +594,7 @@ directive(90,system,[
 
 
 directive(91,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux13',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux13'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(3),
@@ -606,7 +607,7 @@ directive(91,system,[
 
 
 directive(92,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux14',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux14'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(4),
@@ -620,7 +621,7 @@ directive(92,system,[
 
 
 directive(93,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux15',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux15'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(5),
@@ -635,7 +636,7 @@ directive(93,system,[
 
 
 directive(94,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux16',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux16'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(6),
@@ -651,7 +652,7 @@ directive(94,system,[
 
 
 directive(95,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux17',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux17'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(7),
@@ -668,7 +669,7 @@ directive(95,system,[
 
 
 directive(96,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux18',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux18'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(8),
@@ -686,7 +687,7 @@ directive(96,system,[
 
 
 directive(97,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux19',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux19'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(9),
@@ -705,7 +706,7 @@ directive(97,system,[
 
 
 directive(98,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux20',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux20'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(10),
@@ -725,7 +726,7 @@ directive(98,system,[
 
 
 directive(99,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux21',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux21'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call),
     unify_integer(11),

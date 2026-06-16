@@ -6,7 +6,7 @@
  * Descr.: foreign interface support                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <string.h>
-
-#define OBJ_INIT Foreign_Initializer
 
 #define FOREIGN_SUPP_FILE
 
@@ -68,9 +67,6 @@
 PlLong pl_foreign_long[NB_OF_X_REGS];
 double pl_foreign_double[NB_OF_X_REGS];
 
-PlLong *pl_base_fl = pl_foreign_long;	/* overwrite var of engine.c */
-double *pl_base_fd = pl_foreign_double;	/* overwrite var of engine.c */
-
 static PlFIOArg fio_arg_array[NB_OF_X_REGS];
 
 
@@ -93,10 +89,10 @@ static CodePtr Prepare_Call(int func, int arity, WamWord *arg_adr);
 
 
 
-#define CALL_INTERNAL              X1_2463616C6C5F696E7465726E616C
-#define THROW_INTERNAL             X1_247468726F775F696E7465726E616C
+#define CALL_INTERNAL          X1_2463616C6C5F696E7465726E616C
+#define THROW_INTERNAL         X1_247468726F775F696E7465726E616C
 
-#define PL_QUERY_RECOVER_ALT       X1_24706C5F71756572795F7265636F7665725F616C74
+#define PL_QUERY_RECOVER_ALT   X1_24706C5F71756572795F7265636F7665725F616C74
 
 Prolog_Prototype(CALL_INTERNAL, 2);
 Prolog_Prototype(THROW_INTERNAL, 2);
@@ -110,9 +106,11 @@ Prolog_Prototype(PL_QUERY_RECOVER_ALT, 0);
  * FOREIGN_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Foreign_Initializer(void)
+PL_INITIALIZER(Foreign_Initializer)
 {
+  pl_base_fl = pl_foreign_long;	  /* override var of engine.c */
+  pl_base_fd = pl_foreign_double; /* override var of engine.c */
+
   goal_H = H;
   H = H + MAX_ARITY + 1;
 
@@ -175,8 +173,8 @@ Pl_Foreign_Jump_Ret(CodePtr codep)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 PlFIOArg *
-Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (WamWord word),
-		     int fio_arg_index)
+Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word,
+		     PlLong (*rd_fct) (WamWord word), int fio_arg_index)
 {
   WamWord word, tag_mask;
   PlFIOArg *fa = fio_arg_array + fio_arg_index;
@@ -210,8 +208,8 @@ Pl_Foreign_Rd_IO_Arg(int arg_long, WamWord start_word, PlLong (*rd_fct) (WamWord
  *                                                                         *
  *-------------------------------------------------------------------------*/
 Bool
-Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (PlLong val, WamWord word), PlFIOArg *fa,
-		     WamWord start_word)
+Pl_Foreign_Un_IO_Arg(int arg_long, Bool (*un_fct) (PlLong val, WamWord word),
+		     PlFIOArg *fa, WamWord start_word)
 {
   if (!fa->unify)
     return TRUE;
@@ -321,7 +319,8 @@ Pl_Query_Begin(Bool recoverable)
 
 {
   if (query_stack_top - query_stack >= QUERY_STACK_SIZE)
-    Pl_Fatal_Error("too many nested Pl_Query_Start() (max: %d)", QUERY_STACK_SIZE);
+    Pl_Fatal_Error("too many nested Pl_Query_Start() (max: %d)",
+		   QUERY_STACK_SIZE);
 
   if (recoverable)
     Pl_Create_Choice_Point(Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0), 0);
@@ -372,7 +371,7 @@ int
 Pl_Query_Start(int func, int arity, WamWord *arg_adr, Bool recoverable)
 {
   Pl_Query_Begin(recoverable);
-  return  Pl_Query_Call(func, arity, arg_adr);
+  return Pl_Query_Call(func, arity, arg_adr);
 }
 
 
@@ -424,7 +423,8 @@ Pl_Query_End(int op)
     Pl_Fatal_Error("Pl_Query_End() but no query remaining");
 
   query_b = *--query_stack_top;
-  pl_query_top_b = query_stack_top[-1];
+  pl_query_top_b = (query_stack_top == query_stack) ? NULL :
+    query_stack_top[-1];
 
   recoverable = (ALTB(query_b) == Prolog_Predicate(PL_QUERY_RECOVER_ALT, 0));
   prev_b = BB(query_b);

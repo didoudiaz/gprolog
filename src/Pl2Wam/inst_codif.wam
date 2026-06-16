@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : inst_codif.pl
+% file: inst_codif.pl
+% hash: cbbf718b2eca731a6b84536f291382b552a93f26  inst_codif.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/inst_codif.pl').

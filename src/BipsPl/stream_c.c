@@ -6,7 +6,7 @@
  * Descr.: stream selection and control management - C part                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -229,7 +230,7 @@ Pl_Open_3(WamWord source_sink_word, WamWord mode_word, WamWord stm_word)
 
   atom_file_name = UnTag_ATM(word);
   path = pl_atom_tbl[atom_file_name].name;
-  if ((path = Pl_M_Absolute_Path_Name(path)) == NULL)
+  if ((path = Pl_Absolute_Path_Name(path)) == NULL)
     Pl_Err_Existence(pl_existence_source_sink, source_sink_word);
 
   text = mask & 1;
@@ -971,8 +972,8 @@ Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
   if (tag_mask != TAG_REF_MASK)
     return Pl_Find_Stream_By_Alias(Pl_Rd_Atom_Check(word)) == stm;
 
-  for (alias = (AliasInf *) Pl_Hash_First(pl_alias_tbl, &scan); alias;
-       alias = (AliasInf *) Pl_Hash_Next(&scan))
+  for (alias = (AliasInf *) Pl_HTBL_First(pl_alias_htbl, &scan); alias;
+       alias = (AliasInf *) Pl_HTBL_Next(&scan))
     if (alias->stm == stm)
       break;
 
@@ -983,7 +984,7 @@ Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
 
   for (;;)
     {
-      alias = (AliasInf *) Pl_Hash_Next(&scan);
+      alias = (AliasInf *) Pl_HTBL_Next(&scan);
       if (alias == NULL || alias->stm == stm)
 	break;
     }
@@ -993,7 +994,7 @@ Pl_Current_Alias_2(WamWord stm_word, WamWord alias_word)
     {
       A(0) = stm;
       A(1) = alias_word;
-      A(2) = (WamWord) scan.endt;
+      A(2) = (WamWord) scan.end_t;
       A(3) = (WamWord) scan.cur_t;
       A(4) = (WamWord) scan.cur_p;
       A(5) = (WamWord) alias;
@@ -1025,17 +1026,17 @@ Pl_Current_Alias_Alt_0(void)
 
   stm = (int) AB(B, 0);
   alias_word = AB(B, 1);
-  scan.endt = (char *) AB(B, 2);
-  scan.cur_t = (char *) AB(B, 3);
-  scan.cur_p = (char *) AB(B, 4);
-  alias = (AliasInf *) AB(B, 5);
+  scan.end_t = (HashNode *) AB(B, 2);
+  scan.cur_t = (HashNode *) AB(B, 3);
+  scan.cur_p = (HashNode)   AB(B, 4);
+  alias      = (AliasInf *) AB(B, 5);
 
 
   save_alias = alias;
 
   for (;;)
     {
-      alias = (AliasInf *) Pl_Hash_Next(&scan);
+      alias = (AliasInf *) Pl_HTBL_Next(&scan);
       if (alias == NULL || alias->stm == stm)
 	break;
     }
@@ -1046,7 +1047,7 @@ Pl_Current_Alias_Alt_0(void)
 #if 0 /* the following data is unchanged */
       AB(B, 0) = stm;
       AB(B, 1) = alias_word;
-      AB(B, 2) = (WamWord) scan.endt;
+      AB(B, 2) = (WamWord) scan.end_t;
 #endif
       AB(B, 3) = (WamWord) scan.cur_t;
       AB(B, 4) = (WamWord) scan.cur_p;
@@ -1527,7 +1528,7 @@ Pl_Close_Output_Term_Stream_2(WamWord sora_word, WamWord sink_term_word)
     Pl_Err_Permission(pl_permission_operation_close,
 		      pl_permission_type_stream, sora_word);
 
-  str = Pl_Term_Write_Str_Stream(stm);
+  str = Pl_Terminate_Output_Str_Stream(stm);
 
   switch (SYS_VAR_OPTION_MASK)
     {

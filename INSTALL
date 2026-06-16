@@ -224,6 +224,9 @@ To specify another C compiler:
       ./configure --host=x86_64-w64-mingw32
       this will look for x86_64-w64-mingw32-gcc.exe and x86_64-w64-mingw32-ar.exe,...
 
+  NB: you can also pass CFLAGS and LDLFAGS similary before invoking ./configure
+  (this is an alternative to --with-c-flags)
+
 To specify another assembler, do similarly replacing CC by AS:
 
    e.g. AS=gas ./configure

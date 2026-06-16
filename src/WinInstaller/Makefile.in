@@ -1,0 +1,57 @@
+NAME         = @PROLOG_DIALECT@
+VERSION      = @PROLOG_VERSION@
+PKG_NAME     = @PKG_NAME@
+CC           = @CC@ @CFLAGS_MACHINE@
+CFLAGS       = @CFLAGS@
+WITH_MSVC    = @WITH_MSVC@
+WIN_CONF_OPT = @WIN_CONF_OPT@
+WIN_AS_PATH  = @WIN_AS_PATH@
+WIN_AS_COPY  = @WIN_AS_COPY@
+WIN_TMP_DIR  = @WIN_TMP_DIR@
+ISCC         = iscc.exe
+
+
+# the name gprolog_win32 is also used inside gp-setup.iss.in
+TMPDIR=/tmp/gprolog_win32
+
+# put create-bat as a target (not as a dependency) to avoid conflict 32/64 bits
+create-bat: create_bat.c
+	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@create_bat@EXE_SUFFIX@ create_bat.c
+
+compile:
+	(cd ..; make copy_dist_tree distdir=/tmp/)
+	compile_install.sh "$(WIN_CONF_OPT)" /tmp/$(PKG_NAME)/src $(TMPDIR)
+
+compile-link:
+	compile_install.sh "$(WIN_CONF_OPT)" .. $(TMPDIR)
+
+
+setup: compile create-setup
+
+
+setup-link: compile-link create-setup
+
+
+create-setup: complete-bin
+	$(ISCC) gp-setup.iss
+
+complete-bin: create-bat
+	cp create_bat@EXE_SUFFIX@ $(TMPDIR)/bin
+	if test $(WITH_MSVC) != no; then \
+		cp $(WIN_AS_PATH) $(TMPDIR)/bin; \
+		cp $(WIN_AS_PATH) $(TMPDIR)/bin/$(WIN_AS_COPY); \
+	fi
+	dlls=`ldd $(TMPDIR)/bin/*@EXE_SUFFIX@|grep -vi '/windows'|grep -vi '$(TMP_DIR)'| \
+		sed -n 's/.*=> *\(.*\) (.*)/\1/p'|sort|uniq`; \
+	for i in $$dlls; do cp "$$i" $(TMPDIR)/bin; done \
+
+
+../$(PKG_NAME).tar.gz:
+	(cd ..; make dist)
+
+clean:
+	rm -rf create_bat@OBJ_SUFFIX@ create_bat@EXE_SUFFIX@ /tmp/$(PKG_NAME).tar.gz /tmp/$(PKG_NAME) $(TMPDIR)
+
+
+distclean: clean
+	rm gp-vars-iss.txt

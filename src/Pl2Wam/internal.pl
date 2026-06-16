@@ -6,7 +6,7 @@
  * Descr.: pass 2: internal format transformation                          *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -74,7 +74,12 @@
 internal_format(Head, Body, Head1, Body1, NbChunk, NbY) :-
 	format_head(Head, DicoVar, Head1),
 	format_body(Body, DicoVar, Body1, NbChunk),
-	classif_vars(DicoVar, 0, NbY).
+	(   g_read(native_code, t) ->
+	    StartY = 0
+	;
+	    StartY = 3 % reserve 3 words (see bc_supp.c)
+	),
+	classif_vars(DicoVar, StartY, NbY).
 
 
 
@@ -269,6 +274,18 @@ classif_vars([v(_, _, Singleton, var(VarName, _))|DicoVar], Y, NbY) :-
 classif_vars([v(_, _, _, var(y(Y), _))|DicoVar], Y, NbY) :-
 	Y1 is Y + 1,
 	classif_vars(DicoVar, Y1, NbY).
+
+
+
+
+          % can be considered as inline (neither CP nor X regs to save)
+
+not_dangerous_c_call([]).
+
+not_dangerous_c_call([COpt|LCOpt]) :-
+	COpt \== jump,
+	COpt \== use_x_regs,
+	not_dangerous_c_call(LCOpt).
 
 
 

@@ -6,7 +6,7 @@
  * Descr.: FD Range Implementation                                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -240,7 +241,7 @@ Pl_Vector_Next_After(Vector vec, int n)
 
       start = vec + word_no;
 
-      word = (bit_no == WORD_SIZE) ? 0 : *start & ~(((PlLong)1 << bit_no) - 1);
+      word = (bit_no >= WORD_SIZE) ? 0 : *start & ~(((PlLong)1 << bit_no) - 1);
     }
   else				/* n < 0 find first */
     {

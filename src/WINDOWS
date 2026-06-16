@@ -28,16 +28,21 @@ Installing and configuring MSYS2
 --------------------------------
 
 MSYS (www.msys2.org) provides a unix-like environment. Get MSYS2
-(https://www.msys2.org) and install it (in C:\msys64 which will be the
-root / of the msys filesystem).
+(https://www.msys2.org) and install it in C:\msys64 which will be
+the root / of the msys2 filesystem.
 
-MSYS consists of several environments:
-   msys        POSIX emulation (unix/cygwin) /usr/bin      using msys-2.0.dll
-   mingw32     32-bits i686   gcc toolchain  /mingw32/bin  using msvcrt.dll
-   mingw64     64-bits x86_64 gcc toolchain  /mingw64/bin  using msvcrt.dll
-   ucrt64      64-bits x86_64 gcc toolchain  /ucrt64/bin   using ucrt dlls
-   clang64     POSIX emulation + clang /clang64/bin  using msys-2.0.dll
-   clangarm64  ?
+MSYS consists of several environments.
+Read: https://www.msys2.org/docs/environments.
+
+           Name       Prefix   Toolchain   Arch.   C Library  C++ Library
+msys       MSYS       /usr        gcc      x86_64    cygwin    libstdc++
+ucrt64     UCRT64     /ucrt64     gcc      x86_64    ucrt      libstdc++
+clang64    CLANG64    /clang64    llvm     x86_64    ucrt      libc++
+clangarm64 CLANGARM64 /clangarm64 llvm     aarch64   ucrt      libc++
+mingw32    MINGW32    /mingw32    gcc      i686      msvcrt    libstdc++
+mingw64    MINGW64    /mingw64    gcc      x86_64    msvcrt    libstdc++
+
+NB: cygwin C library is provided by msys-2.0.dll
 
 Setting PATH correctly can give priority to some binaries.
 
@@ -102,43 +107,12 @@ Msys bash is controlled via some important env. variables:
    CHERE_INVOKING=1 define to stay in current directory
    (do not change to HOME directory).
 
-NB: the default terminal emulation (mintty) is designed for POSIX and does not
-work well to run native Windows console applications. Compiling GNU Prolog under
-mintty is OK but the execution of gprolog.exe has some troubles (this is not
-specific to gprolog and also occurs with gdb, the problem comes when launching a
-win32 console application under mintty, see github.com/mintty/mintty/issues/56).
-Here are alternatives (I personnaly use ConEmu - see alternative 3)
+   MSYS=winsymlinks:nativestrict to have a ln -s acting like windows mklink
 
-alternative 1: use msys2_shell.cmd with another terminal (see --help), e.g.
-   msys2_shell.cmd -mingw64 -defterm
-   msys2_shell.cmd -mingw64 -conemu (needs ConEmu installed - see below)
-   It is possible to modify the shortcuts in user' start menu directly.
-   Use -mingw32 or -msys to run other sub-systems.
-
-alternative 2: execute the following command from a Windows cmd terminal:
-   set MSYSTEM=MINGW64& C:\msys64\usr\bin\bash.exe --login -i
-   NB: do not put a space before the & (else a trailing space will be added to
-   the MSYSTEM environment variable).
-   Use MSYS or MINGW32 for other sub-systems.
-
-alternative 3: install and use ConEmu (conemu.github.io):
-   See https://superuser.com/questions/1024301/conemu-how-to-call-msys2-as-tab/1297072#1297072
-   define new tasks to start conEmu+bash with path on msys/mingw32/mingw64,.. e.g.:
-   
-   task {DD::msys}
-   set MSYSTEM=MSYS    & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\msys2.ico"
-
-   task {DD::mingw32}
-   set MSYSTEM=MINGW32 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw32.ico"   
-
-   task {DD::mingw64}
-   set MSYSTEM=MINGW64 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw64.ico"
-
-   task {DD::ucrt64}
-   set MSYSTEM=UCRT64 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\ucrt64.ico"
-
-   task {DD::clang64}
-   set MSYSTEM=CLANG64 & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\clang64.ico"
+Msys provides mintty as default terminal emulation (mintty). Previous versions had
+troubles with native Windows console applications (seems better now). ConEmu is an
+alternative. Windows Terminal is another viable alternative (generally already
+installed). Configure 6 new profiles.
 
 
 Compiling GNU Prolog with gcc
@@ -157,27 +131,40 @@ Compiling GNU Prolog with MSVC
 ------------------------------
 
 You need MSVC++. GNU Prolog has been tested with Microsoft Visual
-Studio 2022 Community v17.14.17 and the Microsoft SDK (including
+Studio 2026 Community (v18.2.1) and the Microsoft SDK (including
 Htmlhelp includes and library):
-https://visualstudio.microsoft.com/fr/vs/community/
+https://visualstudio.microsoft.com/en-us/vs/community/
 
 Once installed, you have to launch msys with the correct PATH, INCLUDE, LIB
-environment variables. There are two .bat files provided with the MS compiler
-e.g. vcvars32.bat and vcvars64.bat. Launch the appropriate .bat before lauching msys bash.
-Under ConEmu you can modify the tasks (described above) to include the call to
-vcvars32/64.bat as follows (NB: <Tomorrow> is a theme - can be omitted):
+environment variables. MSVC provides several command file, e.g. in
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build
+You can launch the appropriate .bat before lauching msys bash.
 
-task {DD::mingw32}
-set MSYSTEM=MINGW32 & set MSYS2_PATH_TYPE=inherit & call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars32.bat" & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw32.ico" "-new_console:P:^<Tomorrow^>"
 
-task {DD::mingw64}
-set MSYSTEM=MINGW64 & set MSYS2_PATH_TYPE=inherit & call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\mingw64.ico" "-new_console:P:^<Tomorrow^>"
+Command File		Host and Target architectures
 
-You can also create a third task to only compile wyth msys (POSIX emulation with gcc in /usr/bin/gcc):
+vcvars32.bat 		Use the 32-bit x86-native tools to build 32-bit x86 code.
+vcvars64.bat 		Use the 64-bit x64-native tools to build 64-bit x64 code.
+vcvarsx86_amd64.bat 	Use the 32-bit x86-native cross tools to build 64-bit x64 code.
+vcvarsamd64_x86.bat 	Use the 64-bit x64-native cross tools to build 32-bit x86 code.
+vcvarsx86_arm.bat 	Use the 32-bit x86-native cross tools to build ARM code.
+vcvarsamd64_arm.bat 	Use the 64-bit x64-native cross tools to build ARM code.
+vcvarsx86_arm64.bat 	Use the 32-bit x86-native cross tools to build ARM64 code.
+vcvarsamd64_arm64.bat 	Use the 64-bit x64-native cross tools to build ARM64 code.
+vcvarsall.bat 		Use parameters to specify the host and target architectures,
+			Windows SDK, and platform choices. For a list of supported options,
+			call by using a /help parameter.
 
-task {DD::msys}
-set MSYSTEM=MSYS & "c:\msys64\usr\bin\bash.exe" --login -i "-new_console:C:\msys64\msys2.ico" "-new_console:P:^<Tomorrow^>"
+All first .bat simply call vcvarsall.bat with corresponding parameters.
 
+
+MSVC also provides several command prompt shortcuts.
+See: https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-180
+Which mainly invoke cmd.exe with the corresponding .bat.
+You can run the adequate commant prompt (from Program Menu) and then run msys bash.
+
+
+MSVC also provides 
 NB: msys provides a /bin/link.exe command which can shadow the Microsoft
 linker (also called link.exe). If you encounter problem the simplest way to
 solve it is to rename /bin/link.exe of cygwin.

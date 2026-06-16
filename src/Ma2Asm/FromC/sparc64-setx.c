@@ -35,6 +35,7 @@ synthetize_setx(long value, char *dstreg)
      Compute that first, then output what we've decided upon.  */
  
   /* Only need hh22 if `or' insn can't handle constant.  */
+#include "gp_config.h"
   if (upper32 < -(1 << 12) || upper32 >= (1 << 12))
     need_hh22_p = 1;
 

@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : all_pl_bips.pl
+% file: all_pl_bips.pl
+% hash: 6c0bbbe840236440d5fa5e7de3345a6997111c22  all_pl_bips.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/all_pl_bips.pl').

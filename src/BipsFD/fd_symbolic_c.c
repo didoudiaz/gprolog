@@ -6,7 +6,7 @@
  * Descr.: symbolic constraints management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -61,8 +62,8 @@
  * Function Prototypes             *
  *---------------------------------*/
 
-static Bool Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
-				 WamWord save_list_word);
+static Bool Fd_All_Different_Rec(WamWord list_word, WamWord x_tag_mask,
+				 WamWord x_word, WamWord save_list_word);
 
 
 
@@ -107,7 +108,7 @@ Pl_Fd_All_Different_1(WamWord list_word, WamWord save_list_word)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 static Bool
-Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
+Fd_All_Different_Rec(WamWord list_word, WamWord x_tag_mask, WamWord x_word,
 		     WamWord save_list_word)
 {
   WamWord word, tag_mask;
@@ -132,7 +133,7 @@ Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
       tag_mask != TAG_FDV_MASK)
     Pl_Err_Type(pl_type_fd_variable, word);
 
-  if (x_tag == TAG_INT_MASK)
+  if (x_tag_mask == TAG_INT_MASK)
     ret = (tag_mask == TAG_INT_MASK) ? x_word != word :
              pl_x_neq_c(word, x_word);
   else
@@ -140,7 +141,7 @@ Fd_All_Different_Rec(WamWord list_word, PlLong x_tag, WamWord x_word,
              pl_x_neq_y(x_word, word);
 
   return ret &&
-    Fd_All_Different_Rec(Cdr(lst_adr), x_tag, x_word, save_list_word);
+    Fd_All_Different_Rec(Cdr(lst_adr), x_tag_mask, x_word, save_list_word);
 }
 
 
@@ -294,14 +295,14 @@ void
 Pl_Fd_Element_Var_V_To_I(Range *i, Range *v, WamWord **l)
 {
   WamWord *fdv_adr;
-  PlLong n;
+  int n;
   int j;
 
   Vector_Allocate(i->vec);
   Pl_Vector_Empty(i->vec);
   /* when V or L changes -> update I */
 
-  n = (PlLong) *l;
+  n = (int) (PlLong) (*l);
 
   for (j = 1; j <= n; j++)
     {
@@ -343,7 +344,7 @@ Pl_Fd_Atmost(int n, WamWord **array, int v)
 {
   WamWord **p;
   WamWord word = Tag_INT(v);
-  PlLong size = (PlLong) array[0];
+  int size = (int) (PlLong) array[0];
   int nb = 0;
   int i;
 
@@ -386,7 +387,7 @@ Bool
 Pl_Fd_Atleast(int n, WamWord **array, int v)
 {
   WamWord **p;
-  int size = (int) (PlLong) (array[0]);
+  int size = (int) (PlLong) array[0];
   int nb = size;
   int i;
 
@@ -431,7 +432,7 @@ Pl_Fd_Exactly(int n, WamWord **array, int v)
 {
   WamWord **p;
   WamWord word = Tag_INT(v);
-  int size = (int) (PlLong) (array[0]);
+  int size = (int) (PlLong) array[0];
   int nb1 = 0, nb2 = size;
   int i;
 

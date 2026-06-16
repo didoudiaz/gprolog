@@ -6,7 +6,7 @@
  * Descr.: W32 GUI Console                                                 *
  * Author: Jacob Navia and Daniel Diaz                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,27 +35,14 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h" /* only to know the value of WITH_HTMLHELP */
 
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <malloc.h>
-
-#include "../EnginePl/gp_config.h" /* only to know the value of WITH_HTMLHELP */
-#include "../EnginePl/pl_params.h" /* only to know the value of PROLOG_FILE_SUFFIX */
-#include "../EnginePl/set_locale.h"
-
-#include "w32gc_interf.h"          /* only to know Query_Stack() cmd constants */
-#include "../TopComp/prolog_path.c"
-
-#define GUI_VERSION   "1.1"
-
-#define ADDITIONAL_INFORMATION                    \
-  "Windows GUI Console version " GUI_VERSION "\n" \
-  "By Jacob Navia and Daniel Diaz\n\n"
-#include "../TopComp/copying.c"
-
 #include <windows.h>
+
 #include <windowsx.h>
 #include <commctrl.h>
 #include <richedit.h>
@@ -63,6 +50,23 @@
 #include <shellapi.h>
 
 #include "w32_resource.h"
+
+#include "../EnginePl/pl_params.h" /* only to know the value of PROLOG_FILE_SUFFIX */
+#include "../EnginePl/bool.h"
+#include "../EnginePl/pl_long.h"
+#include "../EnginePl/os_path.h"
+#include "../EnginePl/set_locale.h"
+
+#include "w32gc_interf.h"          /* only to know Query_Stack() cmd constants */
+#include "../EnginePl/win_registry.h" /* include before os_path.c which defines READ_REGISTRY_ONLY */
+
+#define GUI_VERSION   "1.2"
+
+#define ADDITIONAL_INFORMATION                    \
+  "Windows GUI Console version " GUI_VERSION "\n" \
+  "By Jacob Navia and Daniel Diaz\n\n"
+#include "../TopComp/copying.h"
+
 
 
 #ifdef _MSC_VER
@@ -1027,7 +1031,6 @@ StackSizesProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
       return 0;
 
     case WM_COMMAND:
-      // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
       switch (LOWORD(wParam))
         {
         case IDOK:
@@ -1478,11 +1481,11 @@ static int
 Get_CHM_Help_Path(char *path)
 {
   char *p;
-  int devel_mode;
+  Bool devel_mode;
 
   for (;;)
     {
-      if ((p = Get_Prolog_Path(NULL, &devel_mode)) != NULL)
+      if ((p = Pl_Get_Prolog_Path(NULL, &devel_mode)) != NULL)
         break;
 
       if ((p = Get_Selected_Directory("Select the GNU Prolog directory", 0)) == NULL)

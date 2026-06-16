@@ -6,7 +6,7 @@
  * Descr.: input/output from/to constant term management                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -118,23 +118,37 @@ print_to_codes(Codes, Term) :-
 
 
 
-write_term_to_atom(Atom, Term, Options) :-
+write_term_to_atom(_Atom, Term, Options) :-
 	set_bip_name(write_term_to_atom, 3),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Pl_Write_Term_To_Atom_2'(Atom, Term)).
+	'$call_c'('Pl_Write_Term_To_Atom_Before_1'(Term)),
+	fail.			% undo variable_names assignments
 
-write_term_to_chars(Chars, Term, Options) :-
+write_term_to_atom(Atom, _Term, _Options) :-
+	'$call_c'('Pl_Write_Term_To_Atom_After_1'(Atom)).
+
+
+write_term_to_chars(_Chars, Term, Options) :-
 	set_bip_name(write_term_to_chars, 3),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Pl_Write_Term_To_Chars_2'(Chars, Term)).
+	'$call_c'('Pl_Write_Term_To_Chars_Before_1'(Term)),
+	fail.			% undo variable_names assignments
 
-write_term_to_codes(Codes, Term, Options) :-
+write_term_to_chars(Chars, _Term, _Options) :-
+	'$call_c'('Pl_Write_Term_To_Chars_After_1'(Chars)).
+
+
+write_term_to_codes(_Codes, Term, Options) :-
 	set_bip_name(write_term_to_codes, 3),
 	'$set_write_defaults',
 	'$get_write_options'(Options),
-	'$call_c'('Pl_Write_Term_To_Codes_2'(Codes, Term)).
+	'$call_c'('Pl_Write_Term_To_Codes_Before_1'(Term)),
+	fail.			% undo variable_names assignments
+
+write_term_to_codes(Codes, _Term, _Options) :-
+	'$call_c'('Pl_Write_Term_To_Codes_After_1'(Codes)).
 
 
 

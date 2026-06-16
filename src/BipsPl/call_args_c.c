@@ -6,7 +6,7 @@
  * Descr.: meta call management - C part                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,9 +35,8 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 #include <string.h>
+#include "gp_config.h"
 
-
-#define OBJ_INIT Call_Args_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -76,8 +75,7 @@ Prolog_Prototype(CALL_INTERNAL, 2);
  * CALL_ARGS_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Call_Args_Initializer(void)
+PL_INITIALIZER(Call_Args_Initializer)
 {
   atom_call_with_args = Pl_Create_Atom("call_with_args");
   atom_call = Pl_Create_Atom("call");
@@ -135,15 +133,17 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
     }
 
 
-  /* arity = arity_clos + arity_rest */
-  /* the arity_clos args in the compound term   go in A(0)..A(arity_clos-1) */
-  /* the arity_rest args in A(1)..A(arity_rest) go in A(arity_clos)..A(arity-1) */
-
-  /* first copy the arity_rest args (to avoid the overwrite them copying closure args first) */
-  /* NB: if arity_clos == 0 then dst < src */
-  /*     if arity_clos == 1 then dst == src (optim) */
-  /*     if arity_clos >= 2 then dst > src */
-  /* we use memmove */
+  /* arity = arity_clos + arity_rest
+   * the arity_clos args in the compound term   go in A(0)..A(arity_clos-1)
+   * the arity_rest args in A(1)..A(arity_rest) go in A(arity_clos)..A(arity-1)
+   *
+   * first copy the arity_rest args
+   * (to avoid the overwrite them copying closure args first)
+   * NB: if arity_clos == 0 then dst < src
+   *     if arity_clos == 1 then dst == src (optim)
+   *     if arity_clos >= 2 then dst > src
+   * we use memmove
+   */
 
   if (arity_clos != 1)		/* optim: no copy needed when closure has 1 arg */
     memmove((void *) &A(arity_clos), &A(1), sizeof(WamWord) * arity_rest);
@@ -156,5 +156,5 @@ Pl_Call_Closure(int atom_bip, int arity_rest)
   if (pred->prop & MASK_PRED_NATIVE_CODE)	/* native code */
     return (WamCont) (pred->codep);
 
-  return Pl_BC_Emulate_Pred(func, pred->dyn);
+  return Pl_BC_Emulate_Pred(pred->dyn);
 }

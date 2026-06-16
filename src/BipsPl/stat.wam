@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : stat.pl
+% file: stat.pl
+% hash: 3c2ef90cc6de10b50515184873a04e906fc168eb  stat.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/stat.pl').
@@ -10,7 +11,7 @@ predicate('$use_stat'/0,41,static,private,monofile,built_in,[
 
 
 predicate(statistics/0,44,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,0]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[statistics,0]),
     call_c('Pl_Statistics_0',[],[]),
     proceed]).
 
@@ -22,7 +23,7 @@ predicate(statistics/2,49,static,private,monofile,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[statistics,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[statistics,2]),
     put_value(y(0),0),
     call('$check_stat_key'/1),
     cut(y(2)),
@@ -273,24 +274,24 @@ label(5),
 
 
 predicate(user_time/1,125,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[user_time,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[user_time,1]),
     call_c('Pl_User_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(system_time/1,132,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[system_time,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[system_time,1]),
     call_c('Pl_System_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(cpu_time/1,139,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[cpu_time,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[cpu_time,1]),
     call_c('Pl_Cpu_Time_1',[boolean],[x(0)]),
     proceed]).
 
 
 predicate(real_time/1,146,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[real_time,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[real_time,1]),
     call_c('Pl_Real_Time_1',[boolean],[x(0)]),
     proceed]).

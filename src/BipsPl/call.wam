@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : call.pl
+% file: call.pl
+% hash: e631089f90de1fea52a9d07c4e3c19e1d0513c95  call.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/call.pl').
@@ -49,7 +50,7 @@ predicate(call_det/2,60,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call_det,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[call_det,2]),
     put_value(y(1),0),
     call('$call_det/2_$aux1'/1),
     put_value(y(0),0),
@@ -101,7 +102,7 @@ predicate('$$call_det/2_$aux1'/3,70,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -131,7 +132,7 @@ label(1),
 
 label(2),
     trust_me_else_fail,
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call_nth,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[call_nth,2]),
     put_atom(integer,0),
     execute('$pl_err_type'/2)]).
 
@@ -142,7 +143,7 @@ predicate('$call_nth_int'/2,97,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>,2]),
     math_load_value(x(1),2),
     put_integer(0,3),
     call_c('Pl_Blt_Gt',[fast_call,boolean],[x(2),x(3)]),
@@ -154,12 +155,12 @@ predicate('$call_nth_int'/2,97,static,private,monofile,built_in,[
 
 label(1),
     trust_me_else_fail,
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[<,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[<,2]),
     math_load_value(x(1),0),
     put_integer(0,3),
     call_c('Pl_Blt_Lt',[fast_call,boolean],[x(0),x(3)]),
     cut(x(2)),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[call_nth,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[call_nth,2]),
     put_atom(not_less_than_zero,0),
     execute('$pl_err_domain'/2)]).
 
@@ -184,7 +185,7 @@ predicate('$call_nth_exec'/2,126,static,private,monofile,built_in,[
 predicate(countall/2,167,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[countall,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[countall,2]),
     put_value(y(0),1),
     call_c('Pl_Check_For_Un_Positive',[],[x(1)]),
     put_variable(y(1),1),
@@ -629,7 +630,7 @@ predicate('$prop_meta_pred'/3,44,static,private,multifile,local,[
 
 
 directive(44,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(once),
     unify_integer(1),
@@ -640,7 +641,7 @@ directive(44,system,[
 
 
 directive(50,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux3'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(\+),
     unify_integer(1),
@@ -651,7 +652,7 @@ directive(50,system,[
 
 
 directive(58,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux4'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_det),
     unify_integer(2),
@@ -663,7 +664,7 @@ directive(58,system,[
 
 
 directive(82,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux5',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux5'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(call_nth),
     unify_integer(2),
@@ -675,7 +676,7 @@ directive(82,system,[
 
 
 directive(165,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux6',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux6'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(countall),
     unify_integer(2),
@@ -687,7 +688,7 @@ directive(165,system,[
 
 
 directive(295,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux7',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux7'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(forall),
     unify_integer(2),

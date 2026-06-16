@@ -6,7 +6,7 @@
  * Descr.: predicate table management                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -88,7 +89,7 @@ Pl_Init_Pred(void)
 
 #endif
 
-  pl_pred_tbl = Pl_Hash_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
+  pl_pred_htbl = Pl_HTBL_Alloc_Table(START_PRED_TBL_SIZE, sizeof(PredInf));
 
 /* The following control constructs are defined as predicates ONLY to:
  *
@@ -131,7 +132,7 @@ Pl_Init_Pred(void)
  * byte-code support.                                                      *
  *-------------------------------------------------------------------------*/
 PredInf * FC
-Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop, PlLong *codep)
+Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop, CodePtr codep)
 {
   PredInf pred_info;
   PredInf *pred;
@@ -152,8 +153,8 @@ Pl_Create_Pred(int func, int arity, int pl_file, int pl_line, int prop, PlLong *
   pred_info.codep = codep;
   pred_info.dyn = NULL;
 
-  Pl_Extend_Table_If_Needed(&pl_pred_tbl);
-  pred = (PredInf *) Pl_Hash_Insert(pl_pred_tbl, (char *) &pred_info, FALSE);
+  Pl_Extend_HTBL_If_Needed(&pl_pred_htbl);
+  pred = (PredInf *) Pl_HTBL_Insert(pl_pred_htbl, (char *) &pred_info, FALSE);
 
   if (prop != pred->prop)	/* predicate exists - occurs for multifile pred */
     {
@@ -182,7 +183,7 @@ Pl_Lookup_Pred(int func, int arity)
 {
   PlLong key = Functor_Arity(func, arity);
 
-  return (PredInf *) Pl_Hash_Find(pl_pred_tbl, key);
+  return (PredInf *) Pl_HTBL_Find(pl_pred_htbl, key);
 }
 
 
@@ -197,5 +198,5 @@ Pl_Delete_Pred(int func, int arity)
 {
   PlLong key = Functor_Arity(func, arity);
 
-  Pl_Hash_Delete(pl_pred_tbl, key);
+  Pl_HTBL_Delete(pl_pred_htbl, key);
 }

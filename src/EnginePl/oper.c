@@ -6,7 +6,7 @@
  * Descr.: operator table management                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,7 +90,7 @@
 void
 Pl_Init_Oper(void)
 {
-  pl_oper_tbl = Pl_Hash_Alloc_Table(START_OPER_TBL_SIZE, sizeof(OperInf));
+  pl_oper_htbl = Pl_HTBL_Alloc_Table(START_OPER_TBL_SIZE, sizeof(OperInf));
 
   ADD_OPER(1200, XFX, ":-");
   ADD_OPER(1200, XFX, "-->");
@@ -195,14 +196,14 @@ Pl_Create_Oper(int atom_op, int type, int prec, int left, int right)
   OperInf *oper;
 
 
-  Pl_Extend_Table_If_Needed(&pl_oper_tbl);
+  Pl_Extend_HTBL_If_Needed(&pl_oper_htbl);
 
   oper_info.a_t = Make_Oper_Key(atom_op, type);
   oper_info.prec = prec;
   oper_info.left = left;
   oper_info.right = right;
 
-  oper = (OperInf *) Pl_Hash_Insert(pl_oper_tbl, (char *) &oper_info, TRUE);
+  oper = (OperInf *) Pl_HTBL_Insert(pl_oper_htbl, (char *) &oper_info, TRUE);
 
   pl_atom_tbl[atom_op].prop.op_mask |= Make_Op_Mask(type);
 
@@ -222,7 +223,7 @@ Pl_Lookup_Oper(int atom_op, int type)
   if (!Check_Oper(atom_op, type))
     return NULL;
 
-  return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, type));
+  return (OperInf *) Pl_HTBL_Find(pl_oper_htbl, Make_Oper_Key(atom_op, type));
 }
 
 
@@ -238,13 +239,13 @@ Pl_Lookup_Oper_Any_Type(int atom_op)
   int op_mask = pl_atom_tbl[atom_op].prop.op_mask;
 
   if (op_mask & Make_Op_Mask(PREFIX))
-    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, PREFIX));
+    return (OperInf *) Pl_HTBL_Find(pl_oper_htbl, Make_Oper_Key(atom_op, PREFIX));
 
   if (op_mask & Make_Op_Mask(INFIX))
-    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, INFIX));
+    return (OperInf *) Pl_HTBL_Find(pl_oper_htbl, Make_Oper_Key(atom_op, INFIX));
 
   if (op_mask & Make_Op_Mask(POSTFIX))
-    return (OperInf *) Pl_Hash_Find(pl_oper_tbl, Make_Oper_Key(atom_op, POSTFIX));
+    return (OperInf *) Pl_HTBL_Find(pl_oper_htbl, Make_Oper_Key(atom_op, POSTFIX));
 
   return NULL;
 }
@@ -263,5 +264,5 @@ Pl_Delete_Oper(int atom_op, int type)
 
   pl_atom_tbl[atom_op].prop.op_mask &= ~Make_Op_Mask(type);
 
-  return (OperInf *) Pl_Hash_Delete(pl_oper_tbl, key);
+  return (OperInf *) Pl_HTBL_Delete(pl_oper_htbl, key);
 }

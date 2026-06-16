@@ -2,26 +2,28 @@ LIB_LINEDIT          = @LIB_LINEDIT@
 CC                   = @CC@ @CFLAGS_MACHINE@
 CFLAGS               = @CFLAGS@
 CFLAGS_UNSIGNED_CHAR = @CFLAGS_UNSIGNED_CHAR@
+LDFLAGS              = @LDFLAGS@
 LDLIBS               = @LDLIBS@
 AR_RC                = @AR_RC@
 RANLIB               = @RANLIB@
 
-LIBNAME = $(LIB_LINEDIT)
-OBJLIB  = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@ completion@OBJ_SUFFIX@ ../Tools/rbtree@OBJ_SUFFIX@
+LIB_NAME = $(LIB_LINEDIT)
+LIB_OBJS = linedit@OBJ_SUFFIX@ terminal@OBJ_SUFFIX@ ctrl_c@OBJ_SUFFIX@ \
+           completion@OBJ_SUFFIX@ ../Tools/rbtree@OBJ_SUFFIX@
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
 
-all: $(LIBNAME)
+all: $(LIB_NAME)
 
 .c@OBJ_SUFFIX@:
 	$(CC) -c $(CFLAGS) $(CFLAGS_UNSIGNED_CHAR) $*.c
 
 
-$(LIBNAME): $(OBJLIB)
-	rm -f $(LIBNAME)
-	$(AR_RC)@AR_SEP@$(LIBNAME) $(OBJLIB)
-	$(RANLIB) $(LIBNAME)
+$(LIB_NAME): $(LIB_OBJS)
+	rm -f $(LIB_NAME)
+	$(AR_RC)@AR_SEP@$(LIB_NAME) $(LIB_OBJS)
+	$(RANLIB) $(LIB_NAME)
 
 
 terminal@OBJ_SUFFIX@: terminal.h
@@ -35,7 +37,7 @@ completion@OBJ_SUFFIX@: completion.h ../Tools/map_rbtree.h
 
 
 clean:
-	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIBNAME)
+	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp $(LIB_NAME)
 
 
 distclean: clean clean-test
@@ -50,16 +52,16 @@ distclean: clean clean-test
 W32LNK=..\W32GUICons\w32gc_interf@OBJ_SUFFIX@
 # /link /subsystem:windows  (remove the console, obsolete now)
 
-test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIBNAME)
+test_linedit@EXE_SUFFIX@: test_linedit@OBJ_SUFFIX@ $(LIB_NAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@test_linedit@EXE_SUFFIX@ test_linedit@OBJ_SUFFIX@ $(LIB_NAME) $(LDLIBS) $$W
 
-test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIBNAME)
+test_noecho@EXE_SUFFIX@: test_noecho@OBJ_SUFFIX@ $(LIB_NAME)
 	if [ "$$W" != "Y" ]; then W=''; else W="$(W32LNK)"; fi; \
-	$(CC) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIBNAME) $(LDLIBS) $$W
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@test_noecho@EXE_SUFFIX@ test_noecho@OBJ_SUFFIX@ $(LIB_NAME) $(LDLIBS) $$W
 
 test_completion@EXE_SUFFIX@: completion.c ../Tools/rbtree@OBJ_SUFFIX@
-	$(CC) @CC_EXE_NAME_OPT@test_completion@EXE_SUFFIX@ completion.c -DUSE_ALONE ../Tools/rbtree@OBJ_SUFFIX@
+	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@test_completion@EXE_SUFFIX@ completion.c -DUSE_ALONE ../Tools/rbtree@OBJ_SUFFIX@
 
 
 clean-test:

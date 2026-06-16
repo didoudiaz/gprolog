@@ -3,6 +3,8 @@
 
 The procedure is standard and detailed in ../INSTALL file.
 
+Install homebrew for arm64. Prefix is /opt/homebrew (see below for both arm64 and x86_64).
+
 Under MacOS, by default, gcc is a shorthand for clang (both compilers
 are widely compatible).
 
@@ -30,3 +32,100 @@ forget to pass -c) with:
 
 CC=gcc-12 AS='gcc-12 -c' ./configure
 
+
+To compile for x86_64 under arm64
+---------------------------------
+
+/usr/bin/arch -x86_64 /bin/bash --login
+then ./configure
+will compile with clang in x86_64 mode
+
+Alternatively try (after /usr/bin/arch -x86_64 /bin/bash --login)
+./configure --with-c-flags='-g -Wall -arch x86_64'
+
+To install a x86_64 toolchain, install homebrew for x86_64. Prefix is /usr/local
+/usr/bin/arch -x86_64 /bin/bash --login
+sudo chown -R $(whoami) /usr/local/share/zsh/site-functions
+sudo chown -R $(whoami) /usr/local/share/zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+See explanations here: https://github.com/orgs/Homebrew/discussions/3223
+https://github.com/orgs/Homebrew/discussions/3227
+
+It appears that brew test arch and works properly once
+/usr/bin/arch -x86_64 /bin/bash --login
+else it is always possible to set PATH properly:
+
+    eval "$(/opt/homebrew/bin/brew shellenv)" makes ARM Homebrew the default
+    eval "$(/usr/local/bin/brew shellenv)" makes x86 Homebrew the default
+
+
+Install what is needed:
+brew install gcc gdb make pkg-config
+
+NB: gdb needs codesign + entitlement
+1) create a certificate
+start Keychain Access
+menu Keychain Access | Certificate Assistant | Create a Certificate...
+Call it gdb-cert
+Set "Identity Type" to "Self Signed Root"
+Set "Certificate Type" to "Code Signing"
+Activate the "Let me override defaults" option
+Click several times on "Continue" until the 
+"Specify a Location For The Certificate" screen appears, 
+then set "Keychain" to "System"
+Click on "Continue" until the certificate is created
+Finally, in the view, double-click on the new certificate, 
+and set "When using this certificate" to "Always Trust"
+
+Chec you see it with:
+$ security find-identity -v -p codesigning
+
+Exit the Keychain Access application and restart the computer 
+(or sudo killall taskgated may do the trick).
+
+2) create entitlements plist file
+Create the entitlements plist file (for macOS 10.14 and newer)
+
+Call it ~/gdb-entitlement.xml as:
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.cs.disable-executable-page-protection</key>
+    <true/>
+    <key>com.apple.security.cs.debugger</key>
+    <true/>
+    <key>com.apple.security.get-task-allow</key>
+    <true/>
+</dict>
+</plist>
+
+3) Codesign and entitle the GDB executable
+codesign -f -s gdb-cert --entitlements ~/gdb-entitlement.xml `which gdb`
+
+4) check
+
+codesign -vv `which gdb`
+
+NB: we can do it for both arm64 and x86_64 versions with same certificate and entitlements
+
+NB: tried gdb 17.1: does not yet work well
+
+NB: binutils is keg-only, which means it was not symlinked into /usr/local,
+because it shadows the host toolchain.
+
+If you need to have binutils first in your PATH, run:
+  echo 'export PATH="/usr/local/opt/binutils/bin:$PATH"' >> /Users/diaz/.bash_profile
+
+For compilers to find binutils you may need to set:
+  export LDFLAGS="-L/usr/local/opt/binutils/lib"

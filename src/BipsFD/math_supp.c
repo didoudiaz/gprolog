@@ -6,7 +6,7 @@
  * Descr.: mathematical support                                            *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,11 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
-#define OBJ_INIT Math_Supp_Initializer
 
 #define MATH_SUPP_FILE
 
@@ -168,10 +167,10 @@ static Bool sort;
 
 static Bool Load_Left_Right_Rec(Bool optim_eq,
 				WamWord le_word, WamWord re_word,
-				int *mask, WamWord *c_word,
+				int *mask, PlLong *c,
 				WamWord *l_word, WamWord *r_word);
 
-static int Compar_Monom(Monom *m1, Monom *m2);
+static int Compar_Monom(const void *p1, const void *p2);
 
 static Bool Load_Term_Into_Word(WamWord e_word, WamWord *load_word);
 
@@ -215,8 +214,7 @@ void Pl_Write_1(WamWord term_word);
  * MATH_SUPP_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Math_Supp_Initializer(void)
+PL_INITIALIZER(Math_Supp_Initializer)
 {
   arith_tbl[PLUS_1] = Functor_Arity(ATOM_CHAR('+'), 1);
   arith_tbl[PLUS_2] = Functor_Arity(ATOM_CHAR('+'), 2);
@@ -255,7 +253,7 @@ Math_Supp_Initializer(void)
  *-------------------------------------------------------------------------*/
 Bool
 Pl_Load_Left_Right(Bool optim_eq, WamWord le_word, WamWord re_word,
-		int *mask, PlLong *c, WamWord *l_word, WamWord *r_word)
+		   int *mask, PlLong *c, WamWord *l_word, WamWord *r_word)
 {
 #ifdef DEBUG
   DBGPRINTF("\n*** Math constraint : ");
@@ -339,8 +337,7 @@ Load_Left_Right_Rec(Bool optim_eq, WamWord le_word, WamWord re_word,
 
   if (sort || p.nb_monom > MAX_MONOMS / 2)
     {
-      qsort(p.m, p.nb_monom, sizeof(Monom),
-	    (int (*)(const void *, const void *)) Compar_Monom);
+      qsort(p.m, p.nb_monom, sizeof(Monom), Compar_Monom);
 
       for (i = 0; i < p.nb_monom; i++)	/* find left monomial terms */
 	if (p.m[i].a <= 0)
@@ -556,8 +553,10 @@ Load_Term_Into_Word(WamWord e_word, WamWord *load_word)
  * null coefficients                                                       *
  *-------------------------------------------------------------------------*/
 static int
-Compar_Monom(Monom *m1, Monom *m2)
+Compar_Monom(const void *p1, const void *p2)
 {
+  Monom *m1 = (Monom *) p1;
+  Monom *m2 = (Monom *) p2;
   PlLong cmp;
 
   if (m1->a > 0)

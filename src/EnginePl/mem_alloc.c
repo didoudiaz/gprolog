@@ -6,7 +6,7 @@
  * Descr.: customized memory allocator                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include "gp_config.h"
 
 
@@ -44,7 +43,7 @@
  * inserting an appropriate file.                                          *
  *-------------------------------------------------------------------------*/
 
-/* this is no longer used for linux, see mallopt initial call in machine.c */
+/* this is no longer used for linux, see mallopt initialiazation*/
 
 #if 0 && defined(M_linux)
 

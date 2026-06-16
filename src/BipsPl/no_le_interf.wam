@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : no_le_interf.pl
+% file: no_le_interf.pl
+% hash: bec2dc0689b45dbe191710c4d2361b23ec5ba911  no_le_interf.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/no_le_interf.pl').

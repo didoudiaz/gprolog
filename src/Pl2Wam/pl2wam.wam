@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : pl2wam.pl
+% file: pl2wam.pl
+% hash: 677606cf220a3314e9b49ebab5a1aeeb76980105  pl2wam.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/pl2wam.pl').
@@ -47,6 +48,7 @@ predicate(pl2wam1/1,50,static,private,monofile,global,[
     put_value(y(4),0),
     call(compile_msg_start/1),
     call(init_counters/0),
+    call(randomize/0),
     put_value(y(2),0),
     put_value(y(4),1),
     call(emit_code_init/2),
@@ -106,7 +108,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate(compile_list_include/1,73,static,private,monofile,global,[
+predicate(compile_list_include/1,74,static,private,monofile,global,[
     try_me_else(1),
     allocate(1),
     put_value(x(0),1),
@@ -121,7 +123,7 @@ label(1),
     proceed]).
 
 
-predicate(compile_and_emit_file/1,83,static,private,monofile,global,[
+predicate(compile_and_emit_file/1,84,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(5),
@@ -147,7 +149,7 @@ predicate(compile_and_emit_file/1,83,static,private,monofile,global,[
     execute('$compile_and_emit_file/1_$aux1'/5)]).
 
 
-predicate('$compile_and_emit_file/1_$aux1'/5,83,static,private,monofile,local,[
+predicate('$compile_and_emit_file/1_$aux1'/5,84,static,private,monofile,local,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -173,7 +175,7 @@ label(1),
     fail]).
 
 
-predicate(compile_and_emit_pred/4,100,static,private,monofile,global,[
+predicate(compile_and_emit_pred/4,101,static,private,monofile,global,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -244,7 +246,7 @@ label(5),
     execute(add_counter/2)]).
 
 
-predicate(compile_emit_inits/5,117,static,private,monofile,global,[
+predicate(compile_emit_inits/5,118,static,private,monofile,global,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -281,7 +283,7 @@ predicate(compile_emit_inits/5,117,static,private,monofile,global,[
     execute(syntactic_sugar_init_pred/3)]).
 
 
-predicate(compile_lst_clause/2,127,static,private,monofile,global,[
+predicate(compile_lst_clause/2,128,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -314,7 +316,7 @@ label(4),
     execute(compile_lst_clause/2)]).
 
 
-predicate(compile_clause/3,136,static,private,monofile,global,[
+predicate(compile_clause/3,137,static,private,monofile,global,[
     allocate(8),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -362,7 +364,7 @@ predicate(compile_clause/3,136,static,private,monofile,global,[
     execute(add_counter/2)]).
 
 
-predicate(bc_compile_lst_clause/2,152,static,private,monofile,global,[
+predicate(bc_compile_lst_clause/2,153,static,private,monofile,global,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -398,7 +400,7 @@ label(4),
     execute(bc_compile_lst_clause/2)]).
 
 
-predicate(compile_msg_start/1,161,static,private,monofile,global,[
+predicate(compile_msg_start/1,162,static,private,monofile,global,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -425,7 +427,7 @@ label(1),
     execute(flush_output/0)]).
 
 
-predicate('$compile_msg_start/1_$aux1'/1,164,static,private,monofile,local,[
+predicate('$compile_msg_start/1_$aux1'/1,165,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -442,7 +444,7 @@ label(1),
     proceed]).
 
 
-predicate(compile_msg_end/5,175,static,private,monofile,global,[
+predicate(compile_msg_end/5,176,static,private,monofile,global,[
     pragma_arity(6),
     get_current_choice(x(5)),
     try_me_else(1),
@@ -474,7 +476,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cur_pred/2,185,static,private,monofile,global,[
+predicate(cur_pred/2,186,static,private,monofile,global,[
     put_atom(cur_func,2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(2),x(0)]),
     put_atom(cur_arity,0),
@@ -482,7 +484,7 @@ predicate(cur_pred/2,185,static,private,monofile,global,[
     proceed]).
 
 
-predicate(cur_pred_without_aux/2,190,static,private,monofile,global,[
+predicate(cur_pred_without_aux/2,191,static,private,monofile,global,[
     allocate(4),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -497,7 +499,7 @@ predicate(cur_pred_without_aux/2,190,static,private,monofile,global,[
     execute('$pred_without_aux'/4)]).
 
 
-predicate(init_counters/0,197,static,private,monofile,global,[
+predicate(init_counters/0,198,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -562,7 +564,7 @@ label(1),
     execute(last_times/2)]).
 
 
-predicate(add_counter/2,222,static,private,monofile,global,[
+predicate(add_counter/2,223,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -600,7 +602,7 @@ label(1),
     proceed]).
 
 
-predicate(last_times/2,237,static,private,monofile,global,[
+predicate(last_times/2,238,static,private,monofile,global,[
     allocate(1),
     get_variable(y(0),0),
     get_variable(x(0),1),
@@ -621,7 +623,7 @@ predicate(last_times/2,237,static,private,monofile,global,[
     execute(statistics/2)]).
 
 
-predicate(display_counters/0,244,static,private,monofile,global,[
+predicate(display_counters/0,245,static,private,monofile,global,[
     pragma_arity(1),
     get_current_choice(x(0)),
     try_me_else(1),
@@ -802,7 +804,7 @@ label(1),
     execute(format/2)]).
 
 
-predicate(cmd_line_args/4,287,static,private,monofile,global,[
+predicate(cmd_line_args/4,288,static,private,monofile,global,[
     allocate(2),
     get_variable(y(0),1),
     get_variable(y(1),2),
@@ -816,7 +818,7 @@ predicate(cmd_line_args/4,287,static,private,monofile,global,[
     put_atom(t,2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_atom(wam_comment,1),
-    put_atom('',2),
+    put_nil(2),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(1),x(2)]),
     put_atom(susp_warn,1),
     put_atom(t,2),
@@ -874,7 +876,7 @@ predicate(cmd_line_args/4,287,static,private,monofile,global,[
     proceed]).
 
 
-predicate('$cmd_line_args/4_$aux1'/1,287,static,private,monofile,local,[
+predicate('$cmd_line_args/4_$aux1'/1,288,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -892,7 +894,7 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_args/2,318,static,private,monofile,global,[
+predicate(cmd_line_args/2,319,static,private,monofile,global,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(1,2,fail,4,fail),
@@ -933,7 +935,7 @@ label(4),
     execute(cmd_line_args/2)]).
 
 
-predicate('$cmd_line_args/2_$aux1'/3,320,static,private,monofile,local,[
+predicate('$cmd_line_args/2_$aux1'/3,321,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -951,7 +953,7 @@ label(1),
     proceed]).
 
 
-predicate(cmd_line_arg1/3,331,static,private,monofile,global,[
+predicate(cmd_line_arg1/3,332,static,private,monofile,global,[
     try_me_else(54),
     switch_on_term(2,1,fail,fail,fail),
 
@@ -1060,9 +1062,15 @@ label(18),
 label(19),
     get_atom('--wam-comment',0),
     get_list(1),
-    unify_variable(x(1)),
+    unify_variable(x(3)),
     unify_local_value(x(2)),
     put_atom(wam_comment,0),
+    put_variable(x(2),1),
+    call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(0),x(1)]),
+    put_atom(wam_comment,0),
+    put_list(1),
+    unify_value(x(3)),
+    unify_value(x(2)),
     call_c('Pl_Blt_G_Assign',[fast_call],[x(0),x(1)]),
     proceed,
 
@@ -1281,7 +1289,7 @@ label(55),
     proceed]).
 
 
-predicate('$cmd_line_arg1/3_$aux4'/1,438,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux4'/1,440,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1301,7 +1309,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux3'/0,422,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux3'/0,424,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     put_variable(y(0),0),
@@ -1322,7 +1330,7 @@ label(1),
     execute(stop/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux2'/1,334,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux2'/1,335,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1342,7 +1350,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate('$cmd_line_arg1/3_$aux1'/3,334,static,private,monofile,local,[
+predicate('$cmd_line_arg1/3_$aux1'/3,335,static,private,monofile,local,[
     try_me_else(1),
     allocate(1),
     get_list(0),
@@ -1370,7 +1378,7 @@ label(1),
     execute(abandon_exec/0)]).
 
 
-predicate(display_copying/0,452,static,private,monofile,global,[
+predicate(display_copying/0,454,static,private,monofile,global,[
     allocate(3),
     put_variable(y(0),0),
     call(prolog_name/1),
@@ -1411,35 +1419,35 @@ predicate(display_copying/0,452,static,private,monofile,global,[
     execute(format/2)]).
 
 
-predicate(prolog_name/1,468,static,private,monofile,global,[
+predicate(prolog_name/1,470,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_name,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_version/1,471,static,private,monofile,global,[
+predicate(prolog_version/1,473,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_version,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_date/1,474,static,private,monofile,global,[
+predicate(prolog_date/1,476,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_date,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(prolog_copyright/1,477,static,private,monofile,global,[
+predicate(prolog_copyright/1,479,static,private,monofile,global,[
     put_value(x(0),1),
     put_atom(prolog_copyright,0),
     execute(current_prolog_flag/2)]).
 
 
-predicate(h/1,485,static,private,monofile,global,[
+predicate(h/1,487,static,private,monofile,global,[
     switch_on_term(3,1,fail,fail,fail),
 
 label(1),
-    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  -i FILE, --include FILE     include FILE at the beginning of the compilation',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
+    switch_on_atom([('Usage: pl2wam [OPTION...] FILE',4),('',2),('Options:',8),('  -o FILE, --output FILE      set output file name',10),('  -W, --wam-for-native        produce a WAM file for native code',12),('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)',14),('  -i FILE, --include FILE     include FILE at the beginning of the compilation',16),('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file (can be repeated)',18),('  --no-susp-warn              do not show warnings for suspicious predicates',20),('  --no-singl-warn             do not show warnings for named singleton variables',22),('  --no-redef-error            do not show errors for built-in redefinitions',24),('  --foreign-only              only compile foreign/1-2 directives',26),('  --no-call-c                 do not allow the use of fd_tell, ''$call_c'',...',28),('  --no-inline                 do not inline predicates',30),('  --no-reorder                do not reorder predicate arguments',32),('  --no-reg-opt                do not optimize registers',34),('  --min-reg-opt               minimally optimize registers',36),('  --no-opt-last-subterm       do not optimize last subterm compilation',38),('  --fast-math                 fast mathematical mode (assume integer arithmetics)',40),('  --keep-void-inst            keep void instructions in the output file',42),('  --compile-msg               print a compile message',44),('  --statistics                print statistics information',46),('  --help                      print this help and exit',48),('  --version                   print version number and exit',50),('''user'' can be given as FILE for the standard input/output',54)]),
 
 label(2),
     try(6),
@@ -1498,7 +1506,7 @@ label(17),
     retry_me_else(19),
 
 label(18),
-    get_atom('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file',0),
+    get_atom('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file (can be repeated)',0),
     proceed,
 
 label(19),
@@ -1628,7 +1636,7 @@ label(54),
     proceed]).
 
 
-predicate(go/0,517,static,private,monofile,global,[
+predicate(go/0,519,static,private,monofile,global,[
     allocate(1),
     put_variable(y(0),0),
     call(argument_list/1),
@@ -1637,5 +1645,5 @@ predicate(go/0,517,static,private,monofile,global,[
     execute(pl2wam/1)]).
 
 
-directive(521,user,[
+directive(523,user,[
     execute(go/0)]).

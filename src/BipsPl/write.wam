@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : write.pl
+% file: write.pl
+% hash: b0f2a4ba07c0e7489e5247337d0d510a13cfd547  write.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/write.pl').
@@ -10,49 +11,49 @@ predicate('$use_write'/0,41,static,private,monofile,built_in,[
 
 
 predicate(write/1,49,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write,1]),
     call_c('Pl_Write_1',[],[x(0)]),
     proceed]).
 
 
 predicate(write/2,53,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write,2]),
     call_c('Pl_Write_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(writeq/1,60,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[writeq,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[writeq,1]),
     call_c('Pl_Writeq_1',[],[x(0)]),
     proceed]).
 
 
 predicate(writeq/2,64,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[writeq,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[writeq,2]),
     call_c('Pl_Writeq_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(write_canonical/1,71,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_canonical,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write_canonical,1]),
     call_c('Pl_Write_Canonical_1',[],[x(0)]),
     proceed]).
 
 
 predicate(write_canonical/2,75,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_canonical,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write_canonical,2]),
     call_c('Pl_Write_Canonical_2',[],[x(0),x(1)]),
     proceed]).
 
 
 predicate(display/1,82,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[display,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[display,1]),
     call_c('Pl_Display_1',[],[x(0)]),
     proceed]).
 
 
 predicate(display/2,86,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[display,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[display,2]),
     call_c('Pl_Display_2',[],[x(0),x(1)]),
     proceed]).
 
@@ -61,7 +62,7 @@ predicate(write_term/2,111,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(1),
     get_variable(y(0),0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_term,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write_term,2]),
     put_value(x(1),0),
     call('$get_write_options'/1),
     put_value(y(0),0),
@@ -78,7 +79,7 @@ predicate(write_term/3,120,static,private,monofile,built_in,[
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_term,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write_term,3]),
     put_value(x(2),0),
     call('$get_write_options'/1),
     put_value(y(0),0),
@@ -338,7 +339,7 @@ label(20),
     call('$check_nonvar'/1),
     put_value(y(0),0),
     call_c('Pl_Blt_Integer',[fast_call,boolean],[x(0)]),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>=,2]),
     math_load_value(y(0),0),
     put_integer(0,1),
     call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
@@ -583,12 +584,12 @@ predicate('$is_valid_var_name'/1,260,static,private,monofile,built_in,[
 
 
 predicate(nl/0,265,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,0]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[nl,0]),
     call_c('Pl_Nl_0',[],[]),
     proceed]).
 
 
 predicate(nl/1,269,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[nl,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[nl,1]),
     call_c('Pl_Nl_1',[],[x(0)]),
     proceed]).

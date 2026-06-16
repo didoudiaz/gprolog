@@ -6,7 +6,7 @@
  * Descr.: translation file for AMD x86-64                                 *
  * Author: Gwenole Beauchesne, Ozaki Kiichi and Daniel Diaz                *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz and Gwenole Beauchesne              *
+ * Copyright (C) 1999-2026 Daniel Diaz and Gwenole Beauchesne              *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -42,26 +42,18 @@
 
 
 
-/* Supported arch: x86_64 (64 bits) on Linux, BSD, Darwin (MacOS)
+/*
+ * Supported arch: x86_64 (64 bits) on Linux, BSD, Darwin (MacOS)
  *                 Solaris, MinGW, Cygwin, Windows
+ *
+ * NB: x86_64/darwin needs a reg for pl_reg_bank
+ * In practive MAP_REG_BANK is always defined (see M_TRAMPOLINE_REG_BANK)
  */
 
-
-
-
-/* x86_64/darwin needs a reg for pl_reg_bank (default is r12 see engine1.c)
- * so NO_MACHINE_REG_FOR_REG_BANK is never set (see machine.h). Else this 
- * error occurs '32-bit absolute addressing is not supported for x86-64'
- * On x86_64/linux, NO_MACHINE_REG_FOR_REG_BANK should work but can be 
- * easily undone in machine.h if problem occurs without register for pl_reg_bank
- */
-
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK		/* should not occurs (see machine_regs.h) */
 #define ASM_REG_BANK "pl_reg_bank(%rip)"
-#elif defined(MAP_REG_BANK)
-#define ASM_REG_BANK "%" MAP_REG_BANK
 #else
-#define ASM_REG_BANK "%r12"
+#define ASM_REG_BANK MAP_REG_BANK
 #endif
 
 
@@ -214,19 +206,19 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%%%s", MAP_REG_E);
+  strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "%rbx");
 #endif
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%%%s", MAP_REG_B);
+  strcpy(asm_reg_b, MAP_REG_B);
 #else
   strcpy(asm_reg_b, Off_Reg_Bank(MAP_OFFSET_B));
 #endif
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%%%s", MAP_REG_CP);
+  strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   strcpy(asm_reg_cp, Off_Reg_Bank(MAP_OFFSET_CP));
 #endif
@@ -259,7 +251,7 @@ Off_Reg_Bank(int offset)
 {
   static char str[32];
 
-#ifdef NO_MACHINE_REG_FOR_REG_BANK
+#ifndef MAP_REG_BANK
   sprintf(str, "%d+%s", offset, ASM_REG_BANK);
 #else
   sprintf(str, "%d(%s)", offset, ASM_REG_BANK);
@@ -778,7 +770,7 @@ Call_C_Arg_Reg_X(int offset, Bool adr_of, int index)
 
   if (adr_of)
     {
-#ifndef NO_MACHINE_REG_FOR_REG_BANK
+#ifdef MAP_REG_BANK
       if (!r_eq_r_aux && index == 0)
         {
           Inst_Printf("movq", "%s, %s", ASM_REG_BANK, r); /* optim */
@@ -1308,19 +1300,17 @@ Data_Start(char *initializer_fct)
     return;
 
 #ifdef _MSC_VER
-  Inst_Printf(".section", ".GPLC$m");
+  Inst_Printf(".section", ".CRT$XCU,\"dr\""); /* d=data (alloc), r=readonly */
 #elif defined(__CYGWIN__) || defined(_WIN32)
   Inst_Printf(".section", ".ctors,\"aw\"");
 #elif defined(M_darwin)
   Inst_Printf(".section", "__DATA,__mod_init_func,mod_init_funcs");
+#elif defined(M_solaris)
+  Inst_Printf(".section", ".init_array,\"aw\"");
 #else
   Inst_Printf(".section", ".ctors,\"aw\",@progbits");
 #endif
-#ifdef M_darwin
-  Inst_Printf(".align", "3");
-#else
-  Inst_Printf(".align", "8");
-#endif
+  Inst_Printf(".p2align", "3");
   Inst_Printf(".quad", UN "%s", initializer_fct);
 }
 

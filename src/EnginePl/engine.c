@@ -6,7 +6,7 @@
  * Descr.: general engine                                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,19 +35,20 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <setjmp.h>
 
-#include "gp_config.h"
+#include "pl_setjmp.h"
+
 #include "set_locale.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
 #define READ_REGISTRY_ONLY
-#include "../TopComp/prolog_path.c"
+#include "win_registry.h"
 #else
 #include <sys/param.h>
 #endif
@@ -60,7 +61,6 @@
 #include "../Linedit/linedit.h"
 #endif
 
-#include "../TopComp/prolog_path.c"
 
 
 
@@ -83,7 +83,7 @@
 
 void (*pl_init_stream_supp)();  /* overwritten by foreign if present */
 
-#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
+#if NB_OF_USED_MACHINE_REGS > 0
 static WamWord init_buff_regs[NB_OF_USED_MACHINE_REGS];
 #endif
 
@@ -109,7 +109,7 @@ static void Call_Prolog_Success(void);
 
 static int Call_Next(CodePtr codep);
 
-void Pl_Call_Compiled(CodePtr codep);   /* defined in engine1.c */
+void Pl_Call_Compiled(CodePtr codep);   /* defined in trampoline.S */
 
 
 
@@ -134,9 +134,10 @@ Pl_Start_Prolog(int argc, char *argv[])
   pl_os_argc = argc;
   pl_os_argv = argv;
 
-  pl_home = Get_Prolog_Path(argv[0], &pl_devel_mode);
+  pl_home = Pl_Get_Prolog_Path(argv[0], &pl_devel_mode);
 
   Pl_Init_Machine();
+  Pl_Init_OS_Detect();
 
   Set_Line_Buf(stdout);
   Set_Line_Buf(stderr);
@@ -149,7 +150,8 @@ Pl_Start_Prolog(int argc, char *argv[])
           continue;
         }
 
-      if ((pl_stk_tbl[i].size = KBytes_To_Wam_Words(*(pl_stk_tbl[i].p_def_size))) == 0)
+      pl_stk_tbl[i].size = KBytes_To_Wam_Words(*(pl_stk_tbl[i].p_def_size));
+      if (pl_stk_tbl[i].size == 0)
         pl_stk_tbl[i].size = pl_stk_tbl[i].default_size;
 
       if (!pl_fixed_sizes && *pl_stk_tbl[i].env_var_name)
@@ -161,10 +163,11 @@ Pl_Start_Prolog(int argc, char *argv[])
               pl_stk_tbl[i].size = KBytes_To_Wam_Words(x);
             }
 #if defined(_WIN32) || defined(__CYGWIN__)
-          if (Read_Windows_Registry(pl_stk_tbl[i].env_var_name, REG_DWORD, &y, sizeof(x)))
+          if (Read_Windows_Registry(pl_stk_tbl[i].env_var_name, REG_DWORD,
+				    &y, sizeof(y)))
             pl_stk_tbl[i].size = KBytes_To_Wam_Words(y);
 #endif
-        }      
+        }
     }
 
   /* similar treatment for max_atom */
@@ -181,7 +184,7 @@ Pl_Start_Prolog(int argc, char *argv[])
 	  pl_max_atom = x;
 	}
 #if defined(_WIN32) || defined(__CYGWIN__)
-      if (Read_Windows_Registry(ENV_VAR_MAX_ATOM, REG_DWORD, &y, sizeof(x)))
+      if (Read_Windows_Registry(ENV_VAR_MAX_ATOM, REG_DWORD, &y, sizeof(y)))
 	pl_max_atom = y;
 #endif
     }
@@ -189,16 +192,14 @@ Pl_Start_Prolog(int argc, char *argv[])
   Pl_Allocate_Stacks();
   Save_Machine_Regs(init_buff_regs);
 
-#ifndef NO_MACHINE_REG_FOR_REG_BANK
   Init_Reg_Bank(Global_Stack);  /* allocated X regs + other non alloc regs */
   Global_Stack += REG_BANK_SIZE; /* at the beginning of the heap */
   Global_Size -= REG_BANK_SIZE;
-#endif
 
   /* must be changed to store global info (see the debugger) */
   heap_actual_start = Global_Stack;
 
-  pl_le_mode = 0;	/* not compiled with linedit or deactivated (using env var) */
+  pl_le_mode = 0; /* not compiled with linedit or deactivated (using env var) */
 
 #ifndef NO_USE_LINEDIT
   if (pl_le_initialize != NULL)
@@ -215,7 +216,7 @@ Pl_Start_Prolog(int argc, char *argv[])
   Pl_Reset_Prolog();
   Pl_Fd_Init_Solver();
 
-  Pl_Find_Linked_Objects();
+  Pl_Initialize_Units();
 
   return nb_user_directives;
 }
@@ -254,7 +255,6 @@ Pl_Reset_Prolog(void)
   CP = NULL;
   STAMP = 0;
   CS = Cstr_Stack;
-  BCI = 0;                      /* BCI only needed for byte-code (cf. bips prolog) */
 
   Pl_Create_Choice_Point(Call_Prolog_Fail, 0);  /* 1st choice point */
 

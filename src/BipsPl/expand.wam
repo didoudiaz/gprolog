@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : expand.pl
+% file: expand.pl
+% hash: 1d1d578bf15725097e04a3617d14591e01fbb687  expand.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/expand.pl').
@@ -50,7 +51,7 @@ label(1),
 
 label(2),
     retry_me_else(3),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[expand_term,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[expand_term,2]),
     execute('$dcg_trans_rule'/2),
 
 label(3),
@@ -67,7 +68,7 @@ predicate('$call_term_expansion'/2,65,static,private,monofile,built_in,[
     unify_atom(term_expansion),
     unify_integer(2),
     call(current_predicate/1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[expand_term,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[expand_term,2]),
     put_structure(term_expansion/2,0),
     unify_local_value(y(0)),
     unify_local_value(y(1)),
@@ -105,11 +106,17 @@ predicate('$phrase'/4,89,static,private,monofile,built_in,[
     put_variable(y(5),2),
     put_variable(y(6),3),
     call('$dcg_trans_body'/4),
-    put_value(y(1),0),
-    get_value(y(4),0),
-    put_value(y(2),0),
-    get_value(y(5),0),
-    put_unsafe_value(y(6),0),
+    put_structure((=)/2,2),
+    unify_local_value(y(1)),
+    unify_local_value(y(4)),
+    put_structure((=)/2,1),
+    unify_local_value(y(2)),
+    unify_local_value(y(5)),
+    put_structure((',')/2,0),
+    unify_value(x(2)),
+    unify_structure((',')/2),
+    unify_value(x(1)),
+    unify_local_value(y(6)),
     put_atom(phrase,1),
     put_value(y(3),2),
     put_atom(true,3),
@@ -130,12 +137,12 @@ label(1),
     proceed]).
 
 
-predicate('$dcg_trans_rule'/2,106,static,private,monofile,built_in,[
+predicate('$dcg_trans_rule'/2,109,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Rule_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
-predicate('$dcg_trans_body'/4,112,static,private,monofile,built_in,[
+predicate('$dcg_trans_body'/4,115,static,private,monofile,built_in,[
     call_c('Pl_Dcg_Trans_Body_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).
 
@@ -172,7 +179,7 @@ predicate('$prop_meta_pred'/3,73,static,private,multifile,local,[
 
 
 directive(73,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux1'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(phrase),
     unify_integer(2),
@@ -184,7 +191,7 @@ directive(73,system,[
 
 
 directive(81,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(phrase),
     unify_integer(3),

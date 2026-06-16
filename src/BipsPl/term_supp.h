@@ -6,7 +6,7 @@
  * Descr.: term support - header file                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -53,14 +53,14 @@
 WamWord pl_pi_name_word;
 WamWord pl_pi_arity_word;
 
-PlLong pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
+WamWord pl_glob_dico_var[MAX_VAR_IN_TERM];	/* a general purpose dico */
 
 #else
 
 extern WamWord pl_pi_name_word;
 extern WamWord pl_pi_arity_word;
 
-extern PlLong pl_glob_dico_var[];
+extern WamWord pl_glob_dico_var[];
 
 #endif
 

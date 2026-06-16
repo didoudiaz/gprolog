@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : char_io.pl
+% file: char_io.pl
+% hash: d14f219553af9e26ab43b123235bae21a3a7f7ee  char_io.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/char_io.pl').
@@ -10,7 +11,7 @@ predicate('$use_char_io'/0,41,static,private,monofile,built_in,[
 
 
 predicate(get_key/1,44,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_key,1]),
     execute('$get_key'/1)]).
 
 
@@ -20,7 +21,7 @@ predicate('$get_key'/1,48,static,private,monofile,built_in,[
 
 
 predicate(get_key/2,52,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_key,2]),
     execute('$get_key'/2)]).
 
 
@@ -30,7 +31,7 @@ predicate('$get_key'/2,56,static,private,monofile,built_in,[
 
 
 predicate(get_key_no_echo/1,62,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key_no_echo,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_key_no_echo,1]),
     execute('$get_key_no_echo'/1)]).
 
 
@@ -40,7 +41,7 @@ predicate('$get_key_no_echo'/1,66,static,private,monofile,built_in,[
 
 
 predicate(get_key_no_echo/2,70,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_key_no_echo,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_key_no_echo,2]),
     execute('$get_key_no_echo'/2)]).
 
 
@@ -50,7 +51,7 @@ predicate('$get_key_no_echo'/2,74,static,private,monofile,built_in,[
 
 
 predicate(get_char/1,82,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_char,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_char,1]),
     execute('$get_char'/1)]).
 
 
@@ -60,7 +61,7 @@ predicate('$get_char'/1,86,static,private,monofile,built_in,[
 
 
 predicate(get_char/2,90,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_char,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_char,2]),
     execute('$get_char'/2)]).
 
 
@@ -70,7 +71,7 @@ predicate('$get_char'/2,94,static,private,monofile,built_in,[
 
 
 predicate(get_code/1,100,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_code,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_code,1]),
     execute('$get_code'/1)]).
 
 
@@ -80,7 +81,7 @@ predicate('$get_code'/1,104,static,private,monofile,built_in,[
 
 
 predicate(get_code/2,108,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_code,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_code,2]),
     execute('$get_code'/2)]).
 
 
@@ -90,7 +91,7 @@ predicate('$get_code'/2,112,static,private,monofile,built_in,[
 
 
 predicate(get_byte/1,118,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_byte,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_byte,1]),
     execute('$get_byte'/1)]).
 
 
@@ -100,7 +101,7 @@ predicate('$get_byte'/1,122,static,private,monofile,built_in,[
 
 
 predicate(get_byte/2,126,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[get_byte,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[get_byte,2]),
     execute('$get_byte'/2)]).
 
 
@@ -110,7 +111,7 @@ predicate('$get_byte'/2,130,static,private,monofile,built_in,[
 
 
 predicate(unget_char/1,138,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_char,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_char,1]),
     execute('$unget_char'/1)]).
 
 
@@ -120,7 +121,7 @@ predicate('$unget_char'/1,142,static,private,monofile,built_in,[
 
 
 predicate(unget_char/2,146,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_char,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_char,2]),
     execute('$unget_char'/2)]).
 
 
@@ -130,7 +131,7 @@ predicate('$unget_char'/2,150,static,private,monofile,built_in,[
 
 
 predicate(unget_code/1,156,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_code,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_code,1]),
     execute('$unget_code'/1)]).
 
 
@@ -140,7 +141,7 @@ predicate('$unget_code'/1,160,static,private,monofile,built_in,[
 
 
 predicate(unget_code/2,164,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_code,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_code,2]),
     execute('$unget_code'/2)]).
 
 
@@ -150,7 +151,7 @@ predicate('$unget_code'/2,168,static,private,monofile,built_in,[
 
 
 predicate(unget_byte/1,174,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_byte,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_byte,1]),
     execute('$unget_byte'/1)]).
 
 
@@ -160,7 +161,7 @@ predicate('$unget_byte'/1,178,static,private,monofile,built_in,[
 
 
 predicate(unget_byte/2,182,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[unget_byte,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[unget_byte,2]),
     execute('$unget_byte'/2)]).
 
 
@@ -170,7 +171,7 @@ predicate('$unget_byte'/2,186,static,private,monofile,built_in,[
 
 
 predicate(peek_char/1,194,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_char,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_char,1]),
     execute('$peek_char'/1)]).
 
 
@@ -180,7 +181,7 @@ predicate('$peek_char'/1,198,static,private,monofile,built_in,[
 
 
 predicate(peek_char/2,202,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_char,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_char,2]),
     execute('$peek_char'/2)]).
 
 
@@ -190,7 +191,7 @@ predicate('$peek_char'/2,206,static,private,monofile,built_in,[
 
 
 predicate(peek_code/1,212,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_code,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_code,1]),
     execute('$peek_code'/1)]).
 
 
@@ -200,7 +201,7 @@ predicate('$peek_code'/1,216,static,private,monofile,built_in,[
 
 
 predicate(peek_code/2,220,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_code,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_code,2]),
     execute('$peek_code'/2)]).
 
 
@@ -210,7 +211,7 @@ predicate('$peek_code'/2,224,static,private,monofile,built_in,[
 
 
 predicate(peek_byte/1,230,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_byte,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_byte,1]),
     execute('$peek_byte'/1)]).
 
 
@@ -220,7 +221,7 @@ predicate('$peek_byte'/1,234,static,private,monofile,built_in,[
 
 
 predicate(peek_byte/2,238,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[peek_byte,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[peek_byte,2]),
     execute('$peek_byte'/2)]).
 
 
@@ -230,7 +231,7 @@ predicate('$peek_byte'/2,242,static,private,monofile,built_in,[
 
 
 predicate(put_char/1,250,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_char,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_char,1]),
     execute('$put_char'/1)]).
 
 
@@ -240,7 +241,7 @@ predicate('$put_char'/1,254,static,private,monofile,built_in,[
 
 
 predicate(put_char/2,258,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_char,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_char,2]),
     execute('$put_char'/2)]).
 
 
@@ -250,7 +251,7 @@ predicate('$put_char'/2,262,static,private,monofile,built_in,[
 
 
 predicate(put_code/1,268,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_code,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_code,1]),
     execute('$put_code'/1)]).
 
 
@@ -260,7 +261,7 @@ predicate('$put_code'/1,272,static,private,monofile,built_in,[
 
 
 predicate(put_code/2,276,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_code,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_code,2]),
     execute('$put_code'/2)]).
 
 
@@ -270,7 +271,7 @@ predicate('$put_code'/2,280,static,private,monofile,built_in,[
 
 
 predicate(put_byte/1,286,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_byte,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_byte,1]),
     execute('$put_byte'/1)]).
 
 
@@ -280,7 +281,7 @@ predicate('$put_byte'/1,290,static,private,monofile,built_in,[
 
 
 predicate(put_byte/2,294,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[put_byte,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[put_byte,2]),
     execute('$put_byte'/2)]).
 
 

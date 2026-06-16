@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : foreign.pl
+% file: foreign.pl
+% hash: c75b896f6ebf9d57bc057d60e0e745f74bb04c5b  foreign.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/foreign.pl').

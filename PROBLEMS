@@ -20,6 +20,9 @@ sparc/solaris:
 	add /usr/ucb:/usr/ccs/bin/ ar something similar to your PATH variable
 
 
+ix86/linux:
+	LDFLAGS='-no-pie' CFLAGS='-fno-pic -fno-pie -O2' ./configure
+
 ix86/win32 with Cygwin:
 	timmings system_time is always 0 and user time = real time
 	buffering not implemented (after setvbuf each read returns EOF)

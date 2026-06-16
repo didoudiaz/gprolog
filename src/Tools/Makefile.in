@@ -14,7 +14,7 @@ all: cpp_headers@EXE_SUFFIX@ $(OBJS)
 	$(CC) -c $(CFLAGS) $*.c
 
 
-hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct.c hash_fct1.c
+hash_fct@OBJ_SUFFIX@: hash_fct.h hash_fct.c hash_fct_aux.h
 
 rbtree@OBJ_SUFFIX@: rbtree.h rbtree.c rbtree_augmented.h
 
@@ -37,7 +37,7 @@ map_example@EXE_SUFFIX@: map_example.c map_rbtree.h rbtree@OBJ_SUFFIX@
 
 
 
-clean:
+clean: clean-check
 	rm -f cpp_headers@EXE_SUFFIX@ map_test@EXE_SUFFIX@ map_example@EXE_SUFFIX@ *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp
 
 distclean: clean

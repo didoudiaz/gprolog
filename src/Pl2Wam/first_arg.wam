@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : first_arg.pl
+% file: first_arg.pl
+% hash: ca7cb8b0b179d771843f9f65afdb35e72c2f22fb  first_arg.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/first_arg.pl').

@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : control.pl
+% file: control.pl
+% hash: c8396f1adecd586191596d79e020bac6da01ec4d  control.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/control.pl').
@@ -36,13 +37,13 @@ predicate(halt/0,65,static,private,monofile,built_in,[
 
 
 predicate(halt/1,71,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[halt,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[halt,1]),
     call_c('Pl_Halt_1',[],[x(0)]),
     proceed]).
 
 
 predicate(between/3,79,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[between,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[between,3]),
     call_c('Pl_Between_3',[boolean],[x(0),x(1),x(2)]),
     proceed]).
 
@@ -53,6 +54,6 @@ predicate('$between_alt'/0,83,static,private,monofile,built_in,[
 
 
 predicate(for/3,88,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[for,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[for,3]),
     call_c('Pl_Between_3',[boolean],[x(1),x(2),x(0)]),
     proceed]).

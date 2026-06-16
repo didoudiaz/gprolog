@@ -6,7 +6,7 @@
  * Descr.: predicate manipulation management - C part                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -105,7 +106,7 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
 				/* here func or arity == -1 (or both) */
   all = (func == -1 && arity == -1);
 
-  pred = (PredInf *) Pl_Hash_First(pl_pred_tbl, &scan);
+  pred = (PredInf *) Pl_HTBL_First(pl_pred_htbl, &scan);
   for (;;)
     {
       if (pred == NULL)
@@ -118,14 +119,14 @@ Pl_Current_Predicate_2(WamWord pred_indic_word, WamWord which_preds_word)
 	  Pred_Is_Ok(pred, func1, which_preds))
 	break;
 
-      pred = (PredInf *) Pl_Hash_Next(&scan);
+      pred = (PredInf *) Pl_HTBL_Next(&scan);
     }
 
 				/* non deterministic case */
   A(0) = name_word;
   A(1) = arity_word;
   A(2) = which_preds;
-  A(3) = (WamWord) scan.endt;
+  A(3) = (WamWord) scan.end_t;
   A(4) = (WamWord) scan.cur_t;
   A(5) = (WamWord) scan.cur_p;
   Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_PREDICATE_ALT, 0), 6);
@@ -161,9 +162,9 @@ Pl_Current_Predicate_Alt_0(void)
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
   which_preds = (int) AB(B, 2);
-  scan.endt = (char *) AB(B, 3);
-  scan.cur_t = (char *) AB(B, 4);
-  scan.cur_p = (char *) AB(B, 5);
+  scan.end_t = (HashNode *) AB(B, 3);
+  scan.cur_t = (HashNode *) AB(B, 4);
+  scan.cur_p = (HashNode)   AB(B, 5);
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
   arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : (int) UnTag_INT(arity_word);
@@ -173,7 +174,7 @@ Pl_Current_Predicate_Alt_0(void)
 
   for (;;)
     {
-      pred = (PredInf *) Pl_Hash_Next(&scan);
+      pred = (PredInf *) Pl_HTBL_Next(&scan);
       if (pred == NULL)
 	{
 	  Delete_Last_Choice_Point();
@@ -194,7 +195,7 @@ Pl_Current_Predicate_Alt_0(void)
   AB(B, 0) = name_word;
   AB(B, 1) = arity_word;
   AB(B, 2) = which_preds;
-  AB(B, 3) = (WamWord) scan.endt;
+  AB(B, 3) = (WamWord) scan.end_t;
 #endif
   AB(B, 4) = (WamWord) scan.cur_t;
   AB(B, 5) = (WamWord) scan.cur_p;

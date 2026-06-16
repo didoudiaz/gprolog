@@ -6,7 +6,7 @@
  * Descr.: parameter header file                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,7 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-#define MAX_OBJECT                 10240
+#define MAX_UNIT                   10240
 
 #define START_PRED_TBL_SIZE        4096
 

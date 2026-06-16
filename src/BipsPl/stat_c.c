@@ -6,7 +6,7 @@
  * Descr.: statistics predicate management - C part                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -109,16 +110,16 @@ Pl_Statistics_0(void)
 #endif
   
 
-  t[0] = Pl_M_User_Time();
+  t[0] = Pl_User_Time();
   l[0] = t[0] - last_user_time;
 
-  t[1] = Pl_M_System_Time();
+  t[1] = Pl_System_Time();
   l[1] = t[1] - last_system_time;
 
   t[2] = t[0] + t[1];
   l[2] = t[2] - last_cpu_time;
 
-  t[3] = Pl_M_Real_Time();
+  t[3] = Pl_Real_Time();
   l[3] = t[3] - last_real_time;
 
   last_user_time = t[0];
@@ -147,7 +148,7 @@ Pl_Statistics_User_Time_2(WamWord since_start_word, WamWord since_last_word)
   PlLong user_time;
   PlLong since_start, since_last;
 
-  user_time = Pl_M_User_Time();
+  user_time = Pl_User_Time();
   since_start = user_time;
   since_last = user_time - last_user_time;
   last_user_time = user_time;
@@ -169,7 +170,7 @@ Pl_Statistics_System_Time_2(WamWord since_start_word, WamWord since_last_word)
   PlLong system_time;
   PlLong since_start, since_last;
 
-  system_time = Pl_M_System_Time();
+  system_time = Pl_System_Time();
   since_start = system_time;
   since_last = system_time - last_system_time;
   last_system_time = system_time;
@@ -191,7 +192,7 @@ Pl_Statistics_Cpu_Time_2(WamWord since_start_word, WamWord since_last_word)
   PlLong cpu_time;
   PlLong since_start, since_last;
 
-  cpu_time = Pl_M_User_Time() + Pl_M_System_Time();
+  cpu_time = Pl_User_Time() + Pl_System_Time();
   since_start = cpu_time;
   since_last = cpu_time - last_cpu_time;
   last_cpu_time = cpu_time;
@@ -213,7 +214,7 @@ Pl_Statistics_Real_Time_2(WamWord since_start_word, WamWord since_last_word)
   PlLong real_time;
   PlLong since_start, since_last;
 
-  real_time = Pl_M_Real_Time();
+  real_time = Pl_Real_Time();
   since_start = real_time;
   since_last = real_time - last_real_time;
   last_real_time = real_time;
@@ -359,7 +360,7 @@ Stack_Size(int stack_nb, PlLong *used, PlLong *free)
 Bool
 Pl_User_Time_1(WamWord since_start_word)
 {
-  return Pl_Un_Integer_Check(Pl_M_User_Time(), since_start_word);
+  return Pl_Un_Integer_Check(Pl_User_Time(), since_start_word);
 }
 
 
@@ -372,7 +373,7 @@ Pl_User_Time_1(WamWord since_start_word)
 Bool
 Pl_System_Time_1(WamWord since_start_word)
 {
-  return Pl_Un_Integer_Check(Pl_M_System_Time(), since_start_word);
+  return Pl_Un_Integer_Check(Pl_System_Time(), since_start_word);
 }
 
 
@@ -385,7 +386,7 @@ Pl_System_Time_1(WamWord since_start_word)
 Bool
 Pl_Cpu_Time_1(WamWord since_start_word)
 {
-  return Pl_Un_Integer_Check(Pl_M_User_Time() + Pl_M_System_Time(),
+  return Pl_Un_Integer_Check(Pl_User_Time() + Pl_System_Time(),
 			  since_start_word);
 }
 
@@ -399,5 +400,5 @@ Pl_Cpu_Time_1(WamWord since_start_word)
 Bool
 Pl_Real_Time_1(WamWord since_start_word)
 {
-  return Pl_Un_Integer_Check(Pl_M_Real_Time(), since_start_word);
+  return Pl_Un_Integer_Check(Pl_Real_Time(), since_start_word);
 }

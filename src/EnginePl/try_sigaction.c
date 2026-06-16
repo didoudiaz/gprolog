@@ -6,7 +6,7 @@
  * Descr.: Detection of working sigaction                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,7 +34,6 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-
 
 #define _XOPEN_SOURCE 700
 /* #define _GNU_SOURCE  */ /* see /usr/include/features.h */

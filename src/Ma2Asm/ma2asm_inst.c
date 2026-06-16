@@ -6,7 +6,7 @@
  * Descr.: translation file                                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,7 +34,17 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
+
 #include "../EnginePl/gp_config.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+#include "../EnginePl/pl_long.h"
+#include "../EnginePl/bool.h"
+
 
 #if 0 				/* to force the inclusion of a mapper */
 #define FORCE_MAPPER 1		/* then complete below the arch to compile */
@@ -71,9 +81,9 @@
 #include "../EnginePl/wam_regs.h"
 #define FRAMES_ONLY
 #include "../EnginePl/wam_inst.h"
-#include "../EnginePl/machine.h"
+#include "../EnginePl/machine_regs.h"
 #include "../EnginePl/pl_params.h"
-#include "../EnginePl/obj_chain.h"
+#include "../EnginePl/unit_ctor.h"
 
 #define Y_OFFSET(index)   ((int) ((- ENVIR_STATIC_SIZE - 1 - index) * sizeof(PlLong)))
 
@@ -125,5 +135,3 @@
 #error __FILE__ " no MA mapper file included"
 
 #endif
-
-

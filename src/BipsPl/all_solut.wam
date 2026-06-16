@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : all_solut.pl
+% file: all_solut.pl
+% hash: 7d0ee7eaf19ee8e6ecfa0b993f204ab7e8376ae8  all_solut.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/all_solut.pl').
@@ -271,7 +272,7 @@ predicate('$prop_meta_pred'/3,44,static,private,multifile,local,[
 
 
 directive(44,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux1'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(findall),
     unify_integer(3),
@@ -284,7 +285,7 @@ directive(44,system,[
 
 
 directive(49,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(findall),
     unify_integer(4),
@@ -298,7 +299,7 @@ directive(49,system,[
 
 
 directive(63,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux3'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(setof),
     unify_integer(3),
@@ -311,7 +312,7 @@ directive(63,system,[
 
 
 directive(73,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux4'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(bagof),
     unify_integer(3),

@@ -6,7 +6,7 @@
  * Descr.: stack hardware overflow detection (SIGSEGV)                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,13 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-/* copy this from try_sigaction.c */
-
-#if defined(M_ix86_sco)
-#define _XOPEN_SOURCE 700
-#define _XOPEN_SOURCE_EXTENDED
-#endif
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,11 +48,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"          /* ensure __unix__ defined if not _WIN32 */
-
-#if defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
-#else /* __unix__ || __CYGWIN__ (but not __MSYS__) */
+#else /* __unix__ (but not __CYGWIN__) */
 #include <unistd.h>
 #endif
 
@@ -101,6 +93,26 @@
 #define M_MAGIC1                   0x12345678
 #define M_MAGIC2                   0xdeadbeef
 
+#if WORD_SIZE == 32
+
+#   define MMAP_HIGH_ADR1          0x0ffffff0
+#   define MMAP_HIGH_ADR2          0x3ffffff0
+#   define MMAP_HIGH_ADR3          0x7ffffff0
+
+#elif defined(M_alpha_osf) || defined(M_alpha_linux)
+
+#   define MMAP_HIGH_ADR1          0x3f800000000ULL
+
+#elif defined(M_x86_64_linux) || defined(M_x86_64_solaris)
+
+#   define MMAP_HIGH_ADR1          0x4000000000ULL
+
+#endif
+
+#if defined(M_sunos) || defined(M_solaris)
+#   define MMAP_NEEDS_FIXED
+#endif
+
 
 #define MAX_SIGSEGV_HANDLER        10
 
@@ -115,9 +127,9 @@
 #define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
 #define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
 
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb, environment variable used: %s)"
+#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %" PL_FMT_d " Kb, environment variable used: %s)"
 
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %" PL_FMT_d " Kb, reached: %" PL_FMT_d " Kb - fixed size)"
+#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %" PL_FMT_d " Kb - fixed size)"
 
 
 
@@ -157,7 +169,7 @@ static char *Stack_Overflow_Err_Msg(int stk_nb);
 
 
 
-#if defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__)
 
 /*-------------------------------------------------------------------------*
  * GETPAGESIZE                                                             *
@@ -182,7 +194,7 @@ getpagesize(void)
 static void *
 Virtual_Mem_Alloc(void *addr, size_t length)
 {
-#if defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__)
 
   addr = (void *) VirtualAlloc(addr, length, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
@@ -195,7 +207,7 @@ Virtual_Mem_Alloc(void *addr, size_t length)
     fd = open("/dev/zero", 0);
 
   if (fd == -1)
-    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_OPEN_DEV0, Pl_Sys_Err_String(errno));
 #endif /* !MAP_ANON */
 
   addr = (void *) mmap((void *) addr, length, PROT_READ | PROT_WRITE,
@@ -232,7 +244,7 @@ Virtual_Mem_Alloc(void *addr, size_t length)
 static void
 Virtual_Mem_Free(void *addr, size_t length)
 {
-#if defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__)
 
   if (!VirtualFree(addr, 0, MEM_RELEASE))
     Pl_Fatal_Error(ERR_CANNOT_FREE, GetLastError());
@@ -240,7 +252,7 @@ Virtual_Mem_Free(void *addr, size_t length)
 #elif defined(HAVE_MMAP)
 
   if (munmap((void *) addr, length) == -1)
-    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
+    Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_Sys_Err_String(errno));
 
 #else
 
@@ -260,7 +272,7 @@ static void
 Virtual_Mem_Protect(void *addr, size_t length)
 {
   WamWord *end = (WamWord *) addr;
-#if defined(_WIN32) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__)
   DWORD old_prot;
 
   if (!VirtualProtect(addr, length, PAGE_NOACCESS, &old_prot))
@@ -272,12 +284,12 @@ Virtual_Mem_Protect(void *addr, size_t length)
   if (mprotect((void *) addr, length, PROT_NONE) == -1)
 #  endif
     if (munmap((void *) addr, length) == -1)
-      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_M_Sys_Err_String(errno));
+      Pl_Fatal_Error(ERR_CANNOT_UNMAP, Pl_Sys_Err_String(errno));
 
 #endif
 
 #ifdef DEBUG
-  DBGPRINTF("Protect at %p len: %d\n", addr, length);
+  DBGPRINTF("Protect at %p len: %" PL_FMT_d "\n", addr, length);
 #endif
   end[-16] = M_MAGIC1;
   end[-32] = M_MAGIC2;           /* and rest (end[-1,...]) should be 0 */
@@ -301,14 +313,14 @@ Pl_Allocate_Stacks(void)
 #ifndef MMAP_NEEDS_FIXED
     NULL,
 #endif
-#ifdef M_MMAP_HIGH_ADR1
-    (WamWord *) M_MMAP_HIGH_ADR1,
+#ifdef MMAP_HIGH_ADR1
+    (WamWord *) MMAP_HIGH_ADR1,
 #endif
-#ifdef M_MMAP_HIGH_ADR2
-    (WamWord *) M_MMAP_HIGH_ADR2,
+#ifdef MMAP_HIGH_ADR2
+    (WamWord *) MMAP_HIGH_ADR2,
 #endif
-#ifdef M_MMAP_HIGH_ADR3
-    (WamWord *) M_MMAP_HIGH_ADR3,
+#ifdef MMAP_HIGH_ADR3
+    (WamWord *) MMAP_HIGH_ADR3,
 #endif
     (WamWord *) -1 };
 
@@ -336,7 +348,7 @@ Pl_Allocate_Stacks(void)
           addr = (WamWord *) ((PlULong) (addr) - length);
         }
 #ifdef DEBUG
-      DBGPRINTF("base: %p length: %d Kb\n", addr, length / 1024);
+      DBGPRINTF("base: %p length: %" PL_FMT_d " Kb\n", addr, length / 1024);
 #endif
       addr = Virtual_Mem_Alloc(addr, length);
 
@@ -365,7 +377,7 @@ Pl_Allocate_Stacks(void)
       if (stk_sz == 0)
 	stk_sz = page_size;	/* at least one page for magic numbers */
 #ifdef DEBUG
-      DBGPRINTF("  stack: %d %-10s length: %5ld Kb   addr:[%p..%p[ + 1 free page, next addr: %p\n", 
+      DBGPRINTF("  stack: %d %-10s length: %5" PL_FMT_d " Kb   addr:[%p..%p[ + 1 free page, next addr: %p\n", 
 		i, pl_stk_tbl[i].name, stk_sz * sizeof(WamWord) / 1024, 
 		addr, addr + stk_sz, addr + stk_sz + page_size);
 #endif
@@ -386,8 +398,37 @@ Pl_Allocate_Stacks(void)
 
 
 
+	/* --- Exception handler --- */
 
-#if !defined(__MSYS__) && (defined(__unix__) || defined(__CYGWIN__))
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+/*-------------------------------------------------------------------------*
+ * WIN32_EXCEPTION_HANDLER                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static LONG WINAPI 
+Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
+{
+  void *addr;
+  switch(ei->ExceptionRecord->ExceptionCode)  
+    {  
+    case EXCEPTION_ACCESS_VIOLATION: /* Windows SIGSEGV */
+    case STATUS_STACK_OVERFLOW:
+      addr = (void *) ei->ExceptionRecord->ExceptionInformation[1];
+      Handle_Bad_Address(addr);
+      break;  
+
+#ifdef DEBUG
+    default:  
+      printf("UNKNOWN exception\n");
+      break;  
+#endif
+    }
+
+  return EXCEPTION_EXECUTE_HANDLER;
+}
+
+#else /* UNIX */
 
 /*-------------------------------------------------------------------------*
  * SIGSEGV_HANDLER                                                         *
@@ -500,35 +541,7 @@ SIGSEGV_Handler(int sig)	/* cannot detect fault addr */
 
 #endif
 
-#else  /* WINDOWS */
-
-/*-------------------------------------------------------------------------*
- * WIN32_EXCEPTION_HANDLER                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static LONG WINAPI 
-Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
-{
-  void *addr;
-  switch(ei->ExceptionRecord->ExceptionCode)  
-    {  
-    case EXCEPTION_ACCESS_VIOLATION: /* Windows SIGSEGV */
-    case STATUS_STACK_OVERFLOW:
-      addr = (void *) ei->ExceptionRecord->ExceptionInformation[1];
-      Handle_Bad_Address(addr);
-      break;  
-
-#ifdef DEBUG
-    default:  
-      printf("UNKNOWN exception\n");
-      break;  
-#endif
-    }
-
-  return EXCEPTION_EXECUTE_HANDLER;
-}
-
-#endif	/* WINDOWS */
+#endif	/* UNIX */
 
 
 
@@ -540,9 +553,14 @@ Win32_Exception_Handler(PEXCEPTION_POINTERS ei)
 static void
 Install_SIGSEGV_Handler(void)
 {
-#if !defined(__MSYS__) && (defined(HAVE_WORKING_SIGACTION) || \
+#if defined(_WIN32) || defined(__CYGWIN__)
+
+  AddVectoredExceptionHandler(1, Win32_Exception_Handler);
+  //  SetUnhandledExceptionFilter(Win32_Exception_Handler);
+
+#elif defined(HAVE_WORKING_SIGACTION) || \
   defined(M_sparc32_solaris) || defined(M_ix86_solaris) || \
-  defined(M_ix86_sco) || defined(M_x86_64_solaris))
+  defined(M_ix86_sco) || defined(M_x86_64_solaris)
 
   struct sigaction act;
 
@@ -555,14 +573,12 @@ Install_SIGSEGV_Handler(void)
   sigaction(SIGBUS, &act, NULL);
 #  endif
 
-#elif defined(_WIN32) || defined(__MSYS__)
-
-  AddVectoredExceptionHandler(1, Win32_Exception_Handler);
-  //  SetUnhandledExceptionFilter(Win32_Exception_Handler);
-
 #else
 
   signal(SIGSEGV, (void (*)(int)) SIGSEGV_Handler);
+#  if defined(SIGBUS) && SIGBUS != SIGSEGV
+  signal(SIGBUS, (void (*)(int)) SIGSEGV_Handler);
+#  endif
 
 #endif
 }
@@ -623,56 +639,6 @@ Pl_Pop_SIGSEGV_Handler(void)
 
 
 
-/*-------------------------------------------------------------------------*
- * DEFAULT_SIGSEGV_HANDLER                                                 *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-static int
-Default_SIGSEGV_Handler(void *bad_addr)
-{
-#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
-
-  M_Check_Magic_Words();
-
-  Pl_Fatal_Error("Segmentation Violation");
-
-#else  /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
-
-  int i;
-  WamWord *addr = (WamWord *) bad_addr;
-
-#ifdef DEBUG
-  DBGPRINTF("BAD ADDRESS:%p \n", addr);
-#endif
-
-  i = NB_OF_STACKS - 1;
-  if (addr < pl_stk_tbl[i].stack + pl_stk_tbl[i].size + page_size)
-    while (i >= 0)
-      {
-#ifdef DEBUG
-        DBGPRINTF("STACK[%d].stack + size: %p\n",
-		  i, pl_stk_tbl[i].stack + pl_stk_tbl[i].size);
-#endif
-        if (addr >= pl_stk_tbl[i].stack + pl_stk_tbl[i].size)
-	  {
-#ifdef DEBUG
-	    DBGPRINTF("Found overflow on stack[%d]\n", i);
-#endif
-	    Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
-	  }
-        i--;
-      }
-
-  Pl_Fatal_Error("Segmentation Violation (bad address: %p)", addr);
-
-#endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
-
-  return 1;	    /* treated, anyway this handler never returns (exit()) */
-}
-
-
-
-
 #ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
 
 #ifndef NO_USE_LINEDIT
@@ -680,11 +646,11 @@ Default_SIGSEGV_Handler(void *bad_addr)
 #endif
 
 /*-------------------------------------------------------------------------*
- * M_CHECK_MAGIC_WORDS                                                     *
+ * CHECK_MAGIC_WORDS                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-void
-M_Check_Magic_Words(void)
+static void
+Check_Magic_Words(void)
 {
   int i, err = 0;
   WamWord *end, *top;
@@ -727,6 +693,54 @@ M_Check_Magic_Words(void)
 #endif
 
 
+/*-------------------------------------------------------------------------*
+ * DEFAULT_SIGSEGV_HANDLER                                                 *
+ *                                                                         *
+ *-------------------------------------------------------------------------*/
+static int
+Default_SIGSEGV_Handler(void *bad_addr)
+{
+#ifdef M_USE_MAGIC_NB_TO_DETECT_STACK_NAME
+
+  Check_Magic_Words();
+
+  Pl_Fatal_Error("Segmentation Violation");
+
+#else  /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
+
+  int i;
+  WamWord *addr = (WamWord *) bad_addr;
+
+#ifdef DEBUG
+  DBGPRINTF("BAD ADDRESS:%p \n", addr);
+#endif
+
+  for(i = 0; i < NB_OF_STACKS; i++)
+    {
+      WamWord *start = pl_stk_tbl[i].stack;
+      WamWord *end = start + pl_stk_tbl[i].size;
+
+#ifdef DEBUG
+      DBGPRINTF("STACK[%d] stack: %p end: %p\n", i, start, end);
+#endif
+      if (addr >= end && addr < end + page_size)
+	{
+#ifdef DEBUG
+	  DBGPRINTF("Found overflow on stack[%d]\n", i);
+#endif
+	  Pl_Fatal_Error(Stack_Overflow_Err_Msg(i));
+	}
+    }
+      
+  Pl_Fatal_Error("Segmentation Violation (bad address: %p)", addr);
+
+#endif /* !M_USE_MAGIC_NB_TO_DETECT_STACK_NAME */
+
+  return 1;	    /* treated, anyway this handler never returns (exit()) */
+}
+
+
+
 
 /*-------------------------------------------------------------------------*
  * STACK_OVERFLOW_ERR_MSG                                                  *
@@ -738,19 +752,17 @@ Stack_Overflow_Err_Msg(int stk_nb)
   InfStack *s = pl_stk_tbl + stk_nb;
   char *var = s->env_var_name;
   PlLong size = s->size;
-  PlLong usage = (Stack_Top(stk_nb) - s->stack);
-  static char msg[256];
+  static char msg[128];
 
   if (s->stack == Global_Stack)
     size += REG_BANK_SIZE;      /* see Init_Engine */
 
   size = Wam_Words_To_KBytes(size);
-  usage = Wam_Words_To_KBytes(usage);
 
   if (pl_fixed_sizes || var[0] == '\0')
-    sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size, usage);
+    sprintf(msg, ERR_STACK_OVERFLOW_NO_ENV, s->name, size);
   else
-    sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, usage, var);
+    sprintf(msg, ERR_STACK_OVERFLOW_ENV, s->name, size, var);
 
   return msg;
 }

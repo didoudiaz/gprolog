@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : arith_inl.pl
+% file: arith_inl.pl
+% hash: be6aae8c845a8ca7275fd8ef64313738b706e5cc  arith_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/arith_inl.pl').
@@ -10,14 +11,14 @@ predicate('$use_arith_inl'/0,41,static,private,monofile,built_in,[
 
 
 predicate((is)/2,44,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[is,2]),
     math_load_value(x(1),1),
     get_value(x(0),1),
     proceed]).
 
 
 predicate((=:=)/2,47,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=:=,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[=:=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Eq',[fast_call,boolean],[x(0),x(1)]),
@@ -25,7 +26,7 @@ predicate((=:=)/2,47,static,private,monofile,built_in,[
 
 
 predicate((=\=)/2,50,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=\=,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[=\=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Neq',[fast_call,boolean],[x(0),x(1)]),
@@ -33,7 +34,7 @@ predicate((=\=)/2,50,static,private,monofile,built_in,[
 
 
 predicate((<)/2,53,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[<,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[<,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Lt',[fast_call,boolean],[x(0),x(1)]),
@@ -41,7 +42,7 @@ predicate((<)/2,53,static,private,monofile,built_in,[
 
 
 predicate((=<)/2,56,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[=<,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[=<,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Lte',[fast_call,boolean],[x(0),x(1)]),
@@ -49,7 +50,7 @@ predicate((=<)/2,56,static,private,monofile,built_in,[
 
 
 predicate((>)/2,59,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Gt',[fast_call,boolean],[x(0),x(1)]),
@@ -57,7 +58,7 @@ predicate((>)/2,59,static,private,monofile,built_in,[
 
 
 predicate((>=)/2,62,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[>=,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[>=,2]),
     math_load_value(x(0),0),
     math_load_value(x(1),1),
     call_c('Pl_Blt_Gte',[fast_call,boolean],[x(0),x(1)]),
@@ -70,13 +71,13 @@ predicate('$arith_evaluate'/2,66,static,private,monofile,built_in,[
 
 
 predicate(succ/2,72,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[succ,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[succ,2]),
     call_c('Pl_Succ_2',[boolean],[x(0),x(1)]),
     proceed]).
 
 
 predicate(current_evaluable/1,79,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[current_evaluable,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[current_evaluable,1]),
     execute('$current_evaluable'/1)]).
 
 
@@ -96,7 +97,7 @@ predicate(evaluable_property/2,92,static,private,monofile,built_in,[
     try_me_else(1),
     get_variable(x(3),1),
     get_variable(x(4),0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[evaluable_property,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[evaluable_property,2]),
     call_c('Pl_Blt_Callable',[fast_call,boolean],[x(4)]),
     cut(x(2)),
     put_variable(x(0),2),

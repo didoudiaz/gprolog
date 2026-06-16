@@ -6,7 +6,7 @@
  * Descr.: atom table management                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -556,7 +557,7 @@ Pl_Gen_New_Atom(char *prefix)
     max_len = c;
   if (nb % 1000 == 0)
     {
-      time = (double) Pl_M_User_Time(); /* time needed for the last 1000 gensym */
+      time = (double) Pl_User_Time(); /* time needed for the last 1000 gensym */
       tsec = (time - time0) / 1000.0;
       time0 = time;
       printf("GENSYM #%5d: %s len:%d  len add:%d  (avg:%d  max:%d)  try:%d (avg:%d max:%d) time:%.3f\n", 

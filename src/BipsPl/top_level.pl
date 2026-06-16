@@ -6,7 +6,7 @@
  * Descr.: top Level                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -86,7 +86,7 @@ break :-
 	'$sys_var_write'(11, B),
 	g_assign('$all_solutions', All),
 	(   Level > 0 ->
-	    format(top_level_output, '~N{End Break}~n', [Level])
+	    format(top_level_output, '~N{End Break}~n', [])
 	;   true
 	).
 
@@ -159,7 +159,8 @@ break :-
 % current_prolog_flag(char_conversion, CharConv),
 % g_assign('$char_conv', CharConv),
 % set_prolog_flag(char_conversion, off),
-	Prompt = '| ?- ',
+	Prompt = '| ?- ', % gprolog used this prompt intially
+	% Prompt = '?- ', % adopt this one ? more standard ?
 	(   '$sys_var_read'(12, 1) ->
 	    '$get_linedit_prompt'(UserPrompt),
 	    g_assign('$user_prompt', UserPrompt),

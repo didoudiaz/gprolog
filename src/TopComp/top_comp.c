@@ -6,7 +6,7 @@
  * Descr.: compiler main (shell) program                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,7 +35,6 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
@@ -59,22 +58,22 @@
 #include <sys/wait.h>
 #endif
 
+#include "../EnginePl/bool.h"
 #include "../EnginePl/pl_params.h"
 #include "../EnginePl/wam_regs.h"
+#include "../EnginePl/os_path.h"
+#include "../EnginePl/os_spawn.h"
 
-#include "decode_hexa.c"
-#include "copying.c"
+#include "mangling.h"
+#include "copying.h"
 
-#define READ_REGISTRY_ONLY
-#include "prolog_path.c"
-
-#include "../EnginePl/machine1.c"
 
 #if 0
 #define DEBUG
 #endif
 
-/* Windows64 : allows for LARGEADDRESSAWARE (LAA)
+/*
+ * Windows64 : allows for LARGEADDRESSAWARE (LAA)
  * if yes, needs RIP-related addressing (see x86_64_any.c)
  * if no, pass option /LARGEADDRESSAWARE:NO to cl
  */
@@ -133,10 +132,20 @@
 #define MA_SUFFIX                  ".ma"
 #define FD_SUFFIX                  ".fd"
 #define C_SUFFIX                   ".c"
+#ifndef _MSC_VER /* gcc/clang can handle .S files - remove if separate cpp wanted */
+#define C_SUFFIX_ALTERNATE         "|.C|.cc|.CC|.cxx|.CXX|.c++|.C++|.cpp|.CPP|.S|"
+#else
 #define C_SUFFIX_ALTERNATE         "|.C|.cc|.CC|.cxx|.CXX|.c++|.C++|.cpp|.CPP|"
+#endif
 
 #define CC_COMPILE_OPT             "-c "
 #define CC_INCLUDE_OPT             "-I"
+
+
+
+#define CMD_FILTER_NONE            ((char *) 0)
+#define CMD_FILTER_DEMANGLE     ((char *) 1)
+/* else CMD_FILTER_WRITE_FILE */
 
 
 
@@ -146,12 +155,12 @@
 
 typedef struct
 {
-  char *name;
-  char *suffix;
-  char *file_part;
-  int type;
-  char *work_name1;
-  char *work_name2;
+  char *name;			/* path given on command-line */
+  char *suffix;			/* suffix part */
+  char *file_part;		/* file name part */
+  int type;			/* see FILE_xxx macros */
+  char *work_name1;		/* source to compile */
+  char *work_name2;		/* target to produce */
 }
 FileInf;
 
@@ -173,47 +182,48 @@ CmdInf;
 
 char *start_path;
 
-int devel_mode = 0;
-char *devel_dir[] = {
-  "EnginePl", "BipsPl", "EngineFD", "BipsFD", "Linedit", "W32GUICons", "TopComp", NULL };
+Bool devel_mode = FALSE;
+char *devel_dir[] = {"EnginePl", "BipsPl", "EngineFD", "BipsFD", "Linedit",
+		     "W32GUICons", "TopComp", NULL };
 
 
-FileInf *file_lopt;
+FileInf *file_lopt;		/* files on command-line (and link options) */
 int nb_file_lopt = 0;
 
 int stop_after = FILE_LINK;
-int verbose = 0;
+Bool verbose = FALSE;
 char *file_name_out = NULL;
 
-int pl_def_local_size = -1;
-int pl_def_global_size = -1;
-int pl_def_trail_size = -1;
-int pl_def_cstr_size = -1;
-int pl_def_max_atom = -1;
-int pl_fixed_sizes = 0;
-int needs_stack_file = 0;
+int def_local_size = -1;
+int def_global_size = -1;
+int def_trail_size = -1;
+int def_cstr_size = -1;
+int def_max_atom = -1;
+Bool fixed_sizes = FALSE;
+Bool needs_stack_file = FALSE;
 
-int bc_mode = 0;
-int gui_console = 0;
-int new_top_level = 0;
-int no_top_level = 0;
-int min_pl_bips = 0;
-int min_fd_bips = 0;
-int no_debugger = 0;
-int no_pl_lib = 0;
-int no_fd_lib = 0;
-int no_fd_lib_warn = 0;
-int strip = 0;
+Bool bc_mode = FALSE;
+Bool gui_console = FALSE;
+Bool new_top_level = FALSE;
+Bool no_top_level = FALSE;
+Bool min_pl_bips = FALSE;
+Bool min_fd_bips = FALSE;
+Bool no_debugger = FALSE;
+Bool no_pl_lib = FALSE;
+Bool no_fd_lib = FALSE;
+Bool no_fd_lib_warn = FALSE;
+Bool strip = FALSE;
 
-int no_decode_hex = 0;
+Bool no_demangle = FALSE;
 
 char warn_str[1024] = "";
 
 char *temp_dir = NULL;
-int no_del_temp_files = 0;
+Bool no_del_temp_files = FALSE;
 
-/* Almost each string ends with a space. However, executable names
- * EXE_XXX_NAME do not end with a space (so they can be used in Search_Path)
+/*
+ * Almost each string ends with a space. However, executable names
+ * EXE_XXX_NAME do not end with a space (so they can be used in Pl_Search_Path)
  * thus options must begin with a space (and end with a space too).
  */
 
@@ -229,8 +239,8 @@ char *cc_fd2c_flags = CFLAGS " ";
 
 
 
-char *suffixes[] =
-  { PL_SUFFIX, WAM_SUFFIX, MA_SUFFIX, ASM_SUFFIX, OBJ_SUFFIX, FD_SUFFIX, C_SUFFIX, NULL };
+char *suffixes[] = { PL_SUFFIX, WAM_SUFFIX, MA_SUFFIX, ASM_SUFFIX,
+		     OBJ_SUFFIX, FD_SUFFIX, C_SUFFIX, NULL };
 
 
 
@@ -238,8 +248,6 @@ char *suffixes[] =
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-char *Search_Path(char *file);
 
 void Determine_Pathnames(void);
 
@@ -249,15 +257,15 @@ void Create_Output_File_Name(FileInf *f, char *buff);
 
 void New_Work_File(FileInf *f, int stage, int stop_after);
 
-void Free_Work_File2(FileInf *f);
+void Release_Work_File2(FileInf *f);
 
 void Compile_Cmd(CmdInf *c, FileInf *f);
 
 void Link_Cmd(void);
 
-void Exec_One_Cmd(char *str, int no_decode_hex);
+void Exec_One_Cmd(char *str, char *cmd_filter);
 
-int Spawn_Decode_Hex(char *arg[]);
+int Spawn_And_Filter(char *arg[], char *cmd_filter);
 
 void Delete_Temp_File(char *name);
 
@@ -286,14 +294,23 @@ void Display_Help(void);
 
 #define After_Cmd(error)                        \
   if (error)                                    \
-    Pl_Fatal_Error("compilation failed");
-/*    Pl_Fatal_Error("compilation failed (returned status: %d hexa: %x)", status, status) */
+    Pl_Fatal_Error("compilation failed")
+/*    Pl_Fatal_Error("compilation failed (returned status: %d hexa: %x)",
+      status, status) */
 
 
 
 char *last_opt;
+Bool last_is_wx_opt;
 
-#define Check_Arg(i, str)   (last_opt = str, strncmp(argv[i], str, strlen(argv[i])) == 0)
+#define Check_Arg(i, opt) \
+  (last_opt = opt, strncmp(argv[i], opt, strlen(argv[i])) == 0)
+
+	/* recognize option aliases like -L <string> and -Wl,<string> */
+#define Check_Arg_MinusWx(i, opt, wx_opt)		\
+  ((last_is_wx_opt = FALSE, Check_Arg(i, opt)) ||	\
+   (last_is_wx_opt = TRUE, last_opt = argv[i] + 4,	\
+    strncmp(argv[i], wx_opt, 4) == 0))
 
 #define Add_Last_Option(opt)       sprintf(opt + strlen(opt), "%s ", last_opt)
 
@@ -324,11 +341,18 @@ main(int argc, char *argv[])
   if (verbose)
     fprintf(stderr, "\n");
 
-  start_path = Get_Prolog_Path(argv[0], &devel_mode);
+  start_path = Pl_Get_Prolog_Path(argv[0], &devel_mode);
   if (start_path == NULL)
-    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s", PROLOG_NAME, ENV_VARIABLE);
+    Pl_Fatal_Error("cannot find the path for %s, set environment variable %s",
+		   PROLOG_NAME, ENV_VARIABLE);
 
   strcat(cmd_cc.opt, CFLAGS_MACHINE " " CFLAGS_REGS CC_COMPILE_OPT);
+
+#ifdef WIN_AS_COPY
+  /* see comment about WIN_AS_COPY in configure.in */
+  if (Pl_Search_Path(WIN_AS_COPY) != NULL)
+    cmd_asm.exe_name = WIN_AS_COPY;
+#endif
 
   if (devel_mode)
     for (pdev = devel_dir; *pdev; pdev++)
@@ -372,7 +396,7 @@ Compile_Files(void)
         fprintf(stderr, "link not done - ignored option(s): %s\n", warn_str);
 
       stage_end = stop_after;
-      needs_stack_file = 0;
+      needs_stack_file = FALSE;
 
       if (bc_mode)
         {
@@ -392,7 +416,8 @@ Compile_Files(void)
       f->name = f->work_name2;
       f->suffix = f->name + strlen(f->name) - strlen(suffixes[FILE_MA]);
       f->type = FILE_MA;
-      f->work_name1 = f->name, f->work_name2 = NULL;
+      f->work_name1 = f->name;
+      f->work_name2 = NULL;
 
       if (verbose)
         fprintf(stderr, "creating stack size file: %s\n", f->name);
@@ -400,19 +425,19 @@ Compile_Files(void)
       if ((fd = fopen(f->name, "wt")) == NULL)
         Pl_Fatal_Error("cannot open stack size file (%s)", f->name);
 
-      if (pl_def_local_size >= 0)
-        fprintf(fd, "long global pl_def_local_size = %d\n", pl_def_local_size);
-      if (pl_def_global_size >= 0)
-        fprintf(fd, "long global pl_def_global_size = %d\n", pl_def_global_size);
-      if (pl_def_trail_size >= 0)
-        fprintf(fd, "long global pl_def_trail_size = %d\n", pl_def_trail_size);
-      if (pl_def_cstr_size >= 0)
-        fprintf(fd, "long global pl_def_cstr_size = %d\n", pl_def_cstr_size);
+      if (def_local_size >= 0)
+        fprintf(fd, "long global pl_def_local_size = %d\n", def_local_size);
+      if (def_global_size >= 0)
+        fprintf(fd, "long global pl_def_global_size = %d\n", def_global_size);
+      if (def_trail_size >= 0)
+        fprintf(fd, "long global pl_def_trail_size = %d\n", def_trail_size);
+      if (def_cstr_size >= 0)
+        fprintf(fd, "long global pl_def_cstr_size = %d\n", def_cstr_size);
 
-      if (pl_def_max_atom >= 0)
-        fprintf(fd, "long global pl_def_max_atom = %d\n", pl_def_max_atom);
+      if (def_max_atom >= 0)
+        fprintf(fd, "long global pl_def_max_atom = %d\n", def_max_atom);
 
-      if (pl_fixed_sizes)
+      if (fixed_sizes)
         fprintf(fd, "long global pl_fixed_sizes = 1\n");
 
       fclose(fd);
@@ -445,7 +470,7 @@ Compile_Files(void)
               Compile_Cmd(&cmd_cc, f);
               cmd_cc.opt[l] = '\0';     /* remove them */
             }
-          goto free_work_file;
+          goto release_work_file;
         }
 
       if (f->type == FILE_C && stop_after >= FILE_ASM && stop_after != FILE_FD)
@@ -453,7 +478,7 @@ Compile_Files(void)
           stage = FILE_ASM;     /* to generate the correct obj suffix */
           New_Work_File(f, stage, stop_after);
           Compile_Cmd(&cmd_cc, f);
-          goto free_work_file;
+          goto release_work_file;
         }
 
       if (f->type == FILE_FD || f->type == FILE_C ||
@@ -477,6 +502,15 @@ Compile_Files(void)
               break;
 
             case FILE_MA:
+	      if (strcmp(f->suffix, ".S") == 0)	/* preprocess .S via CPP */
+		{
+		  l = strlen(cmd_cc.opt); /* add C options for preprocessing */
+		  strcpy(cmd_cc.opt + l, "-E "); /* actually /E for _MSC_VER */
+		  Compile_Cmd(&cmd_cc, f);
+		  cmd_cc.opt[l] = '\0';     /* remove them */
+		  break;
+		}
+	      
               Compile_Cmd(&cmd_ma2asm, f);
               if (needs_stack_file && f == file_lopt + nb_file_lopt &&
                   !no_del_temp_files)
@@ -485,7 +519,6 @@ Compile_Files(void)
                     fprintf(stderr, "deleting stack size file\n");
                   Delete_Temp_File(f->name);
                 }
-
               break;
 
             case FILE_ASM:
@@ -494,8 +527,8 @@ Compile_Files(void)
             }
         }
 
-    free_work_file:
-      Free_Work_File2(f);       /* to suppress last useless temp file */
+    release_work_file:
+      Release_Work_File2(f);       /* to suppress last useless temp file */
     }
 
   if (stop_after < FILE_LINK)
@@ -594,7 +627,7 @@ New_Work_File(FileInf *f, int stage, int stop_after)
 
   if (stage < stop_after)       /* intermediate stage */
     {
-      p = Pl_M_Tempnam(temp_dir, TEMP_FILE_PREFIX);
+      p = Pl_Tempnam(temp_dir, TEMP_FILE_PREFIX);
       sprintf(buff, "%s%s", p, suffixes[stage + 1]);
       free(p);
     }
@@ -607,7 +640,7 @@ New_Work_File(FileInf *f, int stage, int stop_after)
         strcpy(buff + (f->suffix - f->name), suffixes[stage + 1]);
       }
 
-  Free_Work_File2(f);
+  Release_Work_File2(f);
   f->work_name2 = strdup(buff);
 }
 
@@ -615,11 +648,11 @@ New_Work_File(FileInf *f, int stage, int stop_after)
 
 
 /*-------------------------------------------------------------------------*
- * FREE_WORK_FILE2                                                         *
+ * RELEASE_WORK_FILE2                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Free_Work_File2(FileInf *f)
+Release_Work_File2(FileInf *f)
 {
   if (f->work_name2 != NULL)
     {
@@ -641,11 +674,28 @@ void
 Compile_Cmd(CmdInf *c, FileInf *f)
 {
   static char buff[CMD_LINE_LENGTH];
+  char *cmd_filter = CMD_FILTER_NONE;
 
   sprintf(buff, "%s%s%s%s %s", c->exe_name, c->opt, c->out_opt,
           f->work_name2, f->work_name1);
 
-  Exec_One_Cmd(buff, 1);
+  /* check if it is an asm .S file given to C preprocessor */
+  if (c == &cmd_cc && f->type == FILE_MA)
+    {
+      /*
+       * MSVC /E always write to stdout (needs redirect with a filter
+       * do it also for gcc/clang
+       */
+      sprintf(buff, "%s%s %s", c->exe_name, c->opt, f->work_name1);
+      cmd_filter = f->work_name2; /* filter = CMD_FILTER_WRITE_FILE */
+    }
+  else
+    {
+      sprintf(buff, "%s%s%s%s %s", c->exe_name, c->opt, c->out_opt,
+	      f->work_name2, f->work_name1);
+    }
+  
+  Exec_One_Cmd(buff, cmd_filter);
 }
 
 
@@ -662,14 +712,16 @@ Link_Cmd(void)
   static char buff[CMD_LINE_LENGTH];
   FileInf *f;
 #ifdef _MSC_VER
-  int has_gui_console = 0;
+  Bool has_gui_console = FALSE;
+  char *unused;
 #endif
+  Bool use_cl = FALSE;
 
-  if (no_fd_lib == 0 && no_fd_lib_warn)
+  if (!no_fd_lib && no_fd_lib_warn)
     {
       if (!Find_File(LIB_BIPS_FD, "", buff, 1) ||
           !Find_File(LIB_ENGINE_FD, "", buff + strlen(buff), 1))
-        no_fd_lib = min_fd_bips = 1;
+        no_fd_lib = min_fd_bips = TRUE;
     }
 
   if (file_name_out == NULL)
@@ -681,29 +733,32 @@ Link_Cmd(void)
   Create_Output_File_Name(f, file_out);
   file_name_out = file_out;
 
-  /* with MSVC: if at run-time we don't find cl.exe we use link.exe
-   * it is a workaround for users who have installed a binary version
-   * (from a setup.exe) compiled with cl.exe but who don't have cl.exe
+  /*
+   * With MSVC: if cl.exe is not found, we try to use link.exe (MS linker).
+   * It is a workaround for users who have installed a binary version
+   * (from a setup.exe) compiled with cl.exe and do not have cl.exe.
    */
 #ifdef _MSC_VER
-  {
-    char *dont_care;
+  use_cl = (SearchPath(NULL, cmd_link.exe_name, ".exe", CMD_LINE_LENGTH, buff, 
+	    &unused) && getenv("USE_LINKER") == NULL);
 
-    if (SearchPath(NULL, cmd_link.exe_name, ".exe", CMD_LINE_LENGTH, buff, &dont_care) && getenv("USE_LINKER") == NULL)
-#endif
+  if (!use_cl)
+    {
+      if (verbose)
+	  {
+	    printf("%s.exe not found ! we use link.exe\n", cmd_link.exe_name);
+	    printf("In case of error check it is really the MS link.exe ");
+	    printf("which is used and not the cygwin/msys link.exe utility\n");
+	  }
+
+      cmd_link.exe_name = "link";
+      cmd_link.out_opt = "/out:";
+      strcat(cmd_link.opt, "/nologo /stack:8000000 ");
+    }
+#endif	/* _MSC_VER */
 
   sprintf(buff, "%s%s%s%s ", cmd_link.exe_name, cmd_link.opt,
-          cmd_link.out_opt, file_name_out);
-
-#ifdef _MSC_VER
-    else
-      {
-        if (verbose)
-          printf("%s.exe not found ! we use link.exe\nIn case of error check it is really the MS link.exe which is used and not the cygwin link utility\n", cmd_link.exe_name);
-        sprintf(buff, "link /nologo /stack:8000000 /out:%s ", file_name_out);
-      }
-  }
-#endif
+	  cmd_link.out_opt, file_name_out);
 
   /* f->work_name1 is OK for LINK_OPTION */
   for (f = file_lopt; f->name; f++)
@@ -775,13 +830,14 @@ Link_Cmd(void)
       Find_File("win_exe_icon", ".res", buff + strlen(buff), 1);
       strcat(buff, " ");
 #ifdef _MSC_VER
-      has_gui_console = 1;
+      has_gui_console = TRUE;
 #endif
     }
 
-#ifdef _MSC_VER
-  if (*buff != 'l' && *buff != 'L') /* it is not link.exe (use strstr ?)! */
+  if (use_cl)
     strcat(buff, "/link ");
+  strcat(buff, LDFLAGS_END " ");
+#ifdef _MSC_VER
   strcat(buff, "/ignore:4089 ");
   if (!has_gui_console)
     strcat(buff, "/subsystem:console ");
@@ -790,12 +846,12 @@ Link_Cmd(void)
 #endif
 #endif
 
-  Exec_One_Cmd(buff, no_decode_hex);
+  Exec_One_Cmd(buff, no_demangle ? CMD_FILTER_NONE : CMD_FILTER_DEMANGLE);
 
   if (strip && *EXE_FILE_STRIP != ':' && *EXE_FILE_STRIP != '\0')
     {
       sprintf(buff, "%s %s%s", EXE_FILE_STRIP, file_name_out, EXE_SUFFIX);
-      Exec_One_Cmd(buff, 1);
+      Exec_One_Cmd(buff, CMD_FILTER_NONE);
     }
 }
 
@@ -807,7 +863,7 @@ Link_Cmd(void)
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Exec_One_Cmd(char *cmd, int no_decode_hex)
+Exec_One_Cmd(char *cmd, char *cmd_filter)
 {
 #if 1
   int status;
@@ -817,15 +873,16 @@ Exec_One_Cmd(char *cmd, int no_decode_hex)
 
   Before_Cmd(cmd);
 
-  if (no_decode_hex == 1)
-    status = Pl_M_Spawn(arg);
+  if (cmd_filter == CMD_FILTER_NONE)
+    status = Pl_Spawn(arg);
   else
-    status = Spawn_Decode_Hex(arg);
+    status = Spawn_And_Filter(arg, cmd_filter);
 
   if (status == -1)
     {
       fprintf(stderr, "error trying to execute ");
       perror(arg[0]);
+      exit(1);
     }
 
   if (status == -2)
@@ -854,17 +911,32 @@ Exec_One_Cmd(char *cmd, int no_decode_hex)
 
 
 /*-------------------------------------------------------------------------*
- * SPAWN_DECODE_HEX                                                        *
+ * SPAWN_AND_FILTER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 int
-Spawn_Decode_Hex(char *arg[])
+Spawn_And_Filter(char *arg[], char *cmd_filter)
 {
   int pid, status;
   FILE *f_out = M_SPAWN_REDIRECT_CREATE;
+  FILE **pf_err = &f_out;	/* merge out and err for demangle */
+  FILE *f_res = NULL;
   static char buff[CMD_LINE_LENGTH];
 
-  pid = Pl_M_Spawn_Redirect(arg, 0, NULL, &f_out, &f_out);
+  f_out = M_SPAWN_REDIRECT_CREATE;
+
+  if (cmd_filter != CMD_FILTER_DEMANGLE) /* redirect output of CPP */
+    {
+      pf_err = NULL; 		/* err not redirected */
+      f_res = fopen(cmd_filter, "w");
+      if (f_res == NULL)
+	{
+	  perror(cmd_filter);
+	  exit(1);
+	}
+    }
+    
+  pid = Pl_Spawn_Redirect(arg, FALSE, NULL, &f_out, pf_err);
   if (pid == -1 || pid == -2)
     return pid;
 
@@ -877,18 +949,43 @@ Spawn_Decode_Hex(char *arg[])
       if (feof(f_out))
 	break;
 
+      if (cmd_filter == CMD_FILTER_DEMANGLE)
+	{
 #ifndef DEBUG
-      fputs(Decode_Hexa_Line(buff, "predicate(%s)", 1, 1, 1), stderr);
+	  fputs(Demangle_Line(buff, "predicate(%s)", 1, 1, 1), stderr);
 #else
-      fprintf(stderr, "piped line:%s",
-	      Decode_Hexa_Line(buff, "predicate(%s)", 1, 1, 1));
+	  fprintf(stderr, "piped line:%s",
+		  Demangle_Line(buff, "predicate(%s)", 1, 1, 1));
 #endif
+	}
+      else			/* redirect CPP to res file */
+	{
+	  /* ignore blank lines */
+	  if (*buff && *buff != '\r' && *buff != '\n')
+	    {
+	      char *p = buff;
+	      /*
+	       * MSVC preprocess output: #line LINENO "FILENAME"
+	       * gcc output format:      # LINENO "FILENAME"
+	       * remove 'line '
+	       */
+	      if (strncmp(buff, "#line", 5) == 0)
+		{
+		  p = buff + 4;
+		  *p = '#';
+		}
+	      fputs(p, f_res);
+	    }
+	}
     }
 
   if (fclose(f_out))
     return -1;
 
-  status = Pl_M_Get_Status(pid);
+  if (f_res != NULL && fclose(f_res))
+    return -1;
+  
+  status = Pl_Get_Status(pid);
 
 #ifdef DEBUG
   fprintf(stderr, "error status: %d\n", status);
@@ -942,7 +1039,8 @@ Find_File(char *file, char *suff, char *file_path, int ignore_error)
   else
     for (pdev = devel_dir; *pdev; pdev++)
       {
-	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s", start_path, *pdev, name);
+	sprintf(file_path, "%s" DIR_SEP_S "%s" DIR_SEP_S "%s",
+		start_path, *pdev, name);
 	if (access(file_path, F_OK) == 0)
 	  return 1;
       }
@@ -967,9 +1065,9 @@ Find_Suffix(char *suffixes, char *suffix)
 
 {
   char *p;
-  /* TODO: use strcasestr (must be tested in configure.in) */
 
-  if ((p = strstr(suffixes, suffix)) && p[-1] == '|' && p[strlen(suffix)] == '|')
+  if ((p = strstr(suffixes, suffix)) && p[-1] == '|' &&
+      p[strlen(suffix)] == '|')
     return p;
 
   return NULL;
@@ -1050,42 +1148,42 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "-W") || Check_Arg(i, "--wam-for-native"))
 	    {
 	      stop_after = FILE_PL;
-	      bc_mode = 0;
+	      bc_mode = FALSE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-w") || Check_Arg(i, "--wam-for-byte-code"))
 	    {
 	      stop_after = FILE_PL;
-	      bc_mode = 1;
+	      bc_mode = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-M") || Check_Arg(i, "--mini-assembly"))
 	    {
 	      stop_after = FILE_WAM;
-	      bc_mode = 0;
+	      bc_mode = FALSE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-S") || Check_Arg(i, "--assembly"))
 	    {
 	      stop_after = FILE_MA;
-	      bc_mode = 0;
+	      bc_mode = FALSE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-c") || Check_Arg(i, "--object"))
 	    {
 	      stop_after = FILE_ASM;
-	      bc_mode = 0;
+	      bc_mode = FALSE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-F") || Check_Arg(i, "--fd-to-c"))
 	    {
 	      stop_after = FILE_FD;
-	      bc_mode = 0;
+	      bc_mode = FALSE;
 	      continue;
 	    }
 
@@ -1096,8 +1194,10 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--pic") || Check_Arg(i, "-fPIC") || Check_Arg(i, "--dynamic")) /* TODO pass --pic to gcc as -fPIC for C code */
-	    {		
+	  if (Check_Arg(i, "--pic") || Check_Arg(i, "--PIC") ||
+	      Check_Arg(i, "-fPIC") ||
+	      Check_Arg(i, "--dynamic")) 
+	    {	   /* TODO pass --pic to gcc as -fPIC for C code ?, and PIE ? */
 	      Add_Last_Option(cmd_ma2asm.opt);
 	      continue;
 	    }
@@ -1113,13 +1213,13 @@ Parse_Arguments(int argc, char *argv[])
 
 	  if (Check_Arg(i, "--no-del-temp-files"))
 	    {
-	      no_del_temp_files = 1;
+	      no_del_temp_files = TRUE;
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "--no-decode-hexa") || Check_Arg(i, "--no-demangling"))
+	  if (Check_Arg(i, "--no-demangling"))
 	    {
-	      no_decode_hex = 1;
+	      no_demangle = TRUE;
 	      continue;
 	    }
 
@@ -1130,7 +1230,7 @@ Parse_Arguments(int argc, char *argv[])
 	      if (Check_Arg(i, "--version"))
 		exit(0);
 
-	      verbose = 1;
+	      verbose = TRUE;
 	      continue;
 	    }
 
@@ -1152,8 +1252,7 @@ Parse_Arguments(int argc, char *argv[])
 		}
 
 	      Add_Last_Option(cmd_pl2wam.opt);
-	      last_opt = argv[i];
-	      Add_Last_Option(cmd_pl2wam.opt);
+	      Add_Option(i, cmd_pl2wam.opt);
 	      continue;
 	    }
 
@@ -1163,8 +1262,7 @@ Parse_Arguments(int argc, char *argv[])
 		Pl_Fatal_Error("COMMENT missing after %s option", last_opt);
 
 	      Add_Last_Option(cmd_pl2wam.opt);
-	      last_opt = argv[i];
-	      Add_Last_Option(cmd_pl2wam.opt);
+	      Add_Option(i, cmd_pl2wam.opt);
 	      continue;
 	    }
 
@@ -1207,23 +1305,31 @@ Parse_Arguments(int argc, char *argv[])
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-C"))
+	  if (Check_Arg_MinusWx(i, "-C", "-Wc,"))
 	    {
-	      if (++i >= argc)
-		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
+	      if (!last_is_wx_opt)
+		{
+		  if (++i >= argc)
+		    Pl_Fatal_Error("OPTION missing after %s option", last_opt);
+		  last_opt = argv[i];
+		}
 
-	      Add_Option(i, cmd_cc.opt);
-	      /* if C options specified do not take into account fd2c default C options */
+	      Add_Last_Option(cmd_cc.opt);
+	      /* if C options specified ignore fd2c default C options */
 	      cc_fd2c_flags = "";
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-A"))
+	  if (Check_Arg_MinusWx(i, "-A", "-Wa,"))
 	    {
-	      if (++i >= argc)
-		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
+	      if (!last_is_wx_opt)
+		{
+		  if (++i >= argc)
+		    Pl_Fatal_Error("OPTION missing after %s option", last_opt);
+		  last_opt = argv[i];
+		}
 
-	      Add_Option(i, cmd_asm.opt);
+	      Add_Last_Option(cmd_asm.opt);
 	      continue;
 	    }
 
@@ -1232,11 +1338,11 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_local_size = strtol(argv[i], &q, 10);
-	      if (*q || pl_def_local_size < 0)
+	      def_local_size = strtol(argv[i], &q, 10);
+	      if (*q || def_local_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
-	      needs_stack_file = 1;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
@@ -1245,11 +1351,11 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_global_size = strtol(argv[i], &q, 10);
-	      if (*q || pl_def_global_size < 0)
+	      def_global_size = strtol(argv[i], &q, 10);
+	      if (*q || def_global_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
-	      needs_stack_file = 1;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
@@ -1258,11 +1364,11 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_trail_size = strtol(argv[i], &q, 10);
-	      if (*q || pl_def_trail_size < 0)
+	      def_trail_size = strtol(argv[i], &q, 10);
+	      if (*q || def_trail_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
-	      needs_stack_file = 1;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
@@ -1271,11 +1377,11 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_cstr_size = strtol(argv[i], &q, 10);
-	      if (*q || pl_def_cstr_size < 0)
+	      def_cstr_size = strtol(argv[i], &q, 10);
+	      if (*q || def_cstr_size < 0)
 		Pl_Fatal_Error("invalid stack size (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
-	      needs_stack_file = 1;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
@@ -1284,37 +1390,37 @@ Parse_Arguments(int argc, char *argv[])
 	      Record_Link_Warn_Option(i);
 	      if (++i >= argc)
 		Pl_Fatal_Error("SIZE missing after %s option", last_opt);
-	      pl_def_max_atom = strtol(argv[i], &q, 10);
-	      if (*q || pl_def_max_atom < 0)
+	      def_max_atom = strtol(argv[i], &q, 10);
+	      if (*q || def_max_atom < 0)
 		Pl_Fatal_Error("invalid max atom (%s)", argv[i]);
 	      Record_Link_Warn_Option(i);
-	      needs_stack_file = 1;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--fixed-sizes"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      pl_fixed_sizes = 1;
-	      needs_stack_file = 1;
+	      fixed_sizes = TRUE;
+	      needs_stack_file = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--new-top-level"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_top_level = 0;
-	      no_debugger = 0;
-	      new_top_level = 1;
+	      no_top_level = FALSE;
+	      no_debugger = FALSE;
+	      new_top_level = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--no-top-level"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_top_level = 1;
-	      no_debugger = 1;
-	      new_top_level = 0;
+	      no_top_level = TRUE;
+	      no_debugger = TRUE;
+	      new_top_level = FALSE;
 	      continue;
 	    }
 
@@ -1322,7 +1428,7 @@ Parse_Arguments(int argc, char *argv[])
 	    {
 #ifdef W32_GUI_CONSOLE
 	      Record_Link_Warn_Option(i);
-	      gui_console = 1;
+	      gui_console = TRUE;
 #else
 	      fprintf(stderr, "Warning: Win32 GUI Console not available\n");
 #endif
@@ -1332,79 +1438,85 @@ Parse_Arguments(int argc, char *argv[])
 	  if (Check_Arg(i, "--no-debugger"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_debugger = 1;
+	      no_debugger = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--min-pl-bips"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      min_pl_bips = 1;
+	      min_pl_bips = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--min-fd-bips"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      min_fd_bips = 1;
+	      min_fd_bips = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--min-bips") || Check_Arg(i, "--min-size"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = 1;
-	      new_top_level = 0;
+	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = TRUE;
+	      new_top_level = FALSE;
 	      if (Check_Arg(i, "--min-size"))
-		strip = 1;
+		strip = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--no-pl-lib"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_pl_lib = no_fd_lib = 1;
-	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = 1;
-	      new_top_level = 0;
+	      no_pl_lib = no_fd_lib = TRUE;
+	      no_top_level = no_debugger = min_pl_bips = min_fd_bips = TRUE;
+	      new_top_level = FALSE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--no-fd-lib"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_fd_lib = min_fd_bips = 1;
+	      no_fd_lib = min_fd_bips = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "--no-fd-lib-warn"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      no_fd_lib_warn = 1;
+	      no_fd_lib_warn = TRUE;
 	      continue;
 	    }
 
 	  if (Check_Arg(i, "-s") || Check_Arg(i, "--strip"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      strip = 1;
+	      strip = TRUE;
 	      continue;
 	    }
 
-	  if (Check_Arg(i, "-L"))
+	  if (Check_Arg_MinusWx(i, "-L", "-Wl,"))
 	    {
 	      Record_Link_Warn_Option(i);
-	      if (++i >= argc)
-		Pl_Fatal_Error("OPTION missing after %s option", last_opt);
 
-	      Record_Link_Warn_Option(i);
-#if 0
-	      Add_Option(i, cmd_link.opt);
-#else
-	      f->name = f->work_name1 = argv[i];
+	      if (!last_is_wx_opt)
+		{
+		  if (++i >= argc)
+		    Pl_Fatal_Error("OPTION missing after %s option", last_opt);
+		  last_opt = argv[i];
+		  Record_Link_Warn_Option(i);
+		}
+
+	      /*
+	       * The position of link flags can be relevant, we do not use
+	       * append a linker flag to with Add_Last_Option(cmd_link.opt);
+	       * but instead consider a linker flag as a special input file
+	       */
+	      f->name = f->work_name1 = last_opt;
 	      f->type = LINK_OPTION;
 	      nb_file_lopt++;
 	      f++;
-#endif
 	      continue;
 	    }
 
@@ -1428,19 +1540,20 @@ Parse_Arguments(int argc, char *argv[])
 
       if (Find_Suffix(PL_SUFFIX_ALTERNATE, f->suffix))
 	f->type = FILE_PL;
+      else if (Find_Suffix(C_SUFFIX_ALTERNATE, f->suffix))
+	f->type = FILE_C;
+      else if (strcmp(f->suffix, ".S") == 0)
+	f->type = FILE_MA; /* handled on stage before ASM for preprocess */
       else
-	if (Find_Suffix(PL_SUFFIX_ALTERNATE, f->suffix))
-	  f->type = FILE_C;
-	else
-	  {
-	    f->type = FILE_LINK;
-	    for (p = suffixes; *p; p++)
-	      if (strcasecmp(*p, f->suffix) == 0)
-		{
-		  f->type = (int) (p - suffixes);
-		  break;
-		}
-	  }
+	{
+	  f->type = FILE_LINK;
+	  for (p = suffixes; *p; p++)
+	    if (strcasecmp(*p, f->suffix) == 0)
+	      {
+		f->type = (int) (p - suffixes);
+		break;
+	      }
+	}
 
       f->work_name1 = f->name;
       f->work_name2 = NULL;
@@ -1457,7 +1570,7 @@ Parse_Arguments(int argc, char *argv[])
     }
 
   if (no_top_level)
-    new_top_level = 0;
+    new_top_level = FALSE;
 
 
   if (f == file_lopt)
@@ -1473,7 +1586,8 @@ Parse_Arguments(int argc, char *argv[])
   if (nb_file > 1 && stop_after < FILE_LINK && file_name_out &&
       strchr(file_name_out, '%') == NULL)
     {
-      fprintf(stderr, "named output file ignored with multiples output (or use meta-characters, e.g. %%p)\n");
+      fprintf(stderr, "named output file ignored with multiples output ");
+      fprintf(stderr, "(or use meta-characters, e.g. %%p)\n");
       Record_Link_Warn_Option(file_name_out_i);
       Record_Link_Warn_Option(file_name_out_i + 1);
       file_name_out = NULL;
@@ -1503,15 +1617,14 @@ Display_Help(void)
   L("  -c, --object                stop after producing object file(s)");
   L("  --temp-dir PATH             use PATH as directory for temporary files");
   L("  --no-del-temp-files         do not delete temporary files");
-  L("  --no-demangling             do not decode hexadecimal predicate names");
-  L("  --no-decode-hexa            same as --no-demanling (deprecated)");
+  L("  --no-demangling             do not demangle predicate names");
   L("  -v, --verbose               print executed commands");
   L("  -h, --help                  print this help and exit");
   L("  --version                   print version number and exit");
   L(" ");
   L("Prolog to WAM compiler options:");
   L("  -i FILE, --include FILE     include FILE at the beginning of the compilation");
-  L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file");
+  L("  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file (can be repeated)");
   L("  --no-susp-warn              do not show warnings for suspicious predicates");
   L("  --no-singl-warn             do not show warnings for named singleton variables");
   L("  --no-redef-error            do not show errors for built-in redefinitions");
@@ -1532,14 +1645,14 @@ Display_Help(void)
   L(" ");
   L("Mini-assembly to assembly translator options:");
   L("  --comment                   include comments in the output file");
-  L("  --pic, -fPIC, --dynamic     produce position independent code (PIC)");
+  L("  --pic, -fPIC, --dynamic     produce position independent code (PIC) - (not yet fully implemented)");
   L(" ");
   L("C Compiler options:");
   L("  --c-compiler FILE           use FILE as C compiler/linker");
-  L("  -C OPTION                   pass OPTION to the C compiler");
+  L("  -C OPTION, -Wc,OPTION       pass OPTION to the C compiler");
   L(" ");
   L("Assembler options:");
-  L("  -A OPTION                   pass OPTION to the assembler");
+  L("  -A OPTION, -Wa,OPTION       pass OPTION to the assembler");
   L(" ");
   L("Linker options:");
   L("  --linker FILE               use FILE as linker");
@@ -1561,7 +1674,7 @@ Display_Help(void)
   L("  --no-fd-lib                 do not look for the FD library (maintenance only)");
   L("  --no-fd-lib-warn            do not warn about inexistent FD library (maintenance only)");
   L("  -s, --strip                 strip the executable");
-  L("  -L OPTION                   pass OPTION to the linker");
+  L("  -L OPTION, -Wl,OPTION       pass OPTION to the linker");
   L("");
   L("The file name specified after --output can include meta-characters:");
   L("  %f for the whole input file name, %F same as %f without directory");

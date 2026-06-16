@@ -1,19 +1,23 @@
+/*
+ * Helper C source used to derive the MA->asm mapper for a given terget.
+ * The generated compiler assembly serves as a model for low-level mappings.
+ */
+
+#include "../../EnginePl/gp_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-non-prototype"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-label"
 #endif
 
 
-/* to define Data_Start(intializer_fct) */
-#define OBJ_INIT initializer_fct
-
-
-#include "../../EnginePl/gp_config.h"
 #include "../../EnginePl/pl_params.h"
+#include "../../EnginePl/bool.h"
+#include "../../EnginePl/pl_long.h"
+#include "../../Tools/ctor.h"
 #if 1 /* #if 0, cp ../../EnginePl/wam_archi.h . and customize it if needed */
 #include "../../EnginePl/wam_archi.h"
 #else
@@ -31,8 +35,7 @@ TRANS_Reload_E_In_Register(void)
 }
 #endif
 
-#include "../../EnginePl/machine.h"
-#include "../../EnginePl/obj_chain.h"
+#include "../../EnginePl/machine_regs.h"
 #include "../../EnginePl/wam_inst.h"
 
 
@@ -85,11 +88,19 @@ PlLong x, y;
 
 
 
+/* to see asm code needed in Pl_Call_Compiled (trampoline.S) */
+WamWord *save_pl_reg_bank;
 
-/* to define Data_Start() + Data_Stop */
+void
+Assign_pl_reg_bank(void)
+{
+  Dummy(pl_reg_bank);
+  save_pl_reg_bank = pl_reg_bank;
+}
 
-static void
-initializer_fct(void)
+/* to define Data_Start() / Data_Start(intializer_fct) + Data_Stop */
+
+INITIALIZER(initializer_fct)
 { /* printf to ensure gcc does not remove unused static vars */
   printf("%p %p\n", &ma_local_var1, &ma_local_var2);
   printf("%" PL_FMT_d " %" PL_FMT_d " %" PL_FMT_d " %p\n",
@@ -127,7 +138,7 @@ TRANS_Code_Start_local(void)
 void
 TRANS_Pl_Jump(void)
 {
-  M_Direct_Goto(label);
+  Direct_Goto(label);
 _label:;
 }
 
@@ -148,11 +159,11 @@ TRANS_Pl_Call(void)
 {
 #ifdef __GNUC__
   CP = (CodePtr) &&cont;
-  M_Direct_Goto(lab);
+  Direct_Goto(lab);
  cont:
 #else
   CP = (CodePtr) foo;
-  M_Direct_Goto(lab);
+  Direct_Goto(lab);
 _lab:;
 #endif
   Dummy(CP);
@@ -176,7 +187,7 @@ void TRANS_Pl_Call_2(void)
 void
 TRANS_Pl_Fail(void)
 {
-  M_Indirect_Goto(ALTB(B));
+  Indirect_Goto(ALTB(B));
 }
 
 
@@ -188,7 +199,7 @@ TRANS_Pl_Fail(void)
 void
 TRANS_Pl_Ret(void)
 {
-  M_Indirect_Goto(CP);
+  Indirect_Goto(CP);
 }
 
 
@@ -325,19 +336,20 @@ test_call_c_arg_string(void)
 }
 
 
+extern void error(void);
 void
 test_call_c_arg_mem_l(void)
 {
-  void FC test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f);
+  void FC test_arg_mem_l1(PlLong a, PlLong b, PlLong *c, PlLong d, PlLong e, PlLong *f, void *g);
 
-  test_arg_mem_l1(ma_local_var2,ma_global_var2,(PlLong *) &test_arg_mem_l1,ma_array[0],ma_array[4097],&ma_array[4500]);
+  test_arg_mem_l1(ma_local_var2,ma_global_var2,(PlLong *) &test_arg_mem_l1,ma_array[0],ma_array[4097],&ma_array[4500], (void *) error);
 }
 
 
 void
 test_call_c_arg_x(void)
 {
-  void FC test_arg_x1(PlLong a, PlLong *b, PlLong c, PlLong *d);
+  void FC test_arg_x1(PlULong a, PlULong *b, PlULong c, PlULong *d);
 
   test_arg_x1(X(0), &X(0), X(255), &X(128));
 }
@@ -346,7 +358,7 @@ test_call_c_arg_x(void)
 void
 test_call_c_arg_y(void)
 {
-  void FC test_arg_y1(PlLong a, PlLong *b, PlLong c, PlLong *d, PlLong e);
+  void FC test_arg_y1(PlULong a, PlULong *b, PlULong c, PlULong *d, PlULong e);
   
   test_arg_y1(YY(0), &YY(0), YY(12), &YY(6), YY(17000));
 }
@@ -374,8 +386,8 @@ test_call_c_lot_args(void)
 {
   void FC test_call_c_lot_args1(double n0, PlLong n1, double n2, PlLong n3, double n4, PlLong n5,
 				void (*a) (), PlLong b, PlLong c, PlLong d, double e, char *f,
-				PlLong g, PlLong *h, PlLong i, PlLong *j,
-				PlLong k, PlLong *l, PlLong m, PlLong *n, double o);
+				PlULong g, PlULong *h, PlULong i, PlULong *j,
+				PlULong k, PlULong *l, PlULong m, PlULong *n, double o);
   
   test_call_c_lot_args1(0.1, 0, 0.2, 0, 0.3, 0, &test_call_c_lot_args1, ma_local_var2, 4095, 123456789, -3.141593, "abcd\01489def\n\r", X(0), &X(0), X(255), &X(128), YY(0), &YY(0), YY(12), &YY(6), 1.23456);
 }
@@ -418,7 +430,7 @@ TRANS_Jump_Ret(void)
   _asm { jmp adr }
 #elif defined(__clang__)
   register PlLong adr = (PlLong) bar(12, "toto");
-  M_Indirect_Goto(adr);
+  Indirect_Goto(adr);
 #else
   goto *(void *) bar(12, "toto");
 #endif

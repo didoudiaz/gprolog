@@ -6,7 +6,7 @@
  * Descr.: predicate table management - header file                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -65,7 +65,7 @@ typedef struct			/* Predicate information          */
   int pl_file;			/* atom pl file of its definiton  */
   int pl_line;			/* pl file line of its definition */
   int prop;			/* predicate props (cf BipsPl)    */
-  PlLong *codep;		/* compiled code                  */
+  CodePtr codep;		/* compiled code                  */
   void *dyn;			/* dynamic info (cf BipsPl)       */
 }
 PredInf;
@@ -79,11 +79,11 @@ PredInf;
 
 #ifdef PRED_FILE
 
-char *pl_pred_tbl;
+void *pl_pred_htbl;
 
 #else
 
-extern char *pl_pred_tbl;
+extern void *pl_pred_htbl;
 
 #endif
 
@@ -97,7 +97,7 @@ extern char *pl_pred_tbl;
 void Pl_Init_Pred(void);
 
 PredInf * FC Pl_Create_Pred(int func, int arity, int pl_file, int pl_line,
-			    int prop, PlLong *codep);
+			    int prop, CodePtr codep);
 
 PredInf * FC Pl_Lookup_Pred(int func, int arity);
 

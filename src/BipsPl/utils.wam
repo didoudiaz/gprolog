@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : utils.pl
+% file: utils.pl
+% hash: 01de49572bcd6fe75b31fbf4ef2a1717bd527361  utils.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/utils.pl').

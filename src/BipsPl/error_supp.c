@@ -6,7 +6,7 @@
  * Descr.: Prolog errors support                                           *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,11 +35,10 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <errno.h>
 #include <string.h>
-
-#define OBJ_INIT Error_Supp_Initializer
 
 #define ERROR_SUPP_FILE
 
@@ -129,8 +128,7 @@ Prolog_Prototype(PL_ERR_SYSTEM, 1);
  * ERROR_SUPP_INITIALIZER                                                  *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Error_Supp_Initializer(void)
+PL_INITIALIZER(Error_Supp_Initializer)
 {
   pl_type_atom = Pl_Create_Atom("atom");
   pl_type_atomic = Pl_Create_Atom("atomic");
@@ -240,7 +238,7 @@ Error_Supp_Initializer(void)
   pl_evaluation_zero_divisor = Pl_Create_Atom("zero_divisor");
 
 
-  pl_resource_print_object_not_linked = Pl_Create_Atom("print_object_not_linked");
+  pl_resource_print_unit_not_linked = Pl_Create_Atom("print_unit_not_linked");
 				/* for print and format */
   pl_resource_finite_memory = Pl_Create_Atom("finite_memory"); /* e.g. for length(L, L) */
   if (pl_fd_init_solver)		/* FD solver linked */
@@ -514,7 +512,7 @@ Pl_Unknown_Pred_Error(int func, int arity)
 void
 Pl_Os_Error(int err_no)
 {
-  char *err_str = Pl_M_Sys_Err_String(err_no);
+  char *err_str = Pl_Sys_Err_String(err_no);
 
   if (Flag_Value(os_error) == PF_ERR_ERROR)
     Pl_Err_System(Pl_Create_Allocate_Atom(err_str));

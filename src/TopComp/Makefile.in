@@ -2,33 +2,39 @@ TOP_LEVEL       = @TOP_LEVEL@
 TOP_LEVEL_FLAGS = @TOP_LEVEL_FLAGS@
 GPLC            = @GPLC@
 CFLAGS          = @CFLAGS@
-HEXGPLC         = @HEXGPLC@
+GPLC_FILTER     = @GPLC_FILTER@
 CC              = @CC@ @CFLAGS_MACHINE@
 LDFLAGS         = @LDFLAGS@
 LDLIBS          = @LDLIBS@
 TOP_LEVEL_LIBS  = @TOP_LEVEL_LIBS@
+WIN_AS_COPY     = @WIN_AS_COPY@
 
-EXECS     = $(GPLC)@EXE_SUFFIX@ $(HEXGPLC)@EXE_SUFFIX@
+EXECS     = $(GPLC)@EXE_SUFFIX@ $(GPLC_FILTER)@EXE_SUFFIX@
 ALL_EXECS = $(EXECS) $(TOP_LEVEL)@EXE_SUFFIX@
-
+GPLC_OBJS = ../EnginePl/os_path@OBJ_SUFFIX@ ../EnginePl/os_spawn@OBJ_SUFFIX@ \
+	    ../EnginePl/os_error@OBJ_SUFFIX@ ../EnginePl/winsup@OBJ_SUFFIX@ \
+	    mangling@OBJ_SUFFIX@
 
 .SUFFIXES:
 .SUFFIXES: @OBJ_SUFFIX@ .c $(SUFFIXES)
 
 
 .c@OBJ_SUFFIX@:
-	$(GPLC) -c -C '$(CFLAGS)' $*.c
+	$(CC) -c $(CFLAGS) $*.c
 
 
 first: $(EXECS)
 
-$(GPLC)@EXE_SUFFIX@: top_comp.c copying.c ../EnginePl/wam_regs.h \
-         ../EnginePl/gp_config.h ../EnginePl/machine1.c decode_hexa.c copying.c prolog_path.c
-	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(LDLIBS)
+$(GPLC)@EXE_SUFFIX@: top_comp.c ../EnginePl/wam_regs.h ../EnginePl/gp_config.h \
+	copying.h $(GPLC_OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(GPLC)@EXE_SUFFIX@ top_comp.c $(GPLC_OBJS) $(LDLIBS)
 
-$(HEXGPLC)@EXE_SUFFIX@: hexfilter.c decode_hexa.c
-	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(HEXGPLC)@EXE_SUFFIX@ hexfilter.c
 
+$(GPLC_FILTER)@EXE_SUFFIX@: mangle_filter.c mangling@OBJ_SUFFIX@
+	$(CC) $(CFLAGS) $(LDFLAGS) @CC_EXE_NAME_OPT@$(GPLC_FILTER)@EXE_SUFFIX@ mangle_filter.c mangling@OBJ_SUFFIX@
+
+
+mangling@OBJ_SUFFIX@: mangling.c mangling.h
 
 
 all: $(ALL_EXECS)
@@ -36,7 +42,7 @@ all: $(ALL_EXECS)
 
 top-level: $(TOP_LEVEL)@EXE_SUFFIX@
 
-$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.c top_level_main@OBJ_SUFFIX@ $(TOP_LEVEL_LIBS)
+$(TOP_LEVEL)@EXE_SUFFIX@: ../EnginePl/gp_config.h copying.h top_level_main@OBJ_SUFFIX@ $(TOP_LEVEL_LIBS)
 	$(GPLC) $(TOP_LEVEL_FLAGS) -o $(TOP_LEVEL)@EXE_SUFFIX@ -C '$(CFLAGS)' top_level_main@OBJ_SUFFIX@
 
 

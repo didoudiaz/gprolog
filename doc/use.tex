@@ -72,7 +72,7 @@ itself, i.e. to execute the built-in predicate
 \begin{verbatim}
 GNU Prolog 1.6.0 (64 bits)
 Compiled Nov 18 2025, 12:05:57 with gcc
-Copyright (C) 1999-2025 Daniel Diaz
+Copyright (C) 1999-2026 Daniel Diaz
 
 | ?- 
 \end{verbatim}
@@ -160,7 +160,7 @@ will produce the following:
 before
 GNU Prolog 1.6.0 (64 bits)
 Compiled Nov 18 2025, 12:05:57 with gcc
-Copyright (C) 1999-2025 Daniel Diaz
+Copyright (C) 1999-2026 Daniel Diaz
 
 inside
 | ?- append([a,b],[c,d],X).
@@ -217,10 +217,9 @@ solutions)}
 computed)}
 \SkipLine
 \One{X = [a,b,c]}
-\Two{Y = []}     {(here the user is not asked and the next solution is
-computed)}
+\Two{Y = []}     {(last solution is reached)}
 \SkipLine
-\Two{no}{(no more solution)}
+\One{yes}
 \end{CodeTwoCols}
 
 In some cases the top-level can detect that the current solution is the last
@@ -320,16 +319,16 @@ by a query and displays it when it is significant. Example:
 
 \begin{CodeTwoCols}
 \One{| ?- retractall(p(\_)), assertz(p(0)),}
-\One{~~~~~repeat,}
-\One{~~~~~~~~retract(p(X)),}
-\One{~~~~~~~~Y is X + 1,}
-\One{~~~~~~~~assertz(p(Y)),}
-\One{~~~~~~~~X = 1000, !.}
+\One{~~~repeat,}
+\One{~~~~~~retract(p(X)),}
+\One{~~~~~~Y is X + 1,}
+\One{~~~~~~assertz(p(Y)),}
+\One{~~~~~~X = 100000, !.}
 \SkipLine
-\One{X = 1000}
-\One{Y = 1001}
+\One{X = 100000}
+\One{Y = 100001}
 \SkipLine
-\Two{(180 ms) yes}{(the query took 180ms of user time)}
+\Two{(156 ms) yes}{(the query took 156ms of user time)}
 \end{CodeTwoCols}
 
 \subsubsection{Consulting a Prolog program}
@@ -737,26 +736,26 @@ name  & size (Kb) & variable    & \\
 
 \hline\hline
 
-\texttt{local} & 16384 & \texttt{LOCALSZ} & control stack (environments
+\texttt{local} & 50000 & \texttt{LOCALSZ} & control stack (environments
 and choice-points) \\
 
 \hline
 
-\texttt{global} & 32768 & \texttt{GLOBALSZ} & heap (compound terms) \\
+\texttt{global} & 100000 & \texttt{GLOBALSZ} & heap (compound terms) \\
 
 \hline
 
-\texttt{trail} & 16384 & \texttt{TRAILSZ} & conditional bindings (bindings
+\texttt{trail} & 50000 & \texttt{TRAILSZ} & conditional bindings (bindings
 to undo at backtracking) \\
 
 \hline
 
-\texttt{cstr} & 16384 & \texttt{CSTRSZ} & finite domain constraint stack
+\texttt{cstr} & 50000 & \texttt{CSTRSZ} & finite domain constraint stack
 (FD variables and constraints) \\
 
 \hline
 
-\texttt{atoms} & 32768 & \texttt{MAX\_ATOM} & atom table \\
+\texttt{atoms} & 100000 & \texttt{MAX\_ATOM} & atom table size \\
 
 \hline
 \end{tabular}
@@ -778,8 +777,8 @@ to (re)define the variable \Param{E} with the new size. For
 instance to allocate  Kb to the local stack under a Unix shell use:
 
 \begin{CodeTwoCols}[6cm]
-\Two{LOCALSZ=32768; export LOCALSZ}{(under \texttt{sh} or \texttt{bash})}
-\Two{setenv LOCALSZ 32768}{(under \texttt{csh} or \texttt{tcsh})}
+\Two{LOCALSZ=100000; export LOCALSZ}{(under \texttt{sh} or \texttt{bash})}
+\Two{setenv LOCALSZ 100000}{(under \texttt{csh} or \texttt{tcsh})}
 \end{CodeTwoCols}
 
 This method allows the user to adjust the size of Prolog stacks. However, in
@@ -988,7 +987,7 @@ for temporary files \\
 \begin{CmdOptions}
 \IdxKD{--include} \Param{FILE} & include FILE at the beginning of the compilation \\
 
-\IdxKD{--wam-comment} \Param{COMMENT} & emit \Param{COMMENT} as a comment in the WAM file \\
+\IdxKD{--wam-comment} \Param{COMMENT} & emit \Param{COMMENT} as a comment in the WAM file (can be repeated) \\
 
 \IdxKD{--no-susp-warn} & do not show warnings for suspicious predicates \\
 
@@ -1036,7 +1035,7 @@ arithmetics) \\
 
 \begin{CmdOptions}
 \IdxK{--comment} & include comments in the output file \\
-\IdxK{--pic} & produce position independent code (PIC) \\
+\IdxKD{--pic}, \IdxKD{--fPIC} & produce position independent code (PIC) (not yet fully implemented) \\
 
 \end{CmdOptions}
 
@@ -1045,14 +1044,14 @@ arithmetics) \\
 \begin{CmdOptions}
 \IdxKD{--c-compiler} \Param{FILE} & use \Param{FILE} as C compiler/linker \\
 
-\IdxKD{-C} \Param{OPTION} & pass \Param{OPTION} to the C compiler \\
+\IdxKD{-C} \Param{OPTION}, \IdxKD{-Wc,}\Param{OPTION} & pass \Param{OPTION} to the C compiler \\
 
 \end{CmdOptions}
 
 \SPart{Assembler options}:
 
 \begin{CmdOptions}
-\IdxKD{-A} \Param{OPTION} & pass \Param{OPTION} to the assembler \\
+\IdxKD{-A} \Param{OPTION}, \IdxKD{-Wa,}\Param{OPTION} & pass \Param{OPTION} to the assembler \\
 
 \end{CmdOptions}
 
@@ -1101,7 +1100,7 @@ arithmetics) \\
 
 \IdxKD{-s}, \IdxKD{--strip} & strip the executable \\
 
-\IdxKD{-L} \Param{OPTION} & Pass \Param{OPTION} to the linker \\
+\IdxKD{-L} \Param{OPTION}, \IdxKD{-Wl,}\Param{OPTION} & Pass \Param{OPTION} to the linker \\
 
 \end{CmdOptions}
 
@@ -1248,7 +1247,7 @@ resulting executable is stripped). All intermediate files are produced
 (\texttt{prog.wam}, \texttt{prog.ma}, \texttt{prog.s}, \texttt{prog.o} and
 the executable \texttt{prog}):
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 % gplc -W prog.pl
 % gplc -M --comment prog.wam
@@ -1256,7 +1255,7 @@ the executable \texttt{prog}):
 % gplc -c prog.s
 % gplc -o prog -s prog.o
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \subsubsection{Running an executable}
 \label{Running-an-executable}
@@ -1441,16 +1440,16 @@ filtering can be deactivated specifying \texttt{--no-demangling} when
 invoking \IdxK{gplc} \RefSP{Using-the-compiler}.
 
 This filter is provided as an utility that can be invoked using the
-\IdxKD{hexgplc} command as follows:
+\IdxKD{gplc-filter} command as follows:
 
-\OneLineTwoCols[5.5cm]{\% hexgplc \textrm{[}\Param{OPTION}\textrm{]\ldots}~\Param{FILE}\textrm{\ldots}}{(the \texttt{\%} symbol is the operating system shell prompt)}
+\OneLineTwoCols[5.5cm]{\% gplc-filter \textrm{[}\Param{OPTION}\textrm{]\ldots}~\Param{FILE}\textrm{\ldots}}{(the \texttt{\%} symbol is the operating system shell prompt)}
 
 \SPart{Options}:
 
 \begin{CmdOptions}
-\IdxKD{--decode} or \IdxKD{--demangling} & decoding mode (this is the default mode) \\
+\IdxKD{--demangling} or \IdxKD{--decode} & demangling  mode (this is the default mode) \\
 
-\IdxKD{--encode} or \IdxKD{--mangling} & encoding mode \\
+\IdxKD{--mangling} or \IdxKD{--encode} & mangling mode \\
 
 \IdxKD{--relax} & encode/decode also predicate names (not only predicate
 indicators) \\
@@ -1483,10 +1482,10 @@ auxiliary number \\
 
 It is possible to give a prefix of an option if there is no ambiguity.
 
-Without arguments \texttt{hexgplc} runs in decoding mode reading its
+Without arguments \texttt{gplc-filter} runs in decoding mode reading its
 standard input and decoding (demangling) each symbol corresponding to a predicate
-indicator. To use \texttt{hexgplc} in the encoding (mangling) mode the
-\texttt{--encode} option must be specified. By default \texttt{hexgplc} only
+indicator. To use \texttt{gplc-filter} in the encoding (mangling) mode the
+\texttt{--encode} option must be specified. By default \texttt{gplc-filter} only
 decodes predicate indicators, this can be relaxed using \texttt{--relax} to
 also take into account simple predicate names (the arity can be omitted). It
 is possible to format the output of an encoded/decoded string using
@@ -1501,28 +1500,28 @@ of a clause. They are of the form
 \texttt{\Param{NAME}/\Param{ARITY}} is the predicate indicator of the
 simplified (i.e. father) predicate and \Param{N} is a sequential
 number (a predicate can give rise to several auxiliary predicates). It is
-possible to force \texttt{hexgplc} to decode an auxiliary predicate as its
+possible to force \texttt{gplc-filter} to decode an auxiliary predicate as its
 father predicate indicator using \texttt{--aux-father} or as its father
 predicate indicator followed by the sequential number using
 \texttt{--aux-father2}.
 
-If no file is specified, \texttt{hexgplc} processes its standard input
+If no file is specified, \texttt{gplc-filter} processes its standard input
 otherwise each file is treated sequentially. Specifying the
-\texttt{--cmd-line} option informs \texttt{hexgplc} that each argument is not
+\texttt{--cmd-line} option informs \texttt{gplc-filter} that each argument is not
 a file name but a string that must be encoded (or decoded). This is useful to
 encode/decode a particular string. For this reason the option \texttt{-E}
 (encode) and \texttt{-D} (decode) are provided as
 shorthand.  Then, to obtain the mangling representation of a predicate
 \Param{PRED} use:
 
-\OneLine{\% hexgplc -E \Param{PRED}}
+\OneLine{\% gplc-filter -E \Param{PRED}}
 
 NB: if \Param{PRED} is a complex atom it is necessary to quote it 
-(the quotes must be passed to \texttt{hexgplc}). Here is an example under bash:
+(the quotes must be passed to \texttt{gplc-filter}). Here is an example under bash:
 
 \begin{Indentation}
 \begin{verbatim}
-% hexgplc -E \'x+y=z\'/3
+% gplc-filter -E \'x+y=z\'/3
 X1_782B793D7A__a3
 \end{verbatim}
 \end{Indentation}
@@ -1531,7 +1530,7 @@ Or even more safely (using bash quotes to prevent bash from interpreting special
 
 \begin{Indentation}
 \begin{verbatim}
-% hexgplc -E \''x+y=z'\'/3
+% gplc-filter -E \''x+y=z'\'/3
 X1_782B793D7A__a3
 \end{verbatim}
 \end{Indentation}

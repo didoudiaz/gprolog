@@ -6,7 +6,7 @@
  * Descr.: pass 1: syntactic sugar removing                                *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -57,11 +57,17 @@ syntactic_sugar_init_pred(Pred, _, _) :-
 
 syntactic_sugar_init_pred(Pred, N, PlFile) :-
 	(   g_read(native_code, f), test_pred_flag(multi, Pred, N) ->
-	    randomize,
-	    term_hash(PlFile, H),
-	    Max is (1 << 26),
-	    random(1, Max, R),
-	    Aux is (H + R) /\ (Max - 1) % avoid negative number
+	    current_prolog_flag(max_integer, MaxInt),
+	    term_hash(PlFile, Hash0),
+	    Reserve is 1 << 16,
+	    (   Hash0 > MaxInt - Reserve ->
+		Hash is Hash0 - Reserve
+	    ;
+		Hash = Hash0
+	    ),
+	    Upper is MaxInt - Hash,
+	    random(1, Upper, Rand),
+	    Aux is Hash + Rand
 	;
 	    Aux = 1
 	),
@@ -417,10 +423,11 @@ pred_rewriting(term_hash(Term, Depth, Range, Hash), Pred1) :-
 	/* The user should use: '$call_c'(F) or '$call_c'(F, LCOpt)
 	 * LCOpt is a list possibly containing:
 	 *   a Ret: either void, jump, boolean or ret(RetVar)
-	 *   fast_call (use a fact call convention)
-	 *   tagged (use tagged calls for atom, integers and F/N)
-	 *   by_value (pass atom, numbers, F/N by value not by WamWord)
-	 *   use_x_regs (the function can destroy any X register)
+	 *   fast_call: use a fact call convention
+	 *   tagged: use tagged calls for atom, integers and F/N
+	 *   by_value: pass atom, numbers, F/N by value not as a term (WamWord)
+	 *             (F/N is passed as 2 consecutive values: F then N)
+	 *   use_x_regs: the function can destroy any X register
 	 *
 	 * At end of syn_sugar any '$call_c' becomes a '$call_c'/2.
 	 * Backward compatibility: '$call_c_test'/1 and '$call_c_jump'/1 are
@@ -454,34 +461,6 @@ test_c_call_allowed(_) :-
 test_c_call_allowed(X) :-
 	error('~q not allowed in this mode', [X]).
 
-
-
-
-          % can be considered as inline (neither CP nor X regs to save)
-
-not_dangerous_c_call([]).
-
-not_dangerous_c_call([COpt|LCOpt]) :-
-	COpt \== jump,
-	COpt \== use_x_regs,
-	not_dangerous_c_call(LCOpt).
-
-
-
-
-add_wrapper_to_dyn_clause(Pred, N, Where + Cl, AuxName) :-
-	init_aux_pred_name(Pred, N, AuxName, N),
-	(   Cl = (Head :- Body) ->
-	    head_wrapper(Head, AuxName, Head1),
-	    Cl1 = (Head1 :- Body)
-	;   head_wrapper(Cl, AuxName, Cl1)
-	),
-	assertz(buff_aux_pred(AuxName, N, [Where + Cl1])).
-
-
-head_wrapper(Head, AuxName, Head1) :-
-	Head =.. [_|LArgs],
-	Head1 =.. [AuxName|LArgs].
 
 
 

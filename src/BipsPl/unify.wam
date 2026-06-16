@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : unify.pl
+% file: unify.pl
+% hash: b9cfdf29a6793316f0f6d229bed9935f41ea23e4  unify.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/unify.pl').

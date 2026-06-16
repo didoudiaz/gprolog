@@ -6,7 +6,7 @@
  * Descr.: FD instruction implementation                                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,13 +35,12 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #define FD_INST_FILE
-
-#define OBJ_INIT Fd_Inst_Initializer
 
 #include "engine_pl.h"
 #include "engine_fd.h"
@@ -75,7 +74,7 @@ static WamWord *TP;
 
 static WamWord dummy_fd_var[FD_VARIABLE_FRAME_SIZE];
 
-static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (intptr_t) */
+static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (uintptr_t) */
 
 /*
  * When a constraint X in ...  is added the following sequence is executed:
@@ -128,7 +127,7 @@ static PlULong DATE;   /* NB: PlLong/PlULong have the same size as a WamWord (in
  * in the queue (marked). Thus Clear_Queue() is called to clean the queue.
  *
  *   NB: in 1.4.2, Clear_Queue() was called in Pl_Fd_Before_Add_Cstr() to clear 
- *   the variables remaining in the queue (i.e. of the previous constraint post).
+ *   the variables remaining in the queue (ie. of the previous constraint post).
  *   But this does not work if FD vars are created/restored (choice-point)
  *   between a failure (remaining vars in the queue) and the next Clear_Queue().
  *
@@ -380,8 +379,7 @@ static void Check_Queue_Consistency(void);
  * FD_INST_INITIALIZER                                                     *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Fd_Inst_Initializer(void)
+PL_INITIALIZER(Fd_Inst_Initializer)
 {
   pl_fd_init_solver = Pl_Fd_Init_Solver0;
   pl_fd_reset_solver = Pl_Fd_Reset_Solver0;

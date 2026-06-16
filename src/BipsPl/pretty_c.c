@@ -6,7 +6,7 @@
  * Descr.: pretty print clause management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -34,9 +34,9 @@
  * the GNU Lesser General Public License along with this program.  If      *
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
-#include <string.h>
 
-#define OBJ_INIT Pretty_Initializer
+#include "gp_config.h"
+#include <string.h>
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -82,7 +82,9 @@ static WamWord dollar_var_1;
 static WamWord dollar_varname_1;
 static WamWord equal_2;
 
-static PlLong *singl_var_ptr;
+static char *bol_indent;
+
+static WamWord *singl_var_ptr;
 static PlLong nb_singl_var;
 
 static PlLong nb_excl_var_tabled;
@@ -125,8 +127,7 @@ static Bool Bind_Variable(WamWord *adr, WamWord word);
  * PRETTY_INITIALIZER                                                      *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Pretty_Initializer(void)
+PL_INITIALIZER(Pretty_Initializer)
 {
   atom_clause = Pl_Create_Atom(":-");
   atom_dcg = Pl_Create_Atom("-->");
@@ -200,6 +201,8 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
   WamWord arg_word[2];
   int atom;
 
+  bol_indent = "\t";
+  
   if (Check_Structure(term_word, atom_clause, 2, arg_word))
     {
       Pl_Write_Term(pstm, 0, 1200 - 1, WRITE_MASK, above_H, arg_word[0]);
@@ -232,7 +235,8 @@ Portray_Clause(StmInf *pstm, WamWord term_word)
 
   if (Check_Structure(term_word, atom_clause, 1, arg_word))
     {
-      Pl_Stream_Puts(":-\t", pstm);
+      bol_indent = "   ";
+      Pl_Stream_Puts(":- ", pstm);
       Show_Body(pstm, 0, GENERAL_BODY, arg_word[0]);
       Pl_Write_A_Full_Stop(pstm);
       return;
@@ -383,7 +387,8 @@ Start_Line(StmInf *pstm, int level, char c_before)
 
 
   *p++ = '\n';
-  *p++ = '\t';
+  strcpy(p, bol_indent);
+  p += strlen(bol_indent);
 
   for (i = 0; i < 4 * (level - 1); i++)
     *p++ = ' ';
@@ -448,10 +453,10 @@ Pl_Name_Singleton_Vars_1(WamWord start_word)
 static Bool
 Collect_Singleton(WamWord *adr, WamWord var_word)
 {
-  PlLong *p;
+  WamWord *p;
 
   for (p = pl_glob_dico_var; p < singl_var_ptr; p++)
-    if ((*p & ~1) == (PlLong) adr)	/* not a singleton */
+    if ((*p & ~1) == (WamWord) adr)	/* not a singleton */
       {
 	if ((*p & 1) == 0)	/* not yet marked - mark it */
 	  {
@@ -464,7 +469,7 @@ Collect_Singleton(WamWord *adr, WamWord var_word)
   if (singl_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *singl_var_ptr++ = (PlLong) adr;
+  *singl_var_ptr++ = (WamWord) adr;
   nb_singl_var++;
   return TRUE;
 }

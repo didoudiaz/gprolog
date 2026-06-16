@@ -6,7 +6,7 @@
  * Descr.: machine dependent features                                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,10 +48,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "gp_config.h"          /* ensure __unix__ is defined if not _WIN32 */
-
 #if defined(_WIN32) || defined(__CYGWIN__)
 #include <windows.h>
+#include <io.h>
 #endif
 
 
@@ -97,34 +97,6 @@
  * Constants                       *
  *---------------------------------*/
 
-#define M_MAGIC1                   0x12345678
-#define M_MAGIC2                   0xdeadbeef
-
-#define UNKNOWN_SYS_ERRNO          "Unknown error (%d)"
-
-
-
-
-          /* Error Messages */
-
-#define ERR_STACKS_ALLOCATION      "Memory allocation fault"
-
-#define ERR_CANNOT_OPEN_DEV0       "Cannot open /dev/zero : %s"
-#define ERR_CANNOT_UNMAP           "unmap failed : %s"
-
-#define ERR_CANNOT_FREE            "VirtualFree failed : %" PL_FMT_u
-#define ERR_CANNOT_PROTECT         "VirtualProtect failed : %" PL_FMT_u
-
-#define ERR_CANNOT_EXEC_GETCWD     "cannot execute getcwd"
-
-
-#define ERR_STACK_OVERFLOW_ENV     "%s stack overflow (size: %d Kb, reached: %d Kb, environment variable used: %s)"
-
-#define ERR_STACK_OVERFLOW_NO_ENV  "%s stack overflow (size: %d Kb, reached: %d Kb - fixed size)"
-
-
-
-
 /*---------------------------------*
  * Type Definitions                *
  *---------------------------------*/
@@ -137,7 +109,7 @@ static PlLong start_user_time = 0;
 static PlLong start_system_time = 0;
 static PlLong start_real_time = 0;
 
-static int cur_seed = 1;
+static unsigned int cur_seed = 1;
 
 
 
@@ -145,10 +117,6 @@ static int cur_seed = 1;
 /*---------------------------------*
  * Function Prototypes             *
  *---------------------------------*/
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-static char *Msys_Root_Prefix(char *src);
-#endif
 
 #ifdef INET_MANAGEMENT
 
@@ -174,80 +142,25 @@ Pl_Init_Machine(void)
 {
   tzset();
 
-  start_user_time = Pl_M_User_Time();
-  start_system_time = Pl_M_System_Time();
-  start_real_time = Pl_M_Real_Time();
+  start_user_time = Pl_User_Time();
+  start_system_time = Pl_System_Time();
+  start_real_time = Pl_Real_Time();
 
 #if defined(HAVE_MALLOPT) && defined(M_MMAP_MAX)
   mallopt(M_MMAP_MAX, 0);
 #endif
-
-  Pl_Init_Machine1();
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_SYS_ERR_STRING                                                     *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_M_Sys_Err_String(int err_no)
-{
-#ifdef M_sparc32_sunos
-  extern char *sys_errlist[];
-  extern int sys_nerr;
-#endif
-
-  char *str;
-  static char buff[64];
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if (err_no == M_ERROR_WIN32)
-    {
-      int status = GetLastError();
-
-      if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, status, 0, 
-			buff, sizeof(buff), NULL) == 0)
-	sprintf(buff, "Windows " UNKNOWN_SYS_ERRNO, status);
-      else
-	{			/* windows adds a ".\r\n" at end - remove it */
-	  char *p = buff + strlen(buff);
-	  while (--p > buff && (isspace(*p) || *p == '.'))
-	    {
-	    }
-	  p[1] = '\0';
-	}
-
-      return buff;
-    }
-#endif
-
-
-#if defined(M_sparc32_sunos)
-  str = (err_no >= 0 && err_no < sys_nerr) ? sys_errlist[err_no] : NULL;
-#else
-  str = strerror(err_no);
-#endif
-
-  if (str)
-    return str;
-
-  sprintf(buff, UNKNOWN_SYS_ERRNO, err_no);
-  return buff;
 }
 
 
 
 
 /*-------------------------------------------------------------------------*/
-/* M_USER_TIME                                                             */
+/* PL_USER_TIME                                                            */
 /*                                                                         */
 /* returns the user time used since the start of the process (in ms).      */
 /*-------------------------------------------------------------------------*/
 PlLong
-Pl_M_User_Time(void)
+Pl_User_Time(void)
 {
   PlLong user_time;
 
@@ -284,12 +197,12 @@ Pl_M_User_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_SYSTEM_TIME                                                        *
+ * PL_SYSTEM_TIME                                                          *
  *                                                                         *
  * returns the system time used since the start of the process (in ms).    *
  *-------------------------------------------------------------------------*/
 PlLong
-Pl_M_System_Time(void)
+Pl_System_Time(void)
 {
   PlLong system_time;
 
@@ -326,12 +239,12 @@ Pl_M_System_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_REAL_TIME                                                          *
+ * PL_REAL_TIME                                                            *
  *                                                                         *
  * returns the real time used since the start of the process (in ms).      *
  *-------------------------------------------------------------------------*/
 PlLong
-Pl_M_Real_Time(void)
+Pl_Real_Time(void)
 {
   PlLong real_time;
 
@@ -366,39 +279,48 @@ Pl_M_Real_Time(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_RANDOMIZE                                                          *
+ * PL_RANDOMIZE                                                            *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_M_Randomize(void)
+Pl_Randomize(void)
 {
-  static int count = 0;
+  static unsigned int count = 0;
+  unsigned int seed;
 #if defined(_WIN32) || defined(__CYGWIN__)
-  int seed = GetTickCount();
+  seed = GetTickCount();
 #else
   struct timeval tv;
-  int seed;
 
   gettimeofday(&tv, NULL);
   seed = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 #endif
-  count = (count + rand()) % 0xFFFF;
-  seed = seed ^ (getpid() << (seed & 0xFF));
-  seed *= count;
-  seed = seed & 0xFFFFFF;
 
-  Pl_M_Set_Seed(seed);
+  count++;
+  seed ^= (unsigned int) getpid();
+  seed ^= count * 0x9e3779b1U;	/* diffusion */
+
+#if 1				/* some avalanche (MurmurHash3) */
+  seed *= 0x85ebca6bU;
+  seed ^= seed >> 13;
+  seed *= 0xc2b2ae35U;
+  seed ^= seed >> 16;
+#endif
+  
+  seed %= INT_GREATEST_VALUE;
+  
+  Pl_Set_Seed(seed);
 }
 
 
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_SET_SEED                                                           *
+ * PL_SET_SEED                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_M_Set_Seed(int n)
+Pl_Set_Seed(unsigned int n)
 {
   cur_seed = n;
   srand(cur_seed);
@@ -408,11 +330,11 @@ Pl_M_Set_Seed(int n)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_GET_SEED                                                           *
+ * PL_GET_SEED                                                             *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-int
-Pl_M_Get_Seed(void)
+unsigned int
+Pl_Get_Seed(void)
 {
   return cur_seed;
 }
@@ -421,12 +343,12 @@ Pl_M_Get_Seed(void)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_RANDOM_INTEGER                                                     *
+ * PL_RANDOM_INTEGER                                                       *
  *                                                                         *
  * return an integer x s.t. 0 <= x < n                                     *
  *-------------------------------------------------------------------------*/
 PlLong
-Pl_M_Random_Integer(PlLong n)
+Pl_Random_Integer(PlLong n)
 {
   return (PlLong) ((double) n * rand() / (RAND_MAX + 1.0));
 }
@@ -435,12 +357,12 @@ Pl_M_Random_Integer(PlLong n)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_RANDOM_FLOAT                                                       *
+ * PL_RANDOM_FLOAT                                                         *
  *                                                                         *
  * return a double x s.t. 0 <= x < n                                       *
  *-------------------------------------------------------------------------*/
 double
-Pl_M_Random_Float(double n)
+Pl_Random_Float(double n)
 {
   return n * rand() / (RAND_MAX + 1.0);
 }
@@ -449,12 +371,12 @@ Pl_M_Random_Float(double n)
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_HOST_NAME_FROM_NAME                                                *
+ * PL_HOST_NAME_FROM_NAME                                                  *
  *                                                                         *
  * if host_name == NULL use current host name.                             *
  *-------------------------------------------------------------------------*/
 char *
-Pl_M_Host_Name_From_Name(char *host_name)
+Pl_Host_Name_From_Name(char *host_name)
 {
   static char buff[4096];
 
@@ -488,7 +410,7 @@ Pl_M_Host_Name_From_Name(char *host_name)
 
   host_name = Host_Name_From_Alias(host_entry);
 
-#endif
+#endif	/* INET_MANAGEMENT */
 
 finish:
   return host_name;
@@ -498,11 +420,11 @@ finish:
 
 
 /*-------------------------------------------------------------------------*
- * PL_M_HOST_NAME_FROM_ADR                                                 *
+ * PL_HOST_NAME_FROM_ADR                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 char *
-Pl_M_Host_Name_From_Adr(char *host_address)
+Pl_Host_Name_From_Adr(char *host_address)
 {
 #ifdef INET_MANAGEMENT
   struct hostent *host_entry;
@@ -521,9 +443,9 @@ Pl_M_Host_Name_From_Adr(char *host_address)
     return NULL;
 
   return Host_Name_From_Alias(host_entry);
-#else
+#else   /* !INET_MANAGEMENT */
   return NULL;
-#endif
+#endif	/* !INET_MANAGEMENT */
 }
 
 
@@ -553,527 +475,4 @@ Host_Name_From_Alias(struct hostent *host_entry)
   return (char *) host_entry->h_name;
 }
 
-#endif
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_SET_WORKING_DIR                                                    *
- *                                                                         *
- * must preserve errno if fails (used in os_interf_c.c)                    *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_M_Set_Working_Dir(char *path)
-{
-  char *new_path = Pl_M_Absolute_Path_Name(path);
-
-  return (new_path != NULL && chdir(new_path) == 0);
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_GET_WORKING_DIR                                                    *
- *                                                                         *
- *-------------------------------------------------------------------------*/
-char *
-Pl_M_Get_Working_Dir(void)
-{
-  static char cur_work_dir[MAXPATHLEN];
-
-  if (getcwd(cur_work_dir, sizeof(cur_work_dir) - 1) == NULL)
-    strcpy(cur_work_dir, ".");
-  return cur_work_dir;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_ABSOLUTE_PATH_NAME0                                                *
- *                                                                         *
- * del_trail_slash: TRUE: remove ending / (usually wanted behavior)        *
- *                  FALSE: keep it (we can see the user wanted a directory)*
- * returns an absolute file name.                                          *
- *-------------------------------------------------------------------------*/
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#if 0 /* was ifdef __clang__ reactivate if needed */
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
-#endif
-#pragma GCC diagnostic ignored "-Wformat-overflow"
-#endif
-char *
-Pl_M_Absolute_Path_Name0(char *src, Bool del_trail_slash)
-{
-  static char buff1[MAXPATHLEN];
-  static char buff2[MAXPATHLEN];
-  char *dst;
-  char *p, *q;
-  char c;
-  Bool add_slash = FALSE;
-
-#define SWAP_SRC_DST { char *tmp = src; src = dst; dst = tmp; }
-
-  /* --- Expand $VARNAME (and %VARNAME% under Windows) --- */
-  dst = buff1;
-  while ((*dst++ = *src))
-    {
-      c = *src++;
-      if (c == '$'
-#if defined(_WIN32) || defined(__CYGWIN__)
-          || c == '%'
-#endif
-	  )
-        {
-          p = dst;
-          while (isalnum(*src) || *src == '_')
-            *dst++ = *src++;
-#if defined(_WIN32) || defined(__CYGWIN__)
-          if (c == '%' && *src != '%')
-            continue;
-#endif
-          *dst = '\0';
-          q = getenv(p);
-          if (q)
-            {
-              p--;
-              strcpy(p, q);
-              dst = p + strlen(p);
-#if defined(_WIN32) || defined(__CYGWIN__)
-              if (c == '%')
-                src++;
-#endif
-            }
-#if defined(_WIN32) || defined(__CYGWIN__)
-          else if (c == '%')
-            *dst++ = *src++;
-#endif
-        }
-    }
-  *dst = '\0';
-
-  src = buff1;
-  dst = buff2;
-
-  /* --- Expand ~/ (with HOME) and ~user/ (under Unix) --- */
-  if (src[0] == '~')
-    {
-      if (Is_Dir_Sep(src[1]) || src[1] == '\0') /* ~/... cf $HOME */
-        {
-	  q = "";
-          if ((p = getenv("HOME")) == NULL)
-	    {
-#if defined(_WIN32) || defined(__CYGWIN__)
-	      if ((p = getenv("USERPROFILE")) == NULL)
-		{
-		  if ((p = getenv("HOMEPATH")) == NULL ||
-		      (q = getenv("HOMEDRIVE")) == NULL)
-		    return NULL;
-		}
-#else
-	      return NULL;
-#endif
-	    }
-          sprintf(dst, "%s%s/%s", q, p, src + 1);
-	  SWAP_SRC_DST;
-        }
-#if defined(__unix__) || defined(__CYGWIN__)
-      else                      /* ~user/... read passwd */
-        {
-          struct passwd *pw;
-
-          p = src + 1;
-          while (*p && !Is_Dir_Sep(*p))
-            p++;
-
-          src[0] = *p;
-          *p = '\0';
-          if ((pw = getpwnam(src + 1)) == NULL)
-            return NULL;
-
-          *p = src[0];
-
-          sprintf(dst, "%s/%s", pw->pw_dir, p);
-	  SWAP_SRC_DST;
-        }
-#endif
-    }
-
-  /* --- Do not change Prolog special file 'user' --- */
-  if (strcmp(src, "user") == 0)
-    return src;
-
-  if (*src == '\0')
-    return NULL;
-  
-  add_slash = (!del_trail_slash && Pl_M_Path_Ends_With_Dir(src));
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-
-  /* --- Windows : Expand msys root PATH --- */
-  
-  p = Msys_Root_Prefix(src);
-  if (p != NULL && *p != '\0')
-    {
-      sprintf(dst, "%s%s", p, src);
-      SWAP_SRC_DST;
-    }
-
-  /* --- Get Windows absolute path --- */
-  /* Under native msys we do not use cygwin_conv_path since it only works in
-   * one side: posix -> windows or windows -> posix while the received path
-   * can be of any form. We use the windows API (provided by kernel32 lib)
-   */
-  if (GetFullPathNameA(src, MAXPATHLEN, dst, NULL) == 0)
-    return NULL;
-  
-  /* ---  Convert \ to / --- */
-  for (p = dst; *p; p++)
-    if (*p == '\\')
-      *p = '/';
-
-#else /* __unix__ */
-
-  /* --- Unix : Convert relative to absolute --- */
-
-  if (src[0] != '/')      /* add current directory */
-    {
-      sprintf(dst, "%s/%.*s", Pl_M_Get_Working_Dir(),
-	      MAXPATHLEN, src); /* MAXPATHLEN is to avoid gcc warning */
-      SWAP_SRC_DST;
-    }
-
-  /* --- Clean (remove ./ ../  //) --- */
-  p = dst;
-  while ((*p++ = *src))
-    {
-      if (*src++ != '/')
-        continue;
-
-    collapse:
-      while (*src == '/')       /* collapse /////... as / */
-        src++;
-
-      if (*src != '.')
-        continue;
-
-      if (src[1] == '/' || src[1] == '\0')      /* /./ or final /. becomes / */
-        {
-          src++;
-          goto collapse;
-        }
-
-      if (src[1] != '.' || (src[2] != '/' && src[2] != '\0'))
-        continue;
-      /* case /../ */
-      src += 2;
-      p -= 2;
-      while (p >= dst && *p != '/')
-        p--;
-
-      if (p < dst)
-        return NULL;
-    }
-
-  p--;                        /* p points the \0 */
-#endif	/* __unix__ */
-
-  /* --- Ensure a minimal prefix and maybe add_slash --- */
-
-  /* here the result is in dst and p points the \0 */
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-#define MIN_PREFIX 3            /* Windows minimal path c:\  */
-#else
-#define MIN_PREFIX 1            /* Unix minimal path /    */
-#endif
-
-  if (p - dst < MIN_PREFIX) /* all removed, e.g. with /src/../ then add / */
-    strcpy(p, "/");
-  else
-    {
-      if (p - dst > MIN_PREFIX && Is_Dir_Sep(p[-1]))
-	*--p = '\0';		/* remove last / or \ */
-
-      if (add_slash)	    	/* and maybe (re)add a last / if needed */
-	strcpy(p, "/");
-    }
-
-#if 0
-  printf("FINAL: %s\n", dst);
-#endif
-  return dst;
-}
-
-
-char *
-Pl_M_Absolute_Path_Name(char *src)
-{
-  return Pl_M_Absolute_Path_Name0(src, TRUE);
-}
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-
-/*-------------------------------------------------------------------------*
- * MSYS_ROOT_PREFIX                                                        *
- *                                                                         *
- * Detects a msys-rooted path (e.g. /home/foo) and returns the msys root   *
- * path (e.g. c:/msys64/) to add before src (or NULL or "").               *
- *                                                                         *
- * Also modifies src to deal with /c/foo which is replaced by c:/foo       *
- *                                                                         *
- * Under pure msys (__CYGWIN__) we use cygwin_conv_path to obtain the root.*
- * However, when compiled under msys native environments (mingw32, mingw64,*
- * ucrt64, ...) cygwin_conv_path is not available. We thus try to execute  *
- * the (/usr/bin/)cygpath utility to obtain the prefix (e.g. c:/msys64).   *
- * For efficiency, we only call cygpath once.                              *
- *-------------------------------------------------------------------------*/
-static char *
-Msys_Root_Prefix(char *src)
-{
-  static char *msys_root_path = NULL;
-  /* msys recognized entries: if ends with slash full match else prefix match */
-  static char *msys_root_entry[] = 
-    { "bin/", "dev/", "etc/", "home/", "opt/", "proc/", "tmp/", "usr/", "var/",
-      "msys", "mingw32", "mingw64", "ucrt64", "clang64", "clangarm64", NULL };
-  char **entry;
-  char *p, *q;
-  char buff[MAXPATHLEN];
-
-  /* --- Replace /c/ by c:/ (Windows drive letter) */
-  if (*src == '/' && isalpha(src[1]) && src[2] == '/')
-    {
-      src[0] = toupper(src[1]);
-      src[1] = ':';
-      return NULL;
-    }
-  
-  if (*src != '/' || (msys_root_path != NULL && *msys_root_path == '\0'))
-    return NULL;
-
-  for(entry = msys_root_entry; *entry; entry++)
-    {
-      for(p = *entry, q = src + 1;*p && *p == *q; p++, q++)
-	{
-	}
-      
-      if (*p == '\0' || (*q == '\0' && *p == '/'))
-	break;			/* matching entry found */
-    }
-
-  if (*entry == NULL)		/* no entry found */
-    return NULL;
-
-  if (msys_root_path == NULL)
-    {
-#ifdef __CYGWIN__
-      cygwin_conv_path(CCP_POSIX_TO_WIN_A, "/", buff, MAXPATHLEN);
-      msys_root_path = strdup(buff);
-#else
-      char *arg[] = {"cygpath", "-m", "/", NULL };
-      FILE *f = M_SPAWN_REDIRECT_CREATE;
-      if (Pl_M_Spawn_Redirect(arg, 0, NULL, &f, NULL) < 0)
-	msys_root_path = "";
-      else
-	{
-	  int c;
-	  p = buff;
-	  while((c = fgetc(f)) != EOF && c >= ' ')
-	    *p++ = c;
-	  if (p > buff && p[-1] == '/')
-	    p--;
-	  *p = '\0';
-	  fclose(f);
-	  msys_root_path = strdup(buff);
-	}
-#endif
-#ifdef DEBUG
-      DBGPRINTF("msys root path: %s\n", msys_root_path);
-#endif
-    }
-
-  return msys_root_path;
-}
-#endif
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_IS_ABSOLUTE_FILE_NAME                                              *
- *                                                                         *
- * Test if a path name is absolute (i.e. not relative).                    *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_M_Is_Absolute_File_Name(char *path)
-{
-  if (Is_Dir_Sep(*path))
-    return TRUE;
-
-
-  /* Windows: path strating with a drive specif is considered as absolute
-   * (even if not followed by an antislash, e.g. c:foo is absolute).
-   * Indeed, for a relative path, it is always 
-   * possible to add before it the current working directory and it is not 
-   * possible before a drive specif.
-   * This is the behavior of Win32 PathIsRelative() function.
-   * (to use it #include <shlwapi.h> and link with shlwapi.dll
-   */
-#if defined(_WIN32) || defined(__CYGWIN__)
-
-  if (Has_Drive_Specif(path))
-    return TRUE;
-
-#endif
-
-  return FALSE;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_DECOMPOSE_FILE_NAME                                                *
- *                                                                         *
- * Decompose a path name into the dir, base and suffix (extension).        *
- *                                                                         *
- * path:   the path to decompose                                           *
- * del_trail_slashes: see below                                            *
- * base:   points the buffer which will receive the basename               *
- *         (or "" if none. It includes the suffix                          *
- * suffix: points inside base to the suffix part                           *
- *         (or "" if none, i.e. at the end of base)                        *
- * returns the dirname part (or "" if none)                                *
- *                                                                         *
- * Returned pointers are on 2 static buffers (dir and base) which can be   *
- * written.                                                                *
- *                                                                         *
- * del_trail_slashes: delete trailing slashes from dir ?                   *
- *  FALSE: nothing is done (path is simply split into dir and base).       *
- *         Concatenating dir and base yields the complete pathname.        *
- *  TRUE:  trailing slashes of the dir part are removed (similarly to      *
- *         dirname(3) except that initial trailing slashes of path are not *
- *         removed). If the dir part is empty then "." is returned.        *
- *         Concatenating dir "/" and base yields a complete pathname.      *
- *                                                                         *
- * To remove the extension from base simply do *suffix = '\0'              *
- * To add/change the suffix simply do strcpy(suffix, ".txt");              *
- *-------------------------------------------------------------------------*/
-char *
-Pl_M_Decompose_File_Name(char *path, Bool del_trail_slashes, char **base, char **suffix)
-{
-  static char buff_dir[MAXPATHLEN];
-  static char buff_base[MAXPATHLEN];
-  size_t dir_start_pos = 0;	/* on _WIN32 maybe there is a drive specif */
-
-#if 0 && defined(_WIN32)	/* uncomment to explicitely use _splitpath() on Windows */
-
-  char direct[_MAX_DIR];
-  char ext[_MAX_EXT];
-  
-  _splitpath(path, buff_dir, direct, buff_base, ext); /* buff_dir contains the drive */
-  dir_start_pos = strlen(buff_dir);
-  strcat(buff_dir, direct);	/* concat the dirname */
-
-  *suffix = buff_base + strlen(buff_base); /* buff_base contains the basename */
-  strcpy(*suffix, ext);		     /* concat the suffix */
-    
-#else
-
-  /* This version works for both Windows and Unix */
-
-  char *p;
-
-  strcpy(buff_dir, path);
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if (Has_Drive_Specif(buff_dir))
-    dir_start_pos = 2;
-#endif
-
-  Find_Last_Dir_Sep(p, buff_dir);
-
-  p = (p == NULL) ? buff_dir + dir_start_pos : p + 1;
-
-  strcpy(buff_base, p);
-  *p = '\0';
-
-  if ((p = strrchr(buff_base, '.')) != NULL)
-    *suffix = p;      
-  else
-    *suffix = buff_base + strlen(buff_base); /* i.e. suffix = "" */
-
-#endif
-
-  if (del_trail_slashes)
-    {
-      if (buff_dir[dir_start_pos] == '\0') /* if dir is empty it becomes "." */
-	strcat(buff_dir, ".");
-      else
-	{
-	  size_t len = strlen(buff_dir); 	/* remove all trailing / */
-	  while(--len >= dir_start_pos && Is_Dir_Sep(buff_dir[len]))
-	    ;
-
-	  if (len < dir_start_pos)		/* if all are / keep one */
-	    len = dir_start_pos;
-	  buff_dir[len + 1] = '\0';
-	}
-    }
-
-#if 0			 /* uncomment to avoid extension with only one '.' */
-  if ((*suffix)[0] == '.' && (*suffix)[1] == '\0') /* not really a suffix: undo it */
-    (*suffix)++;		     /* points the \0 */
-#endif
-
-  *base = buff_base;
-
-  return buff_dir;
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_PATH_ENDS_WITH_DIR                                                 *
- *                                                                         *
- * Return TRUE if ends with / or /. or /..                                 *
- *-------------------------------------------------------------------------*/
-Bool
-Pl_M_Path_Ends_With_Dir(char *path)
-{
-  size_t len = strlen(path);
-  return ((len > 1 && Is_Dir_Sep(path[len - 1])) ||
-	  (len > 2 && Is_Dir_Sep(path[len - 2]) && path[len - 1] == '.') ||
-	  (len > 3 && Is_Dir_Sep(path[len - 3]) && path[len - 2] == '.' && path[len - 1] == '.'));
-}
-
-
-
-
-/*-------------------------------------------------------------------------*
- * PL_M_IS_DIR_NAME                                                        *
- *                                                                         *
- * Return TRUE or FALSE or -1 (errno) in case of error                     *
- *-------------------------------------------------------------------------*/
-int
-Pl_M_Is_Dir_Name(char *path, Bool inexistent_as_error)
-{
-  struct stat file_info;
-
-  if (stat(path, &file_info) < 0)
-    {
-      if ((errno != ENOENT && errno != ENOTDIR) || inexistent_as_error)
-	return -1;
-
-      return Pl_M_Path_Ends_With_Dir(path); /* does not exist: directory is marked in path */
-    }
-
-  return S_ISDIR(file_info.st_mode);
-}
-
+#endif	/* INET_MANAGEMENT */

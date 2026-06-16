@@ -6,7 +6,7 @@
  * Descr.: line editor <--> GUICons interface                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,13 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <windows.h>
 
-#include "../EnginePl/gp_config.h"
 #include "../EnginePl/pl_params.h"
+#include "../EnginePl/pl_long.h"
 
 
 /* we include the minimum from ../EnginePl to allow for testing (test_linedit, test_noecho)
@@ -48,7 +49,7 @@
  * this implies some redundant definitions (WamWord, Wam_Words_To_KBytes)
  */
 
-typedef PlLong WamWord;
+typedef PlULong WamWord;
 #include "../EnginePl/wam_stacks.h"
 #include "../EnginePl/atom.h"
 #define Wam_Words_To_KBytes(ww)    (ww * sizeof(WamWord) / 1024)

@@ -6,7 +6,7 @@
  * Descr.: translation file for sparc 32 bits                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,13 +36,7 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-
-
-/* Supported arch: sparc64 on Solaris, SunOS, BSD
- */
+/* Supported arch: sparc64 on Solaris, SunOS, BSD */
 
 
 
@@ -124,25 +118,25 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_BANK
-  sprintf(asm_reg_bank, "%%%s", MAP_REG_BANK);
+  strcpy(asm_reg_bank, MAP_REG_BANK);
 #else
   strcpy(asm_reg_bank, "%l0");
 #endif
 
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%%%s", MAP_REG_E);
+  strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "%l1");
 #endif
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%%%s", MAP_REG_B);
+  strcpy(asm_reg_b, MAP_REG_B);
 #else
   sprintf(asm_reg_b, "[%s+%d]", asm_reg_bank, MAP_OFFSET_B);
 #endif
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%%%s", MAP_REG_CP);
+  strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   sprintf(asm_reg_cp, "[%s+%d]", asm_reg_bank, MAP_OFFSET_CP);
 #endif

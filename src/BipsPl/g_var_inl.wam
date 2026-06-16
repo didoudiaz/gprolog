@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : g_var_inl.pl
+% file: g_var_inl.pl
+% hash: 73d0c7c1969e5fd2d45c02f9504e152771401c30  g_var_inl.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/g_var_inl.pl').

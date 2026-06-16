@@ -274,7 +274,7 @@ Using exceptions allows the user both to recover an error using
 To illustrate how to write error cases, let us write a predicate
 \texttt{my\_pred(X)} where \texttt{X} must be an integer:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 my_pred(X) :-
         (   nonvar(X) ->
@@ -287,7 +287,7 @@ my_pred(X) :-
         ),
         ...
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 To help the user to write these error cases, a set of system predicates is
 provided to raise errors. These predicates are of the form
@@ -299,7 +299,7 @@ $<$ 0 means that only the atom corresponding to the functor is significant).
 Using these system predicates the user could define the above predicate as
 follow:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 my_pred(X) :-
         set_bip_name(my_pred,1),
@@ -313,7 +313,7 @@ my_pred(X) :-
         ),
         ...
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 The following sections detail each kind of errors (and associated system
 predicates).

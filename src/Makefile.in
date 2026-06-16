@@ -25,6 +25,9 @@ INSTALL        = @INSTALL@
 INSTALL_PROGRAM= @INSTALL_PROGRAM@
 INSTALL_DATA   = @INSTALL_DATA@
 
+WIN_AS_PATH    = @WIN_AS_PATH@
+WIN_AS_COPY    = @WIN_AS_COPY@
+
 TOP_LEVEL      = @TOP_LEVEL@
 
 LN_S           = @LN_S@ -f
@@ -57,26 +60,31 @@ EnginePl/Makefile:
 doc:
 	(cd ../doc; $(MAKE) all)
 
-# --- INSTALL --- #
+# --- INSTALL / UNINSTALL --- #
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
 
 install: install-system install-doc install-html install-examples install-links
 
+uninstall: uninstall-html uninstall-doc uninstall-examples uninstall-links uninstall-system
+
+
+# --- System --- #
+
 install-system:
 	./mkinstalldirs $(INSTALL_DIR) $(INSTALL_DIR)/bin \
 	$(INSTALL_DIR)/include $(INSTALL_DIR)/lib
 	for i in $(TXT_FILES); do $(INSTALL_DATA) ../$$i $(INSTALL_DIR); done
 	for i in $(BIN_FILES); do $(INSTALL_PROGRAM) */$$i $(INSTALL_DIR)/bin; done
+	if test -n "$(WIN_AS_COPY)"; then $(INSTALL_PROGRAM) "$(WIN_AS_PATH)" $(INSTALL_DIR)/bin/$(WIN_AS_COPY); fi
 	for i in $(OBJ_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
 	for i in $(LIB_FILES); do $(INSTALL_DATA) */$$i $(INSTALL_DIR)/lib; done
 	for i in $(INC_FILES); do Tools/cpp_headers $$i ./$$i EnginePl EngineFD BipsPl BipsFD; $(INSTALL_DATA) ./$$i $(INSTALL_DIR)/include; rm -f $$i; done
 	(cd $(INSTALL_DIR)/lib; for i in *.a; do $(RANLIB) $$i; done)
 
-
-uninstall: uninstall-links uninstall-html uninstall-doc uninstall-examples
-	for i in $(BIN_FILES); do rm -f $(INSTALL_DIR)/bin/$$i; done
+uninstall-system:
+	for i in $(BIN_FILES) "$(WIN_AS_COPY)"; do rm -f $(INSTALL_DIR)/bin/$$i; done
 	rmdir -p $(INSTALL_DIR)/bin 2>/dev/null || exit 0
 	for i in $(LIB_FILES) $(OBJ_FILES); do rm -f $(INSTALL_DIR)/lib/$$i; done
 	rmdir -p $(INSTALL_DIR)/lib 2>/dev/null || exit 0
@@ -96,7 +104,7 @@ install-links: install-system uninstall-links
 
 uninstall-links:
 	-if test @LINKS_DIR@ != none; then \
-	   (cd $(LINKS_DIR) 2>/dev/null && rm -f $(BIN_FILES)); \
+	   (cd $(LINKS_DIR) 2>/dev/null && rm -f $(BIN_FILES) $(WIN_AS_COPY)); \
 	   rmdir $(LINKS_DIR) 2>/dev/null; \
 	fi || exit 0;
 
@@ -117,7 +125,7 @@ uninstall-doc:
 	fi || exit 0;
 
 
-# --- HTML --- #
+# --- Documentation HTML --- #
 
 install-html:
 	if test @HTML_DIR@ != none; then \
@@ -217,7 +225,7 @@ dist: doc $(PKG_NAME).tar.gz
 
 
 $(PKG_NAME).tar.gz: copy_dist_tree
-	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar $(PKG_NAME))
+	(cd $(distdir); tar cf $(ROOT_DIR)/src/$(PKG_NAME).tar --format=ustar $(PKG_NAME))
 	gzip -f $(PKG_NAME).tar
 	-rm -rf $(distpath)
 	@banner="$(PKG_NAME).tar.gz is ready for distribution"; \

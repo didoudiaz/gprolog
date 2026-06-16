@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : consult.pl
+% file: consult.pl
+% hash: 60672638177dc2f83e4449ffa409fe8cd03d948d  consult.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/consult.pl').
@@ -460,7 +461,7 @@ label(1),
 predicate(write_default_include_file/1,202,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[write_default_include_file,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[write_default_include_file,1]),
     put_variable(y(0),1),
     call('$prolog_file_name'/2),
     put_value(y(0),0),
@@ -625,7 +626,7 @@ label(1),
     proceed]).
 
 
-predicate('$write_include_goal'/2,245,static,private,monofile,built_in,[
+predicate('$write_include_goal'/2,246,static,private,monofile,built_in,[
     put_list(2),
     unify_local_value(x(1)),
     unify_nil,
@@ -633,7 +634,7 @@ predicate('$write_include_goal'/2,245,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate('$consult2'/2,251,static,private,monofile,built_in,[
+predicate('$consult2'/2,252,static,private,monofile,built_in,[
     switch_on_term(2,1,fail,fail,fail),
 
 label(1),
@@ -679,7 +680,7 @@ label(7),
     proceed]).
 
 
-predicate('$list_to_atom'/2,263,static,private,monofile,built_in,[
+predicate('$list_to_atom'/2,264,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -692,7 +693,7 @@ predicate('$list_to_atom'/2,263,static,private,monofile,built_in,[
     execute('$$list_to_atom/2_$aux1'/3)]).
 
 
-predicate('$$list_to_atom/2_$aux1'/3,263,static,private,monofile,local,[
+predicate('$$list_to_atom/2_$aux1'/3,264,static,private,monofile,local,[
     try_me_else(1),
     allocate(2),
     get_variable(y(0),1),
@@ -714,7 +715,7 @@ label(1),
     execute(close_output_atom_stream/2)]).
 
 
-predicate('$consult_assert'/1,279,static,private,monofile,built_in,[
+predicate('$consult_assert'/1,280,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
     put_structure('$consult_assert'/2,0),
@@ -726,7 +727,7 @@ predicate('$consult_assert'/1,279,static,private,monofile,built_in,[
     execute('$consult_assert1'/2)]).
 
 
-predicate('$consult_assert1'/2,284,static,private,monofile,built_in,[
+predicate('$consult_assert1'/2,285,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     allocate(7),
@@ -760,7 +761,7 @@ predicate('$consult_assert1'/2,284,static,private,monofile,built_in,[
     execute(close/1)]).
 
 
-predicate('$open_pl_file'/4,297,static,private,monofile,built_in,[
+predicate('$open_pl_file'/4,298,static,private,monofile,built_in,[
     try_me_else(1),
     get_atom(user,0),
     get_atom(user,2),
@@ -818,7 +819,7 @@ label(3),
     execute('$throw'/4)]).
 
 
-predicate('$try_parent_dir'/4,317,static,private,monofile,built_in,[
+predicate('$try_parent_dir'/4,318,static,private,monofile,built_in,[
     switch_on_term(2,fail,fail,1,fail),
 
 label(1),
@@ -869,7 +870,7 @@ label(5),
     execute('$try_parent_dir'/4)]).
 
 
-predicate('$treat_term'/2,330,static,private,monofile,built_in,[
+predicate('$treat_term'/2,331,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(5),
@@ -916,7 +917,7 @@ label(5),
     execute(assertz/1)]).
 
 
-predicate('$$treat_term/2_$aux2'/2,336,static,private,monofile,local,[
+predicate('$$treat_term/2_$aux2'/2,337,static,private,monofile,local,[
     try_me_else(1),
     get_variable(x(2),0),
     put_structure('$consult_assert'/2,0),
@@ -942,7 +943,7 @@ label(1),
     execute(assertz/1)]).
 
 
-predicate('$$treat_term/2_$aux1'/2,336,static,private,monofile,local,[
+predicate('$$treat_term/2_$aux1'/2,337,static,private,monofile,local,[
     try_me_else(1),
     get_structure((:-)/2,0),
     unify_local_value(x(1)),
@@ -955,7 +956,7 @@ label(1),
     proceed]).
 
 
-predicate('$treat_directive'/2,349,static,private,monofile,built_in,[
+predicate('$treat_directive'/2,350,static,private,monofile,built_in,[
     try_me_else(12),
     switch_on_term(2,fail,fail,fail,1),
 
@@ -1017,7 +1018,7 @@ label(12),
     execute(format/2)]).
 
 
-predicate('$load_file'/1,369,static,private,monofile,built_in,[
+predicate('$load_file'/1,370,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(4),
@@ -1044,7 +1045,7 @@ predicate('$load_file'/1,369,static,private,monofile,built_in,[
     execute(close/1)]).
 
 
-predicate('$$load_file/1_$aux1'/3,369,static,private,monofile,local,[
+predicate('$$load_file/1_$aux1'/3,370,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1061,7 +1062,7 @@ label(1),
     fail]).
 
 
-predicate('$load_pred'/2,385,static,private,monofile,built_in,[
+predicate('$load_pred'/2,386,static,private,monofile,built_in,[
     pragma_arity(3),
     get_current_choice(x(2)),
     switch_on_term(2,fail,fail,fail,1),
@@ -1142,7 +1143,7 @@ label(7),
     put_atom('$ctr',1),
     put_variable(x(0),2),
     call_c('Pl_Blt_G_Read',[fast_call,boolean],[x(1),x(2)]),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[is,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[is,2]),
     math_load_value(x(0),1),
     call_c('Pl_Fct_Inc',[fast_call,x(2)],[x(1)]),
     put_atom('$ctr',1),
@@ -1156,7 +1157,7 @@ label(7),
     proceed]).
 
 
-predicate('$$load_pred/2_$aux3'/4,398,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux3'/4,399,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1180,7 +1181,7 @@ label(1),
     fail]).
 
 
-predicate('$$load_pred/2_$aux2'/6,398,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux2'/6,399,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1203,7 +1204,7 @@ label(1),
     execute('$check_owner_files'/3)]).
 
 
-predicate('$$load_pred/2_$aux1'/4,388,static,private,monofile,local,[
+predicate('$$load_pred/2_$aux1'/4,389,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1240,7 +1241,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$load_directive_exception'/3,424,static,private,monofile,built_in,[
+predicate('$load_directive_exception'/3,425,static,private,monofile,built_in,[
     get_variable(x(3),2),
     put_atom('$pl_file',2),
     put_variable(x(4),5),
@@ -1259,7 +1260,7 @@ predicate('$load_directive_exception'/3,424,static,private,monofile,built_in,[
     execute(format/3)]).
 
 
-predicate('$check_pred_type'/4,431,static,private,monofile,built_in,[
+predicate('$check_pred_type'/4,432,static,private,monofile,built_in,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1286,7 +1287,7 @@ label(1),
     proceed]).
 
 
-predicate('$$check_pred_type/4_$aux1'/4,431,static,private,monofile,local,[
+predicate('$$check_pred_type/4_$aux1'/4,432,static,private,monofile,local,[
     pragma_arity(5),
     get_current_choice(x(4)),
     try_me_else(1),
@@ -1315,7 +1316,7 @@ label(1),
     execute(format/3)]).
 
 
-predicate('$check_owner_files'/3,444,static,private,monofile,built_in,[
+predicate('$check_owner_files'/3,445,static,private,monofile,built_in,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1349,7 +1350,7 @@ label(1),
     proceed]).
 
 
-predicate('$$check_owner_files/3_$aux1'/6,444,static,private,monofile,local,[
+predicate('$$check_owner_files/3_$aux1'/6,445,static,private,monofile,local,[
     pragma_arity(7),
     get_current_choice(x(6)),
     try_me_else(1),
@@ -1387,13 +1388,13 @@ label(1),
     execute(format/3)]).
 
 
-predicate(load/1,459,static,private,monofile,built_in,[
+predicate(load/1,460,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[load,1]),
     put_value(y(0),0),
     call('$check_atom_or_atom_list'/1),
     cut(y(1)),
@@ -1402,7 +1403,7 @@ predicate(load/1,459,static,private,monofile,built_in,[
     execute('$load/1_$aux1'/1)]).
 
 
-predicate('$load/1_$aux1'/1,459,static,private,monofile,local,[
+predicate('$load/1_$aux1'/1,460,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1417,7 +1418,7 @@ label(1),
     execute('$load1'/1)]).
 
 
-predicate('$load1'/1,469,static,private,monofile,built_in,[
+predicate('$load1'/1,470,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1441,7 +1442,7 @@ label(4),
     execute('$load1'/1)]).
 
 
-predicate('$load2'/1,476,static,private,monofile,built_in,[
+predicate('$load2'/1,477,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     put_value(y(0),0),
@@ -1458,13 +1459,13 @@ predicate('$load2'/1,476,static,private,monofile,built_in,[
     call_c('Pl_Absolute_File_Name_2',[boolean],[x(1),x(2)]),
     put_value(y(2),1),
     call('$$load2/1_$aux2'/2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[load,1]),
     put_unsafe_value(y(2),0),
     deallocate,
     execute('$load_file'/1)]).
 
 
-predicate('$$load2/1_$aux2'/2,476,static,private,monofile,local,[
+predicate('$$load2/1_$aux2'/2,477,static,private,monofile,local,[
     pragma_arity(3),
     get_current_choice(x(2)),
     try_me_else(1),
@@ -1477,12 +1478,12 @@ predicate('$$load2/1_$aux2'/2,476,static,private,monofile,local,[
 
 label(1),
     trust_me_else_fail,
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[load,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[load,1]),
     put_atom(source_sink,0),
     execute('$pl_err_existence'/2)]).
 
 
-predicate('$$load2/1_$aux1'/3,476,static,private,monofile,local,[
+predicate('$$load2/1_$aux1'/3,477,static,private,monofile,local,[
     pragma_arity(4),
     get_current_choice(x(3)),
     try_me_else(1),
@@ -1498,22 +1499,22 @@ label(1),
     proceed]).
 
 
-predicate('$bc_start_pred'/8,494,static,private,monofile,built_in,[
+predicate('$bc_start_pred'/8,495,static,private,monofile,built_in,[
     call_c('Pl_BC_Start_Pred_8',[],[x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7)]),
     proceed]).
 
 
-predicate('$bc_start_emit'/0,498,static,private,monofile,built_in,[
+predicate('$bc_start_emit'/0,499,static,private,monofile,built_in,[
     call_c('Pl_BC_Start_Emit_0',[],[]),
     proceed]).
 
 
-predicate('$bc_stop_emit'/0,501,static,private,monofile,built_in,[
+predicate('$bc_stop_emit'/0,502,static,private,monofile,built_in,[
     call_c('Pl_BC_Stop_Emit_0',[],[]),
     proceed]).
 
 
-predicate('$bc_emit'/1,504,static,private,monofile,built_in,[
+predicate('$bc_emit'/1,505,static,private,monofile,built_in,[
     switch_on_term(1,2,fail,4,fail),
 
 label(1),
@@ -1537,24 +1538,24 @@ label(4),
     execute('$bc_emit'/1)]).
 
 
-predicate('$bc_emit_inst'/1,510,static,private,monofile,built_in,[
+predicate('$bc_emit_inst'/1,511,static,private,monofile,built_in,[
     call_c('Pl_BC_Emit_Inst_1',[],[x(0)]),
     proceed]).
 
 
-predicate('$bc_emulate_cont'/0,516,static,private,monofile,built_in,[
+predicate('$bc_emulate_cont'/0,517,static,private,monofile,built_in,[
     call_c('Pl_BC_Emulate_Cont_0',[jump],[]),
     proceed]).
 
 
-predicate('$add_clause_term'/2,522,static,private,monofile,built_in,[
+predicate('$add_clause_term'/2,523,static,private,monofile,built_in,[
     put_value(x(1),3),
     put_integer(0,1),
     put_integer(0,2),
     execute('$assert'/4)]).
 
 
-predicate('$add_clause_term_and_bc'/3,528,static,private,monofile,built_in,[
+predicate('$add_clause_term_and_bc'/3,529,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1569,9 +1570,9 @@ predicate('$add_clause_term_and_bc'/3,528,static,private,monofile,built_in,[
     execute('$add_clause_term'/2)]).
 
 
-predicate(listing/0,539,static,private,monofile,built_in,[
+predicate(listing/0,540,static,private,monofile,built_in,[
     allocate(0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[listing,0]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[listing,0]),
     put_integer(5,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
@@ -1580,14 +1581,14 @@ predicate(listing/0,539,static,private,monofile,built_in,[
     execute('$listing_all'/1)]).
 
 
-predicate(listing/1,548,static,private,monofile,built_in,[
+predicate(listing/1,549,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[listing,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[listing,1]),
     put_integer(5,0),
     put_integer(0,1),
     call('$sys_var_write'/2),
@@ -1612,9 +1613,9 @@ label(2),
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_any'/0,565,static,private,monofile,built_in,[
+predicate('$listing_any'/0,566,static,private,monofile,built_in,[
     allocate(0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],['$listing_any',0]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],['$listing_any',0]),
     put_integer(5,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
@@ -1623,14 +1624,14 @@ predicate('$listing_any'/0,565,static,private,monofile,built_in,[
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_any'/1,572,static,private,monofile,built_in,[
+predicate('$listing_any'/1,573,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
     allocate(2),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],['$listing_any',1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],['$listing_any',1]),
     put_integer(5,0),
     put_integer(1,1),
     call('$sys_var_write'/2),
@@ -1655,7 +1656,7 @@ label(2),
     execute('$listing_all'/1)]).
 
 
-predicate('$listing_all'/1,592,static,private,monofile,built_in,[
+predicate('$listing_all'/1,593,static,private,monofile,built_in,[
     try_me_else(1),
     allocate(3),
     get_variable(x(2),0),
@@ -1687,7 +1688,7 @@ label(1),
     proceed]).
 
 
-predicate('$listing_one_pi'/3,602,static,private,monofile,built_in,[
+predicate('$listing_one_pi'/3,603,static,private,monofile,built_in,[
     allocate(3),
     get_variable(y(0),0),
     get_variable(y(1),1),
@@ -1709,7 +1710,7 @@ predicate('$listing_one_pi'/3,602,static,private,monofile,built_in,[
     execute('$predicate_property_pi_any'/2)]).
 
 
-predicate('$$listing_one_pi/3_$aux1'/1,602,static,private,monofile,local,[
+predicate('$$listing_one_pi/3_$aux1'/1,603,static,private,monofile,local,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1738,7 +1739,7 @@ label(1),
     execute('$not_aux_name'/1)]).
 
 
-predicate('$listing_one'/1,628,static,private,monofile,built_in,[
+predicate('$listing_one'/1,629,static,private,monofile,built_in,[
     pragma_arity(2),
     get_current_choice(x(1)),
     try_me_else(1),
@@ -1761,7 +1762,7 @@ label(1),
     put_value(y(1),2),
     call_c('Pl_Blt_Functor',[fast_call,boolean],[x(0),x(1),x(2)]),
     call(nl/0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[listing,0]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[listing,0]),
     put_value(y(2),0),
     put_variable(y(3),1),
     put_integer(2,2),
@@ -1803,7 +1804,7 @@ predicate('$$prop_meta_pred/3_$aux3'/3,53,static,private,monofile,local,[
     proceed]).
 
 
-predicate('$$prop_meta_pred/3_$aux4'/3,546,static,private,monofile,local,[
+predicate('$$prop_meta_pred/3_$aux4'/3,547,static,private,monofile,local,[
     get_atom(listing,0),
     get_integer(1,1),
     get_structure(listing/1,2),
@@ -1824,7 +1825,7 @@ predicate('$prop_meta_pred'/3,44,static,private,multifile,local,[
 
 
 directive(44,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux1',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux1'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom('.'),
     unify_integer(2),
@@ -1836,7 +1837,7 @@ directive(44,system,[
 
 
 directive(52,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux2',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux2'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(consult),
     unify_integer(1),
@@ -1847,7 +1848,7 @@ directive(52,system,[
 
 
 directive(53,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux3',3]),
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux3'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(consult),
     unify_integer(2),
@@ -1858,8 +1859,8 @@ directive(53,system,[
     execute('$add_clause_term'/2)]).
 
 
-directive(546,system,[
-    call_c('Pl_Emit_BC_Execute_Wrapper',[by_value],['$prop_meta_pred',3,&,'$$prop_meta_pred/3_$aux4',3]),
+directive(547,system,[
+    call_c('Pl_Emit_BC_Execute_Wrapper',[],['$prop_meta_pred',3,&('$$prop_meta_pred/3_$aux4'/3)]),
     put_structure('$prop_meta_pred'/3,0),
     unify_atom(listing),
     unify_integer(1),

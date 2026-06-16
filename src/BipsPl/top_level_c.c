@@ -6,7 +6,7 @@
  * Descr.: top Level - C part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,9 +35,14 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-
 #include "gp_config.h"
+
+#include <string.h>
+#include <stdlib.h>
+#include <signal.h>
+
+#include "engine_pl.h"
+#include "bips_pl.h"
 
 #ifndef NO_USE_LINEDIT
 #include "ctrl_c.h"
@@ -45,11 +50,6 @@
 #include "../Linedit/ctrl_c.c"	/* must be included before other .h... */
 #endif
 
-#include "engine_pl.h"
-#include "bips_pl.h"
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
 
 
 
@@ -75,7 +75,7 @@
  *---------------------------------*/
 
 
-#if !defined(NO_USE_REGS) && NB_OF_USED_MACHINE_REGS > 0
+#if NB_OF_USED_MACHINE_REGS > 0
 static WamWord buff_save_machine_regs[NB_OF_USED_MACHINE_REGS];
 #endif
 
@@ -143,7 +143,6 @@ start:
   c = Pl_Stream_Get_Key(pl_stm_tbl[pl_stm_top_level_input], TRUE, FALSE);
   Pl_Stream_Putc('\n', pstm);
 
-  // Keep fall through comments to avoid GCC warning with -Wextra (-Wimplicit-fallthrough)
   switch (c)
     {
     case 'a':			/* abort */

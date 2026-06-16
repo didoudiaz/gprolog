@@ -6,7 +6,7 @@
  * Descr.: arithmetic (inline) management - C part                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,19 +35,11 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
-#define OBJ_INIT Arith_Initializer
-
-#include "engine_pl.h"
-#include "bips_pl.h"
-
-#ifdef HAVE_FLOAT_H
-#include <float.h>
-#endif
 
 #ifdef _MSC_VER
 #if 0				/* actually windows.h is useless */
@@ -55,7 +47,14 @@
 #include <windows.h>
 #endif
 #define ENABLE_INTSAFE_SIGNED_FUNCTIONS /* activate signed LongLongMult */
-#include <intsafe.h>
+#include <intsafe.h>		/* MUST be included before engine_pl.h */
+#endif
+
+#include "engine_pl.h"
+#include "bips_pl.h"
+
+#ifdef HAVE_FLOAT_H
+#include <float.h>
 #endif
 
 
@@ -121,7 +120,7 @@
  * Constants                       *
  *---------------------------------*/
 
-#define START_EVALUABLE_TBL_SIZE    64
+#define START_EVALUABLE_HTBL_SIZE  64
 
 
 
@@ -146,7 +145,7 @@ EvaluableInf;
  * Global Variables                *
  *---------------------------------*/
 
-static char *evaluable_tbl;
+static void *evaluable_htbl;
 
 /*---------------------------------*
  * Function Prototypes             *
@@ -162,7 +161,7 @@ static WamWord Load_Math_Expression(WamWord exp_word);
 
 
 #define Pl_Lookup_Evaluable(func, arity) \
-  (EvaluableInf *) Pl_Hash_Find(evaluable_tbl, Functor_Arity(func, arity))
+  (EvaluableInf *) Pl_HTBL_Find(evaluable_htbl, Functor_Arity(func, arity))
 
 
 
@@ -172,7 +171,7 @@ static WamWord Load_Math_Expression(WamWord exp_word);
   evaluable_info.signat_atom = Pl_Create_Atom(signat_str);             \
   evaluable_info.is_iso = iso;             			       \
   evaluable_info.fct = (WamWord (FC *)(void)) f;		       \
-  Pl_Hash_Insert(evaluable_tbl, (char *) &evaluable_info, FALSE)
+  Pl_HTBL_Insert(evaluable_htbl, (char *) &evaluable_info, FALSE)
 
 
 
@@ -181,12 +180,12 @@ static WamWord Load_Math_Expression(WamWord exp_word);
  * ARITH_INITIALIZER                                                       *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Arith_Initializer(void)
+PL_INITIALIZER(Arith_Initializer)
 {
   EvaluableInf evaluable_info;
 
-  evaluable_tbl = Pl_Hash_Alloc_Table(START_EVALUABLE_TBL_SIZE, sizeof(EvaluableInf));
+  evaluable_htbl = Pl_HTBL_Alloc_Table(START_EVALUABLE_HTBL_SIZE,
+				       sizeof(EvaluableInf));
 
   ADD_EVALUABLE("pi",                    0, "=F",       TRUE,  Pl_Fct_PI);
   ADD_EVALUABLE("e",                     0, "=F",       FALSE, Pl_Fct_E);
@@ -1124,7 +1123,7 @@ Pl_Fct_Fast_IPow(WamWord x_word, WamWord y_word)
 {
   PlLong x = UnTag_INT(x_word);
   PlLong y = UnTag_INT(y_word);
-  PlLong z;
+  PlLong z = 0;			/* init for the compiler */
   int s = pow_overflow(x, y, &z);
 
   if (s == 2)
@@ -1702,7 +1701,7 @@ Pl_Current_Evaluable_1(WamWord func_indic_word)
 				/* here func or arity == -1 (or both) */
   all = (func == -1 && arity == -1);
 
-  evaluable = (EvaluableInf *) Pl_Hash_First(evaluable_tbl, &scan);
+  evaluable = (EvaluableInf *) Pl_HTBL_First(evaluable_htbl, &scan);
   for (;;)
     {
       if (evaluable == NULL)
@@ -1714,13 +1713,13 @@ Pl_Current_Evaluable_1(WamWord func_indic_word)
       if (all || func == func1 || arity == arity1)
 	break;
 
-      evaluable = (EvaluableInf *) Pl_Hash_Next(&scan);
+      evaluable = (EvaluableInf *) Pl_HTBL_Next(&scan);
     }
 
 				/* non deterministic case */
   A(0) = name_word;
   A(1) = arity_word;
-  A(2) = (WamWord) scan.endt;
+  A(2) = (WamWord) scan.end_t;
   A(3) = (WamWord) scan.cur_t;
   A(4) = (WamWord) scan.cur_p;
   Pl_Create_Choice_Point((CodePtr) Prolog_Predicate(CURRENT_EVALUABLE_ALT, 0), 5);
@@ -1754,9 +1753,9 @@ Pl_Current_Evaluable_Alt_0(void)
 
   name_word = AB(B, 0);
   arity_word = AB(B, 1);
-  scan.endt = (char *) AB(B, 2);
-  scan.cur_t = (char *) AB(B, 3);
-  scan.cur_p = (char *) AB(B, 4);
+  scan.end_t = (HashNode *) AB(B, 2);
+  scan.cur_t = (HashNode *) AB(B, 3);
+  scan.cur_p = (HashNode)   AB(B, 4);
 
   func = Tag_Mask_Of(name_word) == TAG_REF_MASK ? -1 : UnTag_ATM(name_word);
   arity = Tag_Mask_Of(arity_word) == TAG_REF_MASK ? -1 : (int) UnTag_INT(arity_word);
@@ -1766,7 +1765,7 @@ Pl_Current_Evaluable_Alt_0(void)
 
   for (;;)
     {
-      evaluable = (EvaluableInf *) Pl_Hash_Next(&scan);
+      evaluable = (EvaluableInf *) Pl_HTBL_Next(&scan);
       if (evaluable == NULL)
 	{
 	  Delete_Last_Choice_Point();
@@ -1785,7 +1784,7 @@ Pl_Current_Evaluable_Alt_0(void)
 #if 0				/* the following data is unchanged */
   AB(B, 0) = name_word;
   AB(B, 1) = arity_word;
-  AB(B, 2) = (WamWord) scan.endt;
+  AB(B, 2) = (WamWord) scan.end_t;
 #endif
   AB(B, 3) = (WamWord) scan.cur_t;
   AB(B, 4) = (WamWord) scan.cur_p;

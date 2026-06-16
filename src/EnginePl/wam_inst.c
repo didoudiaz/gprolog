@@ -6,7 +6,7 @@
  * Descr.: WAM instruction implementation                                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -709,24 +710,22 @@ Pl_Put_Meta_Term(int module, WamWord goal_word)
 WamWord FC
 Pl_Unify_Variable(void)
 {
-  WamWord tag_mask, word;
-  WamWord res_word;
+  WamWord word;
   WamWord *cur_H;
 
   if (S != WRITE_MODE)
     {
       word = *S++;
-      tag_mask = Tag_Mask_Of(word);
-      Do_Copy_Of_Word(tag_mask, word);
+      Do_Copy_Of_Word(Tag_Mask_Of(word), word);
       return word;
     }
 
   cur_H = H;
-  res_word = Make_Self_Ref(cur_H);
-  *cur_H = res_word;
+  word = Make_Self_Ref(cur_H);
+  *cur_H = word;
   H++;
 
-  return res_word;
+  return word;
 }
 
 
@@ -1032,7 +1031,6 @@ Pl_Allocate(int n)
   E = cur_E;
 
   CPE(cur_E) = (WamCont) CP;
-  BCIE(cur_E) = BCI;
   EE(cur_E) = (WamWord *) old_E;
 
 
@@ -1062,7 +1060,6 @@ Pl_Deallocate(void)
   WamWord *cur_E = E;
 
   CP = CPE(cur_E);
-  BCI = BCIE(cur_E);
   E = EE(cur_E);
 }
 
@@ -1412,7 +1409,6 @@ Pl_Obtain_Float(WamWord *adr)
                                                            \
   ALTB(cur_B) = codep_alt;                                 \
   CPB(cur_B) = CP;                                         \
-  BCIB(cur_B) = BCI;                                       \
   EB(cur_B) = E;                                           \
   BB(cur_B) = old_B;                                       \
   HB(cur_B) = HB1 = H;                                     \
@@ -1430,7 +1426,6 @@ Pl_Obtain_Float(WamWord *adr)
   Pl_Untrail(TRB(cur_B));         \
                                   \
   CP = CPB(cur_B);                \
-  BCI = BCIB(cur_B);              \
   H = HB(cur_B);		  \
   E = EB(cur_B);                  \
   CS = CSB(cur_B)
@@ -1758,7 +1753,7 @@ Pl_Untrail(WamWord *low_adr)
 	  adr = (WamWord *) Trail_Pop; /* fct adr no longer word aligned */
 	  nb = (int) Trail_Pop;
 	  TR -= nb;
-	  (*((int (*)(int, WamWord *)) adr)) (nb, TR);
+	  (*((void (*)(int, WamWord *)) adr)) (nb, TR);
 	}
     }
 }
@@ -1800,7 +1795,7 @@ Pl_Untrail(WamWord *low_adr)
 void
 Pl_Print_Tag_Value(WamWord *word_adr, WamWord word)
 {
-  WamWord tag;
+  PlULong tag;
   WamWord value;
   WamWord *adr;
   int tag_type = -1;

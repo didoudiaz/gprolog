@@ -6,7 +6,7 @@
  * Descr.: malloc with checks + other miscellaneous operations             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,15 +35,14 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
 #include "gp_config.h"
-#include "machine.h"
 
 #ifdef USE_DL_MALLOC
 #include "dl_malloc.c"
+#include "../Tools/ctor.h"
 
-static void __attribute__((constructor))
-Init_Dl_Malloc(void) {
+INITIALIZER(Init_Dl_Malloc)
+{
   mallopt(M_MMAP_THRESHOLD, 0xFFFFFFF);	/* big value to no use mmap */
 }
 #endif
@@ -217,16 +216,16 @@ Pl_MProbe_Ptr(const char *file, int line, const char *func,
 
 
 /*-------------------------------------------------------------------------*
- * PL_EXTEND_TABLE_IF_NEEDED                                               *
+ * PL_EXTEND_HTBL_IF_NEEDED                                                *
  *                                                                         *
  *-------------------------------------------------------------------------*/
 void
-Pl_Extend_Table_If_Needed(char **hash_tbl)
+Pl_Extend_HTBL_If_Needed(void **htbl)
 {
-  int size = Pl_Hash_Table_Size(*hash_tbl);
+  int size = Pl_HTBL_Table_Size(*htbl);
 
-  if (Pl_Hash_Nb_Elements(*hash_tbl) >= size)
-    *hash_tbl = Pl_Hash_Realloc_Table(*hash_tbl, size * 2);
+  if (Pl_HTBL_Nb_Elements(*htbl) >= size)
+    *htbl = Pl_HTBL_Realloc_Table(*htbl, size * 2);
 }
 
 

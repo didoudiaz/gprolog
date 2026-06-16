@@ -6,7 +6,7 @@
  * Descr.: main file                                                       *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -53,6 +53,7 @@ pl2wam1(LArg) :-
 	prolog_file_name(PlFile, PlFile1),
 	compile_msg_start(PlFile1),
 	init_counters,
+	randomize,		% for syn_sugar
 	emit_code_init(WamFile, PlFile1),
 	compile_list_include(LInclude),
 	compile_and_emit_file(PlFile1),
@@ -288,7 +289,7 @@ cmd_line_args(LArg, PlFile, WamFile, LInclude) :-
 	g_assign(plfile, ''),
 	g_assign(wamfile, ''),
 	g_assign(native_code, t),
-	g_assign(wam_comment, ''),
+	g_assign(wam_comment, []),
 	g_assign(susp_warn, t),
 	g_assign(singl_warn, t),
 	g_assign(redef_error, t),
@@ -368,7 +369,8 @@ cmd_line_arg1('--wam-for-byte-code', LArg, LArg) :-
 	g_assign(call_c, f).                              % force --no-call-c
 
 cmd_line_arg1('--wam-comment', [Cmt|LArg], LArg) :-
-	g_assign(wam_comment, Cmt).
+	g_read(wam_comment, CmtStack),
+	g_assign(wam_comment, [Cmt|CmtStack]).
 
 cmd_line_arg1('--no-susp-warn', LArg, LArg) :-
 	g_assign(susp_warn, f).
@@ -489,7 +491,7 @@ h('  -o FILE, --output FILE      set output file name').
 h('  -W, --wam-for-native        produce a WAM file for native code').
 h('  -w, --wam-for-byte-code     produce a WAM file for byte-code (force --no-call-c)').
 h('  -i FILE, --include FILE     include FILE at the beginning of the compilation').
-h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file').
+h('  --wam-comment COMMENT       emit COMMENT as a comment in the WAM file (can be repeated)').
 h('  --no-susp-warn              do not show warnings for suspicious predicates').
 h('  --no-singl-warn             do not show warnings for named singleton variables').
 h('  --no-redef-error            do not show errors for built-in redefinitions').

@@ -6,7 +6,7 @@
  * Descr.: debugger                                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -62,6 +62,19 @@
 	g_read('$debug_info', DebugInfo),
 	setarg(1, DebugInfo, 0, false),
 	setarg(2, DebugInfo, [], false),
+	'$call_c'('Pl_Set_Debug_Call_Code_0').
+
+
+
+'$debug_pause'('$debug_save'(DebugMode)) :-
+	g_read('$debug_mode', DebugMode),
+	'$call_c'('Pl_Reset_Debug_Call_Code_0').
+
+
+
+
+'$debug_resume'('$debug_save'(DebugMode)) :-
+	g_assign('$debug_mode', DebugMode),
 	'$call_c'('Pl_Set_Debug_Call_Code_0').
 
 
@@ -756,8 +769,7 @@ nospyall.
 
 '$debug_exec_cmd'(u, _, _, _, Port, _) :-                             % unify
 	(   Port = call ->
-	    write(debugger_output, 'Head: '),
-	    read(debugger_input, DebugUnify),
+	    '$debug_input_term'('Head: ', DebugUnify),
 	    g_assign('$debug_unify', DebugUnify)
 	;   write(debugger_output, 'Option not applicable at this port'),
 	    nl(debugger_output), !,
@@ -787,12 +799,16 @@ nospyall.
 
 '$debug_exec_cmd'(*, Goal, _, _, _, _) :-                 % spy conditionally
 	repeat,
-	write(debugger_output, 'Goal,Port,Test: '),
-	read(debugger_input, (Goal1, Port1, Test1)),
+	(   '$debug_input_term'('Enter Goal,Port,Test : ', (Goal1, Port1, Test1)) ->
+	    true
+	;   !, fail
+	),
 	callable(Goal1),
 	functor(Goal, N, A),
-	functor(Goal1, N, A),
-	spypoint_condition(Goal1, Port1, Test1), !,
+	(   functor(Goal1, N, A) ->
+	    spypoint_condition(Goal1, Port1, Test1)
+	;   format(debugger_output, 'Goal should be on ~a/~d~n', [N, A])
+	), !,
 	fail.
 
 '$debug_exec_cmd'(-, Goal, _, _, _, _) :-                        % nospy this
@@ -825,12 +841,16 @@ nospyall.
 	fail.
 
 '$debug_exec_cmd'(@, _, _, _, _, _) :-                              % command
-	write(debugger_output, 'Command: '),
-	read(debugger_input, Command),
-	(   '$catch'(Command, Err, format(debugger_output, 'Warning: ~w - exception raised ~w~n', [Command, Err]), debugger_exec_cmd, 1, false) ->
+	!,
+	'$debug_input_term'('Command: ', Command),		    % can fail
+	'$debug_pause'(SaveDbg),
+	(   '$catch'(Command, Err,
+		     format(debugger_output, 'Warning: ~w - exception raised ~w~n',
+			    [Command, Err]), debugger_exec_cmd, 1, false) ->
 	    true
 	;   format(debugger_output, 'Warning: ~w - goal failed~n', [Command])
 	), !,
+	'$debug_resume'(SaveDbg),
 	fail.
 
 '$debug_exec_cmd'(<, _, _, _, _, _) :-                          % print depth
@@ -859,6 +879,19 @@ nospyall.
 
 
 
+
+
+
+
+'$debug_input_term'(Msg, Term) :- % input a term, consume \n (fail on error)
+	write(debugger_output, Msg),
+	'$catch'(read(debugger_input, Term), Err,
+		 format(debugger_output, 'Warning: ~w~n', [Err]),
+		 debugger_exec_cmd, 1, false),
+	peek_code(debugger_input, NL),
+	NL < 32,		% includes newline \n or \r
+	get_code(debugger_input, _),
+	var(Err).
 
 
 

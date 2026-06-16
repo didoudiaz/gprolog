@@ -6,7 +6,7 @@
 ; * Descr.: test file for MA translation                                    *
 ; * Author: Daniel Diaz                                                     *
 ; *                                                                         *
-; * Copyright (C) 1999-2025 Daniel Diaz                                     *
+; * Copyright (C) 1999-2026 Daniel Diaz                                     *
 ; *                                                                         *
 ; * This file is part of GNU Prolog                                         *
 ; *                                                                         *
@@ -35,10 +35,11 @@
 ; * not, see http://www.gnu.org/licenses/.                                  *
 ; *-------------------------------------------------------------------------*/
 
-; maybe comment this if something goes wrong from start
+; maybe comment the initializer_fct if something goes wrong from start
 ; (maybe it is call_c which does not work !)
+; this initializer test does not always detect a missing or bad .p2align
 
-c_code  initializer Object_Initializer
+c_code  initializer ma_initializer
         call_c Initializer()
         c_ret
 
@@ -114,7 +115,7 @@ pl_code global ma_test_arg_string
 	pl_ret
 
 pl_code global ma_test_arg_mem_l
-	call_c fast test_arg_mem_l1(ma_local_var2, ma_global_var2, &test_arg_mem_l, ma_array(0), ma_array(4097), &ma_array(4500))
+	call_c fast test_arg_mem_l1(ma_local_var2, ma_global_var2, &test_arg_mem_l, ma_array(0), ma_array(4097), &ma_array(4500), &error)
 	pl_ret
 
 pl_code global ma_test_arg_x

@@ -6,7 +6,7 @@
  * Descr.: term output (write/1 and friends) management                    *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -112,7 +112,7 @@ write_term(Term, Options) :-
 	set_bip_name(write_term, 2),
 	'$get_write_options'(Options),
 	'$call_c'('Pl_Write_Term_1'(Term)),
-	fail.
+	fail.			% undo variable_names assignments
 
 write_term(_, _).
 	

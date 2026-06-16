@@ -6,7 +6,7 @@
  * Descr.: random number generator management                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -43,7 +43,7 @@
 
 
 randomize :-
-	'$call_c'('Pl_M_Randomize').
+	'$call_c'('Pl_Randomize').
 
 
 

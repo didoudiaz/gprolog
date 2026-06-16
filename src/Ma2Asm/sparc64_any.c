@@ -6,7 +6,7 @@
  * Descr.: translation file for sparc 64 bits                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,13 +35,8 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
 
-
-/* Supported arch: sparc64 on Solaris, BSD
- */
+/* Supported arch: sparc64 on Solaris, BSD */
 
 
 
@@ -102,7 +97,7 @@ int Delay_Flush(void);
  *
  * We can safely use %l registers in Prolog code even if they are callee
  * save and even if in Prolog code we do not save them (no save/restore).
- * This is because Prolog code is called via Pl_Call_Compiled (see engine1.c)
+ * This is because Prolog code is called via Pl_Call_Compiled (see trampoline.S)
  * which saves them (callee save). It is even possible to use them as global
  * registers to store constant values (e.g. pl_reg_bank) if the are set by
  * Pl_Call_Compiled(). We use
@@ -153,25 +148,25 @@ void
 Asm_Start(void)
 {
 #ifdef MAP_REG_BANK
-  sprintf(asm_reg_bank, "%%%s", MAP_REG_BANK);
+  strcpy(asm_reg_bank, MAP_REG_BANK);
 #else
   strcpy(asm_reg_bank, "%l0");
 #endif
 
 #ifdef MAP_REG_E
-  sprintf(asm_reg_e, "%%%s", MAP_REG_E);
+  strcpy(asm_reg_e, MAP_REG_E);
 #else
   strcpy(asm_reg_e, "%l1");
 #endif
 
 #ifdef MAP_REG_B
-  sprintf(asm_reg_b, "%%%s", MAP_REG_B);
+  strcpy(asm_reg_b, MAP_REG_B);
 #else
   sprintf(asm_reg_b, "[%s+%d]", asm_reg_bank, MAP_OFFSET_B);
 #endif
 
 #ifdef MAP_REG_CP
-  sprintf(asm_reg_cp, "%%%s", MAP_REG_CP);
+  strcpy(asm_reg_cp, MAP_REG_CP);
 #else
   sprintf(asm_reg_cp, "[%s+%d]", asm_reg_bank, MAP_OFFSET_CP);
 #endif

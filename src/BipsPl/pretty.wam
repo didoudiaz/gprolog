@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : pretty.pl
+% file: pretty.pl
+% hash: e5f65b4223376badd4510ec9a9e97842031031a9  pretty.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/pretty.pl').
@@ -112,13 +113,13 @@ label(1),
 
 
 predicate(name_singleton_vars/1,84,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_singleton_vars,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[name_singleton_vars,1]),
     call_c('Pl_Name_Singleton_Vars_1',[],[x(0)]),
     proceed]).
 
 
 predicate(name_query_vars/2,91,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[name_query_vars,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[name_query_vars,2]),
     call_c('Pl_Name_Query_Vars_2',[boolean],[x(0),x(1)]),
     proceed]).
 
@@ -127,7 +128,7 @@ predicate(bind_variables/2,100,static,private,monofile,built_in,[
     allocate(5),
     get_variable(y(0),0),
     get_variable(y(1),1),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[bind_variables,2]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[bind_variables,2]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(1),0),
     put_variable(y(2),1),
@@ -300,7 +301,7 @@ label(14),
 predicate(numbervars/1,164,static,private,monofile,built_in,[
     allocate(1),
     get_variable(y(0),0),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,1]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[numbervars,1]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),
@@ -315,7 +316,7 @@ predicate(numbervars/3,170,static,private,monofile,built_in,[
     get_variable(y(0),0),
     get_variable(y(1),1),
     get_variable(y(2),2),
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[numbervars,3]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[numbervars,3]),
     call('$set_bind_variables_defaults'/0),
     put_value(y(0),0),
     put_nil(1),

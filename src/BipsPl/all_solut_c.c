@@ -1,4 +1,4 @@
-/*-------------------------------------------------------------------------*
+ /*-------------------------------------------------------------------------*
  * GNU Prolog                                                              *
  *                                                                         *
  * Part  : Prolog buit-in predicates                                       *
@@ -6,7 +6,7 @@
  * Descr.: all solution collector management - C part                      *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,10 +35,9 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <sys/types.h>
-
-#define OBJ_INIT All_Solut_Initializer
 
 #include "engine_pl.h"
 #include "bips_pl.h"
@@ -83,7 +82,7 @@ static WamWord new_gen_word;
 
 
 
-static PlLong *bound_var_ptr;
+static WamWord *bound_var_ptr;
 static WamWord *free_var_base;
 
 
@@ -91,9 +90,9 @@ static WamWord *free_var_base;
 static OneSol dummy = { NULL, 0, 0, NOT_A_WAM_WORD };
 static OneSol *sol = &dummy;
 
-static PlLong *key_var_ptr;
-static PlLong *save_key_var_ptr;
-static PlLong *next_key_var_ptr;
+static WamWord *key_var_ptr;
+static WamWord *save_key_var_ptr;
+static WamWord *next_key_var_ptr;
 
 
 
@@ -131,8 +130,7 @@ Prolog_Prototype(GROUP_SOLUTIONS_ALT, 0);
  * ALL_SOLUT_INITIALIZER                                                   *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-All_Solut_Initializer(void)
+PL_INITIALIZER(All_Solut_Initializer)
 {
   exist_2 = Functor_Arity(ATOM_CHAR('^'), 2);
 }
@@ -219,16 +217,16 @@ Pl_Recover_Generator_1(WamWord gen1_word)
 static Bool
 Bound_Var(WamWord *adr, WamWord var_word)
 {
-  PlLong *p;
+  WamWord *p;
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (PlLong) adr)
+    if (*p == (WamWord) adr)
       return TRUE;
 
   if (bound_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *bound_var_ptr++ = (PlLong) adr;
+  *bound_var_ptr++ = (WamWord) adr;
   return TRUE;
 }
 
@@ -270,11 +268,11 @@ Existential_Variables(WamWord start_word)
 static Bool
 Free_Var(WamWord *adr, WamWord var_word)
 {
-  PlLong *p;
+  WamWord *p;
   WamWord word;
 
   for (p = pl_glob_dico_var; p < bound_var_ptr; p++)
-    if (*p == (PlLong) adr)
+    if (*p == (WamWord) adr)
       return TRUE;
 
   word = Tag_REF(adr);	/* if an FDV for a Dont_Separate_Tag */
@@ -467,10 +465,10 @@ Handle_Key_Variables(WamWord start_word)
 static Bool
 Link_Key_Var(WamWord *adr, WamWord var_word)
 {
-  PlLong *p;
+  WamWord *p;
 
   for (p = pl_glob_dico_var; p < key_var_ptr; p++)
-    if (*p == (PlLong) adr)
+    if (*p == (WamWord) adr)
       return TRUE;
 
   if (next_key_var_ptr < save_key_var_ptr)
@@ -483,7 +481,7 @@ Link_Key_Var(WamWord *adr, WamWord var_word)
   if (key_var_ptr - pl_glob_dico_var >= MAX_VAR_IN_TERM)
     Pl_Err_Representation(pl_representation_too_many_variables);
 
-  *key_var_ptr++ = (PlLong) adr;
+  *key_var_ptr++ = (WamWord) adr;
   return TRUE;
 }
 

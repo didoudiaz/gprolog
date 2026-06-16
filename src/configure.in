@@ -1,15 +1,26 @@
-dnl *********************************
-dnl * autoconf configuration script *
-dnl *********************************
+dnl ***************************************
+dnl * GNU Prolog                          *
+dnl *                                     *
+dnl * autoconf configuration script       *
+dnl * Author: Daniel Diaz                 *
+dnl *                                     *
+dnl * Copyright (C) 1999-2026 Daniel Diaz *
+dnl ***************************************
 
-AC_INIT([gprolog], [1.6.0], [https://github.com/didoudiaz/gprolog/issues], [], [www.gprolog.org])
+AC_INIT([gprolog], [1.6.0],
+	[https://github.com/didoudiaz/gprolog/issues],
+	[], [www.gprolog.org])
+
 AC_PREREQ([2.71])
+
 dnl AC_CONFIG_AUX_DIR(ConfUtils) to do...
 AC_CONFIG_SRCDIR(SETVARS)
 
 dnl ***************************
 dnl * initial variable values *
 dnl ***************************
+
+test -z "$CFLAGS" && cflags_is_empty=yes || cflags_is_empty=no
 
 pl_date()
 {
@@ -23,13 +34,13 @@ pl_year()
 
 PROLOG_NAME='GNU Prolog'
 PROLOG_DIALECT='gprolog'
-PROLOG_VERSION=$PACKAGE_VERSION
+PROLOG_VERSION="$PACKAGE_VERSION"
 PROLOG_DATE=`pl_date`
 PROLOG_COPYRIGHT="Copyright (C) 1999-`pl_year` Daniel Diaz"
 
-TOP_LEVEL=$PROLOG_DIALECT
+TOP_LEVEL="$PROLOG_DIALECT"
 GPLC=gplc
-HEXGPLC=hexgplc
+GPLC_FILTER=gplc-filter
 ENV_VARIABLE=PL_PATH
 
 USE_FAST_CALL=no
@@ -60,7 +71,7 @@ AC_SUBST(PROLOG_COPYRIGHT)
 
 AC_SUBST(TOP_LEVEL)
 AC_SUBST(GPLC)
-AC_SUBST(HEXGPLC)
+AC_SUBST(GPLC_FILTER)
 AC_SUBST(ENV_VARIABLE)
 AC_SUBST(TOP_LEVEL_FLAGS)
 
@@ -68,6 +79,7 @@ AC_SUBST(CFLAGS_PREFIX_REG)
 AC_SUBST(CFLAGS_MACHINE)
 AC_SUBST(CFLAGS_UNSIGNED_CHAR)
 AC_SUBST(LDLIBS)
+AC_SUBST(LDFLAGS_END)
 AC_SUBST(LDGUILIBS)
 
 AC_SUBST(ASM_SUFFIX)
@@ -88,6 +100,8 @@ AC_SUBST(LD)
 AC_SUBST(LD_OUT_NAME_OPT)
 AC_SUBST(LD_DLL_OPT)
 
+AC_SUBST(HTML_SUM)
+
 AC_SUBST(ROOT_DIR)
 AC_SUBST(ROOT_DIR1)
 AC_SUBST(PKG_NAME)
@@ -98,9 +112,11 @@ AC_SUBST(HTML_DIR)
 AC_SUBST(EXAMPLES_DIR)
 
 AC_SUBST(WITH_MSVC)
-AC_SUBST(WIN_TMP_DIR)
 AC_SUBST(WIN_CONF_OPT)
-AC_SUBST(WIN_CC_VER)
+AC_SUBST(WIN_CC_DESCR)
+AC_SUBST(WIN_AS_PATH)
+AC_SUBST(WIN_AS_COPY)
+AC_SUBST(WIN_TMP_DIR)
 
 AC_SUBST(TXT_FILES)
 AC_SUBST(BIN_FILES)
@@ -119,7 +135,6 @@ AC_SUBST(MAKE_LE_DIRS)
 AC_SUBST(MAKE_W32GC_DIRS)
 AC_SUBST(MAKE_FD_DIRS)
 
-AC_SUBST(MAKE_ENGINE1_SRC)
 AC_SUBST(MAKE_LE_INTERF_OBJS)
 AC_SUBST(MAKE_SOCKETS_OBJS)
 
@@ -219,160 +234,212 @@ AC_ARG_ENABLE(fd-solver, [  --disable-fd-solver     do not include the FD constr
                esac])
 
 if test "$USE_MCHECK" = no; then
-        AC_DEFINE(NO_USE_MCHECK)
+    AC_DEFINE(NO_USE_MCHECK)
 fi
 
 if test "$USE_FAST_CALL" = yes; then
-        AC_DEFINE(USE_FAST_CALL)
+    AC_DEFINE(USE_FAST_CALL)
 fi
 
 if test "$USE_EBP" = no; then
-        AC_DEFINE(NO_USE_EBP)
+    AC_DEFINE(NO_USE_EBP)
 fi
 
+
+
+dnl ****************************
+dnl * checks for architectures *
+dnl ****************************
+
+AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
+
+
+dnl ***************************
+dnl * msys-specific utilities *
+dnl ***************************
+
+dnl Windows versions must be compiled under an msys environment
+
+WINDOWS=
+CYGWIN=
+
+if test -n "$MSYSTEM"; then
+    WINDOWS=yes
+
+    dnl use cygpath -a -m to get the full windows path of msys
+    dnl (these full windows paths are suffixed _win_)
+
+    msys_root_win_abs=`cygpath -a -m / 2>/dev/null`
+
+    case "$build_os" in
+	cygwin*|*msys*) CYGWIN=yes;;
+    esac
+fi
+
+
+dnl a simple command -v working with msys environments
+commandv()
+{
+    path=`command -v "$1" 2>/dev/null`
+
+    if test -n "$MSYSTEM"; then
+	path=`cygpath -a -u "$path" 2>/dev/null`
+    fi
+
+    printf '%s\n' "$path"
+}
+
+
+dnl msys: try to detect errors on executables across msys environments
+dnl print the path of the tool
+check_msys_tool()
+{
+    tool="$1"
+    test -z "$tool" && return 0
+    test -z "$MSYSTEM" && return 0
+
+    tool_path=`command -v "$tool" 2>/dev/null`
+    test -z "$tool_path" && return 0
+    tool_path_win_abs=`cygpath -a -m "$tool_path"`
+
+    dnl check if not an msys executable (path prefix != msys_root_win_abs)
+    test "${tool_path_win_abs#"$msys_root_win_abs"}" = \
+	 "$tool_path_win_abs" && return 0
+
+    dnl inside msys: continue with msys paths (begin with /)
+    tool_path=`cygpath -a -u "$tool_path"`
+    tool_dir=`dirname "$tool_path"`
+
+    msys_bindir="$MSYSTEM_PREFIX/bin"
+    if test "$tool_dir" != "$msys_bindir"; then
+        AC_MSG_ERROR([msys environment $MSYSTEM / package mismatch:
+		      $tool found in $tool_dir not in $msys_bindir
+		      Install/select the correct msys package for $MSYSTEM environment])
+        exit 1
+    fi
+
+    printf '%s\n' "$tool_path" 
+}
 
 
 dnl ***********************
 dnl * checks for programs *
 dnl ***********************
 
-if test "$host_alias" != ''; then
+if test -n "$host_alias"; then
     WIN_CONF_OPT="$WIN_CONF_OPT --host=$host_alias"
 fi
 
-if test "$build_alias" != ''; then
+if test -n "$build_alias"; then
     WIN_CONF_OPT="$WIN_CONF_OPT --build=$build_alias"
 fi
 
-comp=`basename "$CC" .exe`
-if test "$comp" = "cl"; then
-   WITH_MSVC=yes
-else
-   test "$WITH_MSVC" != no && CC=cl
-fi
-
-if test "$WITH_MSVC" != no; then
-    echo "using MSVC++ as C compiler ($CC)"
-    WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
-fi
-
-
-dnl should be always done to correctly set EXEEXT (CC is set to cl for MSVC)
-dnl cannot be put in the then and the else part !!! so repeat the test !
-
-AC_PROG_CC
-dnl AC_PROG_CC_STDC is obsolete
-
-AC_CANONICAL_HOST
-AC_CANONICAL_BUILD
-
-dnl determine if MinGW and Windows path associated to posix path /tmp
-dnl (needs AC_CANONICAL_BUILD)
-
-case "$build_os" in
-    cygwin*|*msys*)  WIN_TMP_DIR=`cygpath -d -a /tmp`; CYGWIN=yes;;
-    mingw*)   WIN_TMP_DIR=`cd /tmp;pwd -W|sed -e 's:/:\\\:g'`;;
-esac
-
-dnl determine if use MinGW
-dnl (needs AC_CANONICAL_HOST)
-
-case "$host_os" in
-    mingw*) MINGW=yes; WIN_CC_VER=mingw;;
-esac
-
-
-dnl customize MSVC
-
-MAKE_ENGINE1_SRC='engine1.c'
-
-if test "$WITH_MSVC" != no; then
-
-dnl   NB: double [[ ]] for m4
-dnl   WIN_CC_VER=msvc-`cl 2>&1 | tr '\377' ' ' | sed -ne 's/.*ersion  *\([[0-9]]\{1,3\}\.[[0-9]]\{1,3\}\).*/\1/p'`
-   WIN_CC_VER=msvc
-
-   dnl test if cl.exe runs in 32 or 64 bits (return 0 if in 64 bits)
-
-   AC_MSG_CHECKING(for cl.exe producing 32-bit or 64-bit executables)
-   AC_RUN_IFELSE([AC_LANG_SOURCE([[int main() { return sizeof(void *) != 8; }]])], [
-        AC_MSG_RESULT(64-bit mode (x86_64)) 
-        cl_mode=64], [
-        AC_MSG_RESULT(32-bit mode (x86))
-        cl_mode=32], [
-        AC_MSG_RESULT([can't test in cross-compiling])])
-
-    if test $cl_mode = 32; then
-        WITH_MSVC=32
-        host_cpu=i686
-        host_os=win32
-        AS=mingw32-as
-        ASFLAGS='--32'
+if test "$WITH_MSVC" != no && test -z "$CC"; then
+    if test "$WITH_MSVC" != yes; then
+	CC="$WITH_MSVC"
     else
-        WITH_MSVC=64
-        host_cpu=x86_64
-        host_os=win64
-# yasm settings (yasm has a problem on msys with large PATH)
-#        AS=yasm-win64
-#        ASFLAGS='-f win64 -p gas'
-# now use mingw64/bin/as.exe
-	AS=mingw64-as
-	ASFLAGS=''
-        MAKE_ENGINE1_SRC='eng1-x86_64_win.s'
+	CC=cl
     fi
-    host_vendor=microsoft
+fi
 
+
+dnl AC_PROG_CC should be always done to correctly set EXEEXT
+dnl (CC is set to cl for MSVC)
+dnl under msys, favor clang in CLANG64 and CLANGARM64 environments
+
+dnl --- Detect MSVC cl.exe ---
+
+if test -n "$MSYSTEM"; then
+    AC_CACHE_CHECK([whether C compiler is MSVC cl], [ac_cv_msvc_cl], [
+       ac_cv_msvc_cl=no
+       "$CC" 2>&1 | grep -qi "Microsoft.*C/C++" && ac_cv_msvc_cl=yes
+    ])
+fi
+
+if test "$WITH_MSVC" = yes -a "$ac_cv_msvc_cl" = no; then
+    AC_MSG_WARN([MSVC selected but not detected - ignored])
+    WITH_MSVC=no
+fi
+
+if test "$ac_cv_msvc_cl" = yes; then
+    dnl preload cache to avoid testing gcc options for standards
+    ac_cv_prog_cc_c89=
+    ac_cv_prog_cc_c99=
+    ac_cv_prog_cc_c11=
+    WITH_MSVC=yes
+    if test "$CC" = cl -o "$CC" = cl.exe; then
+	WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc"
+    else
+	WIN_CONF_OPT="$WIN_CONF_OPT --with-msvc='$CC'"
+    fi
+fi
+
+
+if test "$WITH_MSVC" != no; then
+    cc_list="$CC"
+else
+    case "$MSYSTEM" in
+	CLANG64|CLANGARM64) cc_list="clang gcc cc";;
+	*)                  cc_list="gcc clang cc";;
+    esac
+fi
+
+AC_PROG_CC([$cc_list])
+
+test "$WITH_MSVC" = no && check_msys_tool "$CC" >/dev/null
+
+dnl ---------- customize MSVC ----------
+
+if test "$WITH_MSVC" != no; then
+    dnl get real cl.exe target (depending on executed vcvarsxxx.bat)
+
+    if test -n "$VSCMD_ARG_TGT_ARCH"; then
+       cl_cpu="$VSCMD_ARG_TGT_ARCH"
+    else
+       cl_cpu=`cl 2>&1 | sed -n 's/.* \(x86\|x64\|ARM64\).*/\1/p' | head -n 1`
+    fi
+    cl_cpu=`printf '%s\n' "$cl_cpu" | tr 'A-Z' 'a-z'`
+
+    case "$cl_cpu" in
+   	x86)   host_cpu=i686;    host_os=win32;;
+	x64)   host_cpu=x86_64;  host_os=win64;;	
+	arm64) host_cpu=aarch64; host_os=win64;;
+	*)     AC_MSG_ERROR([Unknown MSVC cl target architecture $cl_cpu]);;
+    esac
+    AC_MSG_NOTICE([MSVC cl.exe target: $cl_cpu])
+
+    host_vendor=microsoft
     host=$host_cpu-$host_vendor-$host_os
 
-    AC_MSG_CHECKING(for actual host system type...)
-    AC_MSG_RESULT($host)
-
+    AC_MSG_NOTICE([Updated host system type... $host])
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.obj'
     LIB_SUFFIX='.lib'
-    CC_OBJ_NAME_OPT='-Fo'
-    CC_EXE_NAME_OPT='-Fe'
-    AC_CHECK_PROGS(WIN_AS_FOUND, $AS, no)
-    if test "$WIN_AS_FOUND" = no; then
-        AC_MSG_ERROR([$AS.exe is required with MSVC++ - A version can be found at gprolog.univ-paris1.fr/$AS.exe])
-    fi
+    CC_OBJ_NAME_OPT='-Fo:'
+    CC_EXE_NAME_OPT='-Fe:'
     AR_RC='lib -nologo -out:'
-    AR_SEP=''
+    AR_SEP=""
     STRIP=:
     RANLIB=:
     RC=rc
-    RCFLAGS=''
+    RCFLAGS=""
     RC_OUT_NAME_OPT='-fo'
-dnl   uset this directly invokes MS link.exe (instead of using cl.exe)
-dnl    LD=link
-dnl    LD_OUT_NAME_OPT='-out:'
-dnl    LD_DLL_OPT='-dll'
+dnl use this to directly invoke MS link.exe (instead of using cl.exe driver)
+dnl   LD=link
+dnl   LD_OUT_NAME_OPT='-out:'
+dnl   LD_DLL_OPT='-dll'
 
-dnl   invokes cl.exe
-    LD=$CC
-    LD_OUT_NAME_OPT='-Fe'
+dnl use this to invoke the linker via cl.exe
+    LD="$CC"
+    LD_OUT_NAME_OPT='-Fe:'
     LD_DLL_OPT='-link -dll'
 
-
-else
+else  dnl ---------- Unix-like with gcc/clang ----------
 
     if test "$GCC" != yes; then
-        AC_MSG_ERROR([gcc is required (or MSVC++ under Windows)])
+        AC_MSG_ERROR([gcc or clang is required (or MSVC++ under Windows)])
     fi
-dnl we use AS0 instead of AS else AC_CHECK_TOOL does not work 
-dnl (instead of testing a prefix like x86_64-w64-mingw32- it will
-dnl think the user wants to override the test)
-    AS0=as
-    case "$host" in
-        sparc64*bsd*)    ASFLAGS='-Av9a -64 -K PIC';;
-        i*86*darwin1*)   ASFLAGS='-arch i686';;
-        i*86*linux*)     ASFLAGS='--32';;
-        x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
-        x86_64*darwin*)  ASFLAGS='-arch x86_64';;
-        x86_64*linux*)   ASFLAGS='--64';;
-        *)               if test "$with_gas" = yes; then AS0=gas; fi;;
-    esac
-    AC_CHECK_TOOL([AS], [$AS0])
     AC_PROG_RANLIB
     ASM_SUFFIX='.s'
     OBJ_SUFFIX='.o'
@@ -382,21 +449,69 @@ dnl think the user wants to override the test)
     AC_CHECK_TOOL([RC], [windres])
     RCFLAGS='-O coff'
     RC_OUT_NAME_OPT='-o '
-    LD=$CC
+    LD="$CC"
     LD_OUT_NAME_OPT='-o '
     LD_DLL_OPT='-shared'
     AC_CHECK_TOOL([AR], [ar])
     AR_RC="$AR rc "
     AR_SEP=' '
     AC_CHECK_TOOL([STRIP], [strip])
+
 fi
 
 dnl RCFLAGS="$RCFLAGS -l 0x409"
 
+dnl *************
+dnl * Assembler *
+dnl *************
+
+dnl we use AS0 instead of AS else AC_CHECK_TOOL does not work 
+dnl (instead of testing a prefix like x86_64-w64-mingw32-
+dnl it considers the user wants to override the test)
+AS0=${AS:-as}
+if test -z "$ASFLAGS"; then
+    case "$host" in
+	sparc64*bsd*)    ASFLAGS='-Av9a -64 -K PIC';;
+        i*86*darwin1*)   ASFLAGS='-arch i686';;
+        i*86*linux*)     ASFLAGS='--32';;
+        x86_64*solaris*) AS0=gas; ASFLAGS='--64';;
+        x86_64*darwin*)  ASFLAGS='-arch x86_64';;
+        x86_64*linux*)   ASFLAGS='--64';;
+    esac
+fi
+
+AC_CHECK_TOOL([AS], [$AS0])
+WIN_AS_PATH=`check_msys_tool "$AS"`
+
+
+dnl In msys clang envir. (clang64, clagarm64), 'as' is not the GNU as binutils.
+dnl The 'as' executable, is exactly the same as the 'clang' driver. In bin/
+dnl clang == cc == clang++ == c++ == cpp == clang-cpp == as
+dnl Running 'as' thus needs -c to stop once the object file is generated.
+dnl We do the test for all architectures (not only under Msys)
+
+if test -z "$ASFLAGS" && \
+   command -v "$AS"  >/dev/null 2>&1 && \
+   command -v clang  >/dev/null 2>&1 && \
+   test "$($AS --version 2>/dev/null)" = "$(clang --version 2>/dev/null)"; then
+   ASFLAGS='-c'
+fi
+
+
+test -n "$ASFLAGS" && AC_MSG_NOTICE([ASFLAGS = $ASFLAGS])
+
+
 EXE_SUFFIX=$EXEEXT
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
-AC_PROG_LN_S
+if test -z "$MSYSTEM"; then
+    AC_PROG_LN_S
+else
+    dnl ask msys ln -S to make windows symbolic links (use mklink.exe)
+    test -z "$LN_S" && LN_S='ln -s'
+    LN_S="MSYS=winsymlinks:native $LN_S"
+    AC_MSG_NOTICE([using "$LN_S" under msys])
+fi
 
 DLL_W32GUICONS=$DLL_W32GUICONS.dll
 LIB_LINEDIT=$LIB_LINEDIT$LIB_SUFFIX
@@ -410,8 +525,6 @@ LIB_BIPS_FD=$LIB_BIPS_FD$LIB_SUFFIX
 dnl *******************************
 dnl * host detection and features *
 dnl *******************************
-
-WINDOWS=no
 
 case "$host" in
     mips*irix*)        AC_DEFINE(M_mips32)  AC_DEFINE(M_irix)    AC_DEFINE(M_mips32_irix);;
@@ -429,15 +542,15 @@ case "$host" in
     i*86*dragonfly*)   AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*bsd*)         AC_DEFINE(M_ix86)    AC_DEFINE(M_bsd)     AC_DEFINE(M_ix86_bsd);;
     i*86*cygwin*)      AC_DEFINE(M_ix86)    AC_DEFINE(M_cygwin)  AC_DEFINE(M_ix86_cygwin);;
-    i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
-    i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32)   WINDOWS=32;;
+    i*86*mingw*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32);;
+    i*86*win32*)       AC_DEFINE(M_ix86)    AC_DEFINE(M_win32)   AC_DEFINE(M_ix86_win32);;
     x86_64*linux*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_linux)   AC_DEFINE(M_x86_64_linux);;
     x86_64*darwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_darwin)  AC_DEFINE(M_x86_64_darwin);;
     x86_64*dragonfly*) AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
     x86_64*bsd*)       AC_DEFINE(M_x86_64)  AC_DEFINE(M_bsd)     AC_DEFINE(M_x86_64_bsd);;
     x86_64*solaris*)   AC_DEFINE(M_x86_64)  AC_DEFINE(M_solaris) AC_DEFINE(M_x86_64_solaris);;
-    x86_64*mingw*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
-    x86_64*win64*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64) WINDOWS=64;;
+    x86_64*mingw*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64);;
+    x86_64*win64*)     AC_DEFINE(M_x86_64)  AC_DEFINE(M_win64)   AC_DEFINE(M_x86_64_win64);;
     x86_64*cygwin*)    AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
     x86_64*msys*)      AC_DEFINE(M_x86_64)  AC_DEFINE(M_cygwin)  AC_DEFINE(M_x86_64_cygwin);;
     powerpc*linux*)    AC_DEFINE(M_ppc32)   AC_DEFINE(M_linux)   AC_DEFINE(M_ppc32_linux);;
@@ -446,22 +559,16 @@ case "$host" in
     arm*linux*)        AC_DEFINE(M_arm32)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm32_linux);;
     aarch64*linux*)    AC_DEFINE(M_arm64)   AC_DEFINE(M_linux)   AC_DEFINE(M_arm64_linux);;
     aarch64*darwin*)   AC_DEFINE(M_arm64)   AC_DEFINE(M_darwin)  AC_DEFINE(M_arm64_darwin);;
+    aarch64*mingw*)    AC_DEFINE(M_arm64)   AC_DEFINE(M_win64)   AC_DEFINE(M_arm64_win64);;
+    aarch64*win64*)    AC_DEFINE(M_arm64)   AC_DEFINE(M_win64)   AC_DEFINE(M_arm64_win64);;
+    aarch64*cygwin*)   AC_DEFINE(M_arm64)   AC_DEFINE(M_cygwin)  AC_DEFINE(M_arm64_cygwin);;
+    aarch64*msys*)     AC_DEFINE(M_arm64)   AC_DEFINE(M_cygwin)  AC_DEFINE(M_arm64_cygwin);;
     riscv64*linux*)    AC_DEFINE(M_riscv64) AC_DEFINE(M_linux)   AC_DEFINE(M_riscv64_linux);;
-    *)                 AC_MSG_ERROR(unsupported architecture $host)
+    *)                 AC_MSG_ERROR([unsupported architecture $host])
 esac
 
-dnl M_win64 ==> M_win32
-
-if test "$WINDOWS" = 64; then
-   AC_DEFINE(M_win32)
-fi
-
-
-case "$WINDOWS" in
-    32) WIN_CC_VER="$WIN_CC_VER-x86";;
-    64) WIN_CC_VER="$WIN_CC_VER-x64";;
-esac
-
+dnl M_win64 ==> M_win32 (as C macro _WIN64 ==> _WIN32)
+dnl AC_IFDEF([M_win64], [AC_DEFINE(M_win32)])
 
 dnl ********************
 dnl * C compiler flags *
@@ -477,23 +584,23 @@ AC_C_INLINE
 if test "$WITH_MSVC" != no; then
 
     case "$WITH_C_FLAGS" in
-        debug)  CFLAGS='-W3 -Zi -EHsc';;
-        debug2) CFLAGS='-W4 -wd4100 -wd4127 -wd4152 -wd4244 -wd4201 -wd4210 -wd4456 -wd4459 -wd4702 -Zi -EHsc';;
-        no)     CFLAGS='';;
-        yes)    CFLAGS='-O2 -EHsc';;
+        debug)  CFLAGS='-W3 -EHsc -Zi -Od'; LDFLAGS_END="$LDFLAGS_END -DEBUG";;
+        debug2) CFLAGS='-W4 -wd4100 -wd4127 -wd4152 -wd4244 -wd4201 -wd4210 -wd4456 -wd4459 -wd4702 -EHsc -Zi -Od'; LDFLAGS_END="$LDFLAGS_END -DEBUG";;
+        no)     CFLAGS="";;
+        yes)    test "$cflags_is_empty" = yes && CFLAGS='-O2 -EHsc';;
         *)      CFLAGS="$WITH_C_FLAGS";;
     esac
 
     CFLAGS_UNSIGNED_CHAR='-J'
-    CFLAGS_MACHINE='-nologo -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE'
+    CFLAGS_MACHINE='-nologo -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS'
 
 else
 
     case "$WITH_C_FLAGS" in
         debug)  CFLAGS='-g -Wall';;
         debug2) CFLAGS='-g -Wall -Wextra -Wno-unused-parameter -Wno-cast-function-type';;
-        no)     CFLAGS='';;
-        yes)    CFLAGS='-O3 -fomit-frame-pointer';;
+        no)     CFLAGS="";;
+        yes)    test "$cflags_is_empty" = yes && CFLAGS='-O3 -fomit-frame-pointer';;
         *)      CFLAGS="$WITH_C_FLAGS";;
     esac
 
@@ -509,7 +616,7 @@ dnl -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
     case "$host" in
         i*86*darwin1*)     CFLAGS_MACHINE='-march=i686 -m32';;
         mips*irix*)        CFLAGS_MACHINE='-march=4000';;
-        sparc64*)          CFLAGS_MACHINE='';;
+        sparc64*)          CFLAGS_MACHINE="";;
         sparc*sunos4.1.3)  CFLAGS_MACHINE='-msupersparc';;
         sparc*solaris)     CFLAGS_MACHINE='-msupersparc';;
         i686*)             CFLAGS_MACHINE='-march=pentiumpro -m32';;
@@ -525,14 +632,18 @@ dnl -fomit-frame-pointer does not work on MinGW (tested with gcc 3.3.3)
                     CF1=`echo $CFLAGS | sed -e 's/\(.*\)-fomit-frame-pointer\(.*\)/\1\2/'`
                     if test "$CF1" != "$CFLAGS"; then
                         echo use ebp and move -fomit-frame-pointer to CFLAGS_MACHINE
-                        CFLAGS=$CF1
+                        CFLAGS="$CF1"
                         CFLAGS_MACHINE="$CFLAGS_MACHINE -fomit-frame-pointer"
                     else
-                        echo do not use ebp since -fomit-frame-pointer is not specified in CFLAGS
+                        AC_MSG_NOTICE([do not use ebp since -fomit-frame-pointer is not specified in CFLAGS])
                         USE_EBP=no
                         AC_DEFINE(NO_USE_EBP)
                     fi
                fi;;
+    esac
+
+    case "$host" in
+        i*86*) CFLAGS_MACHINE="$CFLAGS_MACHINE -fno-pic -fno-pie"; LDFLAGS="$LDFLAGS -no-pie"
     esac
 
 
@@ -566,7 +677,7 @@ fi
 fi
 
 
-SAVE_CFLAGS=$CFLAGS
+SAVE_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS_MACHINE $CFLAGS"
 AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
@@ -576,7 +687,7 @@ AC_FUNC_MMAP
 dnl use one day AC_CHECK_DECL instead of AC_CHECK_FUNC ? but add the include
 dnl AC_CHECK_DECLS([getpagesize, mprotect, sigaction, mallopt, fgetc])
 
-AC_CHECK_FUNCS(getpagesize mprotect sigaction mallopt fgetc)
+AC_CHECK_FUNCS(getpagesize mprotect mallopt fgetc sigaction)
 dnl NB: OpenBSD/spac64 needs stdin.h before sys/endian.h
 AC_CHECK_DECLS([htole32, bswap_32], [], [], 
 [#ifdef HAVE_STDINT_H
@@ -615,32 +726,23 @@ dnl -------------------
 dnl Check for socklen_t
 dnl -------------------
 
-AC_MSG_CHECKING(for socklen_t)
-
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+AC_CHECK_TYPE([socklen_t], [],
+  [AC_DEFINE([socklen_t], [int],
+             [Define to int if socklen_t is missing])],
+  [[
 #include <sys/types.h>
 #include <sys/socket.h>
-extern int accept(int, struct sockaddr *, socklen_t *);
-]], [[]])], [AC_MSG_RESULT(yes)], [
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	extern int accept(int, struct sockaddr *, size_t *);
-	]], [[]])], [AC_MSG_RESULT(size_t)
-	AC_DEFINE(socklen_t, size_t)], [AC_MSG_RESULT(int)
-	AC_DEFINE(socklen_t, int)])
-])
+  ]]
+)
 
-		
+
 dnl -----------------------------------
 dnl Check if linux needs asm/sigcontext
 dnl -----------------------------------
 
 case "$host_os" in
-     linux*)
-
-AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+     linux*) AC_MSG_CHECKING(if struct sigcontext needs asm/sigcontext.h)
+	     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <signal.h>
 struct sigcontext p;
 ]], [[]])], [AC_MSG_RESULT(no)], [
@@ -665,10 +767,11 @@ dnl ------------------------
 dnl Check if sigaction works
 dnl ------------------------
 
-if test "$WINDOWS" = no; then
+
+if test "x$ac_cv_func_sigaction" = "xyes"; then
    AC_MSG_CHECKING([for a working sigaction])
    echo '#include "confdefs.h"' > conftest.c
-   cat $srcdir/EnginePl/try_sigaction.c >> conftest.c
+   cat "$srcdir/EnginePl/try_sigaction.c" >> conftest.c
    (eval $ac_link) 2>&5
    if test -s conftest && ./conftest; then
      AC_MSG_RESULT(yes)
@@ -677,10 +780,11 @@ if test "$WINDOWS" = no; then
      AC_MSG_RESULT(no)
    fi
 fi
+				  
 
-dnl --------------------------------------
-dnl Check if obj_chain needs reverse order
-dnl --------------------------------------
+dnl ---------------------------------------------------------------------
+dnl Check if unit initialization needs reverse order of collected objects
+dnl ---------------------------------------------------------------------
 
 if test "$GCC" = yes; then
    AC_MSG_CHECKING([constructors execution order])
@@ -692,10 +796,10 @@ if test "$GCC" = yes; then
    echo '#include "confdefs.h"' > conftest.c
    echo 'int first_to_last;' >>conftest.c
    echo 'int main () {  return first_to_last ? 0 : 1; }' >>conftest.c 
-   (eval $CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS $LIBS conftest-0.c conftest-1.c conftest.c >&5) 2>&5
+   (eval "$CC" -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS $LIBS conftest-0.c conftest-1.c conftest.c >&5) 2>&5
    if test -x conftest && ./conftest; then
       AC_MSG_RESULT(first to last)
-      AC_DEFINE(OBJ_CHAIN_REVERSE_ORDER)
+      AC_DEFINE(UNIT_CHAIN_REVERSE_ORDER)
    else
       AC_MSG_RESULT(last to first)
    fi
@@ -711,7 +815,7 @@ dnl *********************
 # Check whether -static-libgcc is supported (could add -static-libstdc++ later)
 # This is to avoid on windows a dependency to mingw dll (e.g. libgcc_s_sjlj.dll)
 have_static_libs=no
-if test "$GCC" = yes -a "$WINDOWS" != no; then
+if test "$GCC" = yes && test -n "$MSYSTEM"; then
    SAVE_LDFLAGS="$LDFLAGS"
    LDFLAGS="$LDFLAGS -static-libgcc"
    AC_MSG_CHECKING([whether gcc accepts -static-libgcc])
@@ -765,13 +869,13 @@ dnl * libraries to add *
 dnl ********************
 
 if test "$WITH_MSVC" != no; then
-    LDFLAGS='-nologo -F8000000'
+    LDFLAGS="$LDFLAGS -nologo -F8000000"
 fi
 
 make_lib_list()
 {
-    list=''
-    if test $CC = cl -o $CC = lcc; then
+    list=""
+    if test "$WITH_MSVC" != no -o "$CC" = lcc; then
         for i; do list="$list $i.lib"; done
     else
         for i; do list="$list -l$i"; done
@@ -779,17 +883,15 @@ make_lib_list()
     echo $list
 }
 
-if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o "$WINDOWS" = no \)
-then
+if test "$USE_GUI_CONSOLE" = yes -a \( "$USE_LINEDIT" = no -o -z "$MSYS" \); then
     AC_DEFINE(NO_USE_GUI_CONSOLE) USE_GUI_CONSOLE=no
 fi
 
-if test "$USE_GUI_CONSOLE" != yes
-then
+if test "$USE_GUI_CONSOLE" != yes; then
     WITH_HTMLHELP=no
 fi
 
-if test "$WINDOWS" != no; then
+if test -n "$WINDOWS"; then
     LIB='advapi32 user32'
     GUILIB='kernel32 user32 gdi32 comdlg32 advapi32 comctl32 shell32 ole32 winmm'
 dnl winmm is for the sound PlaySound in the GUI
@@ -810,7 +912,7 @@ else
                AC_MSG_WARN([Function mcheck/mprobe not found - disable mcheck])
 	       USE_MCHECK=no])
     fi
-    GUILIB=''
+    GUILIB=""
     if test "$USE_SOCKETS" = yes; then
         AC_CHECK_FUNC(socket, [],
                 AC_CHECK_LIB(socket, socket, LIB="$LIB socket",
@@ -825,7 +927,76 @@ LDLIBS=`make_lib_list $LIB`
 LDGUILIBS=`make_lib_list $GUILIB`
 
 
-CFLAGS=$SAVE_CFLAGS
+CFLAGS="$SAVE_CFLAGS"
+
+
+dnl ********************
+dnl * Windows specific *
+dnl ********************
+
+
+dnl Windows installer name: setup-gprolog-<ver>-<WIN_CC_DESCR>.exe
+dnl
+dnl MSYS env.    WIN_CC_DESCR       AS_COPY
+dnl --------------------------------------------
+dnl msvc         msvc-ucrt-<cpu>    see below
+dnl 	          		       
+dnl MSYS         gcc-cygwin-<cpu>   msys-as
+dnl MINGW32      gcc-msvcrt-<cpu>   mingw32-as
+dnl MINGW64      gcc-msvcrt-<cpu>   mingw64-as
+dnl UCRT64       gcc-ucrt-<cpu>     ucrt64-as
+dnl CLANG64      clang-ucrt-<cpu>   clang64-as
+dnl CLANGARM64   clang-ucrt-<cpu>   clangarm64-as
+dnl
+dnl <cpu> is x86, x64, arm64
+dnl
+dnl AS_COPY is a unique exe name. At make install, as.exe is copied
+dnl into the gprolog bin directory under the name AS_COPY.
+dnl gplc then first tries AC_COPY is defined and else as.exe.
+dnl This is to avoid any risk of collision with an ax.exe from another
+dnl msys environment.
+
+if test -n "$WINDOWS"; then
+
+    WIN_TMP_DIR=`cygpath -w -a /tmp`
+
+    if test "$WITH_MSVC" != no; then
+        cc_name=msvc
+    else
+	cc_name=`command -v "$CC" 2>/dev/null|sed 's|^.*/||;s|.exe||'`	
+    fi
+
+    case "$host_cpu" in
+   	i686)    cpu=x86;;
+	x86_64)  cpu=x64;;
+	aarch64) cpu=arm64;;
+    esac
+
+    case "$MSYSTEM" in
+    	 MSYS|MSYS2) crt=cygwin; WIN_AS_COPY=msys-as;;
+	 MINGW32)    crt=msvcrt; WIN_AS_COPY=mingw32-as;;
+	 MINGW64)    crt=msvcrt; WIN_AS_COPY=mingw64-as;;
+	 UCRT64)     crt=ucrt;   WIN_AS_COPY=ucrt64-as;;
+	 CLANG64)    crt=ucrt;   WIN_AS_COPY=clang64-as;;
+	 CLANGARM64) crt=ucrt;   WIN_AS_COPY=clangarm64-as;;
+    esac
+
+    test "$WITH_MSVC" != no && crt=ucrt
+
+    WIN_CC_DESCR=$cc_name-$crt-$cpu
+
+    WIN_AS_COPY="$WIN_AS_COPY.exe"
+    AC_DEFINE_UNQUOTED([WIN_AS_COPY], ["$WIN_AS_COPY"])
+
+fi
+
+
+dnl *************************
+dnl * File hashing sum tool *
+dnl *************************
+
+dnl if none emit 0  filanme (2 spaces between the hash and the file name)
+AC_CHECK_PROGS(HASH_SUM, [sha1sum sha256sum sha512sum shasum md5sum], [echo '0 '])
 
 
 dnl ***********************
@@ -840,7 +1011,7 @@ AC_DEFINE_UNQUOTED(PROLOG_COPYRIGHT,  "$PROLOG_COPYRIGHT")
 
 AC_DEFINE_UNQUOTED(TOP_LEVEL,         "$TOP_LEVEL")
 AC_DEFINE_UNQUOTED(GPLC,              "$GPLC")
-AC_DEFINE_UNQUOTED(HEXGPLC,           "$HEXGPLC")
+AC_DEFINE_UNQUOTED(GPLC_FILTER,       "$GPLC_FILTER")
 AC_DEFINE_UNQUOTED(ENV_VARIABLE,      "$ENV_VARIABLE")
 
 AC_DEFINE_UNQUOTED(M_CPU,             "$host_cpu")
@@ -852,6 +1023,7 @@ AC_DEFINE_UNQUOTED(CFLAGS_PREFIX_REG, "$CFLAGS_PREFIX_REG")
 AC_DEFINE_UNQUOTED(CFLAGS,            "$CFLAGS")
 AC_DEFINE_UNQUOTED(CFLAGS_MACHINE,    "$CFLAGS_MACHINE")
 AC_DEFINE_UNQUOTED(LDFLAGS,           "$LDFLAGS")
+AC_DEFINE_UNQUOTED(LDFLAGS_END,       "$LDFLAGS_END")
 AC_DEFINE_UNQUOTED(LDLIBS,            "$LDLIBS")
 AC_DEFINE_UNQUOTED(AS,                "$AS")
 AC_DEFINE_UNQUOTED(ASFLAGS,           "$ASFLAGS")
@@ -883,18 +1055,18 @@ same_directory()
 {
     f1=`dirname $1`/`basename $1`
     f2=`dirname $2`/`basename $2`
-    test $f1 = $f2
+    test "$f1" = "$f2"
 }
 
 ROOT_DIR=`(cd .. ; pwd)`
 if test -x /bin/cygpath.exe; then
     ROOT_DIR1=`cygpath -a -m ..`
 else
-    ROOT_DIR1=$ROOT_DIR
+    ROOT_DIR1="$ROOT_DIR"
 fi
 
 test "$prefix"      = NONE && prefix=/usr/local
-test "$exec_prefix" = NONE && exec_prefix=$prefix
+test "$exec_prefix" = NONE && exec_prefix="$prefix"
 
 PKG_NAME=$PROLOG_DIALECT-$PROLOG_VERSION
 
@@ -904,14 +1076,14 @@ dnl *-------------*
 
 if test "$prefix" = /in-place -o "$WITH_INSTALL_DIR" = in-place; then
     IN_PLACE=yes
-    INSTALL_DIR=$ROOT_DIR
+    INSTALL_DIR="$ROOT_DIR"
     test -z "$WITH_LINKS_DIR" && WITH_LINKS_DIR=no
 else
     IN_PLACE=no
     if test -z "$WITH_INSTALL_DIR"; then
-         INSTALL_DIR=$prefix/$PKG_NAME
+         INSTALL_DIR="$prefix/$PKG_NAME"
     else
-         INSTALL_DIR=$WITH_INSTALL_DIR
+         INSTALL_DIR="$WITH_INSTALL_DIR"
     fi
 fi
 
@@ -922,8 +1094,8 @@ dnl *-----------*
 
 case "$WITH_LINKS_DIR" in
     no) LINKS_DIR=none;;
-    '') LINKS_DIR=$exec_prefix/bin;;
-    *)  LINKS_DIR=$WITH_LINKS_DIR;;
+    "") LINKS_DIR="$exec_prefix/bin";;
+    *)  LINKS_DIR="$WITH_LINKS_DIR";;
 esac
 
 
@@ -933,11 +1105,11 @@ dnl *---------*
 
 case "$WITH_DOC_DIR" in
     no) DOC_DIR=none;
-        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR=$INSTALL_DIR/doc/html_node;;
-    '') DOC_DIR=$INSTALL_DIR/doc;;
-    *)  DOC_DIR=$WITH_DOC_DIR;;
+        test -z "$WITH_HTML_DIR" && WITH_HTML_DIR="$INSTALL_DIR/doc/html_node";;
+    "") DOC_DIR="$INSTALL_DIR/doc";;
+    *)  DOC_DIR="$WITH_DOC_DIR";;
 esac
-if same_directory "$DOC_DIR" $ROOT_DIR/doc; then
+if same_directory "$DOC_DIR" "$ROOT_DIR/doc"; then
     DOC_DIR=none
 fi
 
@@ -949,15 +1121,15 @@ dnl *----------*
 
 case "$WITH_HTML_DIR" in
     no) HTML_DIR=none;;
-    '') if test "$DOC_DIR" = none; then
+    "") if test "$DOC_DIR" = none; then
             WITH_HTML_DIR=no;
             HTML_DIR=none
         else
-            HTML_DIR=$DOC_DIR/html_node
+            HTML_DIR="$DOC_DIR/html_node"
         fi;;
-    *)  HTML_DIR=$WITH_HTML_DIR;;
+    *)  HTML_DIR="$WITH_HTML_DIR";;
 esac
-if same_directory "$HTML_DIR" $ROOT_DIR/doc/html_node; then
+if same_directory "$HTML_DIR" "$ROOT_DIR/doc/html_node"; then
     HTML_DIR=none
 fi
 
@@ -968,24 +1140,12 @@ dnl *--------------*
 
 case "$WITH_EXAMPLES_DIR" in
     no) EXAMPLES_DIR=none;;
-    '') EXAMPLES_DIR=$INSTALL_DIR/examples;;
-    *)  EXAMPLES_DIR=$WITH_EXAMPLES_DIR;;
+    "") EXAMPLES_DIR="$INSTALL_DIR/examples";;
+    *)  EXAMPLES_DIR="$WITH_EXAMPLES_DIR";;
 esac
-if same_directory "$EXAMPLES_DIR" $ROOT_DIR/examples; then
+if same_directory "$EXAMPLES_DIR" "$ROOT_DIR/examples"; then
     EXAMPLES_DIR=none
 fi
-
-
-dnl *---------*
-dnl * Summary *
-dnl *---------*
-
-echo 'DIRECTORIES'
-echo "--> Installation:       $INSTALL_DIR"
-echo "--> Link to binaries:   $LINKS_DIR"
-echo "--> Documentation:      $DOC_DIR"
-echo "--> HTML documentation: $HTML_DIR"
-echo "--> Examples:           $EXAMPLES_DIR"
 
 
 dnl ******************
@@ -1011,7 +1171,7 @@ EXC_FILES='Makefile README ??*.pl ??*_c.c'
 EXFD_FILES='Makefile ??*.pl ??*.fd'
 
 
-B="$GPLC $HEXGPLC $TOP_LEVEL pl2wam wam2ma ma2asm"
+B="$GPLC $GPLC_FILTER $TOP_LEVEL pl2wam wam2ma ma2asm"
 O="top_level_main top_level all_pl_bips debugger"
 L="$LIB_ENGINE_PL $LIB_BIPS_PL"
 T="../EnginePl/$LIB_ENGINE_PL ../BipsPl/$LIB_BIPS_PL"
@@ -1100,7 +1260,7 @@ dnl ********************
 
 OTHER_DOT_IN_FILES=
 
-for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile Win32/Makefile Win32/gp-vars-iss.txt
+for i in TestsPl/Makefile DevUtils/Makefile Ma2Asm/FromC/Makefile WinInstaller/Makefile WinInstaller/gp-vars-iss.txt
 do
     if test -f $i.in; then
         OTHER_DOT_IN_FILES="$OTHER_DOT_IN_FILES $i"
@@ -1122,4 +1282,48 @@ AC_CONFIG_FILES(Makefile
                 EngineFD/Makefile
                 BipsFD/Makefile
                 $OTHER_DOT_IN_FILES)
+
+dnl *---------*
+dnl * Summary *
+dnl *---------*
+
+AC_MSG_NOTICE([])
+AC_MSG_NOTICE([Achitecture])
+AC_MSG_NOTICE([   Build           : $build])
+AC_MSG_NOTICE([   Host            : $host])
+AC_MSG_NOTICE([])
+AC_MSG_NOTICE([Compilation])
+AC_MSG_NOTICE([   CC              : $CC])
+AC_MSG_NOTICE([   CFLAGS_MACHINE  : $CFLAGS_MACHINE])
+AC_MSG_NOTICE([   CFLAGS          : $CFLAGS])
+AC_MSG_NOTICE([   AS              : $AS])
+AC_MSG_NOTICE([   ASFLAGS         : $ASFLAGS])
+AC_MSG_NOTICE([   LDFLAGS         : $LDFLAGS])
+if test -n "$LDFLAGS_END"; then
+    AC_MSG_NOTICE([   LDFLAGS_END     : $LDFLAGS_END])
+fi   
+AC_MSG_NOTICE([])
+AC_MSG_NOTICE([Directories])
+AC_MSG_NOTICE([   Installation    : $INSTALL_DIR])
+AC_MSG_NOTICE([   Link to binaries: $LINKS_DIR])
+AC_MSG_NOTICE([   Documentation   : $DOC_DIR])
+AC_MSG_NOTICE([   HTML document.  : $HTML_DIR])
+AC_MSG_NOTICE([   Examples        : $EXAMPLES_DIR])
+AC_MSG_NOTICE([])
+if test -n "$WINDOWS"; then
+    AC_MSG_NOTICE([Windows setup])
+    AC_MSG_NOTICE([   WIN Msys envir. : $MSYSTEM])
+    AC_MSG_NOTICE([   WIN_CONF_OPT    : $WIN_CONF_OPT])
+    AC_MSG_NOTICE([   WIN_CC_DESCR    : $WIN_CC_DESCR])
+    AC_MSG_NOTICE([   WIN_AS_PATH     : $WIN_AS_PATH])
+    AC_MSG_NOTICE([   WIN_AS_COPY     : $WIN_AS_COPY])
+    AC_MSG_NOTICE([   WIN_TMP_DIR     : $WIN_TMP_DIR])
+    AC_MSG_NOTICE([])
+fi
+
 AC_OUTPUT
+
+# Local Variables:
+# mode: sh
+# End:
+

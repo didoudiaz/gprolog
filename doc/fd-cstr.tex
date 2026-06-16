@@ -542,10 +542,10 @@ succeeds if the remainder is 0) \\
 \hline
 
 \texttt{quot\_rem(E1,E2,R)} & quotient of the integer division of
-\texttt{E1} by \texttt{E2}
-  \linebreak
-   (\texttt{R} is the remainder of the integer division of \texttt{E1} by
-   \texttt{E2}) \\
+                              \texttt{E1} by \texttt{E2}
+                              \newline
+                              (\texttt{R} is the remainder of the integer division
+                              of \texttt{E1} by \texttt{E2}) \\
 
 \hline
 \end{tabular}
@@ -1201,12 +1201,12 @@ tuple is represented by a list.
 Example: definition of the boolean AND relation so that X AND Y
 $\Leftrightarrow$ Z:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 and(X,Y,Z):-
         fd_relation([[0,0,0],[0,1,0],[1,0,0],[1,1,1]], [X,Y,Z]).
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \texttt{fd\_relationc(Columns, Vars)} is similar to \texttt{fd\_relation/2}
 except that the relation is not given as the list of tuples but as the list
@@ -1214,12 +1214,12 @@ of the columns of the relation. A column is represented by a list.
 
 Example:
 
-\begin{Indentation}
+\begin{Code}
 \begin{verbatim}
 and(X,Y,Z):-
         fd_relationc([[0,0,1,1],[0,1,0,1],[0,0,0,1]], [X,Y,Z]).
 \end{verbatim}
-\end{Indentation}
+\end{Code}
 
 \begin{PlErrors}
 

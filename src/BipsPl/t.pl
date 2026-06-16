@@ -6,7 +6,7 @@
  * Descr.: test - Prolog part                                              *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * GNU Prolog is free software; you can redistribute it and/or modify it   *
  * under the terms of the GNU General Public License as published by the   *
@@ -416,3 +416,103 @@ d :- told,
 :- endif.
 
 
+:- if(false).			% flatten  logtalk3/integration/gplgt.sh
+
+:- if(true).
+:- include('$LOGTALKHOME/integration/logtalk_gp.pl').
+:- elif(false).
+:- initialization((
+	set_prolog_flag(suspicious_warning, off),
+	consult('$LOGTALKHOME/adapters/gnu.pl'),
+	consult('$LOGTALKHOME/paths/paths.pl'),
+	consult('$LOGTALKHOME/integration/logtalk_comp_gp.pl'),
+	set_prolog_flag(suspicious_warning, on)
+)).
+:- else.
+:- multifile('$logtalk#0.active_debug_handler_#1'/2).
+:- multifile('$logtalk#0.print_message#3'/4).
+:- set_prolog_flag(suspicious_warning, off).
+:- include('$LOGTALKHOME/adapters/gnu.pl').
+:- include('$LOGTALKHOME/paths/paths.pl').
+:- include('$LOGTALKHOME/integration/logtalk_comp_gp.pl').
+:- set_prolog_flag(suspicious_warning, on).
+:- endif.
+    
+r:-
+	call(set_logtalk_flag(report, warnings)),
+	call(set_logtalk_flag(suspicious_calls, silent)),
+	call(logtalk_load(lgtunit(loader))),
+	call(logtalk_load(tests, [hook(lgtunit)])),
+	call(::(tests,run)).
+
+:- endif.
+
+
+
+:-if(false).
+%:- discontiguous(scattered/2).
+
+
+%q:- write(ok), nl. 
+:- initialization(q).
+
+not :-
+	c(s(0)), !, fail.
+not.
+
+
+c(G) :-
+        '$call_c_jump'('Pl_BC_Call_Terminal_Pred_3'(G, 0, 1)).
+	
+
+:- initialization(consult(o)).
+
+:- initialization(c(h)).
+
+n([],_,_).
+
+n([Y|Ys],X,N):-
+	X =\= Y+N,
+	X =\= Y-N, !,
+	N1 is N+1,
+	n(Ys,X,N1).
+
+n([Y|_],X,N):-
+	write(failed(Y,X,N)),nl, fail.
+
+s([X|Xs],Xs,X).
+
+s([Y|Ys],[Y|Zs],X):-
+	write(s_bkt_keep(Y)),nl,
+	s(Ys,Zs,X).
+:- endif.
+
+
+:-if(false).
+
+:- dynamic(p/1).
+%p:- write(ok),nl,  assertz(p(a)), assertz(p(b)), write(asserted),nl,fail.
+%p:- assertz(p(a)), assertz(p(b)), p(X), write(p(X)), nl, fail.
+p:- assertz(p(a)), assertz(p(b)), p(X), writeq(ok(X)),nl,fail.
+%p:- p(X), fail.
+p.
+:- initialization(p).
+
+:- endif.
+
+
+:-if(true).
+
+p:- write(ok),nl.
+
+:- initialization(p).
+
+:- endif.
+
+
+:-if(true).
+x(A):-write(A).
+bad :- x(0),((x(1);nl,!)-> x(2)).
+:-endif.
+
+:- initialization(bad).

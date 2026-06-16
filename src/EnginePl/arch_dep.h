@@ -3,10 +3,10 @@
  *                                                                         *
  * Part  : configuration                                                   *
  * File  : arch_dep.h                                                      *
- * Descr.: architecture dependent features - Header file                   *
+ * Descr.: architecture dependent features - header file                   *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -39,16 +39,11 @@
 #ifndef _ARCH_DEP_H
 #define _ARCH_DEP_H
 
-#include <math.h>		/* for isnan testing */
 
-/* for signals (see try_sigaction.c) */
-
-#if defined(M_ix86_sco)
-#define _XOPEN_SOURCE 700
-#define _XOPEN_SOURCE_EXTENDED
-#endif
-
-
+/* MSVC general defines */
+#define _USE_MATH_DEFINES
+#define _CRT_SECURE_NO_WARNINGS 1
+#define _CRT_NONSTDC_NO_WARNINGS 1
 
 
 /* C Preprocessor utilities */
@@ -107,6 +102,10 @@
 #endif
 
 
+#define DBGPRINTF printf
+
+
+
 /* check printf arguments */
 
 #if defined(__GNUC__)
@@ -126,9 +125,18 @@
 #ifdef __GNUC__			/* GCC accepts sizeof(type) */
 #   define ATTR_ALIGN(x) __attribute__((aligned(x)))
 #elif defined(_MSC_VER)		/* MSVC needs a constant */
-#  define ATTR_ALIGN(x) __declspec(align(x))
+#  define ATTR_ALIGN(x)  __declspec(align(x))
 #else
 #  define ATTR_ALIGN(x)
+#endif
+
+/* noreturn compiler attribute */
+#ifdef __GNUC__
+#   define ATTR_NORETURN __attribute__((noreturn))
+#elif defined(_MSC_VER)
+#   define ATTR_NORETURN __declspec(noreturn)
+#else
+#   define ATTR_NORETURN
 #endif
 
 
@@ -137,11 +145,11 @@
 
 /* There are 2 kinds of MSVC warning C4996 one wants to remove:
  * 1) XXX was declared deprecated ... This function or variable may be unsafe
- *    solution: #define _CRT_SECURE_NO_DEPRECATE 1
+ *    solution: #define _CRT_SECURE_NO_WARNINGS 1
  * 2) The POSIX name for this item is deprecated
- *    solution: #define _CRT_NONSTDC_NO_DEPRECATE 1
+ *    solution: #define _CRT_NONSTDC_NO_WARNINGS 1
  * However, these defines only work if they are before any #include <...>
- * So: pass to cl: -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
+ * So: pass to cl: -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS
  * or deactivate the warning with the following pragma. We do both !
  */
 
@@ -166,21 +174,24 @@
 #define unlink                     _unlink
 #define tzset                      _tzset
 #define access                     _access
+
 #ifdef _MSC_VER
 #define strcasecmp                 stricmp
 #define strncasecmp                strnicmp
 #define spawnvp                    _spawnvp
-#ifndef isnan
+
+#ifndef HAVE_ISNAN
 #define isnan                      _isnan
-#endif
-#endif
+#endif	/* !HAVE_ISNAN */
+
+#endif	/* _MSC_VER */
 
 #ifndef F_OK
-#define F_OK                       00
-#define W_OK                       02
-#define R_OK                       04
-#define X_OK                       F_OK
-#endif
+#define F_OK                       0
+#define X_OK                       1  /* NB: see Pl_Access */
+#define W_OK                       2
+#define R_OK                       4
+#endif	/* !F_OK */
 
 #ifndef S_ISDIR
 #define	S_ISDIR(m)	           (((m)&_S_IFMT) == _S_IFDIR)
@@ -213,25 +224,6 @@
 
 #endif
 
-#define Is_Dir_Sep(c)              ((c) == DIR_SEP_C || (c) == DIR_SEP_C_ALT)
-
-
-
-#define Find_Last_Dir_Sep(_p, _path)			\
-  do {							\
-    char *_ptr;						\
-							\
-    for((_p) = NULL, _ptr = (_path); *_ptr; _ptr++)	\
-      if (Is_Dir_Sep(*_ptr))				\
-	(_p) = _ptr;					\
-  } while (0)
-
-
-
-#define Has_Drive_Specif(str) \
-  (((*(str) >= 'a' && *(str) <= 'z') || (*(str) >= 'A' && *(str) <= 'Z')) && (str)[1] == ':')
-
-
 
 #if defined(__CYGWIN__) || defined(M_ix86_sco)
 #define Set_Line_Buf(s)            setvbuf(s, NULL, _IOLBF, 0)
@@ -246,18 +238,6 @@
 #define W32_GUI_CONSOLE
 #endif
 
-#ifdef M_sparc32_sunos
-#define __USE_FIXED_PROTOTYPES__
-#endif
-
-
-#if defined(M_ix86_sco)
-
-#ifndef MAXPATHLEN
-#define MAXPATHLEN 1024
-#endif
-
-#endif
 
 
 
@@ -269,45 +249,6 @@
 #define fgetc getc
 #endif
 
-
-#if defined(_WIN64) && !defined(_MSC_VER) && !defined(__CYGWIN__)
-/* Mingw64-gcc implements setjmp with msvcrt's _setjmp. This _setjmp
- * has an additional (hidden) argument. If it is NULL, longjmp will NOT do
- * stack unwinding (needed for SEH). By default the the second argument is
- * NOT null (it is $rsp), then longjmp will try a stack unwinding which will
- * crash gprolog.
- * NB: _setjmp stores this argument in the jmp_buf (in the first bytes) 
- * Mingw-gcc v < 4.6 fixed this at longjmp (before calling msvcrt's _longjmp)
- * (see file: lib64_libmingwex_a-mingw_getsp.o in library libmingwex.a)
- * 
- * 0000000000000006 <longjmp>:                              # x86_64 ABI: jmp_buf is in $rcx
- *    6:   31 c0                   xor    %eax,%eax
- *    8:   89 01                   mov    %eax,(%rcx)       # set 0 in the first word of jmp_buf
- *    a:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
- *   11:   ff 20                   jmpq   *(%rax)
- *
- * while in >= 4.6: (no more fixes)
- *
- * 0000000000000006 <longjmp>:
- *    6:   48 8d 05 00 00 00 00    lea    0x0(%rip),%rax    # this will call dll msvcrt's longjmp
- *    d:   ff 20                   jmpq   *(%rax)
- *    f:   90                      nop
- *
- * We here redefine setjmp to pass NULL. BEWARE do not include <setjmp.h> after
- * that EVEN if setjmp.h has already been included. On mingw64 setjmp will be
- * redefined ignoring our definition (see /mingw64/include/setjmp.h and _INC_SETJMP macro).
- */
-#ifdef setjmp
-#undef setjmp
-#endif
-#define setjmp(buf) _setjmp(buf, NULL)
-#endif
-
-#ifndef HAVE_SIGSETJMP
-#define sigjmp_buf jmp_buf
-#define sigsetjmp(jb, x) setjmp(jb)
-#define siglongjmp longjmp
-#endif
 
 
 
@@ -331,9 +272,9 @@
 #define FC_MAX_ARGS_IN_REGS 0
 #define FC_SET_OF_REGISTERS { NULL };
 #define FC_ATTRIB
-#endif
+#endif /* !_MSC_VER */
 
-#endif
+#endif /* M_ix86 */
 
 #if defined(USE_FAST_CALL) && defined(FC_ATTRIB)
 #define FC_USED_TO_COMPILE_CORE
@@ -344,138 +285,26 @@
 #define FC
 #endif
 
-
-/* Win32 SEH macros */
-
-#if defined(_WIN32) && !defined(_WIN64) || defined(__CYGWIN__)
-#define USE_SEH
+#if defined(__OpenBSD__) || defined(M_bsd)
+#define USE_DL_MALLOC
 #endif
 
-#if defined(USE_SEH)
-				/* from MSVC++ windows.h + renaming */
-typedef enum {
-    ExceptContinueExecution,
-    ExceptContinueSearch,
-    ExceptNestedException,
-    ExceptCollidedUnwind
-} EXCEPT_DISPOSITION;
 
-typedef struct _excp_lst
-{
-  struct _excp_lst *chain;
-  EXCEPT_DISPOSITION (*handler)();
-} excp_lst;
+/* sunos, SCO are very very old, remove the following ? */
 
-
-#ifdef __GNUC__
-#  define SEH_PUSH(new_handler)			\
-{						\
-  excp_lst e;					\
-  EXCEPT_DISPOSITION new_handler();		\
-  e.handler = new_handler;			\
-  asm("movl %%fs:0,%0" : "=r" (e.chain));	\
-  asm("movl %0,%%fs:0" : : "r" (&e));
-
-
-#  define SEH_POP				\
-  asm("movl %0,%%fs:0" : : "r" (e.chain));	\
-}
-
-#elif defined(_MSC_VER)
-
-#  pragma warning(disable:4733) /* we know what we are doing with SEH */
-
-#  define SEH_PUSH(new_handler)			\
-{						\
-  excp_lst e;					\
-  EXCEPT_DISPOSITION new_handler();		\
-  e.handler = new_handler;			\
-  __asm push eax				\
-  __asm mov eax,dword ptr fs:[0]		\
-  __asm mov dword ptr [e.chain],eax		\
-  __asm lea eax,[e]				\
-  __asm mov dword ptr fs:[0],eax		\
-  __asm pop eax
-
-#  define SEH_POP				\
-  __asm push eax				\
-  __asm mov eax,dword ptr [e.chain]		\
-  __asm mov dword ptr fs:[0],eax		\
-  __asm pop eax					\
-}
-
-#elif defined(__LCC__)
- /* below in movl %eax,%e and movel %e,%eax %e should be %e.chain the lcc asm
-    does not support it. Here %e works since chain is the 1st field */
-#  define SEH_PUSH(new_handler)			\
-{						\
-  excp_lst e;					\
-  EXCEPT_DISPOSITION new_handler();		\
-  e.handler = new_handler;			\
-  _asm("pushl %eax");				\
-  _asm("movl %fs:0,%eax");			\
-  _asm("movl %eax,%e");				\
-  _asm("leal %e,%eax");				\
-  _asm("movl %eax,%fs:0");			\
-  _asm("popl %eax");
-
-#  define SEH_POP				\
-  _asm("pushl %eax");				\
-  _asm("movl %e,%eax");				\
-  _asm("movl %eax,%fs:0");			\
-  _asm("popl %eax");				\
-}
-
-#else
-
-#  error macros SEH_PUSH/POP undefined for this compiler
-
+#ifdef M_alpha_osf
+#define _XOPEN_SOURCE 700
 #endif
 
-#endif /* defined(USE_SEH) */
+#ifdef M_sparc32_sunos
+#define __USE_FIXED_PROTOTYPES__
+#endif
 
-#ifdef _WIN32
-
-/* Provided by arch_dep.c */
-
-int Pl_Win_Error_To_Errno(void);
-
-/* see unix <dirent.h> */
-
-struct dirent	     	
-{
-  long d_ino;
-  unsigned short d_reclen;
-  unsigned char d_type;
-  char d_name[MAXPATHLEN];
-};
-  
-  
-#define DT_UNKNOWN      0 /* d_type: file types.  */
-#define DT_FIFO         1
-#define DT_CHR          2
-#define DT_DIR          4
-#define DT_BLK          6
-#define DT_REG          8
-#define DT_LNK          10
-#define DT_SOCK         12
-#define DT_WHT          14
-
-struct DIR
-{
-  char *dirname;
-  struct dirent ret;          /* Used to return to caller */
-  void *handle;		      /* equivalent of windows HANDLE (avoid to include windows.h) */
-};
-
-typedef struct DIR DIR;
-  
-/* Protoypes */
-
-DIR *opendir(char *dir_path);
-struct dirent *readdir(DIR *dir);
-int closedir(DIR *dir);
-
+#ifdef M_ix86_sco
+#define _XOPEN_SOURCE 700
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 1024
+#endif
 #endif
 
 #endif /* !_ARCH_DEP_H */

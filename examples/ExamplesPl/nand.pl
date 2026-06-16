@@ -510,7 +510,7 @@ access(N, A) :-
         recorded(N, A, _).
 */
 
-/* bet for GNU Prolog
+/* best for GNU Prolog
 set(N, A) :-
 	g_assign(N, A).
 

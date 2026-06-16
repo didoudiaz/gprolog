@@ -67,16 +67,27 @@ OLD=$(backslashify "$OLD" '[].[^$*\\+()?|]')
 STR_NEW_PREFIX=$(backslashify "${BEFORE_PATH_R}${NEW}" '/')
 
 # Common processing function: either on stdin (no args) or on files (args)
+# Sed in-lie comments are not accepted in all versions of sed (e.g. solaris). I keep them are
+#   sed -e "/${BEFORE_PATH_M}.*${AFTER_PATH_M}/{
+#       h                               ; # save original line (h)
+#       s|${BEFORE_PATH_M}||            ; # remove before path part (this cannot fail)
+#       s|${AFTER_PATH_M}||             ; # remove after   path part (this cannot fail)
+#       s|${OLD}|@|${N}                 ; # replace the Nth occurrence by @ (this can fail)
+#       s|^[^@]*@|${STR_NEW_PREFIX}|    ; # rebuild the begin of the line (this can fail if no @ exists)
+#       s|$|${AFTER_PATH_R}|            ; # add the after path part
+#       /${STR_NEW_PREFIX}/!g           ; # if failure (! expected result) restore the original line (g)
+#   }" "$@"
+
 process_stream() {
     # tr -d '\r' <"$f" | sed...
     sed -e "/${BEFORE_PATH_M}.*${AFTER_PATH_M}/{
-        h                               ; # save original line (h)
-        s|${BEFORE_PATH_M}||            ; # remove before path part (this cannot fail)
-        s|${AFTER_PATH_M}||             ; # remove after   path part (this cannot fail)
-        s|${OLD}|@|${N}                 ; # replace the Nth occurrence by @ (this can fail)
-        s|^[^@]*@|${STR_NEW_PREFIX}|    ; # rebuild the begin of the line (this can fail if no @ exists)
-        s|$|${AFTER_PATH_R}|            ; # add the after path part
-        /${STR_NEW_PREFIX}/!g           ; # if failure (! expected result) restore the original line (g)
+        h
+        s|${BEFORE_PATH_M}||
+        s|${AFTER_PATH_M}||
+        s|${OLD}|@|${N}
+        s|^[^@]*@|${STR_NEW_PREFIX}|
+        s|$|${AFTER_PATH_R}|
+        /${STR_NEW_PREFIX}/!g
     }" "$@"
 }
 

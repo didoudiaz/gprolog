@@ -6,7 +6,7 @@
  * Descr.: dynamic predicate support - header file                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -63,7 +63,7 @@ typedef struct dynpinf DynPInf;
 
 typedef struct dyncinf DynCInf;
 
-typedef PlLong (*ScanFct) (DynCInf *clause, WamWord *alt_ino, Bool is_last);
+typedef PlLong (*ScanFct) (DynCInf *clause, WamWord *alt_info, Bool is_last);
 
 typedef struct			/* Double-linked chain header    */
 {				/* ----------------------------- */
@@ -88,12 +88,12 @@ struct dyncinf			/* Dynamic clause information     */
   D2ChCell ind_chain;		/* indexical  chain               */
   DynPInf *dyn;			/* back ptr to associated dyn inf */
   D2ChHdr *p_ind_hdr;		/* back ptr to ind_chain header   */
-  char **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
+  void **p_ind_htbl;		/* back ptr to ind htbl (or NULL) */
   int cl_no;			/* clause number                  */
   int pl_file;			/* file name of its def (or -1)   */
   DynStamp erase_stamp;		/* erase stamp or FFF...F if not  */
   DynCInf *next_erased_cl;	/* pointer to next erased clause  */
-  unsigned *byte_code;		/* bc pointer (NULL=interpreted)  */
+  void *byte_code;		/* bc pointer (NULL=interpreted)  */
   int term_size;		/* size of the term of the clause */
   WamWord term_word;		/* clause [Head|Body]=<LST,adr+1> */
   WamWord head_word;		/* adr+1 = Car = clause term Head */
@@ -114,10 +114,10 @@ struct dynpinf			/* Dynamic predicate information  */
 {				/* ------------------------------ */
   D2ChHdr seq_chain;		/* sequential chain               */
   D2ChHdr var_ind_chain;	/* index if 1st arg=VAR (chain)   */
-  char *atm_htbl;		/* index if 1st arg=ATM (htable)  */
-  char *int_htbl;		/* index if 1st arg=INT (htable)  */
+  void *atm_htbl;		/* index if 1st arg=ATM (htable)  */
+  void *int_htbl;		/* index if 1st arg=INT (htable)  */
   D2ChHdr lst_ind_chain;	/* index if 1st arg=LST (chain)   */
-  char *stc_htbl;		/* index if 1st arg=STC (htable)  */
+  void *stc_htbl;		/* index if 1st arg=STC (htable)  */
   int func;			/* functor (redundant but for dbg)*/
   int arity;			/* arity (redundant but faster)   */
   int count_a;			/* next clause no for asserta, < 0*/
@@ -144,13 +144,15 @@ DynCInf *Pl_Add_Dynamic_Clause(WamWord head_word, WamWord body_word,
 
 void Pl_Delete_Dynamic_Clause(DynCInf *clause);
 
-PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do, int pl_file_for_multi);
+PredInf *Pl_Update_Dynamic_Pred(int func, int arity, int what_to_do,
+				int pl_file_for_multi);
 
 DynCInf *Pl_Scan_Dynamic_Pred(int owner_func, int owner_arity,
 			      DynPInf *dyn, WamWord first_arg_word,
 			      ScanFct alt_fct, int alt_fct_type,
 			      int alt_info_size, WamWord *alt_info);
 
-void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word, WamWord *body_word);
+void Pl_Copy_Clause_To_Heap(DynCInf *clause, WamWord *head_word,
+			    WamWord *body_word);
 
 int Pl_Scan_Choice_Point_Pred(WamWord *b, int *arity);

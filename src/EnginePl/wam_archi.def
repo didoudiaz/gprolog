@@ -6,7 +6,7 @@
  * Descr.: Wam architecture definition - description file                  *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -41,7 +41,7 @@
  * Register Descriptions           *
  *---------------------------------*/
 
-typedef intptr_t WamWord;       /* a WamWord can store a ptr (32/64 bits) */
+typedef PlULong WamWord;        /* a WamWord can store a ptr (uintptr_t) */
 
 typedef void (*CodePtr) ();     /* a code pointer is a ptr to fct */
 
@@ -73,8 +73,6 @@ typedef WamWord *WamWordP;
 
 @reg 9 WamWord  STAMP           /* Choice point stamp (for FD) */
 @reg 4 WamWordP CS              /* Top of the constraint stack */
-
-@reg 9 WamWord  BCI             /* Byte-code info */
 
 @reg 9 WamWordP LSSA            /* Local stack start address */
 

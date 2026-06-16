@@ -21,7 +21,7 @@ eventually look at EnginePl/arch_dep.h
 
 3) you must be able to compile the following:
 
-   cd EnginePl ; make engine.o engine1.o
+   cd EnginePl ; make engine.o trampoline.o
 
 
 4) Create the translation file (in the Ma2Asm/ directory). GNU Prolog compiles a
@@ -105,30 +105,30 @@ All tests must be OK else you have an error in the corresponding tested point.
 
 At this point you should discover which part is not OK. 
 
-5) Check that ObjChain works:
+5) Check that unit_ctor works:
 
-ObjChain is a way to find at run-time which Prolog modules are linked (to then
+unit_ctor register at run-time all Prolog compiled programs (units) are linked (to then
 initialize them). Normally this should be OK but you can test it.
 
    cd EnginePl
-   make test_oc
-   ./test_oc
+   make test_uc
+   ./test_uc
 
-This will find 5 modules and display something like:
+This will find 5 units and display something like:
 
 starting...
-object <object #5> found  &name:0x804c200
-object <object #4> found  &name:0x804c1e0
-object <object #3> found  &name:0x804c1c0
-object <object #2> found  &name:0x804c1a0
-object <object #1> found  &name:0x804c180
+unit <unit #5> found  &name:0x804c200
+unit <unit #4> found  &name:0x804c1e0
+unit <unit #3> found  &name:0x804c1c0
+unit <unit #2> found  &name:0x804c1a0
+unit <unit #1> found  &name:0x804c180
 finished - OK !
 
-The important point to check is if 5 modules are found and preferably in reverse
-order. If not you have to debug the file EnginePl/obj_chain.c. Since 1.3.0 we use gcc
-__atribute__((constructor)).
+The important point to check is if 5 units are found and preferably in reverse
+order. If not you have to debug the file EnginePl/unit_ctor.c. Since 1.6.0 we use
+ctor.h (see its doc).
 
-(you can use make clean-test_oc to erase test objects/execs)
+(you can use make clean-test_uc to erase test objects/execs)
 
 
 6) When this is OK (i.e. a Prolog program can be compiled and executed) you will have
@@ -146,7 +146,7 @@ other things to do when porting:
 
 machine.c: SIGSEGV_Handler
 
-engine1.c:
+trampoline.S:
 	what to do #ifndef MAP_REG_BANK
 
 things to test:
@@ -171,5 +171,5 @@ the same for Built-ins;
    Bootstrap Prolog Bips OK
 
 
-LocalWords:  asm_inst.s asm_inst.c chkma label,mem initialize clean-test_oc
+LocalWords:  asm_inst.s asm_inst.c chkma label,mem initialize clean-test_uc
 LocalWords:  linedit

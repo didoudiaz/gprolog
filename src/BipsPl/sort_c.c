@@ -6,7 +6,7 @@
  * Descr.: sort management - C part                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,9 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
-
-#define OBJ_INIT Sort_Initializer
-
+#include "gp_config.h"
 #include "engine_pl.h"
 #include "bips_pl.h"
 
@@ -77,8 +75,7 @@ static int Merge_Sort(WamWord *base, WamWord *aux, int n,
  * SORT_INITIALIZER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Sort_Initializer(void)
+PL_INITIALIZER(Sort_Initializer)
 {
   minus_2 = Functor_Arity(ATOM_CHAR('-'), 2);
 }

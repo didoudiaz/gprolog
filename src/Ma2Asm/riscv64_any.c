@@ -6,7 +6,7 @@
  * Descr.: translation file RISC-V                                         *
  * Author: Jasper Taylor, Alexander Diemand, Daniel Diaz                   *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -36,12 +36,8 @@
  *-------------------------------------------------------------------------*/
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
-/* Supported arch: RISC-V 64 bits on GNU/Linux
+/*
+ * Supported arch: RISC-V 64 bits on GNU/Linux
  *
  * https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf
  *
@@ -223,7 +219,7 @@ void
 Code_Start(CodeInf *c)
 {
   Inst_Printf(".text", "%s", "");
-  Inst_Printf(".align", "3");
+  Inst_Printf(".p2align", "3");
   Inst_Printf(".type", "%s, @function", c->name);
   if (c->global)
     Inst_Printf(".globl", "%s", c->name);
@@ -370,7 +366,7 @@ Pl_Fail(Bool prefer_inline)
 void
 Pl_Ret(void)
 {
-  Inst_Printf(".align", "3");
+  Inst_Printf(".p2align", "3");
   Inst_Printf("# nop", "%s", "");	/* I don't really know why, but it helps ;-) */
 #ifdef MAP_REG_CP
   Inst_Printf("move", "ra, %s", MAP_REG_CP);
@@ -945,7 +941,7 @@ void
 Dico_String_Start(int nb)
 {
   Inst_Printf(".section", ".rodata");
-  Inst_Printf(".align", "3");
+  Inst_Printf(".p2align", "3");
 }
 
 
@@ -996,7 +992,7 @@ Dico_Double_Start(int nb)
 void
 Dico_Double(DoubleInf *d)
 {
-  Inst_Printf(".align 3", "%s", "");
+  Inst_Printf(".p2align 3", "%s", "");
   Label_Printf("%s:", d->symb);
   Inst_Printf(".double", "%1.17g", d->v.dbl);
 }
@@ -1022,7 +1018,7 @@ void
 Dico_Long_Start(int nb)
 {
   Inst_Printf(".section", ".sdata");
-  Inst_Printf(".align", "3");
+  Inst_Printf(".p2align", "3");
 }
 
 
@@ -1043,7 +1039,7 @@ Dico_Long(LongInf *l)
       if (!l->global)
 	{
 	  Label_Printf("%s:", l->name);
-	  Inst_Printf(".align", "3");
+	  Inst_Printf(".p2align", "3");
 	  Inst_Printf(".space", "%ld", l->value * BPW);
 	  /* Inst_Printf(".popsection", "%s", ""); */
 	}
@@ -1058,17 +1054,17 @@ Dico_Long(LongInf *l)
       if (l->global)
 	{
 	  Inst_Printf(".globl", "%s", l->name);
-	  Inst_Printf(".align", "3");
+	  Inst_Printf(".p2align", "3");
 	  Inst_Printf(".size", "%s,%d", l->name, BPW);
 	  Label_Printf("%s:", l->name);
-	  Inst_Printf(".word", "%ld", l->value);
+	  Inst_Printf(".quad", "%ld", l->value);
 	}
       else
 	{
-	  Inst_Printf(".align", "3");
+	  Inst_Printf(".p2align", "3");
 	  Inst_Printf(".size", "%s,%d", l->name, BPW);
 	  Label_Printf("%s:", l->name);
-	  Inst_Printf(".word", "%ld", l->value);
+	  Inst_Printf(".quad", "%ld", l->value);
 	}
       break;
     }

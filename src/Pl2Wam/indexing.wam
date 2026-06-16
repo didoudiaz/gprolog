@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : indexing.pl
+% file: indexing.pl
+% hash: 20ef30a8be46375e38578b58b0728e2ae84c3183  indexing.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/indexing.pl').

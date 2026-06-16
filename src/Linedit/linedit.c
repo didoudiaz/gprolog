@@ -6,7 +6,7 @@
  * Descr.: line editor                                                     *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,6 +35,7 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "../EnginePl/gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,13 +46,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "../EnginePl/gp_config.h"
-
-#define LE_DEFINE_HOOK_MACROS
-
-#include "terminal.h"
-#include "ctrl_c.h"
-#include "linedit.h"
 
 #if defined(__unix__) || defined(__CYGWIN__)
 
@@ -64,6 +58,15 @@
 #include <time.h>
 
 #endif
+
+
+#define LE_DEFINE_HOOK_MACROS
+
+#include "../EnginePl/bool.h"
+#include "../EnginePl/pl_long.h"
+#include "terminal.h"
+#include "ctrl_c.h"
+#include "linedit.h"
 
 
 #if 1
@@ -1194,7 +1197,7 @@ Display_Help(void)
 
   L("");
   sprintf(buff,
-          "   linedit %-25s Copyright (C) 1999-2025 Daniel Diaz",
+          "   linedit %-25s Copyright (C) 1999-2026 Daniel Diaz",
           LINEDIT_VERSION);
   L(buff);
   L("");

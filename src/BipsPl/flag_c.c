@@ -6,7 +6,7 @@
  * Descr.: Prolog flag and system variable management - C Part             *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -35,12 +35,11 @@
  * not, see http://www.gnu.org/licenses/.                                  *
  *-------------------------------------------------------------------------*/
 
+#include "gp_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define OBJ_INIT Flag_Initializer
 
 #define FLAG_C_FILE
 
@@ -134,8 +133,7 @@ Prolog_Prototype(ENVIRON_ALT, 0);
  * FLAG_INITIALIZER                                                        *
  *                                                                         *
  *-------------------------------------------------------------------------*/
-static void
-Flag_Initializer(void)
+PL_INITIALIZER(Flag_Initializer)
 {
   Bool is_unix = FALSE;
 

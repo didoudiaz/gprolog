@@ -6,7 +6,7 @@
  * Descr.: Wam long type definition                                        *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -38,10 +38,11 @@
 #ifndef _PL_LONG_H
 #define _PL_LONG_H
 
+#include "gp_config.h"
+
 #include <stddef.h>		/* ensure size_t even if not used here... */
 #include <stdint.h>
 
-#include "gp_config.h"
 
 /* A PlLong can store an address: it is thus an intptr_t (depends on 32/64 bits arch) */
 

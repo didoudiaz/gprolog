@@ -1,5 +1,6 @@
 % compiler: GNU Prolog 1.6.0
-% file    : pl_error.pl
+% file: pl_error.pl
+% hash: 250dcc62285d8df68884f36530c138a15596f217  pl_error.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/pl_error.pl').
@@ -109,6 +110,6 @@ predicate('$pl_error'/1,88,static,private,monofile,built_in,[
 
 
 predicate(syntax_error_info/4,95,static,private,monofile,built_in,[
-    call_c('Pl_Set_Bip_Name_Untagged_2',[by_value],[syntax_error_info,4]),
+    call_c('Pl_Set_Bip_Name_Untagged_2',[],[syntax_error_info,4]),
     call_c('Pl_Syntax_Error_Info_4',[boolean],[x(0),x(1),x(2),x(3)]),
     proceed]).

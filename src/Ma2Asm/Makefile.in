@@ -1,8 +1,9 @@
-GPLC    = @GPLC@
-CC      = @CC@ @CFLAGS_MACHINE@
-CFLAGS  = @CFLAGS@
-LDFLAGS = @LDFLAGS@
-LDLIBS  = @LDLIBS@
+GPLC        = @GPLC@
+CC          = @CC@ @CFLAGS_MACHINE@
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+LDFLAGS_END = @LDFLAGS_END@
+LDLIBS      = @LDLIBS@
 
 # set by mappers.sh
 FORCE_MAP =
@@ -16,7 +17,7 @@ ma_parser@OBJ_SUFFIX@: ma_parser.c ma_parser.h ma_protos.h
 	$(CC) $(CFLAGS) -c ma_parser.c
 
 ma2asm@OBJ_SUFFIX@: ma2asm.c ma_protos.h ma_parser.h ../Tools/map_rbtree.h \
-          ../TopComp/copying.c
+          ../TopComp/copying.h
 	$(CC) $(CFLAGS) -c ma2asm.c
 
 ma2asm_inst@OBJ_SUFFIX@: ma2asm_inst.c ma_parser.h ../EnginePl/wam_regs.h \
@@ -29,18 +30,18 @@ ma2asm@EXE_SUFFIX@: ma2asm@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ \
 	$(CC) $(LDFLAGS) @CC_EXE_NAME_OPT@ma2asm@EXE_SUFFIX@ ma2asm@OBJ_SUFFIX@ ma2asm_inst@OBJ_SUFFIX@ ma_parser@OBJ_SUFFIX@ ../Tools/rbtree@OBJ_SUFFIX@ 
 
 
-clean:
+clean: clean-check
 	rm -f *@OBJ_SUFFIX@ *.ilk *.pdb *.pch *.idb *.exp ma2asm@EXE_SUFFIX@
 
 
-distclean: clean clean-chkma clean-extract_asm
+distclean: clean clean-check clean-extract_asm
 
 
 
 # for extract_asm
 
 extract_asm@EXE_SUFFIX@: extract_asm.c
-	$(CC) $(CFLAGS) @CC_EXE_NAME_OPT@extract_asm@EXE_SUFFIX@ extract_asm.c
+	$(CC) $(LDFLAGS) $(CFLAGS) @CC_EXE_NAME_OPT@extract_asm@EXE_SUFFIX@ extract_asm.c
 
 clean-extract_asm:
 	rm -f extract_asm@EXE_SUFFIX@
@@ -54,11 +55,11 @@ clean-check: clean-chkma
 
 
 # for chkma (see chkma.c, if it includes engine.c do not link ../EnginePl/engine@OBJ_SUFFIX@ here
-#CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@
-CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/engine1@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@
+#CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/trampoline@OBJ_SUFFIX@
+CHKMA_OBJS=chkma@OBJ_SUFFIX@ chkma_ma@OBJ_SUFFIX@ ../EnginePl/trampoline@OBJ_SUFFIX@ ../EnginePl/engine@OBJ_SUFFIX@
 
 # use make FC=Y chkma to generate an fc check
- 
+
 chkma@OBJ_SUFFIX@: chkma.c ../EnginePl/engine.c
 	if [ "$$FC" = "Y" ]; then FCFLAGS='-DFAST'; fi; \
 	$(CC) $(CFLAGS) $$FCFLAGS -c chkma.c
@@ -72,7 +73,7 @@ chkma_ma@OBJ_SUFFIX@: chkma_ma@ASM_SUFFIX@
 	$(GPLC) -c chkma_ma@ASM_SUFFIX@
 
 chkma@EXE_SUFFIX@: $(CHKMA_OBJS)
-	$(CC)   -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) @CC_OBJ_NAME_OPT@chkma@EXE_SUFFIX@ $(CHKMA_OBJS) $(LDLIBS) $(LDFLAGS_END)
 #	$(GPLC) -o chkma@EXE_SUFFIX@ $(CHKMA_OBJS) --no-pl-lib
 
 clean-chkma:

@@ -6,7 +6,7 @@
  * Descr.: operator table management - header file                         *
  * Author: Daniel Diaz                                                     *
  *                                                                         *
- * Copyright (C) 1999-2025 Daniel Diaz                                     *
+ * Copyright (C) 1999-2026 Daniel Diaz                                     *
  *                                                                         *
  * This file is part of GNU Prolog                                         *
  *                                                                         *
@@ -87,11 +87,11 @@ OperInf;
 
 #ifdef OPER_FILE
 
-char *pl_oper_tbl;
+void *pl_oper_htbl;
 
 #else
 
-extern char *pl_oper_tbl;
+extern void *pl_oper_htbl;
 
 #endif
 

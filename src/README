@@ -12,7 +12,8 @@ To compile the package locally use:
    make
 
 
-For more information about the options of configure refer to the INSTALL file in the parent directory. 
+For more information about the options of configure refer to the INSTALL file
+in the parent directory.
 
 It is possible to re-run './configure' to change the value of some
 installation directories (see 2) after the local compilation (i.e. the
@@ -46,24 +47,7 @@ this will create a file gprolog-xxx.tgz (in the src directory).
 
 
 
-3) Building a RPM distribution
--------------------------------
-
-Refer to the file src/RPM/README for more information
-
-
-
-4) Building a debian package
-----------------------------
-
-Refer to the file src/debian/README for more information
-
-
-
-5) Building a Win32 auto-install distribution
+3) Building a Win32 auto-install distribution
 ---------------------------------------------
 
-Refer to the file src/Win32/README for more information
-
-
-
+Refer to the file src/WinInstaller/README for more information
