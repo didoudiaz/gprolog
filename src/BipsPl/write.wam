@@ -1,6 +1,6 @@
 % compiler: GNU Prolog 1.6.0
 % file: write.pl
-% hash: b0f2a4ba07c0e7489e5247337d0d510a13cfd547  write.pl
+% hash: 73a9749e5c33552cf26cc7f25333620409308d11  write.pl
 
 
 file_name('/home/diaz/GP/src/BipsPl/write.pl').

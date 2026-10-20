@@ -1,3 +1,9 @@
+2026-07-06  <daniel.diaz@univ-paris1.fr>
+
+	* fix issue #95: incorrect variable bindings after findall/3
+	* relax portray_clause/1-2: no longer checks whether Clause is a variable or non-callable
+	  for compatibility with other Prolog systems.
+
 2026-06-16  <daniel.diaz@univ-paris1.fr>
 
 	* fix issue #94: bad compilation of cut inside if-then

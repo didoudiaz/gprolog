@@ -1,5 +1,8 @@
-Change in GNU Prolog version 1.6.0 (Jun 2026)
+Change in GNU Prolog version 1.6.0 (Oct 2026)
 
+* fix issue #95: incorrect variable bindings after findall/3
+* relax portray_clause/1-2: no longer checks whether Clause is a variable or non-callable
+  for compatibility with other Prolog systems.
 * fix issue #94: bad compilation of cut inside if-then
 * port to arm64/Windows using clang and MSVC (see src/WINDOWS)
 * improve all Windows/msys ports

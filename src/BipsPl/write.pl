@@ -194,7 +194,7 @@ write_term(_, _, _).
 	    '$sys_var_set_bit'(0, 3)
 	).
 
-'$get_write_options2'('$above'(X), VarNames, VarNames) :- % "above" choice-point for numbervars/namevars
+'$get_write_options2'('$above'(X), VarNames, VarNames) :- % "above" choice-point for numbervars/namevars (see wam_emit.pl)
 	'$check_nonvar'(X),
 	integer(X),
 	'$sys_var_write'(3, X).

@@ -64,6 +64,7 @@ portray_clause(_, _).
 '$portray_clause'(Term, Arity, AboveB) :- % create choice point for '$above'/1 write option
         '$get_current_B'(AboveB),	
 	set_bip_name(portray_clause, Arity),
+        /* uncomment to check if it is a valid clause (removed in 1.6.0)
 	(   var(Term) ->
 	    '$pl_err_instantiation'
 	;   true
@@ -72,6 +73,9 @@ portray_clause(_, _).
 	    true
 	;   '$pl_err_type'(callable, Term)
 	),
+	*/
+	% use '$above/1' write option to only take into account the following '$VAR'/1 bindings
+	% check pretty_c.c to see if AboveB is actually used
 	name_singleton_vars(Term),
 	bind_variables(Term, [exclude([Term])]),
 	set_bip_name(portray_clause, Arity).

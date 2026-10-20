@@ -4942,11 +4942,11 @@ used by \IdxPB{listing/1} \RefSP{listing/1}.
 
 \begin{PlErrors}
 
-\ErrCond{\texttt{Clause} is a variable}
-\ErrTerm{instantiation\_error}
+%\ErrCond{\texttt{Clause} is a variable}
+%\ErrTerm{instantiation\_error}
 
-\ErrCond{\texttt{Clause} is neither a variable nor a callable term}
-\ErrTerm{type\_error(callable, Clause)}
+%\ErrCond{\texttt{Clause} is neither a variable nor a callable term}
+%\ErrTerm{type\_error(callable, Clause)}
 
 \ErrCond{\texttt{SorA} is a variable}
 \ErrTerm{instantiation\_error}
@@ -4967,7 +4967,9 @@ used by \IdxPB{listing/1} \RefSP{listing/1}.
 
 \Portability
 
-GNU Prolog predicates.
+GNU Prolog predicates. Prior to version 1.6.0, an error was raised
+when \texttt{Clause} was a variable or not callable. Removed
+for compatibility with other Prolog systems.
 
 \subsubsection{\IdxPBD{get\_print\_stream/1}}
 

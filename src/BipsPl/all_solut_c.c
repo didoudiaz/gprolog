@@ -430,6 +430,7 @@ Pl_Recover_Solutions_4(WamWord stop_word, WamWord handle_key_word,
       Free(s);
     }
 
+  tail_word = Pl_Globalize_If_In_Local(tail_word);
   q[-1] = tail_word;
   return Pl_Unify(Tag_LST(p), list_word);
 }

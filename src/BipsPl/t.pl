@@ -501,7 +501,7 @@ p.
 :- endif.
 
 
-:-if(true).
+:-if(false).
 
 p:- write(ok),nl.
 
@@ -510,9 +510,34 @@ p:- write(ok),nl.
 :- endif.
 
 
-:-if(true).
+:-if(false).
 x(A):-write(A).
 bad :- x(0),((x(1);nl,!)-> x(2)).
-:-endif.
 
 :- initialization(bad).
+
+:-endif.
+
+
+
+:-if(false).
+%q :- findall(t, true, Us0, Us), Ts0-Ts = Us0-Us, maplist(portray_clause(user_error), [Ts0,Ts,Us0,Us]).
+%q :- findall(t, true, Us0, Us), maplist(write, [Us0,Us]).
+%q :- findall(t, true, Us0, Us), write(f(Us0,Us)),nl, call(write, Us0), call(write,Us).
+
+%q :- findall(t, true, Us0, Us), call(write, Us0), call(write,Us).
+%q :- findall(t, true, Us0, Us), d(Us0, Us), e. %, write(Us0), write(Us).
+%q :- g(t, true, Us0, Us), d(Us0, Us), e. %, write(Us0), write(Us).
+
+
+g(t, true, [t|Us],Us).
+%q :- Us0 = Ts0, Ts0 = [t|Ts], Us=Ts,  maplist(portray_clause(user_error), [Ts0,Ts,Us0,Us]).
+
+d(Us0, Us) :- write(Us0), write(Us), nl.
+e.
+
+q :- findall(t, true, Us0, Us), Ts0-Ts = Us0-Us, acyclic_term([Ts0,Ts,Us0,Us]), portray_clause(user_error, [Ts0,Ts,Us0,Us]).
+
+:- initialization(q).
+
+:-endif.

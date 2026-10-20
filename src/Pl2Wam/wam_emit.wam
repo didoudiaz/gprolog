@@ -1,6 +1,6 @@
 % compiler: GNU Prolog 1.6.0
 % file: wam_emit.pl
-% hash: 8a0d5b66b5fd299e58f0b5e69dae3b4f71ae25ac  wam_emit.pl
+% hash: fab8902fd2084740070f4b759955e99464740909  wam_emit.pl
 
 
 file_name('/home/diaz/GP/src/Pl2Wam/wam_emit.pl').

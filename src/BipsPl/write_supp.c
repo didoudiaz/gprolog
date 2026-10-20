@@ -629,7 +629,7 @@ Get_Var_Name_From_Stc(WamWord f_n, WamWord *stc_adr)
 {
   WamWord word, tag_mask;
 
-  if (name_vars && f_n == dollar_varname_1 && stc_adr >= name_number_above_H)
+  if (name_vars && (f_n == dollar_varname_1 || f_n == dollar_var_1) && stc_adr >= name_number_above_H)
     {
       DEREF(Arg(stc_adr, 0), word, tag_mask);
       if (tag_mask == TAG_ATM_MASK)
